@@ -322,7 +322,7 @@
 
         // Definição das páginas e seus níveis de acesso
         const pages = [
-            { name: 'Costura', href: 'Costura.html', levels: ['03', '05'] },
+            { name: 'Costura', href: 'costuramobile.html', levels: ['03', '05'] },
             { name: 'Relatório Ateliê', href: 'RelatorioAtelier.html', levels: ['03', '05'] }
     ]
     
@@ -358,7 +358,7 @@
                     const nivelAcesso = userData.nivelAcesso;
                     currentUserName = userData.Nome;
 
-                    if (!pages.find(p => p.href === 'Costura.html' && p.levels.includes(nivelAcesso))) {
+                    if (!pages.find(p => p.href === 'costuramobile.html' && p.levels.includes(nivelAcesso))) {
                         alert('Você não tem permissão para acessar esta página.');
                         window.location.href = 'index.html';
                         return;
@@ -369,10 +369,10 @@
                 } else {
                     alert('Dados do usuário não encontrados. Faça login novamente.');
                     await signOut(auth);
-                    window.location.href = 'Login.html';
+                    window.location.href = 'login.html';
                 }
             } else {
-                window.location.href = 'Login.html';
+                window.location.href = 'login.html';
             }
         });
 
@@ -380,7 +380,7 @@
         logoutButton.addEventListener('click', async () => {
             try {
                 await signOut(auth);
-                window.location.href = 'Login.html';
+                window.location.href = 'login.html';
             } catch (error) {
                 console.error("Erro ao fazer logout:", error);
                 alert("Erro ao fazer logout. Tente novamente.");
@@ -526,4 +526,5 @@
         });
     </script>
 </body>
+
 </html>
