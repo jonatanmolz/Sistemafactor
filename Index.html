@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - SistemaTaloes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .user-info {
+            font-size: 14px;
+            text-align: right;
+        }
+        .user-info span {
+            display: block;
+            font-weight: bold;
+        }
+        nav {
+            background-color: #555;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 0.8em
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 15px; /* Espaço entre os itens do menu */
+            flex-wrap: wrap; /* Permite quebrar linha em telas menores */
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            display: block; /* Para que o padding funcione corretamente */
+        }
+        nav ul li a:hover {
+            background-color: #777;
+        }
+        .main-content {
+            flex-grow: 1; /* Faz o conteúdo principal ocupar o espaço restante */
+            padding: 20px;
+            text-align: center;
+        }
+        .welcome-message {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        button#logoutButton {
+            background-color: #dc3545; /* Vermelho para logout */
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+            margin-left: 20px; /* Espaço do nome do usuário */
+        }
+        button#logoutButton:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SistemaTaloes</h1>
+        <div class="user-info">
+            <span id="userNameDisplay">Carregando...</span>
+            <span id="userNivelDisplay"></span>
+        </div>
+        <div>
+            <button id="logoutButton">Sair</button>
+        </div>
+    </header>
+
+    <nav>
+        <ul id="menuNav">
+            </ul>
+    </nav>
+
+    <div class="main-content">
+        <p class="welcome-message" id="welcomeMessage"></p>
+        <p>Use o menu acima para navegar pelas opções disponíveis para seu nível de acesso.</p>
+    </div>
+
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+            authDomain: "sistemataloes.firebaseapp.com",
+            projectId: "sistemataloes",
+            storageBucket: "sistemataloes.appspot.com",
+            messagingSenderId: "684534379685",
+            appId: "1:684534379685:web:..." // Substitua pelo seu appId real
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const menuNav = document.getElementById('menuNav');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const userNivelDisplay = document.getElementById('userNivelDisplay');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const logoutButton = document.getElementById('logoutButton');
+
+        // Mapeamento de Níveis para Nomes de Setor (para exibição)
+        const nivelNomes = {
+            '01': 'Cadastro',
+            '02': 'Corte',
+            '03': 'Costura',
+            '04': 'Montagem',
+            '05': 'Admin'
+        };
+
+        // Definição das páginas e seus níveis de acesso
+        const pages = [
+            { name: 'Resumo', href: 'Resumo.html', levels: ['05'] },
+            { name: 'Cadastro Talões', href: 'CadastroTaloes.html', levels: ['01', '05'] },
+            { name: 'Cronograma', href: 'Cronograma.html', levels: ['01','02', '04','05'] },
+            { name: 'Corte', href: 'Corte.html', levels: ['02', '05'] },
+            { name: 'Relatório Master', href: 'RelatorioMaster.html', levels: ['05'] },
+            { name: 'Romaneio', href: 'Romaneio.html', levels: ['05'] },
+            { name: 'Excluir Dados', href: 'ExcluirDados.html', levels: ['05'] },
+            { name: 'Registro em Massa', href: 'RegistroEmMassa.html', levels: ['05'] },
+            { name: 'Distribuição', href: 'distribuicao.html', levels: ['04', '05'] },
+            { name: 'Talonagem', href: 'talonagem.html', levels: ['04', '05'] },
+            { name: 'Montagem', href: 'montagem.html', levels: ['05'] }
+        ];
+
+        // Função para gerar o menu dinamicamente
+        function generateMenu(userLevel, userName) {
+            menuNav.innerHTML = '';
+            const userNivelText = nivelNomes[userLevel] || `Nível ${userLevel}`;
+            userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
+            userNivelDisplay.textContent = `Setor: ${userNivelText}`;
+
+        pages.forEach(page => {
+            if (page.levels.includes(userLevel)) {
+             const listItem = document.createElement('li');
+             const link = document.createElement('a');
+            // GARANTA que está assim:
+              link.href = page.href; // Caminho relativo, ex: "RelatorioMaster.html"
+              link.textContent = page.name;
+              listItem.appendChild(link);
+             menuNav.appendChild(listItem);
+        }
+    });
+}
+
+        // --- Controle de Autenticação e Carregamento do Menu ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Usuário logado, agora buscar os dados do Firestore
+                const userDocRef = doc(db, 'Usuario', user.email);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    const nivelAcesso = userData.nivelAcesso;
+                    const userName = userData.Nome;
+
+                    // Gerar o menu com base no nível de acesso e exibir info do usuário
+                    generateMenu(nivelAcesso, userName);
+
+                    // Salva (ou atualiza) o nível de acesso no localStorage para uso futuro se a página for recarregada
+                    // Embora o onAuthStateChanged seja mais robusto, o localStorage pode ser um fallback para algumas infos
+                    localStorage.setItem('userNivelAcesso', nivelAcesso);
+                    localStorage.setItem('userName', userName);
+
+                } else {
+                    // Dados do usuário não encontrados no Firestore, desloga e redireciona
+                    alert('Dados do usuário não encontrados. Faça login novamente.');
+                    await signOut(auth);
+                    window.location.href = 'Login.html';
+                }
+            } else {
+                // Usuário não logado, redireciona para a página de login
+                window.location.href = 'Login.html';
+            }
+        });
+
+        // --- Lógica de Logout ---
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = 'Login.html'; // Redireciona para o login após o logout
+            } catch (error) {
+                console.error("Erro ao fazer logout:", error);
+                alert("Erro ao fazer logout. Tente novamente.");
+            }
+        });
+    </script>
+</body>
+</html>
