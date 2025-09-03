@@ -180,15 +180,21 @@
       if(!snap.exists()){ await signOut(auth); location.href='login.html'; return; }
 
       const data = snap.data();
-      const nivel = normLevel(data.nivelAcesso);
-      currentUserName = data.Nome || user.email;
+const nivel = normLevel(data.nivelAcesso);
 
-      // Permissão para esta página (níveis 03 e 05)
-      const pages = [{name:'Relatório Ateliê (Mobile)', href:'relatorioatelier_mobile.html', levels:['03','05']}];
-      const cfg = pages.find(p => (p.href||'').toLowerCase() === currentPage());
-      const allowed = (cfg?.levels||[]).map(normLevel).includes(nivel);
-      if(!allowed){ alert('Você não tem permissão para acessar esta página.'); location.href='index.html'; return; }
+// Permissão para esta página
+const thisPage = currentPage(); // ex.: "relatorioatelier_mobile.html"
+const pages = [
+  { name:'Relatório Ateliê (Mobile)', href:'relatorioatelier_mobile.html', levels:['03','05'] }
+];
+const paginaConfig = pages.find(p => (p.href||'').toLowerCase() === thisPage);
+const permitidos = (paginaConfig?.levels || []).map(normLevel);
 
+if (!permitidos.includes(nivel)) {
+  alert('Você não tem permissão para acessar esta página.');
+  location.href='index.html';
+  return;
+}
       // UI header
       userName.textContent = data.Nome || 'Usuário';
       userLevel.textContent = `Setor: ${nivelNomes[nivel] || nivel}`;
