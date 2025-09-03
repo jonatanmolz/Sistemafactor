@@ -8,69 +8,111 @@
     :root{
       --bg:#f6f7fb; --card:#fff; --text:#111827; --muted:#6b7280;
       --brand:#0ea5e9; --danger:#ef4444; --line:#e5e7eb; --radius:14px;
+      --nav:#555; --header:#333;
+      --ok:#2563eb;
     }
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text)}
+
+    /* header + nav (igual costuramobile) */
     header{
-      position:sticky;top:0;z-index:20;background:#0b1220;color:#fff;
-      display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px
+      background-color:var(--header);color:#fff;padding:15px 20px;
+      display:flex;justify-content:space-between;align-items:center;
+      box-shadow:0 2px 5px rgba(0,0,0,.2); position:sticky; top:0; z-index:40;
     }
-    header h1{margin:0;font-size:16px}
-    .user{font-size:12px;line-height:1.1;opacity:.9;text-align:right}
-    .toolbar{display:flex;gap:8px}
-    .btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font-weight:600}
+    header h1{margin:0;font-size:24px}
+    .user-info{font-size:14px;text-align:right}
+    .user-info span{display:block;font-weight:bold}
+    nav{
+      background-color:var(--nav);padding:10px 20px;box-shadow:0 2px 5px rgba(0,0,0,.1);font-size:.9em;
+      position:sticky; top:58px; z-index:39;
+    }
+    nav ul{list-style:none;padding:0;margin:0;display:flex;gap:15px;flex-wrap:wrap}
+    nav ul li a{color:#fff;text-decoration:none;padding:8px 15px;border-radius:4px;display:block}
+    nav ul li a:hover{background:#777}
+
+    /* toolbar (Relatório / Filtro) */
+    .toolbar{
+      position:sticky; top:108px; z-index:38;
+      display:flex; gap:10px; justify-content:flex-end; padding:8px 12px; background:linear-gradient(#f6f7fb,#f6f7fb 80%, transparent);
+    }
+
+    @media (max-width:768px){
+      header{flex-direction:column;align-items:flex-start;padding:10px}
+      header h1{font-size:20px}
+      .user-info{text-align:left;margin-top:5px}
+      .user-info span{display:inline;margin-right:10px}
+      nav{top:92px}
+      .toolbar{top:140px; justify-content:flex-start}
+      nav ul{flex-direction:column;gap:5px}
+      nav ul li a{padding:5px 10px}
+    }
+
+    /* botões */
+    .btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;font-weight:600; cursor:pointer}
     .btn-brand{background:var(--brand);color:#fff}
     .btn-danger{background:var(--danger);color:#fff}
     .btn-ghost{background:#eef2ff;color:#1f2937}
+    .btn-outline{background:#fff;color:#111;border:1px solid var(--line)}
+
     main{padding:12px;max-width:1000px;margin-inline:auto}
     .card{background:var(--card);border-radius:var(--radius);box-shadow:0 2px 12px rgba(0,0,0,.06);padding:12px}
     .hint{color:var(--muted);font-size:13px;margin:6px 0 12px}
     .total{margin-top:8px;text-align:right;font-weight:700}
 
-    /* tabela mobile */
+    /* tabela */
     .table{width:100%;border-collapse:collapse}
     .table th,.table td{padding:10px 8px;border-bottom:1px solid var(--line);font-size:14px}
     .table th{font-size:12px;letter-spacing:.02em;text-transform:uppercase;color:#374151;background:#f9fafb}
     .pill{display:inline-block;border-radius:999px;padding:2px 8px;font-size:12px;background:#eef2ff;color:#1f2937}
 
-    /* modal bottom-sheet */
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end}
+    /* modais base */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;z-index:50}
     .sheet{background:#fff;width:100%;border-top-left-radius:16px;border-top-right-radius:16px;padding:14px;max-height:85vh;overflow:auto}
-    .sheet h3{margin:0 0 10px;font-size:16px}
+    .sheet h3{margin:0 0 10px;font-size:18px}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
     .field{display:flex;flex-direction:column;gap:6px}
     .label{font-size:12px;color:#374151}
     input,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff}
-    .sheet .actions{display:flex;gap:8px;margin-top:10px}
+    .sheet .actions{display:flex;gap:8px;margin-top:10px;justify-content:flex-end}
     @media (max-width:430px){ .grid{grid-template-columns:1fr} }
 
-    /* relatório modal */
+    /* relatório modal (reorganizado) */
     .modal-center{align-items:center;justify-content:center}
     .dialog{background:#fff;width:min(1000px,96vw);border-radius:16px;padding:16px;box-shadow:0 20px 80px rgba(0,0,0,.25)}
-    .dialog h3{margin:0 0 10px;font-size:20px}
+    .dialog h3{margin:0 0 10px;font-size:22px}
     .cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-    .col{border:1px solid var(--line);border-radius:12px;padding:10px}
+    .col{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fafafa}
     .col h4{margin:0 0 8px;font-size:16px}
-    .sub{font-size:12px;color:#6b7280;margin-bottom:6px}
-    .row{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px dashed #e5e7eb}
-    .row:last-child{border-bottom:0}
-    .foot{margin-top:8px;text-align:right;font-weight:700;color:#2563eb}
-    .dialog .foot-total{margin-top:10px;text-align:right;font-weight:800;color:#1e40af}
+    .sub{font-size:12px;color:#6b7280;margin-bottom:8px}
+    .entry{padding:8px 0;border-bottom:1px dashed #e5e7eb}
+    .entry:last-child{border-bottom:0}
+    .lm{font-weight:600}
+    .pares{color:var(--ok); font-weight:700; margin-top:2px}
+    .foot{margin-top:8px;text-align:right;font-weight:800;color:var(--ok)}
+    .dialog .foot-total{margin-top:12px;text-align:right;font-weight:900;color:#1e40af}
   </style>
 </head>
 <body>
   <header>
-    <h1>Relatório Ateliê</h1>
-    <div class="user">
-      <div id="userName">Carregando…</div>
-      <div id="userLevel"></div>
+    <h1>SistemaTaloes</h1>
+    <div class="user-info">
+      <span id="userNameDisplay">Carregando...</span>
+      <span id="userNivelDisplay"></span>
     </div>
-    <div class="toolbar">
-      <button id="btnReport" class="btn btn-ghost">Relatório</button>
-      <button id="btnFilter" class="btn btn-brand">Filtro</button>
-      <button id="btnLogout" class="btn btn-danger">Sair</button>
+    <div>
+      <button id="logoutButton" class="btn btn-danger">Sair</button>
     </div>
   </header>
+
+  <nav>
+    <ul id="menuNav"></ul>
+  </nav>
+
+  <div class="toolbar">
+    <button id="btnReport" class="btn btn-ghost">Relatório</button>
+    <button id="btnFilter" class="btn btn-brand">Filtro</button>
+  </div>
 
   <main>
     <div class="hint card" id="hint">A tabela inicia vazia. Clique em <b>Filtro</b> para aplicar os critérios e listar os talões.</div>
@@ -93,33 +135,17 @@
     </div>
   </main>
 
-  <!-- Modal de Filtros -->
+  <!-- Modal Filtros -->
   <div class="modal" id="modal">
     <div class="sheet">
       <h3>Filtros</h3>
       <div class="grid">
-        <div class="field">
-          <label class="label" for="remessa">Remessa</label>
-          <input id="remessa" placeholder="Número da Remessa" />
-        </div>
-        <div class="field">
-          <label class="label" for="talao">Talão</label>
-          <input id="talao" placeholder="Número do Talão" />
-        </div>
-        <div class="field">
-          <label class="label" for="linha">Linha</label>
-          <input id="linha" placeholder="Número da Linha" />
-        </div>
-        <div class="field">
-          <label class="label" for="modelo">Modelo</label>
-          <input id="modelo" placeholder="Modelo" />
-        </div>
-        <div class="field">
-          <label class="label" for="cor">Cor</label>
-          <input id="cor" placeholder="Cor do Sapato" />
-        </div>
-        <div class="field">
-          <label class="label" for="tipoCliente">Tipo de Cliente</label>
+        <div class="field"><label class="label">Remessa</label><input id="remessa"/></div>
+        <div class="field"><label class="label">Talão</label><input id="talao"/></div>
+        <div class="field"><label class="label">Linha</label><input id="linha"/></div>
+        <div class="field"><label class="label">Modelo</label><input id="modelo"/></div>
+        <div class="field"><label class="label">Cor</label><input id="cor"/></div>
+        <div class="field"><label class="label">Tipo Cliente</label>
           <select id="tipoCliente">
             <option value="">Todos</option>
             <option>Exportação</option>
@@ -128,31 +154,12 @@
             <option>Amostra</option>
           </select>
         </div>
-
-        <div class="field">
-          <label class="label" for="dtCorteIni">Data de Corte (Início)</label>
-          <input type="date" id="dtCorteIni" />
-        </div>
-        <div class="field">
-          <label class="label" for="dtCorteFim">Data de Corte (Fim)</label>
-          <input type="date" id="dtCorteFim" />
-        </div>
-
-        <div class="field">
-          <label class="label" for="dtEntrada">Data de Entrada</label>
-          <input type="date" id="dtEntrada" />
-        </div>
-        <div class="field">
-          <label class="label" for="dtSaidaIni">Data de Saída (Início)</label>
-          <input type="date" id="dtSaidaIni" />
-        </div>
-        <div class="field">
-          <label class="label" for="dtSaidaFim">Data de Saída (Fim)</label>
-          <input type="date" id="dtSaidaFim" />
-        </div>
-
-        <div class="field">
-          <label class="label" for="statusCostura">Status Costura</label>
+        <div class="field"><label class="label">Data Corte (Início)</label><input type="date" id="dtCorteIni"/></div>
+        <div class="field"><label class="label">Data Corte (Fim)</label><input type="date" id="dtCorteFim"/></div>
+        <div class="field"><label class="label">Data Entrada</label><input type="date" id="dtEntrada"/></div>
+        <div class="field"><label class="label">Data Saída (Início)</label><input type="date" id="dtSaidaIni"/></div>
+        <div class="field"><label class="label">Data Saída (Fim)</label><input type="date" id="dtSaidaFim"/></div>
+        <div class="field"><label class="label">Status Costura</label>
           <select id="statusCostura">
             <option value="">Todos</option>
             <option value="aguardando">Aguardando Material</option>
@@ -161,16 +168,15 @@
           </select>
         </div>
       </div>
-
       <div class="actions">
-        <button class="btn" id="btnClear">Limpar Filtro</button>
+        <button class="btn btn-outline" id="btnClear">Limpar</button>
         <button class="btn btn-brand" id="btnApply">Buscar</button>
         <button class="btn" id="btnClose">Fechar</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal de Relatório -->
+  <!-- Modal Relatório (layout organizado) -->
   <div class="modal modal-center" id="modalReport">
     <div class="dialog">
       <h3>Resumo do Ateliê</h3>
@@ -195,15 +201,16 @@
         </div>
       </div>
       <div class="dialog foot-total">Total Geral: <span id="totGeral">0 pares</span></div>
-      <div style="text-align:right;margin-top:8px">
-        <button id="btnCloseReport" class="btn">Fechar</button>
-      </div>
+      <div style="text-align:right;margin-top:8px"><button id="btnCloseReport" class="btn">Fechar</button></div>
     </div>
   </div>
 
   <!-- Firebase + App -->
   <script type="module">
-    // ======= Firebase Config do seu projeto =======
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
       authDomain: "sistemataloes.firebaseapp.com",
@@ -213,184 +220,155 @@
       appId: "1:684534379685:web:ac0f831c26991ac059094c"
     };
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
-
-    // init
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
 
-    // UI refs
-    const userName   = document.getElementById('userName');
-    const userLevel  = document.getElementById('userLevel');
-    const btnLogout  = document.getElementById('btnLogout');
+    /* Header/Nav refs */
+    const menuNav = document.getElementById('menuNav');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const userNivelDisplay = document.getElementById('userNivelDisplay');
+    const logoutButton = document.getElementById('logoutButton');
 
-    const modal      = document.getElementById('modal');
-    const btnFilter  = document.getElementById('btnFilter');
-    const btnClose   = document.getElementById('btnClose');
-    const btnApply   = document.getElementById('btnApply');
-    const btnClear   = document.getElementById('btnClear');
-
-    const modalReport = document.getElementById('modalReport');
-    const btnReport   = document.getElementById('btnReport');
+    /* Toolbar & tabela refs */
+    const btnFilter = document.getElementById('btnFilter');
+    const btnReport = document.getElementById('btnReport');
     const btnCloseReport = document.getElementById('btnCloseReport');
 
-    // filtros
-    const remessa = document.getElementById('remessa');
-    const talao   = document.getElementById('talao');
-    const linha   = document.getElementById('linha');
-    const modelo  = document.getElementById('modelo');
-    const cor     = document.getElementById('cor');
-    const tipoCliente = document.getElementById('tipoCliente');
-
-    const dtCorteIni = document.getElementById('dtCorteIni');
-    const dtCorteFim = document.getElementById('dtCorteFim');
-    const dtEntrada  = document.getElementById('dtEntrada');
-    const dtSaidaIni = document.getElementById('dtSaidaIni');
-    const dtSaidaFim = document.getElementById('dtSaidaFim');
-
-    const statusCostura = document.getElementById('statusCostura');
-
-    const tableWrap  = document.getElementById('tableWrap');
-    const tbody      = document.getElementById('tbody');
+    const tbody = document.getElementById('tbody');
     const totalPares = document.getElementById('totalPares');
-    const hint       = document.getElementById('hint');
+    const tableWrap = document.getElementById('tableWrap');
+    const hint = document.getElementById('hint');
 
-    // ===== Helpers =====
-    const nivelNomes = {'01':'Cadastro','02':'Corte','03':'Costura','04':'Montagem','05':'Admin'};
-    const normLevel  = v => String(v ?? '').toUpperCase().replace(/^O/,'0').padStart(2,'0'); // "O3"/3 -> "03"
-    const currentPage = () => location.pathname.split('/').pop().toLowerCase();
-    const formatBR = iso => { if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; };
-    const safeLower = v => String(v ?? '').toLowerCase();
+    /* Filtro refs */
+    const btnClose  = document.getElementById('btnClose');
+    const btnApply  = document.getElementById('btnApply');
+    const btnClear  = document.getElementById('btnClear');
+    const remessa=document.getElementById('remessa'), talao=document.getElementById('talao'), linha=document.getElementById('linha'),
+          modelo=document.getElementById('modelo'), cor=document.getElementById('cor'), tipoCliente=document.getElementById('tipoCliente'),
+          dtCorteIni=document.getElementById('dtCorteIni'), dtCorteFim=document.getElementById('dtCorteFim'),
+          dtEntrada=document.getElementById('dtEntrada'), dtSaidaIni=document.getElementById('dtSaidaIni'), dtSaidaFim=document.getElementById('dtSaidaFim'),
+          statusCostura=document.getElementById('statusCostura');
 
-    // Deduz status da costura quando não houver campo explícito
-    function inferStatus(t){
-      const s = safeLower(t.statusCostura || t.status);
-      if (s.includes('aguard')) return 'aguardando';
-      if (s.includes('final'))  return 'finalizado';
-      if (s.includes('produ'))  return 'producao';
-      // heurística por datas
-      if (t.dataSaidaCostura)   return 'finalizado';
-      if (t.dataEntradaCostura) return 'producao';
-      return 'aguardando';
+    /* Modais */
+    const modal = document.getElementById('modal');
+    const modalReport = document.getElementById('modalReport');
+    const open = el => el.style.display='flex';
+    const close = el => el.style.display='none';
+
+    /* Utils */
+    const normLevel=v=>String(v??'').toUpperCase().replace(/^O/,'0').padStart(2,'0');
+    const currentPage=()=>location.pathname.split('/').pop().toLowerCase();
+    const safeLower=v=>String(v??'').toLowerCase();
+    const formatBR=iso=>{if(!iso)return'';const[y,m,d]=iso.split('-');return`${d}/${m}/${y}`};
+    const nivelNomes={'01':'Cadastro','02':'Corte','03':'Costura','04':'Montagem','05':'Admin'};
+    const pages=[
+      {name:'Costura Mobile',href:'costuramobile.html',levels:['03','05']},
+      {name:'Relatório Ateliê Mobile',href:'relatoriomobile.html',levels:['03','05']}
+    ];
+    function generateMenu(nivel,user){
+      menuNav.innerHTML='';
+      userNameDisplay.textContent=`Olá, ${user||'Usuário'}!`;
+      userNivelDisplay.textContent=`Setor: ${nivelNomes[nivel]||nivel}`;
+      pages.forEach(p=>{
+        if(p.levels.includes(nivel)){
+          const li=document.createElement('li');const a=document.createElement('a');
+          a.href=p.href;a.textContent=p.name;li.appendChild(a);menuNav.appendChild(li);
+        }
+      });
     }
 
-    // ===== State =====
-    let currentUserName = '';
-    let allTaloes = []; // todos do ateliê do usuário
-    let filtered  = []; // após filtro
+    /* Data state */
+    let allTaloes=[]; let filtered=[]; let currentUserName='';
 
-    // ===== Auth + Permissão =====
+    // ===== AUTH + PERMISSÃO =====
     onAuthStateChanged(auth, async (user)=>{
       if(!user){ location.href='login.html'; return; }
-
       const snap = await getDoc(doc(db,'Usuario', user.email));
       if(!snap.exists()){ await signOut(auth); location.href='login.html'; return; }
-
       const data  = snap.data();
       const nivel = normLevel(data.nivelAcesso);
       currentUserName = data.Nome || user.email;
 
-      // Permissão (03 e 05) – nome desta página PRECISA bater
-      const pages = [{ name:'Relatório Ateliê (Mobile)', href:'relatoriomobile.html', levels:['03','05'] }];
       const cfg = pages.find(p => (p.href||'').toLowerCase() === currentPage());
-      const allowed = (cfg?.levels||[]).map(normLevel).includes(nivel);
-      if(!allowed){ alert('Você não tem permissão para acessar esta página.'); location.href='index.html'; return; }
+      if(!(cfg?.levels||[]).map(normLevel).includes(nivel)){
+        alert('Você não tem permissão para acessar esta página.'); location.href='index.html'; return;
+      }
 
-      // Cabeçalho
-      userName.textContent  = currentUserName;
-      userLevel.textContent = `Setor: ${nivelNomes[nivel] || nivel}`;
+      generateMenu(nivel, currentUserName);
 
-      // Carrega talões do ateliê do usuário — NÃO renderiza ainda (fica vazio até aplicar filtro)
-      const q = query(collection(db,'taloes'), where('idAtelieResponsavel','==', currentUserName));
-      onSnapshot(q, (qs)=>{
+      // Carrega talões (não renderiza até aplicar filtro)
+      onSnapshot(query(collection(db,'taloes'), where('idAtelieResponsavel','==', currentUserName)), (qs)=>{
         allTaloes = qs.docs.map(d => ({ id:d.id, ...d.data() }));
-        // tabela segue vazia até clicar em "Buscar"
-      }, (err)=>{ console.error(err); hint.textContent='Erro ao carregar talões.'; });
+      });
     });
 
-    /* ====== UI: Modais ====== */
-    const openSheet = el => el.style.display='flex';
-    const closeSheet = el => el.style.display='none';
+    // ===== Modais =====
+    btnFilter.onclick = () => open(modal);
+    btnClose.onclick  = () => close(modal);
+    modal.addEventListener('click', e => { if(e.target===modal) close(modal); });
 
-    btnFilter.onclick = () => openSheet(modal);
-    btnClose.onclick  = () => closeSheet(modal);
-    modal.addEventListener('click', e=>{ if(e.target===modal) closeSheet(modal); });
+    btnReport.onclick = () => { buildReport(); open(modalReport); };
+    btnCloseReport.onclick = () => close(modalReport);
+    modalReport.addEventListener('click', e => { if(e.target===modalReport) close(modalReport); });
 
-    btnReport.onclick = () => {
-      buildReport(); 
-      openSheet(modalReport);
+    // ===== Helpers =====
+    const inferStatus = (t)=>{
+      const s = safeLower(t.statusCostura || t.status);
+      if (s.includes('aguard')) return 'aguardando';
+      if (s.includes('final'))  return 'finalizado';
+      if (s.includes('produ'))  return 'producao';
+      if (t.dataSaidaCostura)   return 'finalizado';
+      if (t.dataEntradaCostura) return 'producao';
+      return 'aguardando';
     };
-    btnCloseReport.onclick = () => closeSheet(modalReport);
-    modalReport.addEventListener('click', e=>{ if(e.target===modalReport) closeSheet(modalReport); });
 
-    /* ====== Ações Filtro ====== */
+    // ===== Filtro =====
     btnClear.onclick = ()=>{
-      for (const el of [remessa,talao,linha,modelo,cor,tipoCliente,dtCorteIni,dtCorteFim,dtEntrada,dtSaidaIni,dtSaidaFim,statusCostura]) {
-        if (el.tagName === 'SELECT') el.value = '';
-        else el.value = '';
-      }
-      // esconde a tabela novamente
-      tableWrap.style.display='none';
-      hint.style.display='block';
-      tbody.innerHTML='';
-      totalPares.textContent='0';
+      [remessa,talao,linha,modelo,cor,tipoCliente,dtCorteIni,dtCorteFim,dtEntrada,dtSaidaIni,dtSaidaFim,statusCostura]
+        .forEach(el=>el.value='');
+      tableWrap.style.display='none'; hint.style.display='block'; tbody.innerHTML=''; totalPares.textContent='0'; filtered=[];
     };
 
     btnApply.onclick = ()=>{
-      // aplica filtros na memória (dados já vieram via onSnapshot)
       filtered = [...allTaloes];
 
-      const fRem = safeLower(remessa.value);
-      const fTal = safeLower(talao.value);
-      const fLin = safeLower(linha.value);
-      const fMod = safeLower(modelo.value);
-      const fCor = safeLower(cor.value);
+      const fRem  = safeLower(remessa.value);
+      const fTal  = safeLower(talao.value);
+      const fLin  = safeLower(linha.value);
+      const fMod  = safeLower(modelo.value);
+      const fCor  = safeLower(cor.value);
       const fTipo = safeLower(tipoCliente.value);
-
       const diC = dtCorteIni.value, dfC = dtCorteFim.value;
       const dEnt = dtEntrada.value, dSi = dtSaidaIni.value, dSf = dtSaidaFim.value;
-
       const fStatus = safeLower(statusCostura.value);
 
-      // Datas
       if(diC && dfC) filtered = filtered.filter(t => (t.dataCorte||'') >= diC && (t.dataCorte||'') <= dfC);
       else if(diC)   filtered = filtered.filter(t => (t.dataCorte||'') === diC);
-
-      if(dEnt) filtered = filtered.filter(t => (t.dataEntradaCostura||'') === dEnt);
+      if(dEnt)       filtered = filtered.filter(t => (t.dataEntradaCostura||'') === dEnt);
       if(dSi && dSf) filtered = filtered.filter(t => (t.dataSaidaCostura||'') >= dSi && (t.dataSaidaCostura||'') <= dSf);
       else if(dSi)   filtered = filtered.filter(t => (t.dataSaidaCostura||'') === dSi);
 
-      // Textos
       if(fRem)  filtered = filtered.filter(t => safeLower(t.numeroRemessa).includes(fRem));
       if(fTal)  filtered = filtered.filter(t => safeLower(t.numeroTalaoSequencial).includes(fTal));
       if(fLin)  filtered = filtered.filter(t => safeLower(t.linha).includes(fLin));
       if(fMod)  filtered = filtered.filter(t => safeLower(t.modelo).includes(fMod));
       if(fCor)  filtered = filtered.filter(t => safeLower(t.cor).includes(fCor));
-
-      // Tipo de cliente (checamos 2 campos possíveis)
       if(fTipo) filtered = filtered.filter(t => {
-        const tipoA = safeLower(t.tipoCliente);
-        const tipoB = safeLower(t.tipoRemessa);
-        return tipoA.includes(fTipo) || tipoB.includes(fTipo);
+        const a = safeLower(t.tipoCliente); const b = safeLower(t.tipoRemessa);
+        return a.includes(fTipo) || b.includes(fTipo);
       });
-
-      // Status costura
       if(fStatus) filtered = filtered.filter(t => inferStatus(t) === fStatus);
 
-      render();        // agora sim renderiza
-      closeSheet(modal);
+      render(); close(modal);
     };
 
-    /* ===== Render ===== */
+    // ===== Render =====
     function render(){
       tbody.innerHTML='';
       if(!filtered.length){
-        tableWrap.style.display='block';
-        hint.style.display='none';
-        totalPares.textContent = '0';
+        tableWrap.style.display='block'; hint.style.display='none';
+        totalPares.textContent='0';
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#6b7280">Nenhum talão encontrado.</td></tr>`;
         return;
       }
@@ -409,53 +387,54 @@
         tbody.appendChild(tr);
       }
       totalPares.textContent = String(tot);
-      tableWrap.style.display='block';
-      hint.style.display='none';
+      tableWrap.style.display='block'; hint.style.display='none';
     }
 
-    /* ===== Relatório (Resumo do Ateliê) ===== */
+    // ===== Relatório =====
     function buildReport(){
       const buckets = {
-        aguardando: {list:[], total:0, el:document.querySelector('#colAguardando')},
-        producao:   {list:[], total:0, el:document.querySelector('#colProducao')},
-        finalizado: {list:[], total:0, el:document.querySelector('#colFinalizado')},
+        aguardando: {el:document.querySelector('#colAguardando'), total:0},
+        producao:   {el:document.querySelector('#colProducao'),   total:0},
+        finalizado: {el:document.querySelector('#colFinalizado'), total:0}
       };
-      // agrupa por linha-modelo com base no conjunto FILTRADO
-      const byKey = (status) => {
-        const map = new Map();
+
+      const group = (status)=>{
+        const m = new Map();
         for(const t of filtered){
           if(inferStatus(t)!==status) continue;
-          const key = `${t.linha ?? ''} - ${t.modelo ?? ''}`;
-          const cur = map.get(key) || 0;
-          map.set(key, cur + (t.pares||0));
+          const k = `${t.linha ?? ''} - ${t.modelo ?? ''}`;
+          m.set(k, (m.get(k)||0) + (t.pares||0));
         }
-        return [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
+        return [...m.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
       };
 
       let geral = 0;
-      for(const k of ['aguardando','producao','finalizado']){
-        const entries = byKey(k);
-        const box = buckets[k];
-        const listEl = box.el.querySelector('.list');
-        const totalEl = box.el.querySelector('.total');
-        listEl.innerHTML = entries.length ? '' : `<div class="sub" style="font-style:italic">Nenhum talão por linha - modelo.</div>`;
+      Object.keys(buckets).forEach(key=>{
+        const box  = buckets[key];
+        const list = box.el.querySelector('.list');
+        const tot  = box.el.querySelector('.total');
+        const rows = group(key);
+
+        list.innerHTML = rows.length ? '' : `<div class="sub" style="font-style:italic">Nenhum talão por linha - modelo.</div>`;
         let soma = 0;
-        for(const [nome,pares] of entries){
+        rows.forEach(([lm,pares])=>{
           soma += pares;
-          const row = document.createElement('div');
-          row.className = 'row';
-          row.innerHTML = `<div>${nome}</div><div>${pares} pares</div>`;
-          listEl.appendChild(row);
-        }
-        totalEl.textContent = `${soma} pares`;
-        box.total = soma;
-        geral += soma;
-      }
+          const e = document.createElement('div');
+          e.className = 'entry';
+          e.innerHTML = `<div class="lm">${lm}</div><div class="pares">${pares} pares</div>`;
+          list.appendChild(e);
+        });
+        tot.textContent = `${soma} pares`;
+        box.total = soma; geral += soma;
+      });
       document.getElementById('totGeral').textContent = `${geral} pares`;
     }
 
-    /* ===== Logout ===== */
-    btnLogout.onclick = async ()=>{ try{ await signOut(auth); location.href='login.html'; }catch(e){ alert('Erro ao sair'); } };
+    // ===== Logout =====
+    logoutButton.addEventListener('click', async ()=>{
+      try{ await signOut(auth); location.href='login.html'; }
+      catch{ alert('Erro ao sair'); }
+    });
   </script>
 </body>
 </html>
