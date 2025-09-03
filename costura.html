@@ -316,7 +316,7 @@
                     const nivelAcesso = userData.nivelAcesso;
                     currentUserName = userData.Nome;
 
-                    if (!pages.find(p => p.href === 'Costura.html' && p.levels.includes(nivelAcesso))) {
+                    if (!pages.find(p => p.href === 'costura.html' && p.levels.includes(nivelAcesso))) {
                         alert('Você não tem permissão para acessar esta página.');
                         window.location.href = 'index.html';
                         return;
@@ -327,10 +327,10 @@
                 } else {
                     alert('Dados do usuário não encontrados. Faça login novamente.');
                     await signOut(auth);
-                    window.location.href = 'Login.html';
+                    window.location.href = 'login.html';
                 }
             } else {
-                window.location.href = 'Login.html';
+                window.location.href = 'login.html';
             }
         });
 
@@ -502,3 +502,4 @@
 </body>
 
 </html>
+
