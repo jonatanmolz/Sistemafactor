@@ -125,7 +125,7 @@
                     const nivelAcesso = userData.nivelAcesso;
                     
                     // --- ALTERADO AQUI: Redirecionar para index.html para todos os níveis válidos ---
-                    if (['01', '02', '03', '04', '05'].includes(nivelAcesso)) {
+                    if (['01', '02', '03', '04', '05','06'].includes(nivelAcesso)) {
                         // Podemos salvar o nível de acesso no localStorage para o index.html usar
                         localStorage.setItem('userNivelAcesso', nivelAcesso);
                         localStorage.setItem('userEmail', email); // Opcional, para exibir no index
