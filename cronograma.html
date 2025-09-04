@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cronograma - SistemaTaloes (v5 - resumo estilo Excel)</title>
+  <style>
+    :root { --bg:#f4f4f4; --ink:#333; --ink-2:#555; --card:#fff; --muted:#777;
+      --pri:#007bff; --pri-700:#0056b3; --danger:#dc3545; --danger-700:#c82333; --ok:#345fec; --bd:#ddd; --chip:#f0f0f0; }
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;min-height:100vh;display:flex;flex-direction:column}
+    header{background:#333;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+    header h1{margin:0;font-size:22px}
+    .user-info{font-size:13px;text-align:right}
+    .user-info span{display:block;font-weight:700}
+    nav {background-color: #555; padding: 10px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 0.8em}
+    nav ul{list-style:none;margin:0;padding:0;display:flex;gap:12px;flex-wrap:wrap}
+    nav a{color:#fff;text-decoration:none;padding:6px 12px;border-radius:6px;display:block}
+    nav a:hover{background:#777}
+    .main-content{flex:1;padding:16px;display:flex;flex-direction:column;align-items:center}
+    .filters-container{background:var(--card);padding:10px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08);width:100%;max-width:95%;margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:flex-end}
+    .form-group{display:flex;flex-direction:column;min-width:120px}
+    .filters-container label{margin-bottom:3px;color:var(--ink-2);font-weight:700;font-size:.8em}
+    .filters-container input,.filters-container select{padding:8px;border:1px solid #ccc;border-radius:8px;font-size:.9em}
+    .btn{padding:10px 14px;border:none;border-radius:8px;cursor:pointer;font-size:.9em;transition:background .2s,transform .02s;display:inline-flex;gap:.5rem;align-items:center}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:var(--pri);color:#fff}
+    .btn-primary:hover{background:var(--pri-700)}
+    .btn-secondary{background:#e9ecef;color:#111}
+    .btn-secondary:hover{background:#dde2e6}
+    #logoutButton{background:var(--danger);color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer}
+    #logoutButton:hover{background:var(--danger-700)}
+    .container{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.08);width:100%;max-width:1200px}
+    .summary-info{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;background:var(--chip);padding:8px;border-radius:8px;margin-bottom:12px;font-size:.9em}
+    .summary-item{background:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 10px;text-align:center}
+    .summary-item strong{display:block;font-size:1.15em}
+    .table-container{width:100%;overflow:auto}
+    table{width:100%;border-collapse:collapse;font-size:.78em}
+    th,td{padding:5px 6px;text-align:center;border:1px solid var(--bd);white-space:nowrap}
+    thead th{background:#f2f2f2;font-weight:700}
+    .separator-border{border-right:3px solid #666}
+
+    .exportacao-row:nth-child(odd) { background-color: #add8e6; } /* Azul claro */
+    .exportacao-row:nth-child(even) { background-color: #6dd6ff; } /* Azul mais escuro */
+
+    .cliente-especial-row:nth-child(odd) { background-color: #ffdfe3; } /* Rosa claro */
+    .cliente-especial-row:nth-child(even) { background-color: #d6a4bd; } /* Rosa mais escuro */
+
+    .mercado-interno-row:nth-child(odd) { background-color: #ffffff; } /* Branco */
+    .mercado-interno-row:nth-child(even) { background-color: #f5f5f5; } /* Cinza claro */
+
+    .estoque-row:nth-child(odd) { background-color: #fdfd96; } /* Amarelo claro */
+    .estoque-row:nth-child(even) { background-color: #b8b874; } /* Amarelo mais escuro */
+
+    .amostra-row:nth-child(odd) { background-color: #90ee90; } /* Verde claro */
+    .amostra-row:nth-child(even) { background-color: #6b9c6b; } /* Verde mais escuro */
+
+    .remessa-link{color:var(--ink);text-decoration:underline;cursor:pointer}
+    .remessa-link:hover{color:#000000}
+    .loader{text-align:center;padding:16px;color:#555}
+    .status-check{color:var(--ok);font-weight:500}
+    /* Modal */
+    .modal{display:none;position:fixed;z-index:10;inset:0;background:rgba(0,0,0,.4);padding:12px}
+    .modal-content{background:#fff;margin:auto;padding:12px;border:1px solid #888;width:98%;max-width:1400px;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.2);animation:animatetop .25s;position:relative}
+    @keyframes animatetop{from{transform:translateY(-10px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .close-btn{position:absolute;right:10px;top:6px;color:#888;font-size:26px;font-weight:700;cursor:pointer}
+    .close-btn:hover{color:#000}
+    .modal-head{display:flex;gap:8px;align-items:center;justify-content:space-between}
+    .modal-body-table-container{overflow:auto;max-height:80vh}
+    .modal-body-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.8em;table-layout:auto}
+    .modal-body-table th,.modal-body-table td{border:1px solid var(--bd);padding:6px;text-align:center;white-space:nowrap}
+    .modal-body-table th{background:#f2f2f2}
+    @media (max-width:768px){.filters-container{justify-content:stretch}.form-group{flex:1}.modal-content{width:98%;max-width:98%}.modal-body-table{font-size:.74em}}
+    .modal-body-table tr:nth-child(even) {background-color: #f2f2f2;}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SistemaTaloes</h1>
+    <div class="user-info">
+      <span id="userNameDisplay">Carregando...</span>
+      <span id="userNivelDisplay"></span>
+    </div>
+    <div><button id="logoutButton">Sair</button></div>
+  </header>
+  <nav><ul id="menuNav"></ul></nav>
+  <div class="main-content">
+    <div class="filters-container">
+      <div class="form-group"><label for="filterLinha">Linha:</label><input type="text" id="filterLinha" placeholder="Ex: 100" /></div>
+      <div class="form-group"><label for="filterRemessa">Remessa:</label><input type="text" id="filterRemessa" placeholder="Ex: 2684982" /></div>
+      <div class="form-group"><label for="filterDataCorteInicio">Data de Corte (Início):</label><input type="date" id="filterDataCorteInicio" /></div>
+      <div class="form-group"><label for="filterDataCorteFim">Data de Corte (Fim):</label><input type="date" id="filterDataCorteFim" /></div>
+      <div class="form-group"><label for="filterTipoCliente">Tipo de Cliente:</label>
+        <select id="filterTipoCliente">
+          <option value="">Todos</option>
+          <option value="Exportacao">Exportação</option>
+          <option value="Cliente especial">Cliente Especial</option>
+          <option value="Mercado Interno">Mercado Interno</option>
+          <option value="Estoque">Estoque</option>
+          <option value="Amostra">Amostra</option>
+        </select>
+      </div>
+      <div class="form-group"><label for="filterAtelie">Ateliê Responsável:</label>
+        <select id="filterAtelie"><option value="">Todos</option></select>
+      </div>
+      <div class="form-group"><label for="filterDataEntregaInicio">Data de Entrega (Início):</label><input type="date" id="filterDataEntregaInicio" /></div>
+      <div class="form-group"><label for="filterDataEntregaFim">Data de Entrega (Fim):</label><input type="date" id="filterDataEntregaFim" /></div>
+      <button class="btn btn-primary" id="searchButton">Gerar Relatório</button>
+      <button class="btn btn-secondary" id="clearFiltersButton" title="Limpar filtros">Limpar</button>
+    </div>
+    <div class="container">
+      <h2>Relatório de Cronograma</h2>
+      <div id="loading" class="loader" style="display:none">Carregando dados...</div>
+      <div id="noData" class="loader">Selecione ao menos um filtro para iniciar a busca.</div>
+      <div id="reportContent" style="display:none">
+        <div id="summaryInfo" class="summary-info"></div>
+        <div id="tableContainer" class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th rowspan="2">Linha</th>
+                <th rowspan="2">Remessa</th>
+                <th rowspan="2">Pares</th>
+                <th rowspan="2">Talões</th>
+                <th rowspan="2">Data de Corte</th>
+                <th rowspan="2">Data de Entrega</th>
+                <th colspan="2" class="separator-border">Cortar</th>
+                <th colspan="2" class="separator-border">Costurar</th>
+                <th colspan="2" class="separator-border">Distribuir</th>
+                <th colspan="2" class="separator-border">Talonar</th>
+                <th colspan="2">Montar</th>
+              </tr>
+              <tr>
+                <th>Pares</th><th class="separator-border">Talões</th>
+                <th>Pares</th><th class="separator-border">Talões</th>
+                <th>Pares</th><th class="separator-border">Talões</th>
+                <th>Pares</th><th class="separator-border">Talões</th>
+                <th>Pares</th><th>Talões</th>
+              </tr>
+            </thead>
+            <tbody id="cronogramaTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="detailsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <div class="modal-head"><h3 id="modalTitle" style="margin:0">Detalhes da Remessa</h3></div>
+      <div class="modal-body-table-container">
+        <table class="modal-body-table">
+          <thead>
+            <tr>
+              <th>Talão</th>
+              <th>Linha</th>
+              <th>Modelo</th>
+              <th>Pares</th>
+              <th>Cor</th>
+              <th>Data Corte</th>
+              <th>Ateliê</th>
+              <th>Corte</th>
+              <th>Entrada Ateliê</th>
+              <th>Saída Costura</th>
+              <th>Distribuição</th>
+              <th>Talonagem</th>
+              <th>Montagem</th>
+              <th>Trilho</th>
+            </tr>
+          </thead>
+          <tbody id="modalTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <script type="module">
+    // === Firebase ===
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+      authDomain: "sistemataloes.firebaseapp.com",
+      projectId: "sistemataloes",
+      storageBucket: "sistemataloes.appspot.com",
+      messagingSenderId: "684534379685",
+      appId: "1:684534379685:web:..."
+    };
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
+
+    // === DOM ===
+    const menuNav=document.getElementById('menuNav'), userNameDisplay=document.getElementById('userNameDisplay'), userNivelDisplay=document.getElementById('userNivelDisplay'), logoutButton=document.getElementById('logoutButton');
+    const filterLinha=document.getElementById('filterLinha'), filterRemessa=document.getElementById('filterRemessa'), filterDataCorteInicio=document.getElementById('filterDataCorteInicio'), filterDataCorteFim=document.getElementById('filterDataCorteFim'), filterTipoCliente=document.getElementById('filterTipoCliente'), filterAtelie=document.getElementById('filterAtelie'), filterDataEntregaInicio=document.getElementById('filterDataEntregaInicio'), filterDataEntregaFim=document.getElementById('filterDataEntregaFim');
+    const searchButton=document.getElementById('searchButton'), clearFiltersButton=document.getElementById('clearFiltersButton');
+    const loading=document.getElementById('loading'), noData=document.getElementById('noData'), reportContent=document.getElementById('reportContent'), summaryInfo=document.getElementById('summaryInfo'), cronogramaTableBody=document.getElementById('cronogramaTableBody');
+    const detailsModal=document.getElementById('detailsModal'), modalTitle=document.getElementById('modalTitle'), modalTableBody=document.getElementById('modalTableBody'), closeModalBtn=document.querySelector('.close-btn');
+    let allFetchedTaloes=[];
+
+    const nivelNomes={            
+            '01': 'Cadastro',
+            '02': 'Corte',
+            '03': 'Costura',
+            '04': 'Montagem',
+            '05': 'Admin',
+            '06': 'Consultor'};
+    const pages=[
+            { name: 'Resumo', href: 'resumo.html', levels: ['05'] },
+            { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06'] },
+            { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05'] },
+            { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05'] },
+            { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['01','02', '04','05', '06'] },
+            { name: 'Corte', href: 'corte.html', levels: ['02', '05'] },
+            { name: 'Costura', href: 'costura.html', levels: ['03', '05'] },
+            { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03', '05'] },
+            { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05'] },
+            { name: 'Atlier Mobile', href: 'relatoriomobile.html', levels: ['05'] },
+            { name: 'Romaneio', href: 'romaneio.html', levels: ['05'] },
+            { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05'] },
+            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['05'] },
+            { name: 'Distribuição', href: 'distribuicao.html', levels: ['04', '05'] },
+            { name: 'Talonagem', href: 'talonagem.html', levels: ['04', '05'] },
+            { name: 'Montagem', href: 'montagem.html', levels: ['05'] }
+    ];
+    function generateMenu(userLevel,userName){menuNav.innerHTML='';const userNivelText=nivelNomes[userLevel]||`Nível ${userLevel}`;userNameDisplay.textContent=`Olá, ${userName||'Usuário'}!`;userNivelDisplay.textContent=`Setor: ${userNivelText}`;pages.forEach(p=>{if(p.levels.includes(userLevel)){const li=document.createElement('li');const a=document.createElement('a');a.href=p.href;a.textContent=p.name;li.appendChild(a);menuNav.appendChild(li);}});}
+    onAuthStateChanged(auth, async (user)=>{ if(!user){window.location.href='login.html';return;} const snap=await getDoc(doc(db,'Usuario',user.email)); if(!snap.exists()){alert('Dados do usuário não encontrados. Faça login novamente.'); await signOut(auth); window.location.href='login.html'; return;} const {nivelAcesso,Nome}=snap.data(); if(!pages.find(p=>p.href==='cronograma.html'&&p.levels.includes(nivelAcesso))){alert('Você não tem permissão para acessar esta página.'); window.location.href='index.html'; return;} generateMenu(nivelAcesso,Nome); loadAtelies(); });
+    logoutButton.addEventListener('click', async()=>{ try{ await signOut(auth); window.location.href='login.html'; }catch(e){ console.error(e); alert('Erro ao fazer logout. Tente novamente.'); }});
+    async function loadAtelies(){ try{ const qSnap=await getDocs(query(collection(db,'Usuario'), where('nivelAcesso','==','03'))); const names=qSnap.docs.map(d=>d.data().Nome).filter(Boolean).sort((a,b)=>a.localeCompare(b)); names.forEach(n=>{const opt=document.createElement('option'); opt.value=n; opt.textContent=n; filterAtelie.appendChild(opt);}); }catch(err){ console.error('Erro ao carregar ateliês:',err);} }
+    clearFiltersButton.addEventListener('click',()=>{ [filterLinha,filterRemessa,filterDataCorteInicio,filterDataCorteFim,filterDataEntregaInicio,filterDataEntregaFim].forEach(i=>i.value=''); filterTipoCliente.value=''; filterAtelie.value=''; cronogramaTableBody.innerHTML=''; summaryInfo.innerHTML=''; reportContent.style.display='none'; noData.textContent='Selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; });
+    searchButton.addEventListener('click', runSearch);
+
+    // Helpers
+    function hasDate(v){ return v!==undefined && v!==null && String(v).trim()!==''; }
+    function formatDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); if(!y||!m||!d) return ''; return `${d}/${m}/${y}`; }
+    function formatDateAbreviado(iso){ if(!iso) return ''; const dt=new Date(iso+'T00:00:00'); if(isNaN(dt)) return ''; const dd=String(dt.getDate()).padStart(2,'0'); const mm=String(dt.getMonth()+1).padStart(2,'0'); return `${dd}/${mm}`; }
+    function maxISO(a,b){ if(!a) return b||null; if(!b) return a||null; return (new Date(a)>new Date(b))?a:b; }
+
+    async function runSearch(){
+      loading.style.display='block'; noData.style.display='none'; reportContent.style.display='none'; cronogramaTableBody.innerHTML=''; allFetchedTaloes=[];
+      const linha=filterLinha.value.trim(); const remessa=filterRemessa.value.trim(); const dataCorteInicio=filterDataCorteInicio.value; const dataCorteFim=filterDataCorteFim.value; const tipoCliente=filterTipoCliente.value; const atelieResponsavel=filterAtelie.value; const dataEntregaInicio=filterDataEntregaInicio.value; const dataEntregaFim=filterDataEntregaFim.value;
+      try{
+        let qRef=collection(db,'taloes'); let hasFilters=false;
+        if(linha){ qRef=query(qRef, where('linha','==',linha)); hasFilters=true; }
+        if(remessa){ qRef=query(qRef, where('numeroRemessa','==',remessa)); hasFilters=true; }
+        if(tipoCliente){ qRef=query(qRef, where('tipoCliente','==',tipoCliente)); hasFilters=true; }
+        if(atelieResponsavel){ qRef=query(qRef, where('idAtelieResponsavel','==',atelieResponsavel)); hasFilters=true; }
+        if(dataCorteInicio && dataCorteFim){ qRef=query(qRef, where('dataCorte','>=',dataCorteInicio), where('dataCorte','<=',dataCorteFim)); hasFilters=true; }
+        if(!hasFilters){ loading.style.display='none'; noData.textContent='Por favor, selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; return; }
+        const snap=await getDocs(qRef); allFetchedTaloes=snap.docs.map(d=>d.data()); if(dataEntregaInicio && dataEntregaFim){ allFetchedTaloes=allFetchedTaloes.filter(t=> t.dataEntrega && t.dataEntrega>=dataEntregaInicio && t.dataEntrega<=dataEntregaFim ); }
+        generateGroupedReport(allFetchedTaloes);
+        loading.style.display='none'; if(allFetchedTaloes.length>0){ reportContent.style.display='block'; } else { noData.textContent='Nenhum dado encontrado para os filtros selecionados.'; noData.style.display='block'; }
+      }catch(err){ console.error('Erro ao gerar relatório:',err); loading.style.display='none'; noData.textContent='Erro ao carregar os dados. Verifique o console.'; noData.style.display='block'; }
+    }
+
+    function generateGroupedReport(taloes){
+      const grouped={};
+      let totalPares=0,totalTaloes=0;
+
+      // --- SUMÁRIOS estilo Excel ---
+      let paresSemCorte=0;        // "Corte": pares que NÃO têm corte completo
+      let paresCosturaConcl=0;    // pares com dataSaidaCostura
+      let paresDist=0;            // pares com dataEntradaDistribuicao
+      let paresTalon=0;           // pares com dataEntradaTalonagem
+      let paresMont=0;            // pares com dataEntradaMontagem
+
+      if(!taloes||taloes.length===0){ noData.textContent='Nenhum dado encontrado para os filtros selecionados.'; noData.style.display='block'; reportContent.style.display='none'; return; }
+
+      taloes.forEach(t=>{
+        const linha=t.linha||'N/A'; const remessa=t.numeroRemessa||'N/A'; const tipo=t.tipoCliente||'';
+        const dataCorte=t.dataCorte||'N/A'; const dataEntrega=t.dataEntrega||'N/A'; const pares=Number(t.pares)||0;
+        totalPares+=pares; totalTaloes+=1;
+        const key=`${remessa}-${linha}-${dataCorte}-${dataEntrega}`;
+        if(!grouped[key]){ grouped[key]={ remessa,linha,tipoCliente:tipo, paresTotal:0,taloesTotal:0, dataCorte,dataEntrega,
+          corte:{paresFaltando:0,taloesFaltando:0,allDone:true,maxDate:null},
+          costura:{paresFaltando:0,taloesFaltando:0,allDone:true,maxDate:null},
+          distribuicao:{paresFaltando:0,taloesFaltando:0,allDone:true,maxDate:null},
+          talonagem:{paresFaltando:0,taloesFaltando:0,allDone:true,maxDate:null},
+          montagem:{paresFaltando:0,taloesFaltando:0,allDone:true,maxDate:null}
+        }; }
+        const g=grouped[key]; g.paresTotal+=pares; g.taloesTotal+=1;
+
+        // Corte completo?
+        const corteOK = hasDate(t.cabedalData) && hasDate(t.forroData) && hasDate(t.aviamentoData);
+        if(corteOK){
+          const maior=[t.cabedalData,t.forroData,t.aviamentoData].reduce((m,cur)=>maxISO(m,cur),null);
+          g.corte.maxDate = maxISO(g.corte.maxDate, maior);
+        }else{
+          g.corte.paresFaltando+=pares; g.corte.taloesFaltando+=1; g.corte.allDone=false;
+          paresSemCorte += pares;
+        }
+
+        // Costura concluída?
+        const costuraOK = hasDate(t.dataSaidaCostura);
+        if(costuraOK){ g.costura.maxDate=maxISO(g.costura.maxDate, t.dataSaidaCostura); paresCosturaConcl += pares; }
+        else { g.costura.paresFaltando+=pares; g.costura.taloesFaltando+=1; g.costura.allDone=false; }
+
+        // Distribuição / Talonagem / Montagem
+        const distOK = hasDate(t.dataEntradaDistribuicao);
+        const talonOK = hasDate(t.dataEntradaTalonagem);
+        const montOK  = hasDate(t.dataEntradaMontagem);
+        if(distOK){ g.distribuicao.maxDate=maxISO(g.distribuicao.maxDate, t.dataEntradaDistribuicao); paresDist += pares; }
+        else { g.distribuicao.paresFaltando+=pares; g.distribuicao.taloesFaltando+=1; g.distribuicao.allDone=false; }
+        if(talonOK){ g.talonagem.maxDate=maxISO(g.talonagem.maxDate, t.dataEntradaTalonagem); paresTalon += pares; }
+        else { g.talonagem.paresFaltando+=pares; g.talonagem.taloesFaltando+=1; g.talonagem.allDone=false; }
+        if(montOK){ g.montagem.maxDate=maxISO(g.montagem.maxDate, t.dataEntradaMontagem); paresMont += pares; }
+        else { g.montagem.paresFaltando+=pares; g.montagem.taloesFaltando+=1; g.montagem.allDone=false; }
+      });
+
+      // --- Lógica de cálculo ajustada ---
+      const corte = paresSemCorte;
+      let giroCostura = (totalPares - paresSemCorte) - paresCosturaConcl;
+      if(giroCostura < 0) giroCostura = 0;
+      const costura = totalPares - paresCosturaConcl;
+      
+      // Nova lógica: Faltando para entrar na Distribuição e Talonagem
+      const paresFaltandoDistribuicao = totalPares - paresDist;
+      const paresFaltandoTalonagem = totalPares - paresTalon;
+      
+      const montar = totalPares - paresMont;
+
+      updateSummaryExcel(totalPares,totalTaloes,corte,giroCostura,costura,paresFaltandoDistribuicao,paresFaltandoTalonagem,montar);
+      renderTable(grouped);
+    }
+
+    function updateSummaryExcel(totalPares,totalTaloes,corte,giroCostura,costura,distribuicao,talonagem,montagem){
+      summaryInfo.innerHTML = `
+        <div class="summary-item">Total pares<br><strong>${totalPares}</strong></div>
+        <div class="summary-item">Talões Filtrados<br><strong>${totalTaloes}</strong></div>
+        <div class="summary-item">Corte<br><strong>${corte}</strong></div>
+        <div class="summary-item">Giro Costura<br><strong>${giroCostura}</strong></div>
+        <div class="summary-item">Costura<br><strong>${costura}</strong></div>
+        <div class="summary-item">Distribuição<br><strong>${distribuicao}</strong></div>
+        <div class="summary-item">Talonagem<br><strong>${talonagem}</strong></div>
+        <div class="summary-item">Montagem<br><strong>${montagem}</strong></div>
+      `;
+    }
+
+    function getTipoClienteClass(tipo){ switch(tipo){ case 'Exportacao': return 'exportacao-row'; case 'Cliente especial': return 'cliente-especial-row'; case 'mercado interno': return 'mercado-interno-row'; case 'Estoque': return 'estoque-row'; case 'Amostra': return 'amostra-row'; default: return ''; } }
+    function renderTable(data){ cronogramaTableBody.innerHTML=''; const keys=Object.keys(data).sort((a,b)=>{ const da=data[a].dataCorte||'9999-12-31', db=data[b].dataCorte||'9999-12-31'; if(da!==db) return da.localeCompare(db); const la=parseInt(String(data[a].linha).replace(/\\D/g,''))||0; const lb=parseInt(String(data[b].linha).replace(/\\D/g,''))||0; if(la!==lb) return la-lb; const ra=parseInt(String(data[a].remessa).replace(/\\D/g,''))||0; const rb=parseInt(String(data[b].remessa).replace(/\\D/g,''))||0; return ra-rb; }); if(keys.length===0){ noData.style.display='block'; return; }
+      keys.forEach(k=>{ const grp=data[k]; const tr=document.createElement('tr'); tr.className=getTipoClienteClass(grp.tipoCliente); const remessaCell=`<td><a href="#" class="remessa-link" data-remessa="${grp.remessa}">${grp.remessa}</a></td>`; let html=`<td>${grp.linha}</td>${remessaCell}<td>${grp.paresTotal}</td><td>${grp.taloesTotal}</td><td>${formatDateAbreviado(grp.dataCorte)}</td><td>${formatDateAbreviado(grp.dataEntrega)}</td>`;
+        function etapaCell(etapa, addSep){ if(etapa.paresFaltando===0 && etapa.allDone && etapa.maxDate){ return `<td colspan="2" ${addSep? 'class="separator-border"':''}><span class="status-check">✔ ${formatDateAbreviado(etapa.maxDate)}</span></td>`; } return `<td>${etapa.paresFaltando}</td><td ${addSep? 'class="separator-border"':''}>${etapa.taloesFaltando}</td>`; }
+        html += etapaCell(grp.corte,true); html += etapaCell(grp.costura,true); html += etapaCell(grp.distribuicao,true); html += etapaCell(grp.talonagem,true);
+        if(grp.montagem.paresFaltando===0 && grp.montagem.allDone && grp.montagem.maxDate){ html += `<td colspan="2"><span class="status-check">✔ ${formatDateAbreviado(grp.montagem.maxDate)}</span></td>`; } else { html += `<td>${grp.montagem.paresFaltando}</td><td>${grp.montagem.taloesFaltando}</td>`; }
+        tr.innerHTML=html; cronogramaTableBody.appendChild(tr);
+      }); }
+    document.addEventListener('click',(e)=>{ const a=e.target.closest('.remessa-link'); if(a){ e.preventDefault(); showDetailsModal(a.dataset.remessa); }});
+    closeModalBtn.addEventListener('click',()=> detailsModal.style.display='none');
+    window.addEventListener('click',(e)=>{ if(e.target===detailsModal) detailsModal.style.display='none'; });
+    function showDetailsModal(remessa){ modalTitle.textContent=`Detalhes da Remessa: ${remessa}`; modalTableBody.innerHTML=''; const list=allFetchedTaloes.filter(t=>t.numeroRemessa===remessa); if(list.length===0){ modalTableBody.innerHTML = `<tr><td colspan="14" style="text-align:center;">Nenhum detalhe encontrado para esta remessa.</td></tr>`; detailsModal.style.display='block'; return; } list.sort((a,b)=> (parseInt(a.numeroTalaoSequencial,10)||0) - (parseInt(b.numeroTalaoSequencial,10)||0)); list.forEach(t=>{ const hasCab=hasDate(t.cabedalData), hasFor=hasDate(t.forroData), hasAvi=hasDate(t.aviamentoData); let fechamentoISO=null; if(hasCab&&hasFor&&hasAvi){ fechamentoISO=[t.cabedalData,t.forroData,t.aviamentoData].reduce((m,cur)=>maxISO(m,cur),null); }
+        const tr=document.createElement('tr'); tr.innerHTML = `
+          <td>${t.numeroTalaoSequencial||''}</td>
+          <td>${t.linha||''}</td>
+          <td>${t.modelo||''}</td>
+          <td>${t.pares||''}</td>
+          <td>${t.corSapato||''}</td>
+          <td>${t.dataCorte? ` ${formatDateAbreviado(t.dataCorte)}` : ''}</td>
+          <td>${t.idAtelieResponsavel||''}</td>
+          <td>${fechamentoISO? `✔ ${formatDateAbreviado(fechamentoISO)}` : ''}</td>
+          <td>${t.costuraDataInicio? `✔ ${formatDateAbreviado(t.costuraDataInicio)}` : ''}</td>
+          <td>${t.dataSaidaCostura? `✔ ${formatDateAbreviado(t.dataSaidaCostura)}` : ''}</td>
+          <td>${t.dataEntradaDistribuicao? `✔ ${formatDateAbreviado(t.dataEntradaDistribuicao)}` : ''}</td>
+          <td>${t.dataEntradaTalonagem? `✔ ${formatDateAbreviado(t.dataEntradaTalonagem)}` : ''}</td>
+          <td>${t.dataEntradaMontagem? `✔ ${formatDateAbreviado(t.dataEntradaMontagem)}` : ''}</td>
+          <td>${t.trilhoProduzido||''}</td>
+        `;
+          modalTableBody.appendChild(tr); }); detailsModal.style.display='block'; }
+  </script>
+</body>
+</html>

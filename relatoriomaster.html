@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Relatório Mestre - SistemaTaloes</title>
+  <link rel="stylesheet" href="relatoriomaster.css"/>
+</head>
+<body>
+  <header>
+    <h1>SistemaTaloes</h1>
+    <div class="user-info">
+      <span id="userNameDisplay">Carregando...</span>
+      <span id="userNivelDisplay"></span>
+    </div>
+    <div>
+      <button id="logoutButton">Sair</button>
+    </div>
+  </header>
+
+  <nav>
+    <ul id="menuNav"><!-- itens via JS --></ul>
+  </nav>
+
+  <div class="main-content">
+<div class="filters-container">
+  <!-- Data de Corte: ocupa 2 colunas -->
+  <div class="form-group col-span-2">
+    <label>Data de Corte:</label>
+    <div class="date-range">
+      <input type="date" id="filterDataCorteStart" placeholder="de">
+      <span class="date-range-sep">até</span>
+      <input type="date" id="filterDataCorteEnd" placeholder="até">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="filterRemessa">Remessa:</label>
+    <input type="text" id="filterRemessa" placeholder="Número da Remessa">
+  </div>
+
+  <div class="form-group">
+    <label for="filterTalao">Talão:</label>
+    <input type="text" id="filterTalao" placeholder="Número do Talão">
+  </div>
+
+  <div class="form-group">
+    <label for="filterLinha">Linha:</label>
+    <input type="text" id="filterLinha" placeholder="Número da Linha">
+  </div>
+
+  <div class="form-group">
+    <label for="filterModelo">Modelo:</label>
+    <input type="text" id="filterModelo" placeholder="Modelo">
+  </div>
+
+  <div class="form-group">
+    <label for="filterCor">Cor:</label>
+    <input type="text" id="filterCor" placeholder="Cor do Sapato">
+  </div>
+
+  <div class="form-group">
+    <label for="filterTipoCliente">Tipo de Cliente:</label>
+    <select id="filterTipoCliente"> … </select>
+  </div>
+
+  <div class="form-group">
+    <label for="filterStatusGeral">Status Geral:</label>
+    <select id="filterStatusGeral"> … </select>
+  </div>
+
+  <div class="form-group">
+    <label for="filterAtelieResponsavel">Ateliê Responsável:</label>
+    <select id="filterAtelieResponsavel"><option value="">Todos</option></select>
+  </div>
+
+  <!-- Checkboxes: ocupa 2 colunas e alinha no topo -->
+  <div class="form-group col-span-2">
+    <label>Filtrar por local/status:</label>
+    <div class="checkbox-group">
+      <label><input type="checkbox" id="chkNoAtelier"> No ateliê</label>
+      <label><input type="checkbox" id="chkNaFabrica"> Na fábrica</label>
+      <label><input type="checkbox" id="chkMontado"> Montado</label>
+    </div>
+  </div>
+  <div class="form-group" style="align-self:end;">
+  <label style="visibility:hidden"> </label>
+  <button id="btnClearFilters" class="btn-clear">Limpar filtros</button>
+</div>
+
+</div>
+
+    <div class="total-pares-display">
+      Total filtrado: <span id="totalPares">0 pares | 0 talões</span>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Data Corte</th>
+            <th>Remessa</th>
+            <th>Talão</th>
+            <th>Linha</th>
+            <th>Modelo</th>
+            <th>Cor</th>
+            <th>Tipo Cliente</th>
+            <th>Pares</th>
+            <th>Status Geral</th>
+            <th>Ateliê Responsável</th>
+            <th>Entrada Costura</th>
+            <th>Saída Costura</th>
+            <th>Distribuição</th>
+            <th>Talonagem</th>
+            <th>Montagem</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="taloesTableBody">
+          <tr><td colspan="16" style="text-align:center;">Aguardando filtros…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Edição -->
+  <div id="editModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" id="closeEditModal">&times;</button>
+      <h3>Editar Talão</h3>
+      <form id="editTalaoForm">
+        <input type="hidden" id="editTalaoId">
+        <div class="form-group">
+          <label for="editNumeroRemessa">Remessa:</label>
+          <input type="text" id="editNumeroRemessa">
+        </div>
+        <div class="form-group">
+          <label for="editNumeroTalaoSequencial">Talão:</label>
+          <input type="text" id="editNumeroTalaoSequencial">
+        </div>
+        <div class="form-group">
+          <label for="editLinha">Linha:</label>
+          <input type="text" id="editLinha">
+        </div>
+        <div class="form-group">
+          <label for="editModelo">Modelo:</label>
+          <input type="text" id="editModelo">
+        </div>
+        <div class="form-group">
+          <label for="editCorSapato">Cor:</label>
+          <input type="text" id="editCorSapato">
+        </div>
+        <div class="form-group">
+          <label for="editPares">Pares:</label>
+          <input type="number" id="editPares">
+        </div>
+        <div class="form-group">
+          <label for="editTipoCliente">Tipo de Cliente:</label>
+          <select id="editTipoCliente">
+            <option value="Exportacao">Exportação</option>
+            <option value="Cliente especial">Cliente Especial</option>
+            <option value="Mercado Interno">Mercado Interno</option>
+            <option value="Estoque">Estoque</option>
+            <option value="Amostra">Amostra</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editStatusGeral">Status Geral:</label>
+          <select id="editStatusGeral">
+            <option value="Pendente">Pendente</option>
+            <option value="Aguardando Material">Aguardando Material</option>
+            <option value="Cortando">Cortando</option>
+            <option value="Cortado">Cortado</option>
+            <option value="Costurando">Costurando</option>
+            <option value="Costurado">Costurado</option>
+            <option value="Distribuído">Distribuído</option>
+            <option value="Talonado">Talonado</option>
+            <option value="Montado">Montado</option>
+            <option value="Finalizado">Finalizado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="editAtelieResponsavel">Ateliê:</label>
+          <select id="editAtelieResponsavel">
+            <option value="">Nenhum</option>
+          </select>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="submit" class="save-btn">Salvar</button>
+          <button type="button" class="cancel-btn" id="cancelEditModal">Cancelar</button>
+        </div>
+        <p id="editMessage" class="modal-message"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Mensagens/Confirmação -->
+  <div id="messageModal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close-btn" id="closeMessageModal">&times;</button>
+      <h3 id="messageModalTitle"></h3>
+      <p id="messageModalText"></p>
+      <div class="modal-buttons" id="messageModalButtons"></div>
+    </div>
+  </div>
+
+  <!-- Firebase compat (ok com file://) -->
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore-compat.js"></script>
+
+  <script defer src="relatoriomaster.js"></script>
+</body>
+</html>

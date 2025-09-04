@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro em Massa - SistemaTaloes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .user-info {
+            font-size: 14px;
+            text-align: right;
+        }
+        .user-info span {
+            display: block;
+            font-weight: bold;
+        }
+        nav {
+            background-color: #555;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 0.8em
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            display: block;
+        }
+        nav ul li a:hover {
+            background-color: #777;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 1200px;
+            margin-top: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .filters-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1em;
+            width: 200px;
+        }
+        .search-btn {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        .search-btn:hover {
+            background-color: #0056b3;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.8em;
+        }
+        .status-aguardando-material { background-color: #ffc107; color: #333; }
+        .status-em-producao { background-color: #17a2b8; color: white; }
+        .status-cortado { background-color: #28a745; color: white; }
+        .status-costurando { background-color: #9c27b0; color: white; }
+        .status-costurado { background-color: #5d3fd3; color: white; }
+        .status-montando { background-color: #fd7e14; color: white; }
+        .status-talonado { background-color: #1a73e8; color: white; }
+        .status-distribuido { background-color: #34a853; color: white; }
+        .status-montado { background-color: #fbbc05; color: #333; }
+        .status-finalizado { background-color: #28a745; color: white; }
+
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .action-btn.costura-entrada { background-color: #9c27b0; }
+        .action-btn.costura-saida { background-color: #5d3fd3; }
+        .action-btn.talonagem { background-color: #1a73e8; }
+        .action-btn.distribuicao { background-color: #34a853; }
+        .action-btn.montagem { background-color: #fbbc05; color: #333; }
+        .action-btn.data-update { background-color: #3065b9; }
+
+        .action-btn.costura-entrada:hover { background-color: #7b1fa2; }
+        .action-btn.costura-saida:hover { background-color: #4b32a9; }
+        .action-btn.talonagem:hover { background-color: #155bb5; }
+        .action-btn.distribuicao:hover { background-color: #2d8641; }
+        .action-btn.montagem:hover { background-color: #f7b400; }
+        .action-btn.data-update:hover { background-color: #224a87; }
+
+        .message-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+        .message-box.success { background-color: #d4edda; color: #155724; }
+        .message-box.error { background-color: #f8d7da; color: #721c24; }
+        .message-box.info { background-color: #cce5ff; color: #004085; }
+
+        button#logoutButton {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 2px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        button#logoutButton:hover {
+            background-color: #c82333;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .user-info { text-align: left; margin-top: 5px; }
+            .user-info span { display: inline; margin-right: 10px; }
+            nav ul { flex-direction: column; gap: 5px; }
+            .container { width: 95%; padding: 15px; }
+            .filters-container { flex-direction: column; gap: 10px; }
+            .form-group input, .form-group select { width: 100%; }
+            .search-btn { width: 100%; }
+            .action-buttons { flex-direction: column; }
+            .action-btn { width: 100%; }
+            table th, table td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SistemaTaloes</h1>
+        <div class="user-info">
+            <span id="userNameDisplay">Carregando...</span>
+            <span id="userNivelDisplay"></span>
+        </div>
+        <div>
+            <button id="logoutButton">Sair</button>
+        </div>
+    </header>
+
+    <nav>
+        <ul id="menuNav">
+            </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="container">
+            <h2>Registro de Entrada em Massa</h2>
+
+            <div class="filters-container">
+                <div class="form-group">
+                    <label for="filterDataCorte">Data de Corte:</label>
+                    <input type="date" id="filterDataCorte">
+                </div>
+                <div class="form-group">
+                    <label for="filterRemessa">Remessa:</label>
+                    <input type="text" id="filterRemessa" placeholder="Ex: 001">
+                </div>
+                <button class="search-btn" id="searchButton">Buscar Talões</button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn costura-entrada" id="updateCosturaEntradaBtn">Entrada da Costura</button>
+                <button class="action-btn costura-saida" id="updateCosturaSaidaBtn">Saída da Costura</button>
+                <button class="action-btn talonagem" id="updateTalonagemBtn">Confirmar Entrada na Talonagem</button>
+                <button class="action-btn distribuicao" id="updateDistribuicaoBtn">Confirmar Entrada na Distribuição</button>
+                <button class="action-btn montagem" id="updateMontagemBtn">Confirmar Entrada na Montagem</button>
+            </div>
+
+            <div class="filters-container" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px;">
+                <div class="form-group">
+                    <label for="updateDataCorte">Nova Data de Corte:</label>
+                    <input type="date" id="updateDataCorte">
+                </div>
+                <div class="form-group">
+                    <label for="updateDataEntrega">Nova Data de Entrega:</label>
+                    <input type="date" id="updateDataEntrega">
+                </div>
+                <div class="form-group">
+                    <label for="updateTipoCliente">Novo Tipo de Cliente:</label>
+                    <select id="updateTipoCliente">
+                        <option value="">Nenhum</option>
+                        <option value="Exportacao">Exportação</option>
+                        <option value="Cliente especial">Cliente Especial</option>
+                        <option value="Mercado Interno">Mercado Interno</option>
+                        <option value="Estoque">Estoque</option>
+                    </select>
+                </div>
+                <button class="action-btn data-update" id="updateDataBtn">Atualizar Dados em Massa</button>
+            </div>
+
+
+            <div id="messageBox" class="message-box"></div>
+
+            <div id="resultContainer" style="display: none;">
+                <p id="taloesCount"></p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Remessa</th>
+                                <th>Talão</th>
+                                <th>Modelo</th>
+                                <th>Status Atual</th>
+                                <th>Novo Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taloesTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+            authDomain: "sistemataloes.firebaseapp.com",
+            projectId: "sistemataloes",
+            storageBucket: "sistemataloes.appspot.com",
+            messagingSenderId: "684534379685",
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, updateDoc, getDoc, collection, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const menuNav = document.getElementById('menuNav');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const userNivelDisplay = document.getElementById('userNivelDisplay');
+        const logoutButton = document.getElementById('logoutButton');
+        
+        const messageDiv = document.getElementById('messageBox');
+        
+        const updateCosturaEntradaBtn = document.getElementById('updateCosturaEntradaBtn');
+        const updateCosturaSaidaBtn = document.getElementById('updateCosturaSaidaBtn');
+        const updateTalonagemBtn = document.getElementById('updateTalonagemBtn');
+        const updateDistribuicaoBtn = document.getElementById('updateDistribuicaoBtn');
+        const updateMontagemBtn = document.getElementById('updateMontagemBtn');
+
+        const updateDataCorte = document.getElementById('updateDataCorte');
+        const updateDataEntrega = document.getElementById('updateDataEntrega');
+        const updateTipoCliente = document.getElementById('updateTipoCliente');
+        const updateDataBtn = document.getElementById('updateDataBtn');
+
+        const filterDataCorte = document.getElementById('filterDataCorte');
+        const filterRemessa = document.getElementById('filterRemessa');
+        const searchButton = document.getElementById('searchButton');
+        const taloesTableBody = document.getElementById('taloesTableBody');
+        const resultContainer = document.getElementById('resultContainer');
+        const taloesCount = document.getElementById('taloesCount');
+
+        let currentUserEmail = '';
+        let currentUserName = '';
+
+        const nivelNomes = {
+            '01': 'Cadastro',
+            '02': 'Corte',
+            '03': 'Costura',
+            '04': 'Montagem',
+            '05': 'Admin',
+            '06': 'Consultor'};
+        const pages = [
+            { name: 'Resumo', href: 'resumo.html', levels: ['05'] },
+            { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06'] },
+            { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05'] },
+            { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05'] },
+            { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['01','02', '04','05', '06'] },
+            { name: 'Corte', href: 'corte.html', levels: ['02', '05'] },
+            { name: 'Costura', href: 'costura.html', levels: ['03', '05'] },
+            { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03', '05'] },
+            { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05'] },
+            { name: 'Atlier Mobile', href: 'relatoriomobile.html', levels: ['05'] },
+            { name: 'Romaneio', href: 'romaneio.html', levels: ['05'] },
+            { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05'] },
+            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['05'] },
+            { name: 'Distribuição', href: 'distribuicao.html', levels: ['04', '05'] },
+            { name: 'Talonagem', href: 'talonagem.html', levels: ['04', '05'] },
+            { name: 'Montagem', href: 'montagem.html', levels: ['05'] }
+        ];
+
+        function generateMenu(userLevel, userName) {
+            menuNav.innerHTML = '';
+            const userNivelText = nivelNomes[userLevel] || `Nível ${userLevel}`;
+            userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
+            userNivelDisplay.textContent = `Setor: ${userNivelText}`;
+
+            pages.forEach(page => {
+                if (page.levels.includes(userLevel)) {
+                    const listItem = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = page.href; 
+                    link.textContent = page.name;
+                    listItem.appendChild(link);
+                    menuNav.appendChild(listItem);
+                }
+            });
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserEmail = user.email;
+                const userDocRef = doc(db, 'Usuario', user.email);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    const nivelAcesso = userData.nivelAcesso;
+                    currentUserName = userData.Nome;
+
+                    if (!pages.find(p => p.href === 'registroEmMassa.html' && p.levels.includes(nivelAcesso))) {
+                        alert('Você não tem permissão para acessar esta página.');
+                        window.location.href = 'index.html';
+                        return;
+                    }
+                    generateMenu(nivelAcesso, currentUserName);
+                } else {
+                    alert('Dados do usuário não encontrados. Faça login novamente.');
+                    await signOut(auth);
+                    window.location.href = 'login.html';
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error("Erro ao fazer logout:", error);
+                alert("Erro ao fazer logout. Tente novamente.");
+            }
+        });
+
+        function showMessage(msg, type) {
+            messageDiv.textContent = msg;
+            messageDiv.className = `message-box ${type}`;
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'Aguardando Material': return 'status-aguardando-material';
+                case 'Em Produção': return 'status-em-producao';
+                case 'Cortado': return 'status-cortado';
+                case 'Costurando': return 'status-costurando';
+                case 'Costurado': return 'status-costurado';
+                case 'Montando': return 'status-montando';
+                case 'Talonado': return 'status-talonado';
+                case 'Distribuido': return 'status-distribuido';
+                case 'Montado': return 'status-montado';
+                case 'Finalizado': return 'status-finalizado';
+                default: return '';
+            }
+        }
+
+        async function searchTaloes() {
+            const dataCorte = filterDataCorte.value;
+            const remessa = filterRemessa.value.toUpperCase();
+
+            taloesTableBody.innerHTML = '';
+            resultContainer.style.display = 'none';
+            showMessage('Buscando talões...', 'info');
+
+            let taloesRef = collection(db, 'taloes');
+            let q = query(taloesRef);
+            let hasFilters = false;
+
+            if (dataCorte) {
+                q = query(q, where('dataCorte', '==', dataCorte));
+                hasFilters = true;
+            }
+
+            if (remessa) {
+                q = query(q, where('numeroRemessa', '==', remessa));
+                hasFilters = true;
+            }
+
+            if (!hasFilters) {
+                showMessage('Por favor, insira pelo menos um filtro para buscar.', 'error');
+                return;
+            }
+
+            try {
+                const querySnapshot = await getDocs(q);
+                const taloes = [];
+                querySnapshot.forEach((doc) => {
+                    taloes.push(doc.data());
+                });
+
+                if (taloes.length > 0) {
+                    showMessage(`Encontrados ${taloes.length} talões.`, 'success');
+                    taloesCount.textContent = `Talões encontrados: ${taloes.length}`;
+                    resultContainer.style.display = 'block';
+
+                    taloes.forEach(talao => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${talao.numeroRemessa || ''}</td>
+                            <td>${talao.codigoBarrasIdentificador || ''}</td>
+                            <td>${talao.modelo || ''}</td>
+                            <td><span class="status-badge ${getStatusBadgeClass(talao.statusGeral)}">${talao.statusGeral || 'N/A'}</span></td>
+                            <td>
+                                </td>
+                        `;
+                        taloesTableBody.appendChild(row);
+                    });
+                } else {
+                    showMessage('Nenhum talão encontrado com os filtros fornecidos.', 'info');
+                    resultContainer.style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error("Erro ao buscar talões:", error);
+                showMessage('Erro ao buscar talões. Tente novamente.', 'error');
+            }
+        }
+
+        const statusOrder = ['Aguardando Material', 'Em Produção', 'Cortado', 'Costurando', 'Costurado', 'Distribuido', 'Talonado', 'Montado', 'Finalizado'];
+        const processMap = {
+            'Costurando': {
+                dateField: 'costuraDataInicio',
+                previousFields: []
+            },
+            'Costurado': {
+                dateField: 'dataSaidaCostura',
+                previousFields: ['costuraDataInicio']
+            },
+            'Distribuido': {
+                dateField: 'dataEntradaDistribuicao',
+                previousFields: ['costuraDataInicio', 'dataSaidaCostura']
+            },
+            'Talonado': {
+                dateField: 'dataEntradaTalonagem',
+                previousFields: ['costuraDataInicio', 'dataSaidaCostura', 'dataEntradaDistribuicao']
+            },
+            'Montado': {
+                dateField: 'dataEntradaMontagem',
+                previousFields: ['costuraDataInicio', 'dataSaidaCostura', 'dataEntradaDistribuicao', 'dataEntradaTalonagem']
+            }
+        };
+
+        async function updateTaloesInBulk(newStatus) {
+            const barcodeList = Array.from(taloesTableBody.querySelectorAll('tr')).map(row => row.children[1].textContent);
+            const currentDate = new Date().toISOString().split('T')[0];
+
+            if (barcodeList.length === 0) {
+                showMessage('Nenhum código de barras na tabela para atualizar.', 'error');
+                return;
+            }
+
+            showMessage('Atualizando talões...', 'info');
+            let successCount = 0;
+            let failureCount = 0;
+            const failedBarcodes = [];
+            const skippedBarcodes = [];
+
+            const processInfo = processMap[newStatus] || {};
+            const dateField = processInfo.dateField;
+            const previousFields = processInfo.previousFields || [];
+
+            const promises = barcodeList.map(async (barcode) => {
+                try {
+                    const q = query(collection(db, 'taloes'), where('codigoBarrasIdentificador', '==', barcode));
+                    const querySnapshot = await getDocs(q);
+
+                    if (querySnapshot.empty) {
+                        console.error(`Talão com código ${barcode} não encontrado.`);
+                        failureCount++;
+                        failedBarcodes.push(barcode);
+                        return;
+                    }
+
+                    const talaoDoc = querySnapshot.docs[0];
+                    const talaoData = talaoDoc.data();
+                    const currentStatus = talaoData.statusGeral || '';
+                    const currentStatusIndex = statusOrder.indexOf(currentStatus);
+                    const newStatusIndex = statusOrder.indexOf(newStatus);
+                    let updatesToApply = {};
+
+                    // Preenche o campo de data do processo atual se estiver vazio
+                    if (dateField && !talaoData[dateField]) {
+                        updatesToApply[dateField] = currentDate;
+                    }
+                    
+                    // Preenche campos de data dos processos anteriores se estiverem vazios
+                    previousFields.forEach(field => {
+                        if (!talaoData[field]) {
+                            updatesToApply[field] = currentDate;
+                        }
+                    });
+
+                    // Adiciona o novo status para a atualização SOMENTE se for um avanço
+                    if (newStatus && (newStatusIndex > currentStatusIndex)) {
+                         updatesToApply.statusGeral = newStatus;
+                    }
+
+                    if (Object.keys(updatesToApply).length > 0) {
+                        await updateDoc(doc(db, 'taloes', talaoDoc.id), updatesToApply);
+                        successCount++;
+                    } else {
+                        skippedBarcodes.push(barcode);
+                    }
+
+                } catch (error) {
+                    console.error(`Erro ao atualizar talão ${barcode}:`, error);
+                    failureCount++;
+                    failedBarcodes.push(barcode);
+                }
+            });
+
+            await Promise.all(promises);
+            
+            if (failureCount === 0) {
+                let message = `Sucesso! ${successCount} talões atualizados.`;
+                if (skippedBarcodes.length > 0) {
+                    message += ` ${skippedBarcodes.length} talões foram pulados (status atual mais avançado ou dados já preenchidos).`;
+                }
+                showMessage(message, 'success');
+            } else {
+                let message = `Concluído com ${successCount} sucessos e ${failureCount} falhas.`;
+                if (failedBarcodes.length > 0) {
+                    message += ` Códigos com erro: ${failedBarcodes.join(', ')}.`;
+                }
+                if (skippedBarcodes.length > 0) {
+                    message += ` Códigos pulados (status/dados já preenchidos): ${skippedBarcodes.join(', ')}.`;
+                }
+                showMessage(message, 'error');
+            }
+        }
+        
+        async function updateGenericData() {
+            if (!confirm('Tem certeza que deseja ATUALIZAR OS DADOS para os talões selecionados?')) return;
+            const barcodeList = Array.from(taloesTableBody.querySelectorAll('tr')).map(row => row.children[1].textContent);
+            const updates = {};
+            if (updateDataCorte.value) {
+                updates.dataCorte = updateDataCorte.value;
+            }
+            if (updateDataEntrega.value) {
+                updates.dataEntrega = updateDataEntrega.value;
+            }
+            if (updateTipoCliente.value) {
+                updates.tipoCliente = updateTipoCliente.value;
+            }
+
+            if (Object.keys(updates).length === 0) {
+                showMessage('Por favor, preencha pelo menos um campo para atualizar.', 'error');
+                return;
+            }
+            
+            showMessage('Atualizando dados em massa...', 'info');
+            let successCount = 0;
+            let failureCount = 0;
+            const failedBarcodes = [];
+            
+            const promises = barcodeList.map(async (barcode) => {
+                try {
+                    const q = query(collection(db, 'taloes'), where('codigoBarrasIdentificador', '==', barcode));
+                    const querySnapshot = await getDocs(q);
+
+                    if (querySnapshot.empty) {
+                        console.error(`Talão com código ${barcode} não encontrado.`);
+                        failureCount++;
+                        failedBarcodes.push(barcode);
+                        return;
+                    }
+                    const talaoDoc = querySnapshot.docs[0];
+                    await updateDoc(doc(db, 'taloes', talaoDoc.id), updates);
+                    successCount++;
+                } catch (error) {
+                    console.error(`Erro ao atualizar talão ${barcode}:`, error);
+                    failureCount++;
+                    failedBarcodes.push(barcode);
+                }
+            });
+
+            await Promise.all(promises);
+            
+            if (failureCount === 0) {
+                showMessage(`Sucesso! ${successCount} talões atualizados.`, 'success');
+            } else {
+                showMessage(`Concluído com ${successCount} sucessos e ${failureCount} falhas. Códigos com erro: ${failedBarcodes.join(', ')}.`, 'error');
+            }
+        }
+
+        // Event Listeners para os botões
+        searchButton.addEventListener('click', searchTaloes);
+
+        updateCosturaEntradaBtn.addEventListener('click', () => {
+            if (!confirm('Tem certeza que deseja registrar a ENTRADA NA COSTURA para os talões selecionados?')) return;
+            updateTaloesInBulk('Costurando');
+        });
+
+        updateCosturaSaidaBtn.addEventListener('click', () => {
+            if (!confirm('Tem certeza que deseja registrar a SAÍDA DA COSTURA para os talões selecionados?')) return;
+            updateTaloesInBulk('Costurado');
+        });
+
+        updateTalonagemBtn.addEventListener('click', () => {
+            if (!confirm('Tem certeza que deseja registrar a ENTRADA NA TALONAGEM para os talões selecionados?')) return;
+            updateTaloesInBulk('Talonado');
+        });
+
+        updateDistribuicaoBtn.addEventListener('click', () => {
+            if (!confirm('Tem certeza que deseja registrar a ENTRADA NA DISTRIBUIÇÃO para os talões selecionados?')) return;
+            updateTaloesInBulk('Distribuido');
+        });
+
+        updateMontagemBtn.addEventListener('click', () => {
+            if (!confirm('Tem certeza que deseja registrar a ENTRADA NA MONTAGEM para os talões selecionados?')) return;
+            updateTaloesInBulk('Montado');
+        });
+
+        updateDataBtn.addEventListener('click', updateGenericData);
+    </script>
+</body>
+</html>

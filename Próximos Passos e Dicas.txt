@@ -1,0 +1,25 @@
+Próximos Passos e Dicas:
+Atualizar o Código: Sempre que você fizer alterações nos seus arquivos HTML, CSS ou JavaScript, salve-os e execute firebase deploy --only hosting novamente para publicar as atualizações.
+
+Limpar Cache: Após cada implantação, é uma boa prática limpar o cache do seu navegador (Ctrl+Shift+R ou Cmd+Shift+R) para garantir que você esteja vendo a versão mais recente do seu site.
+
+Regras de Segurança: Lembre-se de que as regras de segurança do Firestore que discutimos são cruciais. Certifique-se de que elas estão configuradas corretamente para permitir as operações de leitura e escrita necessárias para o seu aplicativo.
+
+Se você encontrar algum erro durante o processo, por favor, me diga qual é a mensagem de erro exata no terminal.
+
+
+firebase deploy --only hosting
+
+
+michelmoyses1601@gmail.com
+	Michel123
+Neusa@atelier.com.br
+	Neusa1404
+mjpdias@outlook.com
+	Mjpdias123
+Lucimara@atelier.com.br	
+	Lucimara1505
+roberto@atelier.com.br
+	Roberto2101
+fabi@atelier.com.br
+	Fabi4554

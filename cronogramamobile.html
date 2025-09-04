@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Cronograma (Mobile) - SistemaTaloes</title>
+  <style>
+    :root{
+      --bg:#f7f8fb; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e5e7eb;
+      --brand:#0ea5e9; --danger:#ef4444; --nav:#515151; --header:#333; --radius:12px;
+      --blue:#e0f2fe; --pink:#ffe4f1; --white:#ffffff; --yellow:#fff7d6; --green:#e6f6e6;
+      --blue-border:#38bdf8; --pink-border:#f472b6; --yellow-border:#facc15; --green-border:#34d399; --gray-border:#94a3b8;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
+
+    /* ===== Header compact ===== */
+    header{background:var(--header);color:#fff;padding:10px 12px;
+      display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;
+      box-shadow:0 1px 6px rgba(0,0,0,.25);
+    }
+    .brand h1{margin:0;font-size:18px;white-space:nowrap}
+    .user-info{min-width:0;margin-left:auto;text-align:right;line-height:1.2}
+    .user-info .name{font-weight:700;font-size:12px;max-width:56vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+    .user-info .nivel{font-size:11px;opacity:.9}
+    .icon-btn{appearance:none;border:0;background:var(--danger);color:#fff;border-radius:999px;width:32px;height:32px;
+      display:inline-flex;align-items:center;justify-content:center;font-weight:700}
+
+    /* ===== Nav compact ===== */
+    nav{background:var(--nav);padding:6px 10px;position:sticky;top:48px;z-index:49}
+    nav ul{list-style:none;margin:0;padding:0;display:flex;gap:8px;flex-wrap:wrap}
+    nav a{color:#fff;text-decoration:none;padding:6px 10px;border-radius:8px;font-size:13px}
+    nav a:hover{background:#777}
+
+    /* ===== Toolbar ===== */
+    .toolbar{position:sticky; top:86px; z-index:48; display:flex; gap:8px; padding:6px 10px; background:linear-gradient(#f7f8fb,#f7f8fb 70%,transparent)}
+    .btn{appearance:none;border:0;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:14px}
+    .btn-brand{background:var(--brand);color:#fff}
+    .btn-ghost{background:#fff;border:1px solid var(--line)}
+
+    main{padding:8px;max-width:1000px;margin-inline:auto}
+    .card{background:var(--card);border-radius:var(--radius);box-shadow:0 1px 10px rgba(0,0,0,.06);padding:10px}
+    .hint{color:var(--muted);font-size:13px;margin:6px 0 10px}
+
+    .chips{display:flex;gap:6px;flex-wrap:wrap;background:#eef2ff;border-radius:10px;padding:6px;margin-bottom:8px}
+    .chip{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 8px;text-align:center;font-size:12px}
+    .chip b{display:block;font-size:14px}
+
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:8px;border-bottom:1px solid var(--line);font-size:13px}
+    .table th{font-size:11px;letter-spacing:.02em;text-transform:uppercase;color:#334155;background:#f9fafb}
+    .td-right{text-align:right}
+
+    /* Row colors by tipoCliente (hyphenated classnames) */
+    tr.tipo-Exportacao{background:var(--blue)}
+    tr.tipo-Cliente-especial{background:var(--pink)}
+    tr.tipo-Mercado-Interno{background:var(--white)}
+    tr.tipo-Estoque{background:var(--yellow)}
+    tr.tipo-Amostra{background:var(--green)}
+    tr[class^="tipo-"] td{border-left:3px solid var(--gray-border)}
+    tr.tipo-Exportacao td{border-left-color:var(--blue-border)}
+    tr.tipo-Cliente-especial td{border-left-color:var(--pink-border)}
+    tr.tipo-Estoque td{border-left-color:var(--yellow-border)}
+    tr.tipo-Amostra td{border-left-color:var(--green-border)}
+
+    /* ===== Bottom-sheet Filter ===== */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;z-index:60}
+    .sheet{background:#fff;width:100%;border-top-left-radius:14px;border-top-right-radius:14px;padding:12px;max-height:82vh;overflow:auto}
+    .sheet h3{margin:0 0 8px;font-size:16px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .field{display:flex;flex-direction:column;gap:4px}
+    .label{font-size:11px;color:#475569}
+    input,select{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px}
+    .checkline{grid-column:1 / -1; display:flex; align-items:center; gap:8px; padding-top:4px}
+    .sheet .actions{display:flex;gap:8px;margin-top:8px;justify-content:flex-end}
+    @media (max-width:430px){ .grid{grid-template-columns:1fr} }
+
+    /* ===== Centered modal (Details) with scrollable content ===== */
+    .modal-center{align-items:center;justify-content:center}
+    .dialog{
+      background:#fff;width:min(960px,96vw);border-radius:14px;
+      box-shadow:0 20px 80px rgba(0,0,0,.25);
+      max-height:92dvh; display:flex;flex-direction:column;overflow:hidden;
+    }
+    .dialog-header{
+      display:flex;align-items:center;gap:8px;padding:8px 10px;
+      border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:1;
+    }
+    .dialog-header h3{margin:0;font-size:16px}
+    .dialog-body{padding:8px 10px;overflow:auto;-webkit-overflow-scrolling:touch}
+    .meta{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+    .meta .tag{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:999px;padding:3px 8px;font-size:11px}
+    .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    @media (max-width:620px){ .cols{grid-template-columns:1fr} }
+    .box{border:1px solid var(--line);border-radius:10px;padding:6px;background:#fafafa}
+    .box h4{margin:0 0 4px;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+    .box h4 small{font-weight:700;color:#334155}
+    .listWrap{border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff;margin:4px 0}
+    .listHead{display:flex;gap:6px;font-weight:700;font-size:11px;color:#374151;margin-bottom:2px}
+    .listItem{display:flex;gap:6px;font-size:12px;padding:2px 0}
+    .w-talao{width:40px} .w-modelo{flex:1} .w-pares{width:50px;text-align:right} .w-cor{min-width:70px}
+    .row{display:flex;justify-content:space-between;padding:4px 0;border-top:1px dashed #e5e7eb;font-size:12px}
+    .dialog-footer{padding:6px 10px;border-top:1px solid var(--line);background:#fff;position:sticky;bottom:0}
+
+    /* Travar o fundo quando um modal abre */
+    body.modal-open{height:100dvh;overflow:hidden}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><h1>SistemaTaloes</h1></div>
+    <div class="user-info">
+      <span id="userNameDisplay" class="name">Carregando…</span>
+      <span id="userNivelDisplay" class="nivel"></span>
+    </div>
+    <button id="logoutButton" class="icon-btn" title="Sair">↯</button>
+  </header>
+
+  <nav><ul id="menuNav"></ul></nav>
+
+  <div class="toolbar">
+    <button id="btnFilter" class="btn btn-brand">Filtro</button>
+  </div>
+
+  <main>
+    <div class="hint card" id="hint">A tabela inicia vazia. Toque em <b>Filtro</b> para aplicar os critérios.</div>
+
+    <div class="card" id="summaryWrap" style="display:none">
+      <div class="chips" id="chips"></div>
+    </div>
+
+    <div class="card" id="tableWrap" style="display:none">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Data de Corte</th>
+            <th>Linha</th>
+            <th>Remessa</th>
+            <th class="td-right">Pares</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Modal Filtros -->
+  <div class="modal" id="modalFilter">
+    <div class="sheet">
+      <h3>Filtros</h3>
+      <div class="grid">
+        <div class="field"><label class="label">Linha</label><input id="f_linha" placeholder="Ex: 100"></div>
+        <div class="field"><label class="label">Remessa</label><input id="f_remessa" placeholder="Ex: 2684982"></div>
+        <div class="field"><label class="label">Data Corte (Início)</label><input type="date" id="f_dc_ini"></div>
+        <div class="field"><label class="label">Data Corte (Fim)</label><input type="date" id="f_dc_fim"></div>
+        <div class="field"><label class="label">Tipo de Cliente</label>
+          <select id="f_tipo">
+            <option value="">Todos</option>
+            <option value="Exportacao">Exportação</option>
+            <option value="Cliente especial">Cliente Especial</option>
+            <option value="Mercado Interno">Mercado Interno</option>
+            <option value="Estoque">Estoque</option>
+            <option value="Amostra">Amostra</option>
+          </select>
+        </div>
+        <div class="field"><label class="label">Ateliê Responsável</label><input id="f_atelie" placeholder="Todos"></div>
+        <div class="field"><label class="label">Status Geral</label>
+          <select id="f_status">
+            <option value="">Todos</option>
+            <option>Pendente</option>
+            <option>Aguardando Material</option>
+            <option>Cortando</option>
+            <option>Cortado</option>
+            <option>Costurando</option>
+            <option>Costurado</option>
+            <option>Distribuído</option>
+            <option>Talonado</option>
+            <option>Montado</option>
+            <option>Finalizado</option>
+          </select>
+        </div>
+        <div class="field"><label class="label">Entrega (Início)</label><input type="date" id="f_de_ini"></div>
+        <div class="field"><label class="label">Entrega (Fim)</label><input type="date" id="f_de_fim"></div>
+
+        <!-- Checkbox "Montados" -->
+        <div class="checkline">
+          <input type="checkbox" id="f_montados" />
+          <label for="f_montados">Mostrar remessas já montadas</label>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" id="btnClear">Limpar</button>
+        <button class="btn btn-brand" id="btnApply">Buscar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalhes por Remessa -->
+  <div class="modal modal-center" id="modalDetails">
+    <div class="dialog">
+      <div class="dialog-header">
+        <h3 id="detailsTitle">Remessa – Linha – Data</h3>
+        <button class="btn btn-ghost" id="btnCloseDetails">Fechar</button>
+      </div>
+      <div class="dialog-body">
+        <div class="meta">
+          <span class="tag" id="metaRemessa" style="display:none">Remessa – Linha</span>
+          <span class="tag" id="metaTotals">Talões: 0 · Pares: 0</span>
+        </div>
+
+        <div class="cols">
+          <div class="box" id="boxCorte">
+            <h4><span>Corte</span><small>Talões Abertos <b id="corteTaloes">0</b></small></h4>
+            <div class="listWrap">
+              <div class="listHead">
+                <span class="w-talao">Talão</span><span class="w-modelo">Modelo</span><span class="w-pares">Pares</span><span class="w-cor">Cor</span>
+              </div>
+              <div id="corteList"></div>
+            </div>
+            <div class="row"><span>Pares Abertos</span><b id="cortePares">0</b></div>
+          </div>
+
+          <div class="box" id="boxCostura">
+            <h4><span>Costura</span><small>Talões Abertos <b id="costTaloes">0</b></small></h4>
+            <div class="listWrap">
+              <div class="listHead">
+                <span class="w-talao">Talão</span><span class="w-modelo">Modelo</span><span class="w-pares">Pares</span><span class="w-cor">Cor</span>
+              </div>
+              <div id="costList"></div>
+            </div>
+            <div class="row"><span>Pares Abertos</span><b id="costPares">0</b></div>
+          </div>
+
+          <div class="box" id="boxDist">
+            <h4><span>Distribuição</span><small>Talões Abertos <b id="distTaloes">0</b></small></h4>
+            <div class="listWrap">
+              <div class="listHead">
+                <span class="w-talao">Talão</span><span class="w-modelo">Modelo</span><span class="w-pares">Pares</span><span class="w-cor">Cor</span>
+              </div>
+              <div id="distList"></div>
+            </div>
+            <div class="row"><span>Pares Abertos</span><b id="distPares">0</b></div>
+          </div>
+
+          <div class="box" id="boxTalon">
+            <h4><span>Talonagem</span><small>Talões Abertos <b id="talTaloes">0</b></small></h4>
+            <div class="listWrap">
+              <div class="listHead">
+                <span class="w-talao">Talão</span><span class="w-modelo">Modelo</span><span class="w-pares">Pares</span><span class="w-cor">Cor</span>
+              </div>
+              <div id="talList"></div>
+            </div>
+            <div class="row"><span>Pares Abertos</span><b id="talPares">0</b></div>
+          </div>
+
+          <div class="box" id="boxMont">
+            <h4><span>Montagem</span><small>Talões Abertos <b id="montTaloes">0</b></small></h4>
+            <div class="listWrap">
+              <div class="listHead">
+                <span class="w-talao">Talão</span><span class="w-modelo">Modelo</span><span class="w-pares">Pares</span><span class="w-cor">Cor</span>
+              </div>
+              <div id="montList"></div>
+            </div>
+            <div class="row"><span>Pares Abertos</span><b id="montPares">0</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <small style="color:var(--muted)">O conteúdo do modal rola internamente</small>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+      authDomain: "sistemataloes.firebaseapp.com",
+      projectId: "sistemataloes",
+      storageBucket: "sistemataloes.appspot.com",
+      messagingSenderId: "684534379685",
+      appId: "1:684534379685:web:ac0f831c26991ac059094c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+
+    const menuNav=document.getElementById('menuNav');
+    const userNameDisplay=document.getElementById('userNameDisplay');
+    const userNivelDisplay=document.getElementById('userNivelDisplay');
+    const logoutButton=document.getElementById('logoutButton');
+
+    const btnFilter=document.getElementById('btnFilter');
+
+    const hint=document.getElementById('hint');
+    const tableWrap=document.getElementById('tableWrap');
+    const tbody=document.getElementById('tbody');
+    const summaryWrap=document.getElementById('summaryWrap');
+    const chips=document.getElementById('chips');
+
+    const modalFilter=document.getElementById('modalFilter');
+    const f_linha=document.getElementById('f_linha');
+    const f_remessa=document.getElementById('f_remessa');
+    const f_dc_ini=document.getElementById('f_dc_ini');
+    const f_dc_fim=document.getElementById('f_dc_fim');
+    const f_tipo=document.getElementById('f_tipo');
+    const f_atelie=document.getElementById('f_atelie');
+    const f_status=document.getElementById('f_status');
+    const f_de_ini=document.getElementById('f_de_ini');
+    const f_de_fim=document.getElementById('f_de_fim');
+    const f_montados=document.getElementById('f_montados');
+    const btnApply=document.getElementById('btnApply');
+    const btnClear=document.getElementById('btnClear');
+
+    const modalDetails=document.getElementById('modalDetails');
+    const detailsTitle=document.getElementById('detailsTitle');
+    const metaRemessa=document.getElementById('metaRemessa');
+    const metaTotals=document.getElementById('metaTotals');
+    const btnCloseDetails=document.getElementById('btnCloseDetails');
+    const corteTaloes=document.getElementById('corteTaloes');
+    const cortePares=document.getElementById('cortePares');
+    const costTaloes=document.getElementById('costTaloes');
+    const costPares=document.getElementById('costPares');
+    const distTaloes=document.getElementById('distTaloes');
+    const distPares=document.getElementById('distPares');
+    const talTaloes=document.getElementById('talTaloes');
+    const talPares=document.getElementById('talPares');
+    const montTaloes=document.getElementById('montTaloes');
+    const montPares=document.getElementById('montPares');
+    const corteList=document.getElementById('corteList');
+    const costList=document.getElementById('costList');
+    const distList=document.getElementById('distList');
+    const talList=document.getElementById('talList');
+    const montList=document.getElementById('montList');
+
+    const normLevel=v=>String(v??'').toUpperCase().replace(/^O/,'0').padStart(2,'0');
+    const nivelNomes={'01':'Cadastro','02':'Corte','03':'Costura','04':'Montagem','05':'Admin','06':'Consultor'};
+    const pages=[
+            { name: 'Resumo', href: 'resumo.html', levels: ['05'] },
+            { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06'] },
+            { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05'] },
+            { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05'] },
+            { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['01','02', '04','05', '06'] },
+            { name: 'Corte', href: 'corte.html', levels: ['02', '05'] },
+            { name: 'Costura', href: 'costura.html', levels: ['03', '05'] },
+            { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03', '05'] },
+            { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05'] },
+            { name: 'Atlier Mobile', href: 'relatoriomobile.html', levels: ['05'] },
+            { name: 'Romaneio', href: 'romaneio.html', levels: ['05'] },
+            { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05'] },
+            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['05'] },
+            { name: 'Distribuição', href: 'distribuicao.html', levels: ['04', '05'] },
+            { name: 'Talonagem', href: 'talonagem.html', levels: ['04', '05'] },
+            { name: 'Montagem', href: 'montagem.html', levels: ['05'] }
+    ];
+    function generateMenu(nivel,user){
+      menuNav.innerHTML='';
+      userNameDisplay.textContent=user||'Usuário';
+      userNivelDisplay.textContent=`Setor: ${nivelNomes[nivel]||nivel}`;
+      pages.forEach(p=>{ if(p.levels.includes(nivel)){ const li=document.createElement('li'); const a=document.createElement('a'); a.href=p.href; a.textContent=p.name; li.appendChild(a); menuNav.appendChild(li);} });
+    }
+    const formatBR=iso=>{ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; };
+    const hasDate=v=>v!==undefined && v!==null && String(v).trim()!=='';
+
+    function deriveStatusGeral(t){
+      const corteCab=hasDate(t.cabedalData), corteFor=hasDate(t.forroData), corteAvi=hasDate(t.aviamentoData);
+      const corteAll = corteCab && corteFor && corteAvi;
+      if(hasDate(t.dataEntradaMontagem)) return 'Montado';
+      if(hasDate(t.dataEntradaTalonagem)) return 'Talonado';
+      if(hasDate(t.dataEntradaDistribuicao)) return 'Distribuído';
+      if(hasDate(t.dataSaidaCostura)) return 'Costurado';
+      if(hasDate(t.costuraDataInicio) || hasDate(t.dataEntradaCostura)) return 'Costurando';
+      if(corteAll) return 'Cortado';
+      if(corteCab || corteFor || corteAvi) return 'Cortando';
+      return 'Aguardando Material';
+    }
+
+    let fetched=[]; let grouped=[]; let currentUser='';
+
+    onAuthStateChanged(auth, async (user)=>{
+      if(!user){ location.href='login.html'; return; }
+      const snap = await getDoc(doc(db,'Usuario', user.email));
+      if(!snap.exists()){ await signOut(auth); location.href='login.html'; return; }
+      const data = snap.data(); const nivel = normLevel(data.nivelAcesso); currentUser = data.Nome || user.email;
+      const allowed = pages.find(p=>p.href==='cronogramamobile.html').levels.includes(nivel);
+      if(!allowed){ alert('Você não tem permissão para acessar esta página.'); location.href='index.html'; return; }
+      generateMenu(nivel, currentUser);
+    });
+
+    const open = el => { el.style.display='flex'; document.body.classList.add('modal-open'); };
+    const close = el => { el.style.display='none'; document.body.classList.remove('modal-open'); };
+    btnFilter.onclick = ()=> open(modalFilter);
+    modalFilter.addEventListener('click', e=>{ if(e.target===modalFilter) close(modalFilter); });
+    btnApply.onclick = async ()=>{
+      if(f_remessa.value && !f_montados.checked){ f_montados.checked = true; }
+      await runSearch(); close(modalFilter);
+    };
+    btnClear.onclick = ()=>{
+      [f_linha,f_remessa,f_dc_ini,f_dc_fim,f_tipo,f_atelie,f_status,f_de_ini,f_de_fim].forEach(el=>el.value='');
+      f_montados.checked = false;
+      tbody.innerHTML=''; tableWrap.style.display='none'; summaryWrap.style.display='none'; hint.style.display='block';
+    };
+
+    async function runSearch(){
+      let qRef = collection(db,'taloes');
+      if(f_linha.value){ qRef = query(qRef, where('linha','==', f_linha.value.trim())); }
+      if(f_remessa.value){ qRef = query(qRef, where('numeroRemessa','==', f_remessa.value.trim())); }
+      if(f_tipo.value){ qRef = query(qRef, where('tipoCliente','==', f_tipo.value)); }
+      if(f_atelie.value){ qRef = query(qRef, where('idAtelieResponsavel','==', f_atelie.value.trim())); }
+      if(f_dc_ini.value && f_dc_fim.value){ qRef = query(qRef, where('dataCorte','>=', f_dc_ini.value), where('dataCorte','<=', f_dc_fim.value)); }
+      const snap = await getDocs(qRef);
+      fetched = snap.docs.map(d=> ({id:d.id, ...d.data()} ));
+      if(f_de_ini.value && f_de_fim.value) fetched = fetched.filter(t => t.dataEntrega && t.dataEntrega>=f_de_ini.value && t.dataEntrega<=f_de_fim.value);
+      fetched.forEach(t => t._status=deriveStatusGeral(t));
+      if(f_status.value) fetched = fetched.filter(t => t._status===f_status.value);
+
+      // Agrupar por remessa
+      const m = new Map();
+      for(const t of fetched){
+        const key = t.numeroRemessa || 'N/D';
+        const cur = m.get(key) || {remessa:key, dataCorte: t.dataCorte || '', pares:0, rows:[], linha: t.linha||'', tipoCliente: t.tipoCliente || ''};
+        cur.pares += Number(t.pares)||0;
+        if(!cur.dataCorte || (t.dataCorte && t.dataCorte < cur.dataCorte)) cur.dataCorte = t.dataCorte;
+        if(!cur.linha && t.linha) cur.linha = t.linha;
+        if(!cur.tipoCliente && t.tipoCliente) cur.tipoCliente = t.tipoCliente;
+        cur.rows.push(t);
+        m.set(key, cur);
+      }
+      let groupedAll = [...m.values()];
+
+      // Filtrar "montados"
+      const isRemessaMontada = (g) => g.rows.length > 0 && g.rows.every(t => hasDate(t.dataEntradaMontagem));
+      if(!f_montados.checked){
+        groupedAll = groupedAll.filter(g => !isRemessaMontada(g));
+      }
+
+      // Ordenação final
+      grouped = groupedAll.sort((a,b)=> (a.dataCorte||'').localeCompare(b.dataCorte||'') || (a.remessa||'').localeCompare(b.remessa||''));
+
+      // Linhas exibidas (para chips)
+      const displayedRows = grouped.flatMap(g => g.rows);
+
+      renderSummary(displayedRows);
+      renderTable();
+    }
+
+    function renderSummary(rows){
+      if(!rows.length){ summaryWrap.style.display='none'; return; }
+      const totalPares = rows.reduce((s,t)=>s+(Number(t.pares)||0),0);
+      let corte=0,giro=0,costura=0,dist=0,talon=0,mont=0,totalTal=0;
+      const hasAll=(t)=> hasDate(t.cabedalData)&&hasDate(t.forroData)&&hasDate(t.aviamentoData);
+      rows.forEach(t=>{
+        totalTal++;
+        if(!hasAll(t)) corte += (Number(t.pares)||0);
+        const saida = hasDate(t.dataSaidaCostura);
+        const distOK = hasDate(t.dataEntradaDistribuicao);
+        const talOK  = hasDate(t.dataEntradaTalonagem);
+        const montOK = hasDate(t.dataEntradaMontagem);
+        if(!saida) costura += (Number(t.pares)||0);
+        if(!distOK) dist += (Number(t.pares)||0);
+        if(!talOK)  talon += (Number(t.pares)||0);
+        if(!montOK) mont += (Number(t.pares)||0);
+      });
+      const comCorte = rows.filter(hasAll).reduce((s,t)=>s+(Number(t.pares)||0),0);
+      const saidos   = rows.filter(t=>hasDate(t.dataSaidaCostura)).reduce((s,t)=>s+(Number(t.pares)||0),0);
+      giro = Math.max(0, comCorte - saidos);
+
+      chips.innerHTML = `
+        <div class="chip">Total pares<b>${totalPares}</b></div>
+        <div class="chip">Talões Filtrados<b>${totalTal}</b></div>
+        <div class="chip">Corte<b>${corte}</b></div>
+        <div class="chip">Giro Costura<b>${giro}</b></div>
+        <div class="chip">Costura<b>${costura}</b></div>
+        <div class="chip">Distribuição<b>${dist}</b></div>
+        <div class="chip">Talonagem<b>${talon}</b></div>
+        <div class="chip">Montagem<b>${mont}</b></div>
+      `;
+      summaryWrap.style.display='block';
+    }
+
+    function tipoToClass(tipo){
+      if(!tipo) return '';
+      const t = String(tipo).toLowerCase();
+      if(t.includes('export')) return 'tipo-Exportacao';
+      if(t.includes('cliente') && t.includes('especial')) return 'tipo-Cliente-especial';
+      if(t.includes('mercado') && t.includes('interno')) return 'tipo-Mercado-Interno';
+      if(t.includes('estoque')) return 'tipo-Estoque';
+      if(t.includes('amostra')) return 'tipo-Amostra';
+      return '';
+    }
+
+    function renderTable(){
+      tbody.innerHTML='';
+      if(!grouped.length){
+        hint.style.display='block'; tableWrap.style.display='none';
+        return;
+      }
+      hint.style.display='none'; tableWrap.style.display='block';
+      grouped.forEach(g=>{
+        const tr=document.createElement('tr');
+        tr.className = tipoToClass(g.tipoCliente);
+        tr.innerHTML = `
+          <td>${formatBR(g.dataCorte||'')}</td>
+          <td>${g.linha||''}</td>
+          <td><a href="#" data-rem="${g.remessa}" class="remLink" data-linha="${g.linha||''}">${g.remessa}</a></td>
+          <td class="td-right" style="font-weight:700">${g.pares}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.addEventListener('click', (e)=>{
+      const a=e.target.closest('.remLink');
+      if(!a) return;
+      e.preventDefault();
+      const rem=a.dataset.rem;
+      const linha=a.dataset.linha||'';
+      const grp = grouped.find(g=>g.remessa===rem);
+      const rows = grp?.rows || [];
+      const dt = grp?.dataCorte ? formatBR(grp.dataCorte) : '';
+      detailsTitle.textContent = `${rem} – Linha ${linha} – ${dt}`;
+
+      // Totais da remessa
+      const totalTaloes = rows.length;
+      const totalPares  = rows.reduce((s,t)=>s+(Number(t.pares)||0),0);
+      metaTotals.textContent = `Talões: ${totalTaloes} · Pares: ${totalPares}`;
+
+      function fillSector(listEl, countEl, pairsEl, items){
+        items.sort((a,b)=> (Number(a.talao)||0) - (Number(b.talao)||0) );
+        listEl.innerHTML = items.length
+          ? items.map(it => `
+              <div class="listItem">
+                <span class="w-talao">${it.talao}</span>
+                <span class="w-modelo">${it.modelo||''}</span>
+                <span class="w-pares">${it.pares}</span>
+                <span class="w-cor">${it.cor||''}</span>
+              </div>`).join('')
+          : '<div class="listItem" style="color:#6b7280">Nenhum talão</div>';
+        countEl.textContent = items.length;
+        pairsEl.textContent = items.reduce((s,x)=>s+(Number(x.pares)||0),0);
+      }
+
+      const isCorteOpen = t => !(hasDate(t.cabedalData)&&hasDate(t.forroData)&&hasDate(t.aviamentoData));
+      const isCostOpen  = t => !hasDate(t.dataSaidaCostura);
+      const isDistOpen  = t => !hasDate(t.dataEntradaDistribuicao);
+      const isTalOpen   = t => !hasDate(t.dataEntradaTalonagem);
+      const isMontOpen  = t => !hasDate(t.dataEntradaMontagem);
+      const toItem = t => ({ talao: t.numeroTalaoSequencial || '', modelo: t.modelo || '', pares: t.pares || 0, cor: t.corSapato || '' });
+
+      fillSector(corteList, corteTaloes, cortePares, rows.filter(isCorteOpen).map(toItem));
+      fillSector(costList,  costTaloes,  costPares, rows.filter(isCostOpen).map(toItem));
+      fillSector(distList,  distTaloes,  distPares, rows.filter(isDistOpen).map(toItem));
+      fillSector(talList,   talTaloes,   talPares, rows.filter(isTalOpen).map(toItem));
+      fillSector(montList,  montTaloes,  montPares, rows.filter(isMontOpen).map(toItem));
+
+      open(modalDetails);
+    });
+    btnCloseDetails.onclick = ()=> close(modalDetails);
+    modalDetails.addEventListener('click', e=>{ if(e.target===modalDetails) close(modalDetails); });
+
+    logoutButton.addEventListener('click', async ()=>{ try{ await signOut(auth); location.href='login.html'; } catch{ alert('Erro ao sair'); }});
+  </script>
+</body>
+</html>
