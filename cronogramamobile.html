@@ -78,6 +78,19 @@
     .w-talao{width:44px} .w-pares{width:44px;text-align:right} .w-modelo{flex:1}
     .row{display:flex;justify-content:space-between;padding:4px 0;border-top:1px dashed #e5e7eb;font-size:13px}
     .close-right{margin-left:auto}
+    .modal-content {
+        max-height: 80vh;      /* limite da altura do modal */
+        overflow-y: auto;      /* ativa rolagem interna */
+        border-radius: 10px;
+}
+
+.modal-header {  position: sticky;      /* fixa o cabeçalho */
+  top: 0;
+  background: #fff;      /* fundo sólido pra não vazar o conteúdo por baixo */
+  z-index: 10;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
   </style>
 </head>
 <body>
