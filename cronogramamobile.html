@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Cronograma (Mobile) - SistemaTaloes</title>
-  <style>
+    <style>
     :root{
       --bg:#f7f8fb; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e5e7eb;
       --brand:#0ea5e9; --ok:#2563eb; --danger:#ef4444; --nav:#515151; --header:#333; --radius:12px;
@@ -60,36 +60,111 @@
     .sheet .actions{display:flex;gap:8px;margin-top:8px;justify-content:flex-end}
     @media (max-width:430px){ .grid{grid-template-columns:1fr} }
 
-    /* ===== Centered modal (Details) compact ===== */
-    .modal-center{align-items:center;justify-content:center}
-    .dialog{background:#fff;width:min(960px,96vw);border-radius:14px;padding:10px;box-shadow:0 20px 80px rgba(0,0,0,.25)}
-    .dialog .head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-    .dialog h3{margin:0;font-size:18px}
-    .meta{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 8px}
-    .meta .tag{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:999px;padding:4px 8px;font-size:12px}
-    .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    @media (max-width:620px){ .cols{grid-template-columns:1fr} }
-    .box{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fafafa}
-    .box h4{margin:0 0 6px;font-size:16px;display:flex;justify-content:space-between;align-items:center}
-    .box h4 small{font-weight:700;color:#334155}
-    .listWrap{border:1px solid var(--line);border-radius:8px;padding:6px;background:#fff;margin:4px 0}
-    .listHead{display:flex;gap:6px;font-weight:700;font-size:12px;color:#374151;margin-bottom:4px}
-    .listItem{display:flex;gap:6px;font-size:12px;padding:2px 0}
-    .w-talao{width:44px} .w-pares{width:44px;text-align:right} .w-modelo{flex:1}
-    .row{display:flex;justify-content:space-between;padding:4px 0;border-top:1px dashed #e5e7eb;font-size:13px}
-    .close-right{margin-left:auto}
-    .modal-content {
-        max-height: 80vh;      /* limite da altura do modal */
-        overflow-y: auto;      /* ativa rolagem interna */
-        border-radius: 10px;
+      /* Estilos do modal */
+.modal {
+  display: none; 
+  position: fixed; 
+  z-index: 9999; 
+  left: 0; 
+  top: 0; 
+  width: 100%; 
+  height: 100%; 
+  overflow: hidden; 
+  background-color: rgba(0,0,0,0.5);
+  padding-top: 40px;
 }
 
-.modal-header {  position: sticky;      /* fixa o cabeçalho */
+.modal-content {
+  background-color: #fff;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 95%;
+  max-width: 600px;
+  max-height: 80vh;       /* limite de altura */
+  overflow-y: auto;       /* rolagem interna */
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Cabeçalho fixo */
+.modal-header {
+  position: sticky;
   top: 0;
-  background: #fff;      /* fundo sólido pra não vazar o conteúdo por baixo */
+  background: #fff;
   z-index: 10;
-  padding: 10px;
+  padding: 10px 15px;
   border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: bold;
+}
+
+/* Corpo do modal */
+.modal-body {
+  padding: 10px 15px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Cartões internos */
+.setor-card {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.setor-card h3 {
+  font-size: 14px;
+  margin: 0 0 6px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Tabela de talões */
+.setor-card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.setor-card table th,
+.setor-card table td {
+  padding: 4px 6px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+/* Rodapé */
+.modal-footer {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  text-align: right;
+}
+
+.modal-footer button {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 5px;
+  background: #007bff;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.modal-footer button:hover {
+  background: #0056b3;
 }
   </style>
 </head>
