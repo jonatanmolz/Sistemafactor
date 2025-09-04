@@ -8,6 +8,8 @@
     :root{
       --bg:#f7f8fb; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e5e7eb;
       --brand:#0ea5e9; --danger:#ef4444; --nav:#515151; --header:#333; --radius:12px;
+      --blue:#e0f2fe; --pink:#ffe4f1; --white:#ffffff; --yellow:#fff7d6; --green:#e6f6e6;
+      --blue-border:#38bdf8; --pink-border:#f472b6; --yellow-border:#facc15; --green-border:#34d399; --gray-border:#94a3b8;
     }
     *{box-sizing:border-box}
     html,body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
@@ -47,7 +49,19 @@
     .table{width:100%;border-collapse:collapse}
     .table th,.table td{padding:8px;border-bottom:1px solid var(--line);font-size:13px}
     .table th{font-size:11px;letter-spacing:.02em;text-transform:uppercase;color:#334155;background:#f9fafb}
-    .pill{display:inline-block;border-radius:999px;padding:2px 8px;font-size:11px;background:#eef2ff;color:#1f2937}
+    .td-right{text-align:right}
+
+    /* Row colors by tipoCliente (hyphenated classnames) */
+    tr.tipo-Exportacao{background:var(--blue)}
+    tr.tipo-Cliente-especial{background:var(--pink)}
+    tr.tipo-Mercado-Interno{background:var(--white)}
+    tr.tipo-Estoque{background:var(--yellow)}
+    tr.tipo-Amostra{background:var(--green)}
+    tr[class^="tipo-"] td{border-left:3px solid var(--gray-border)}
+    tr.tipo-Exportacao td{border-left-color:var(--blue-border)}
+    tr.tipo-Cliente-especial td{border-left-color:var(--pink-border)}
+    tr.tipo-Estoque td{border-left-color:var(--yellow-border)}
+    tr.tipo-Amostra td{border-left-color:var(--green-border)}
 
     /* ===== Bottom-sheet Filter ===== */
     .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;z-index:60}
@@ -57,6 +71,7 @@
     .field{display:flex;flex-direction:column;gap:4px}
     .label{font-size:11px;color:#475569}
     input,select{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:14px}
+    .checkline{grid-column:1 / -1; display:flex; align-items:center; gap:8px; padding-top:4px}
     .sheet .actions{display:flex;gap:8px;margin-top:8px;justify-content:flex-end}
     @media (max-width:430px){ .grid{grid-template-columns:1fr} }
 
@@ -65,15 +80,14 @@
     .dialog{
       background:#fff;width:min(960px,96vw);border-radius:14px;
       box-shadow:0 20px 80px rgba(0,0,0,.25);
-      max-height:92dvh;             /* limite da altura total do modal */
-      display:flex;flex-direction:column;overflow:hidden;
+      max-height:92dvh; display:flex;flex-direction:column;overflow:hidden;
     }
     .dialog-header{
       display:flex;align-items:center;gap:8px;padding:8px 10px;
       border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:1;
     }
     .dialog-header h3{margin:0;font-size:16px}
-    .dialog-body{padding:8px 10px;overflow:auto;-webkit-overflow-scrolling:touch} /* rola só o conteúdo */
+    .dialog-body{padding:8px 10px;overflow:auto;-webkit-overflow-scrolling:touch}
     .meta{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
     .meta .tag{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:999px;padding:3px 8px;font-size:11px}
     .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -84,7 +98,7 @@
     .listWrap{border:1px solid var(--line);border-radius:8px;padding:4px;background:#fff;margin:4px 0}
     .listHead{display:flex;gap:6px;font-weight:700;font-size:11px;color:#374151;margin-bottom:2px}
     .listItem{display:flex;gap:6px;font-size:12px;padding:2px 0}
-    .w-talao{width:40px} .w-pares{width:40px;text-align:right} .w-modelo{flex:1}
+    .w-talao{width:40px} .w-modelo{flex:1} .w-pares{width:50px;text-align:right} .w-cor{min-width:70px}
     .row{display:flex;justify-content:space-between;padding:4px 0;border-top:1px dashed #e5e7eb;font-size:12px}
     .dialog-footer{padding:6px 10px;border-top:1px solid var(--line);background:#fff;position:sticky;bottom:0}
 
@@ -119,10 +133,10 @@
       <table class="table">
         <thead>
           <tr>
-            <th>Remessa</th>
             <th>Data de Corte</th>
-            <th>Pares</th>
-            <th>Status</th>
+            <th>Linha</th>
+            <th>Remessa</th>
+            <th class="td-right">Pares</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -167,6 +181,12 @@
         </div>
         <div class="field"><label class="label">Entrega (Início)</label><input type="date" id="f_de_ini"></div>
         <div class="field"><label class="label">Entrega (Fim)</label><input type="date" id="f_de_fim"></div>
+
+        <!-- Checkbox "Montados" -->
+        <div class="checkline">
+          <input type="checkbox" id="f_montados" />
+          <label for="f_montados">Mostrar remessas já montadas</label>
+        </div>
       </div>
       <div class="actions">
         <button class="btn btn-ghost" id="btnClear">Limpar</button>
@@ -179,12 +199,12 @@
   <div class="modal modal-center" id="modalDetails">
     <div class="dialog">
       <div class="dialog-header">
-        <h3 id="detailsTitle">Resumo da Remessa</h3>
+        <h3 id="detailsTitle">Remessa – Linha – Data</h3>
         <button class="btn btn-ghost" id="btnCloseDetails">Fechar</button>
       </div>
       <div class="dialog-body">
         <div class="meta">
-          <span class="tag" id="metaRemessa">Remessa – Linha</span>
+          <span class="tag" id="metaRemessa" style="display:none">Remessa – Linha</span>
           <span class="tag" id="metaTotals">Talões: 0 · Pares: 0</span>
         </div>
 
@@ -192,7 +212,9 @@
           <div class="box" id="boxCorte">
             <h4><span>Corte</span><small>Talões Abertos <b id="corteTaloes">0</b></small></h4>
             <div class="listWrap">
-              <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
+              <div class="listHead">
+                <span class="w-talao">Talão</span><span class="w-modelo">Modelo</span><span class="w-pares">Pares</span><span class="w-cor">Cor</span>
+              </div>
               <div id="corteList"></div>
             </div>
             <div class="row"><span>Pares Abertos</span><b id="cortePares">0</b></div>
@@ -201,7 +223,9 @@
           <div class="box" id="boxCostura">
             <h4><span>Costura</span><small>Talões Abertos <b id="costTaloes">0</b></small></h4>
             <div class="listWrap">
-              <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
+              <div class="listHead">
+                <span class="w-talao">Talão</span><span class="w-modelo">Modelo</span><span class="w-pares">Pares</span><span class="w-cor">Cor</span>
+              </div>
               <div id="costList"></div>
             </div>
             <div class="row"><span>Pares Abertos</span><b id="costPares">0</b></div>
@@ -210,7 +234,9 @@
           <div class="box" id="boxDist">
             <h4><span>Distribuição</span><small>Talões Abertos <b id="distTaloes">0</b></small></h4>
             <div class="listWrap">
-              <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
+              <div class="listHead">
+                <span class="w-talao">Talão</span><span class="w-modelo">Modelo</span><span class="w-pares">Pares</span><span class="w-cor">Cor</span>
+              </div>
               <div id="distList"></div>
             </div>
             <div class="row"><span>Pares Abertos</span><b id="distPares">0</b></div>
@@ -219,7 +245,9 @@
           <div class="box" id="boxTalon">
             <h4><span>Talonagem</span><small>Talões Abertos <b id="talTaloes">0</b></small></h4>
             <div class="listWrap">
-              <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
+              <div class="listHead">
+                <span class="w-talao">Talão</span><span class="w-modelo">Modelo</span><span class="w-pares">Pares</span><span class="w-cor">Cor</span>
+              </div>
               <div id="talList"></div>
             </div>
             <div class="row"><span>Pares Abertos</span><b id="talPares">0</b></div>
@@ -228,7 +256,9 @@
           <div class="box" id="boxMont">
             <h4><span>Montagem</span><small>Talões Abertos <b id="montTaloes">0</b></small></h4>
             <div class="listWrap">
-              <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
+              <div class="listHead">
+                <span class="w-talao">Talão</span><span class="w-modelo">Modelo</span><span class="w-pares">Pares</span><span class="w-cor">Cor</span>
+              </div>
               <div id="montList"></div>
             </div>
             <div class="row"><span>Pares Abertos</span><b id="montPares">0</b></div>
@@ -282,6 +312,7 @@
     const f_status=document.getElementById('f_status');
     const f_de_ini=document.getElementById('f_de_ini');
     const f_de_fim=document.getElementById('f_de_fim');
+    const f_montados=document.getElementById('f_montados');
     const btnApply=document.getElementById('btnApply');
     const btnClear=document.getElementById('btnClear');
 
@@ -351,9 +382,13 @@
     const close = el => { el.style.display='none'; document.body.classList.remove('modal-open'); };
     btnFilter.onclick = ()=> open(modalFilter);
     modalFilter.addEventListener('click', e=>{ if(e.target===modalFilter) close(modalFilter); });
-    btnApply.onclick = async ()=>{ await runSearch(); close(modalFilter); };
+    btnApply.onclick = async ()=>{
+      if(f_remessa.value && !f_montados.checked){ f_montados.checked = true; }
+      await runSearch(); close(modalFilter);
+    };
     btnClear.onclick = ()=>{
       [f_linha,f_remessa,f_dc_ini,f_dc_fim,f_tipo,f_atelie,f_status,f_de_ini,f_de_fim].forEach(el=>el.value='');
+      f_montados.checked = false;
       tbody.innerHTML=''; tableWrap.style.display='none'; summaryWrap.style.display='none'; hint.style.display='block';
     };
 
@@ -370,30 +405,42 @@
       fetched.forEach(t => t._status=deriveStatusGeral(t));
       if(f_status.value) fetched = fetched.filter(t => t._status===f_status.value);
 
+      // Agrupar por remessa
       const m = new Map();
       for(const t of fetched){
         const key = t.numeroRemessa || 'N/D';
-        const cur = m.get(key) || {remessa:key, dataCorte: t.dataCorte || '', pares:0, status:'' , rows:[], linha: t.linha||''};
+        const cur = m.get(key) || {remessa:key, dataCorte: t.dataCorte || '', pares:0, rows:[], linha: t.linha||'', tipoCliente: t.tipoCliente || ''};
         cur.pares += Number(t.pares)||0;
-        const order=['Pendente','Aguardando Material','Cortando','Cortado','Costurando','Costurado','Distribuído','Talonado','Montado','Finalizado'];
-        if(!cur.status || order.indexOf(t._status) < order.indexOf(cur.status)) cur.status = t._status;
         if(!cur.dataCorte || (t.dataCorte && t.dataCorte < cur.dataCorte)) cur.dataCorte = t.dataCorte;
         if(!cur.linha && t.linha) cur.linha = t.linha;
+        if(!cur.tipoCliente && t.tipoCliente) cur.tipoCliente = t.tipoCliente;
         cur.rows.push(t);
         m.set(key, cur);
       }
-      grouped = [...m.values()].sort((a,b)=> (a.dataCorte||'').localeCompare(b.dataCorte||'') || (a.remessa||'').localeCompare(b.remessa||''));
+      let groupedAll = [...m.values()];
 
-      renderSummary();
+      // Filtrar "montados"
+      const isRemessaMontada = (g) => g.rows.length > 0 && g.rows.every(t => hasDate(t.dataEntradaMontagem));
+      if(!f_montados.checked){
+        groupedAll = groupedAll.filter(g => !isRemessaMontada(g));
+      }
+
+      // Ordenação final
+      grouped = groupedAll.sort((a,b)=> (a.dataCorte||'').localeCompare(b.dataCorte||'') || (a.remessa||'').localeCompare(b.remessa||''));
+
+      // Linhas exibidas (para chips)
+      const displayedRows = grouped.flatMap(g => g.rows);
+
+      renderSummary(displayedRows);
       renderTable();
     }
 
-    function renderSummary(){
-      if(!grouped.length){ summaryWrap.style.display='none'; return; }
-      const totalPares = grouped.reduce((s,g)=>s+g.pares,0);
+    function renderSummary(rows){
+      if(!rows.length){ summaryWrap.style.display='none'; return; }
+      const totalPares = rows.reduce((s,t)=>s+(Number(t.pares)||0),0);
       let corte=0,giro=0,costura=0,dist=0,talon=0,mont=0,totalTal=0;
       const hasAll=(t)=> hasDate(t.cabedalData)&&hasDate(t.forroData)&&hasDate(t.aviamentoData);
-      fetched.forEach(t=>{
+      rows.forEach(t=>{
         totalTal++;
         if(!hasAll(t)) corte += (Number(t.pares)||0);
         const saida = hasDate(t.dataSaidaCostura);
@@ -405,8 +452,8 @@
         if(!talOK)  talon += (Number(t.pares)||0);
         if(!montOK) mont += (Number(t.pares)||0);
       });
-      const comCorte = fetched.filter(hasAll).reduce((s,t)=>s+(Number(t.pares)||0),0);
-      const saidos   = fetched.filter(t=>hasDate(t.dataSaidaCostura)).reduce((s,t)=>s+(Number(t.pares)||0),0);
+      const comCorte = rows.filter(hasAll).reduce((s,t)=>s+(Number(t.pares)||0),0);
+      const saidos   = rows.filter(t=>hasDate(t.dataSaidaCostura)).reduce((s,t)=>s+(Number(t.pares)||0),0);
       giro = Math.max(0, comCorte - saidos);
 
       chips.innerHTML = `
@@ -422,6 +469,17 @@
       summaryWrap.style.display='block';
     }
 
+    function tipoToClass(tipo){
+      if(!tipo) return '';
+      const t = String(tipo).toLowerCase();
+      if(t.includes('export')) return 'tipo-Exportacao';
+      if(t.includes('cliente') && t.includes('especial')) return 'tipo-Cliente-especial';
+      if(t.includes('mercado') && t.includes('interno')) return 'tipo-Mercado-Interno';
+      if(t.includes('estoque')) return 'tipo-Estoque';
+      if(t.includes('amostra')) return 'tipo-Amostra';
+      return '';
+    }
+
     function renderTable(){
       tbody.innerHTML='';
       if(!grouped.length){
@@ -431,11 +489,12 @@
       hint.style.display='none'; tableWrap.style.display='block';
       grouped.forEach(g=>{
         const tr=document.createElement('tr');
+        tr.className = tipoToClass(g.tipoCliente);
         tr.innerHTML = `
-          <td><a href="#" data-rem="${g.remessa}" class="remLink" data-linha="${g.linha||''}">${g.remessa}</a></td>
           <td>${formatBR(g.dataCorte||'')}</td>
-          <td style="text-align:right;font-weight:700">${g.pares}</td>
-          <td><span class="pill">${g.status}</span></td>
+          <td>${g.linha||''}</td>
+          <td><a href="#" data-rem="${g.remessa}" class="remLink" data-linha="${g.linha||''}">${g.remessa}</a></td>
+          <td class="td-right" style="font-weight:700">${g.pares}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -447,17 +506,27 @@
       e.preventDefault();
       const rem=a.dataset.rem;
       const linha=a.dataset.linha||'';
-      const rows = grouped.find(g=>g.remessa===rem)?.rows || [];
-      detailsTitle.textContent = `Resumo da Remessa ${rem}`;
-      metaRemessa.textContent = `${rem} – Linha ${linha}`;
+      const grp = grouped.find(g=>g.remessa===rem);
+      const rows = grp?.rows || [];
+      const dt = grp?.dataCorte ? formatBR(grp.dataCorte) : '';
+      detailsTitle.textContent = `${rem} – Linha ${linha} – ${dt}`;
 
-      // Totais da remessa (todos os talões/pares)
+      // Totais da remessa
       const totalTaloes = rows.length;
       const totalPares  = rows.reduce((s,t)=>s+(Number(t.pares)||0),0);
       metaTotals.textContent = `Talões: ${totalTaloes} · Pares: ${totalPares}`;
 
       function fillSector(listEl, countEl, pairsEl, items){
-        listEl.innerHTML = items.length ? items.map(it => `<div class="listItem"><span class="w-talao">${it.talao}</span><span class="w-pares">${it.pares}</span><span class="w-modelo">${it.modelo||''}</span></div>`).join('') : '<div class="listItem" style="color:#6b7280">Nenhum talão</div>';
+        items.sort((a,b)=> (Number(a.talao)||0) - (Number(b.talao)||0) );
+        listEl.innerHTML = items.length
+          ? items.map(it => `
+              <div class="listItem">
+                <span class="w-talao">${it.talao}</span>
+                <span class="w-modelo">${it.modelo||''}</span>
+                <span class="w-pares">${it.pares}</span>
+                <span class="w-cor">${it.cor||''}</span>
+              </div>`).join('')
+          : '<div class="listItem" style="color:#6b7280">Nenhum talão</div>';
         countEl.textContent = items.length;
         pairsEl.textContent = items.reduce((s,x)=>s+(Number(x.pares)||0),0);
       }
@@ -467,7 +536,7 @@
       const isDistOpen  = t => !hasDate(t.dataEntradaDistribuicao);
       const isTalOpen   = t => !hasDate(t.dataEntradaTalonagem);
       const isMontOpen  = t => !hasDate(t.dataEntradaMontagem);
-      const toItem = t => ({ talao: t.numeroTalaoSequencial || '', pares: t.pares || 0, modelo: t.modelo || '' });
+      const toItem = t => ({ talao: t.numeroTalaoSequencial || '', modelo: t.modelo || '', pares: t.pares || 0, cor: t.corSapato || '' });
 
       fillSector(corteList, corteTaloes, cortePares, rows.filter(isCorteOpen).map(toItem));
       fillSector(costList,  costTaloes,  costPares, rows.filter(isCostOpen).map(toItem));
