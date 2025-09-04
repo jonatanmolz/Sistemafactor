@@ -11,7 +11,6 @@
     }
     *{box-sizing:border-box}
     html,body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink)}
-
     /* ===== Header compact ===== */
     header{background:var(--header);color:#fff;padding:10px 12px;
       display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:50;
@@ -36,7 +35,6 @@
     .toolbar{position:sticky; top:90px; z-index:48; display:flex; gap:8px; padding:6px 10px; background:linear-gradient(#f7f8fb,#f7f8fb 70%,transparent)}
     .btn{appearance:none;border:0;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:14px}
     .btn-brand{background:var(--brand);color:#fff}
-    .btn-ghost{background:#fff;border:1px solid var(--line)}
 
     main{padding:10px;max-width:1000px;margin-inline:auto}
     .card{background:var(--card);border-radius:var(--radius);box-shadow:0 1px 10px rgba(0,0,0,.06);padding:10px}
@@ -62,20 +60,11 @@
     .sheet .actions{display:flex;gap:8px;margin-top:8px;justify-content:flex-end}
     @media (max-width:430px){ .grid{grid-template-columns:1fr} }
 
-    /* ===== Centered modal (Details) with scrollable content ===== */
+    /* ===== Centered modal (Details) compact ===== */
     .modal-center{align-items:center;justify-content:center}
-    .dialog{
-      background:#fff;width:min(960px,96vw);border-radius:14px;
-      box-shadow:0 20px 80px rgba(0,0,0,.25);
-      max-height:85vh;             /* limite da altura total do modal */
-      display:flex;flex-direction:column;overflow:hidden;
-    }
-    .dialog-header{
-      display:flex;align-items:center;gap:8px;padding:10px;
-      border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:1;
-    }
-    .dialog-header h3{margin:0;font-size:18px}
-    .dialog-body{padding:10px;overflow:auto} /* rola só o conteúdo */
+    .dialog{background:#fff;width:min(960px,96vw);border-radius:14px;padding:10px;box-shadow:0 20px 80px rgba(0,0,0,.25)}
+    .dialog .head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+    .dialog h3{margin:0;font-size:18px}
     .meta{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 8px}
     .meta .tag{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:999px;padding:4px 8px;font-size:12px}
     .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -88,7 +77,7 @@
     .listItem{display:flex;gap:6px;font-size:12px;padding:2px 0}
     .w-talao{width:44px} .w-pares{width:44px;text-align:right} .w-modelo{flex:1}
     .row{display:flex;justify-content:space-between;padding:4px 0;border-top:1px dashed #e5e7eb;font-size:13px}
-    .dialog-footer{padding:8px 10px;border-top:1px solid var(--line);background:#fff;position:sticky;bottom:0}
+    .close-right{margin-left:auto}
   </style>
 </head>
 <body>
@@ -165,10 +154,10 @@
           </select>
         </div>
         <div class="field"><label class="label">Entrega (Início)</label><input type="date" id="f_de_ini"></div>
-        <div class="field"><label class="label">Entrega (Fim)</label><input type="date" id="f_de_fim"></div>
+        <div class="field"><label class="label">Entrega ( Fim )</label><input type="date" id="f_de_fim"></div>
       </div>
       <div class="actions">
-        <button class="btn btn-ghost" id="btnClear">Limpar</button>
+        <button class="btn" id="btnClear">Limpar</button>
         <button class="btn btn-brand" id="btnApply">Buscar</button>
       </div>
     </div>
@@ -177,65 +166,60 @@
   <!-- Modal Detalhes por Remessa -->
   <div class="modal modal-center" id="modalDetails">
     <div class="dialog">
-      <div class="dialog-header">
+      <div class="head">
         <h3 id="detailsTitle">Resumo da Remessa</h3>
-        <button class="btn btn-ghost" id="btnCloseDetails">Fechar</button>
+        <button class="btn close-right" id="btnCloseDetails">Fechar</button>
       </div>
-      <div class="dialog-body">
-        <div class="meta">
-          <span class="tag" id="metaRemessa">Remessa – Linha</span>
-          <span class="tag" id="metaTotals">Talões: 0 · Pares: 0</span>
+      <div class="meta">
+        <span class="tag" id="metaRemessa">Remessa – Linha</span>
+        <span class="tag" id="metaTotals">Talões: 0 · Pares: 0</span>
+      </div>
+
+      <div class="cols">
+        <div class="box" id="boxCorte">
+          <h4><span>Corte</span><small>Talões Abertos <b id="corteTaloes">0</b></small></h4>
+          <div class="listWrap">
+            <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
+            <div id="corteList"></div>
+          </div>
+          <div class="row"><span>Pares Abertos</span><b id="cortePares">0</b></div>
         </div>
 
-        <div class="cols">
-          <div class="box" id="boxCorte">
-            <h4><span>Corte</span><small>Talões Abertos <b id="corteTaloes">0</b></small></h4>
-            <div class="listWrap">
-              <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
-              <div id="corteList"></div>
-            </div>
-            <div class="row"><span>Pares Abertos</span><b id="cortePares">0</b></div>
+        <div class="box" id="boxCostura">
+          <h4><span>Costura</span><small>Talões Abertos <b id="costTaloes">0</b></small></h4>
+          <div class="listWrap">
+            <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
+            <div id="costList"></div>
           </div>
-
-          <div class="box" id="boxCostura">
-            <h4><span>Costura</span><small>Talões Abertos <b id="costTaloes">0</b></small></h4>
-            <div class="listWrap">
-              <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
-              <div id="costList"></div>
-            </div>
-            <div class="row"><span>Pares Abertos</span><b id="costPares">0</b></div>
-          </div>
-
-          <div class="box" id="boxDist">
-            <h4><span>Distribuição</span><small>Talões Abertos <b id="distTaloes">0</b></small></h4>
-            <div class="listWrap">
-              <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
-              <div id="distList"></div>
-            </div>
-            <div class="row"><span>Pares Abertos</span><b id="distPares">0</b></div>
-          </div>
-
-          <div class="box" id="boxTalon">
-            <h4><span>Talonagem</span><small>Talões Abertos <b id="talTaloes">0</b></small></h4>
-            <div class="listWrap">
-              <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
-              <div id="talList"></div>
-            </div>
-            <div class="row"><span>Pares Abertos</span><b id="talPares">0</b></div>
-          </div>
-
-          <div class="box" id="boxMont">
-            <h4><span>Montagem</span><small>Talões Abertos <b id="montTaloes">0</b></small></h4>
-            <div class="listWrap">
-              <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
-              <div id="montList"></div>
-            </div>
-            <div class="row"><span>Pares Abertos</span><b id="montPares">0</b></div>
-          </div>
+          <div class="row"><span>Pares Abertos</span><b id="costPares">0</b></div>
         </div>
-      </div>
-      <div class="dialog-footer">
-        <small style="color:var(--muted)">Rolagem apenas no conteúdo do modal</small>
+
+        <div class="box" id="boxDist">
+          <h4><span>Distribuição</span><small>Talões Abertos <b id="distTaloes">0</b></small></h4>
+          <div class="listWrap">
+            <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
+            <div id="distList"></div>
+          </div>
+          <div class="row"><span>Pares Abertos</span><b id="distPares">0</b></div>
+        </div>
+
+        <div class="box" id="boxTalon">
+          <h4><span>Talonagem</span><small>Talões Abertos <b id="talTaloes">0</b></small></h4>
+          <div class="listWrap">
+            <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
+            <div id="talList"></div>
+          </div>
+          <div class="row"><span>Pares Abertos</span><b id="talPares">0</b></div>
+        </div>
+
+        <div class="box" id="boxMont">
+          <h4><span>Montagem</span><small>Talões Abertos <b id="montTaloes">0</b></small></h4>
+          <div class="listWrap">
+            <div class="listHead"><span class="w-talao">Talão</span><span class="w-pares">Pares</span><span class="w-modelo">Modelo</span></div>
+            <div id="montList"></div>
+          </div>
+          <div class="row"><span>Pares Abertos</span><b id="montPares">0</b></div>
+        </div>
       </div>
     </div>
   </div>
@@ -308,9 +292,9 @@
     const normLevel=v=>String(v??'').toUpperCase().replace(/^O/,'0').padStart(2,'0');
     const nivelNomes={'01':'Cadastro','02':'Corte','03':'Costura','04':'Montagem','05':'Admin','06':'Consultor'};
     const pages=[
-      {name:'Costura Mobile',href:'costuramobile.html',levels:['03','05','06]},
+      {name:'Costura Mobile',href:'costuramobile.html',levels:['03','05','06']},
       {name:'Relatório Ateliê Mobile',href:'relatoriomobile.html',levels:['03','05','06']},
-      {name:'Cronograma Mobile',href:'cronogramamobile.html',levels:['01','02','04','05','06']}
+      {name:'Cronograma Mobile',href:'cronogramamobile_compacto.html',levels:['01','02','04','05','06']}
     ];
     function generateMenu(nivel,user){
       menuNav.innerHTML='';
@@ -341,7 +325,7 @@
       const snap = await getDoc(doc(db,'Usuario', user.email));
       if(!snap.exists()){ await signOut(auth); location.href='login.html'; return; }
       const data = snap.data(); const nivel = normLevel(data.nivelAcesso); currentUser = data.Nome || user.email;
-      const allowed = pages.find(p=>p.href==='cronogramamobile.html').levels.includes(nivel);
+      const allowed = pages.find(p=>p.href==='cronogramamobile_compacto.html').levels.includes(nivel);
       if(!allowed){ alert('Você não tem permissão para acessar esta página.'); location.href='index.html'; return; }
       generateMenu(nivel, currentUser);
     });
