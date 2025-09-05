@@ -379,10 +379,10 @@
                     const nivelAcesso = userData.nivelAcesso;
                     currentUserName = userData.Nome;
 
-                    if (!pages.find(p => p.href === 'costuramobile.html' && p.levels.includes(nivelAcesso))) {
-                        alert('Você não tem permissão para acessar esta página.');
-                        window.location.href = 'index.html';
-                        return;
+                if (!hasAccess) {
+                    alert('Você não tem permissão para acessar esta página.');
+                    window.location.href = 'index.html';
+                    return;
                     }
 
                     generateMenu(nivelAcesso, currentUserName);
@@ -549,5 +549,6 @@
 </body>
 
 </html>
+
 
 
