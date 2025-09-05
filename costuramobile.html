@@ -368,34 +368,41 @@
         }
 
         // --- Controle de Autenticação e Carregamento de Dados ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserEmail = user.email;
-                const userDocRef = doc(db, 'Usuario', user.email);
-                const userDocSnap = await getDoc(userDocRef);
+// --- Controle de Autenticação e Carregamento de Dados ---
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        currentUserEmail = user.email;
+        const userDocRef = doc(db, 'Usuario', user.email);
+        const userDocSnap = await getDoc(userDocRef);
 
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
-                    const nivelAcesso = userData.nivelAcesso;
-                    currentUserName = userData.Nome;
+        if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            const nivelAcesso = userData.nivelAcesso;
+            currentUserName = userData.Nome;
 
-                if (!hasAccess) {
-                    alert('Você não tem permissão para acessar esta página.');
-                    window.location.href = 'index.html';
-                    return;
-                    }
+            // 🔁 CORREÇÃO: Verificação de permissão para acessar costuramobile.html
+            const currentPage = 'costuramobile.html';
+            const page = pages.find(p => p.href === currentPage);
+            const nivelTemPermissao = page?.levels.includes(nivelAcesso);
 
-                    generateMenu(nivelAcesso, currentUserName);
-                    listenToTaloes(); 
-                } else {
-                    alert('Dados do usuário não encontrados. Faça login novamente.');
-                    await signOut(auth);
-                    window.location.href = 'login.html';
-                }
-            } else {
-                window.location.href = 'login.html';
+            if (!nivelTemPermissao) {
+                alert('Você não tem permissão para acessar esta página.');
+                window.location.href = 'index.html';
+                return;
             }
-        });
+
+            generateMenu(nivelAcesso, currentUserName);
+            listenToTaloes(); 
+        } else {
+            alert('Dados do usuário não encontrados. Faça login novamente.');
+            await signOut(auth);
+            window.location.href = 'login.html';
+        }
+    } else {
+        window.location.href = 'login.html';
+    }
+});
+
 
         // --- Lógica de Logout ---
         logoutButton.addEventListener('click', async () => {
@@ -549,6 +556,7 @@
 </body>
 
 </html>
+
 
 
 
