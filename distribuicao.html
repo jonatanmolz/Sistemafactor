@@ -412,6 +412,8 @@
                 const today = new Date().toISOString().split('T')[0];
                 const updates = {
                     statusGeral: 'Distribuído',
+                    statusCostura:'Finalizado',
+                    statusCorte: 'Cortado',
                     dataEntradaDistribuicao: today,
                     usuarioDistribuicao: currentUserName
                 };
@@ -422,8 +424,8 @@
                 }
                 if (!talao.costuraDataInicio) {
                     updates.costuraDataInicio = today;
-                
                 }
+
 
                 await updateTalaoInFirestore(talao.id, updates, talao, distribuicaoMessageDiv);
             }
