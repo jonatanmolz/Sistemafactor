@@ -540,6 +540,8 @@
                 
                 const updates = {
                     statusGeral: 'Montado',
+                    statusCostura:'Finalizado',
+                    statusCorte: 'Cortado',
                     dataEntradaMontagem: new Date().toISOString().split('T')[0],
                     trilhoProduzido: selectedTrilho.value,
                     dataProducao: Timestamp.now(), // Firestore Timestamp
@@ -558,6 +560,15 @@
                     updates.usuarioDistribuicao = currentUserName;
                 }
 
+                //Logica para registrar a costura datas
+
+                if (!talao.dataSaidaCostura) {
+                    updates.dataSaidaCostura = new Date().toISOString().split('T')[0];
+                    updates.usuarioCostura = currentUserName;
+                }
+                if (!talao.costuraDataInicio) {
+                    updates.costuraDataInicio = new Date().toISOString().split('T')[0];
+                }
 
 
 
