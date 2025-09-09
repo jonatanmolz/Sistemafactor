@@ -316,7 +316,7 @@
         const MAX_LAST_SCANNED = 5;
 
         // Mapeamento de Níveis para Nomes de Setor
-           const nivelNomes = {
+        const nivelNomes = {
             '01': 'Cadastro',
             '02': 'Corte',
             '03': 'Costura',
@@ -325,7 +325,7 @@
             '06': 'Consultor'
         };
 
-        // Definição das páginas e seus níveis de acesso
+        // Definição das páginas e seus níveis de acesso (copiado do index.html)
         const pages = [
             { name: 'Resumo', href: 'resumo.html', levels: ['05'] },
             { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06'] },
@@ -334,9 +334,8 @@
             { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['01','02', '04','05', '06'] },
             { name: 'Corte', href: 'corte.html', levels: ['02', '05'] },
             { name: 'Costura', href: 'costura.html', levels: ['03', '05'] },
-            { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03', '05'] },
-            { name: 'Costura Mobile', href: 'costuramobile.html', levels: ['03', '05'] },
-            { name: 'Relatorio Mobile', href: 'relatoriomobile.html', levels: ['03', '05'] },
+            { name: 'Costura', href: 'costuramobile.html', levels: ['03', '05'] },
+            { name: 'Relatorio Ateliê', href: 'relatorioAtelier.html', levels: ['03', '05'] },
             { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05'] },
             { name: 'Atlier Mobile', href: 'relatoriomobile.html', levels: ['05'] },
             { name: 'Romaneio', href: 'romaneio.html', levels: ['05'] },
@@ -344,8 +343,10 @@
             { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['05'] },
             { name: 'Distribuição', href: 'distribuicao.html', levels: ['04', '05'] },
             { name: 'Talonagem', href: 'talonagem.html', levels: ['04', '05'] },
-            { name: 'Montagem', href: 'montagem.html', levels: ['05'] }
-        ]
+            { name: 'Montagem', href: 'montagem.html', levels: ['05'] },
+            { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02,04,05'] }
+        ];
+
     
 
         // Função para gerar o menu dinamicamente
@@ -368,41 +369,34 @@
         }
 
         // --- Controle de Autenticação e Carregamento de Dados ---
-// --- Controle de Autenticação e Carregamento de Dados ---
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        currentUserEmail = user.email;
-        const userDocRef = doc(db, 'Usuario', user.email);
-        const userDocSnap = await getDoc(userDocRef);
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserEmail = user.email;
+                const userDocRef = doc(db, 'Usuario', user.email);
+                const userDocSnap = await getDoc(userDocRef);
 
-        if (userDocSnap.exists()) {
-            const userData = userDocSnap.data();
-            const nivelAcesso = userData.nivelAcesso;
-            currentUserName = userData.Nome;
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    const nivelAcesso = userData.nivelAcesso;
+                    currentUserName = userData.Nome;
 
-            // 🔁 CORREÇÃO: Verificação de permissão para acessar costuramobile.html
-            const currentPage = 'costuramobile.html';
-            const page = pages.find(p => p.href === currentPage);
-            const nivelTemPermissao = page?.levels.includes(nivelAcesso);
+                    if (!pages.find(p => p.href === 'costuramobile.html' && p.levels.includes(nivelAcesso))) {
+                        alert('Você não tem permissão para acessar esta página.');
+                        window.location.href = 'index.html';
+                        return;
+                    }
 
-            if (!nivelTemPermissao) {
-                alert('Você não tem permissão para acessar esta página.');
-                window.location.href = 'index.html';
-                return;
+                    generateMenu(nivelAcesso, currentUserName);
+                    listenToTaloes(); 
+                } else {
+                    alert('Dados do usuário não encontrados. Faça login novamente.');
+                    await signOut(auth);
+                    window.location.href = 'login.html';
+                }
+            } else {
+                window.location.href = 'login.html';
             }
-
-            generateMenu(nivelAcesso, currentUserName);
-            listenToTaloes(); 
-        } else {
-            alert('Dados do usuário não encontrados. Faça login novamente.');
-            await signOut(auth);
-            window.location.href = 'login.html';
-        }
-    } else {
-        window.location.href = 'login.html';
-    }
-});
-
+        });
 
         // --- Lógica de Logout ---
         logoutButton.addEventListener('click', async () => {
@@ -431,8 +425,10 @@ onAuthStateChanged(auth, async (user) => {
             try {
                 const talaoRef = doc(db, 'taloes', talaoId); 
                 await updateDoc(talaoRef, updates);
-                messageDiv.textContent = 'Sucesso!';
-                messageDiv.className = 'scanner-message success';
+                if (messageDiv) {
+                    messageDiv.textContent = 'Sucesso!';
+                    messageDiv.className = 'scanner-message success';
+                }
                 
                 if (messageDiv === entryMessageDiv) {
                     addLastScanned(lastEntries, barcode, lastScannedEntryList);
@@ -440,12 +436,16 @@ onAuthStateChanged(auth, async (user) => {
                     addLastScanned(lastExits, barcode, lastScannedExitList);
                 }
 
-                setTimeout(() => messageDiv.textContent = '', 3000);
+                if (messageDiv) {
+                    setTimeout(() => messageDiv.textContent = '', 3000);
+                }
             } catch (error) {
                 console.error(`Erro ao atualizar talão ${talaoId}:`, error);
-                messageDiv.textContent = `Erro: ${error.message}`;
-                messageDiv.className = 'scanner-message error';
-                setTimeout(() => messageDiv.textContent = '', 5000);
+                if (messageDiv) {
+                    messageDiv.textContent = `Erro: ${error.message}`;
+                    messageDiv.className = 'scanner-message error';
+                    setTimeout(() => messageDiv.textContent = '', 5000);
+                }
             }
         }
 
@@ -481,14 +481,27 @@ onAuthStateChanged(auth, async (user) => {
                     return;
                 }
                 
-                if (talao.statusGeral === 'Finalizado' || talao.statusGeral === 'Costurado') {
-                    entryMessageDiv.textContent = `Talão ${barcode} já foi finalizado/costurado. Status atual: ${talao.statusGeral}.`;
+                // Lógica para registrar tentativa de escaneamento em ateliê errado
+                if (talao.idAtelieResponsavel && talao.idAtelieResponsavel !== currentUserName) {
+                    // Prepara o objeto de atualização com o novo campo
+                    const updates = {
+                        registroErrado: `${currentUserName} (${new Date().toISOString()})`
+                    };
+                    // Tenta atualizar o talão com o registro do erro
+                    try {
+                        await updateTalaoInFirestore(talao.id, updates, null, barcode); // 'null' para não exibir mensagem de sucesso
+                    } catch (error) {
+                        console.error("Erro ao registrar tentativa errada:", error);
+                    }
+                    
+                    // Exibe a mensagem de erro para o usuário
+                    entryMessageDiv.textContent = `Talão ${barcode} já atribuído a outro ateliê: ${talao.idAtelieResponsavel}.`;
                     entryMessageDiv.className = 'scanner-message error';
                     return;
                 }
 
-                if (talao.idAtelieResponsavel && talao.idAtelieResponsavel !== currentUserName) {
-                    entryMessageDiv.textContent = `Talão ${barcode} já atribuído a outro ateliê: ${talao.idAtelieResponsavel}.`;
+                if (talao.statusGeral === 'Finalizado' || talao.statusGeral === 'Costurado') {
+                    entryMessageDiv.textContent = `Talão ${barcode} já foi finalizado/costurado. Status atual: ${talao.statusGeral}.`;
                     entryMessageDiv.className = 'scanner-message error';
                     return;
                 }
@@ -554,9 +567,4 @@ onAuthStateChanged(auth, async (user) => {
         });
     </script>
 </body>
-
 </html>
-
-
-
-
