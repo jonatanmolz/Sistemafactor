@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumo por Setor - SistemaTaloes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .user-info {
+            font-size: 14px;
+            text-align: right;
+        }
+        .user-info span {
+            display: block;
+            font-weight: bold;
+        }
+        nav {
+            background-color: #555;
+            padding: 10px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 0.8em
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            display: block;
+        }
+        nav ul li a:hover {
+            background-color: #777;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .filters-container {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .filters-container label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 0.9em;
+        }
+        .filters-container input,
+        .filters-container select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 0.9em;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 10px; /* Diminuído o gap entre os cards */
+            width: 75%;
+            max-width: 1000px;
+            margin-top: 20px;
+        }
+        /* Estilo específico para o card de Corte */
+        .card.corte-card {
+            grid-column: 1 / -1; /* Ocupa todas as colunas disponíveis */
+            display: grid;
+            /* Ajustado para 3 colunas, removendo "Aguardando Material" do layout direto */
+            grid-template-columns: repeat(3, minmax(200px, 1fr)); 
+            gap: 10px; /* Diminuído o gap entre as colunas de status */
+            padding: 15px; /* Diminuído o padding do card */
+            box-sizing: border-box; /* Garante que padding não aumente o tamanho total */
+        }
+        .card.corte-card h3 {
+            grid-column: 1 / -1; /* Título ocupa todas as colunas */
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .card.corte-card .card-section {
+            border-bottom: none; /* Remove a borda inferior das seções de status */
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .card.corte-card .card-section h4 {
+            border-bottom: 1px solid #eee; /* Adiciona borda abaixo do título do status */
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 15px; /* Diminuído o padding do card */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .card-content {
+            flex-grow: 1;
+        }
+        /* Novas classes para seções dentro dos cards */
+        .card-section {
+            margin-bottom: 5px; /* Diminuído o margin-bottom */
+            padding-bottom: 5px; /* Diminuído o padding-bottom */
+            border-bottom: 1px dashed #ddd;
+        }
+        .card-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .card-section h4 {
+            margin-top: 0;
+            margin-bottom: 5px; /* Diminuído o margin-bottom */
+            color: #444;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        .card-content-sub {
+            padding-left: 5px; /* Diminuído o padding-left */
+        }
+        .card-content-sub h5 { /* Novo estilo para sub-sub-títulos */
+            margin-top: 3px; /* Diminuído o margin-top */
+            margin-bottom: 3px; /* Diminuído o margin-bottom */
+            color: #666;
+            font-size: 0.9em; /* Ligeiramente diminuído o tamanho da fonte */
+            text-align: left;
+            padding-left: 5px;
+        }
+        /* Removido .card-total-sub para ter apenas um total por card-section */
+        /* .card-total-sub {
+            text-align: right;
+            font-weight: bold;
+            font-size: 1em;
+            color: #0056b3;
+            margin-top: 5px;
+        } */
+
+        .card-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 1px 0; /* Diminuído o padding vertical */
+            border-bottom: 1px dotted #eee;
+            font-size: 0.85em; /* Ligeiramente diminuído o tamanho da fonte */
+        }
+        .card-item:last-child {
+            border-bottom: none;
+        }
+        .card-item .item-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .card-item .item-value {
+            color: #333;
+        }
+        .card-total {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #eee;
+            text-align: right;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #007bff;
+        }
+        .no-data-message {
+            text-align: center;
+            color: #777;
+            font-style: italic;
+            margin-top: 10px;
+        }
+        button#logoutButton {
+            background-color: #dc3545;
+            margin-left: 20px;
+        }
+        button#logoutButton:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SistemaTaloes</h1>
+        <div class="user-info">
+            <span id="userNameDisplay">Carregando...</span>
+            <span id="userNivelDisplay"></span>
+        </div>
+        <div>
+            <button id="logoutButton">Sair</button>
+        </div>
+    </header>
+
+    <nav>
+        <ul id="menuNav">
+            <!-- Os itens do menu serão injetados aqui via JavaScript -->
+        </ul>
+    </nav>
+
+    <div class="main-content">
+        <div class="filters-container">
+            <div class="form-group">
+                <label for="filterDataCorte">Data de Corte:</label>
+                <input type="date" id="filterDataCorte">
+            </div>
+            <div class="form-group">
+                <label for="filterTipoCliente">Tipo de Cliente:</label>
+                <select id="filterTipoCliente">
+                    <option value="">Todos</option>
+                    <option value="Exportacao">Exportação</option>
+                    <option value="Cliente especial">Cliente Especial</option>
+                    <option value="Mercado Interno">Mercado Interno</option>
+                    <option value="Estoque">Estoque</option>
+                    <option value="Amostra">Amostra</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filterLinha">Linha:</label>
+                <input type="text" id="filterLinha" placeholder="Número da Linha">
+            </div>
+            <div class="form-group">
+                <label for="filterModelo">Modelo:</label>
+                <input type="text" id="filterModelo" placeholder="Modelo">
+            </div>
+        </div>
+
+        <div class="cards-grid" id="cardsGrid">
+            <!-- Os cards dos setores serão injetados aqui via JavaScript -->
+            <p style="grid-column: 1 / -1; text-align: center;">Carregando resumo dos talões...</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+            authDomain: "sistemataloes.firebaseapp.com",
+            projectId: "sistemataloes",
+            storageBucket: "sistemataloes.appspot.com",
+            messagingSenderId: "684534379685",
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Elementos do Header e Navegação
+        const menuNav = document.getElementById('menuNav');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+        const userNivelDisplay = document.getElementById('userNivelDisplay');
+        const logoutButton = document.getElementById('logoutButton');
+
+        // Elementos dos Filtros
+        const filterDataCorte = document.getElementById('filterDataCorte');
+        const filterTipoCliente = document.getElementById('filterTipoCliente');
+        const filterLinha = document.getElementById('filterLinha'); 
+        const filterModelo = document.getElementById('filterModelo'); 
+        const cardsGrid = document.getElementById('cardsGrid');
+
+        let allTaloes = []; 
+        let currentUserEmail = '';
+        let currentUserName = '';
+        let ateliesList = []; 
+
+    // Tipos de Usuarios e niveis
+        const nivelNomes = {
+            '01': 'Cadastro',
+            '02': 'Corte',
+            '03': 'Costura',
+            '04': 'Montagem',
+            '05': 'Admin',
+            '06': 'Consultor',
+            '07':'Super'
+
+        };
+
+        // Definição das páginas e seus níveis de acesso (copiado do index.html)
+        const pages = [
+          // Inicio
+            { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06','07'] },
+          // Cadastro
+            { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
+            { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05','07'] },
+
+          // Ferramentas
+            { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
+            { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
+            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
+          
+          // Corte
+            { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
+            { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
+
+          // Relatorios
+            { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
+            { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05','06','07'] },
+            { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['06','07'] },
+            { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
+
+          //Costura
+            { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
+            { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
+            { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
+
+          // Fabrica
+            { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
+            { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
+            { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
+            
+        ];
+
+    //Funçoes
+
+
+        // Função para gerar o menu dinamicamente
+        function generateMenu(userLevel, userName) {
+            menuNav.innerHTML = '';
+            const userNivelText = nivelNomes[userLevel] || `Nível ${userLevel}`;
+            userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
+            userNivelDisplay.textContent = `Setor: ${userNivelText}`;
+
+            pages.forEach(page => {
+                if (page.levels.includes(userLevel)) {
+                    const listItem = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = page.href; // Caminho relativo
+                    link.textContent = page.name;
+                    listItem.appendChild(link);
+                    menuNav.appendChild(listItem);
+                }
+            });
+        }
+
+        // --- Controle de Autenticação e Carregamento de Dados ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserEmail = user.email;
+                const userDocRef = doc(db, 'Usuario', user.email);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    const nivelAcesso = userData.nivelAcesso;
+                    currentUserName = userData.Nome;
+
+                    // Verificar se o usuário tem permissão para esta página
+                    if (!pages.find(p => p.href === 'resumo.html' && p.levels.includes(nivelAcesso))) {
+                        alert('Você não tem permissão para acessar esta página.');
+                        window.location.href = 'index.html';
+                        return;
+                    }
+
+                    generateMenu(nivelAcesso, currentUserName);
+                    await loadAtelies(); // Carrega os ateliês para o agrupamento
+                    listenToTaloes(); // Inicia a escuta de todos os talões
+                } else {
+                    alert('Dados do usuário não encontrados. Faça login novamente.');
+                    await signOut(auth);
+                    window.location.href = 'login.html';
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // --- Lógica de Logout ---
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error("Erro ao fazer logout:", error);
+                alert("Erro ao fazer logout. Tente novamente.");
+            }
+        });
+
+        // --- Carregar Ateliês (Usuários Nível 03) para o Agrupamento ---
+        async function loadAtelies() {
+            try {
+                const q = query(collection(db, 'Usuario'), where('nivelAcesso', '==', '03'));
+                const querySnapshot = await getDocs(q);
+                ateliesList = querySnapshot.docs.map(doc => doc.data().Nome).filter(name => name);
+                console.log("Ateliês carregados:", ateliesList);
+            } catch (error) {
+                console.error("Erro ao carregar ateliês:", error);
+            }
+        }
+
+        // --- Escutar Todos os Talões em Tempo Real ---
+        function listenToTaloes() {
+            const taloesColRef = collection(db, 'taloes'); 
+            onSnapshot(taloesColRef, (snapshot) => {
+                allTaloes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("Todos os talões carregados:", allTaloes);
+                applyFiltersAndAggregate();
+            }, (error) => {
+                console.error("Erro ao escutar talões:", error);
+                cardsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Erro ao carregar talões.</p>';
+            });
+        }
+
+        // --- Aplicar Filtros e Agregar Dados ---
+        function applyFiltersAndAggregate() {
+            let currentFilteredTaloes = [...allTaloes];
+
+            const dataCorte = filterDataCorte.value;
+            const tipoCliente = filterTipoCliente.value;
+            const linhaFilter = filterLinha.value.toLowerCase(); 
+            const modeloFilter = filterModelo.value.toLowerCase(); 
+
+            // Filtro principal: Somente o que NÃO foi finalizado
+            currentFilteredTaloes = currentFilteredTaloes.filter(t => t.statusGeral !== 'Finalizado');
+
+            if (dataCorte) {
+                currentFilteredTaloes = currentFilteredTaloes.filter(t => t.dataCorte === dataCorte);
+            }
+            if (tipoCliente) {
+                currentFilteredTaloes = currentFilteredTaloes.filter(t => t.tipoCliente === tipoCliente);
+            }
+            if (linhaFilter) { 
+                currentFilteredTaloes = currentFilteredTaloes.filter(t => t.linha && String(t.linha).toLowerCase().includes(linhaFilter));
+            }
+            if (modeloFilter) { 
+                currentFilteredTaloes = currentFilteredTaloes.filter(t => t.modelo && String(t.modelo).toLowerCase().includes(modeloFilter));
+            }
+            
+            const aggregatedData = {
+                'Corte': { 
+                    'Pendente': { byLine: {}, byLineModel: {} },
+                    'Aguardando Material': { byLine: {}, byLineModel: {} },
+                    'Cortando': { byLine: {}, byLineModel: {} },
+                    'Cortado': { byLine: {}, byLineModel: {} }
+                },
+                'Distribuição': { byLine: {}, byLineModel: {} },
+                'Talonagem': { byLine: {}, byLineModel: {} },
+                'Ateliês': {} 
+            };
+
+            // Inicializa cada ateliê na estrutura de agregação
+            ateliesList.forEach(atelierName => {
+                aggregatedData.Ateliês[atelierName] = {};
+            });
+
+            currentFilteredTaloes.forEach(talao => {
+                const pares = talao.pares || 0;
+                const linhaKey = talao.linha || 'N/A';
+                const lineModelKey = `${linhaKey}.${talao.modelo || 'N/A'}`; 
+
+                // Agregação para Corte: Inclui 'Pendente', 'Aguardando Material', 'Cortando', 'Cortado'
+                if (['Pendente', 'Aguardando Material', 'Cortando', 'Cortado'].includes(talao.statusGeral)) {
+                    const status = talao.statusGeral;
+                    // Garante que o objeto de status exista
+                    if (!aggregatedData.Corte[status]) {
+                        aggregatedData.Corte[status] = { byLine: {}, byLineModel: {} };
+                    }
+                    aggregatedData.Corte[status].byLine[linhaKey] = (aggregatedData.Corte[status].byLine[linhaKey] || 0) + pares;
+                    aggregatedData.Corte[status].byLineModel[lineModelKey] = (aggregatedData.Corte[status].byLineModel[lineModelKey] || 0) + pares;
+                }
+                // Agregação para Distribuição
+                if (talao.statusGeral === 'Distribuído') {
+                    aggregatedData.Distribuição.byLine[linhaKey] = (aggregatedData.Distribuição.byLine[linhaKey] || 0) + pares;
+                    aggregatedData.Distribuição.byLineModel[lineModelKey] = (aggregatedData.Distribuição.byLineModel[lineModelKey] || 0) + pares;
+                }
+                // Agregação para Talonagem
+                if (talao.statusGeral === 'Talonado') {
+                    aggregatedData.Talonagem.byLine[linhaKey] = (aggregatedData.Talonagem.byLine[linhaKey] || 0) + pares;
+                    aggregatedData.Talonagem.byLineModel[lineModelKey] = (aggregatedData.Talonagem.byLineModel[lineModelKey] || 0) + pares;
+                }
+                // Agregação para Ateliês (mantém linha.modelo)
+                if (talao.statusGeral === 'Costurando' && talao.idAtelieResponsavel && ateliesList.includes(talao.idAtelieResponsavel)) {
+                    const atelierName = talao.idAtelieResponsavel;
+                    aggregatedData.Ateliês[atelierName][lineModelKey] = (aggregatedData.Ateliês[atelierName][lineModelKey] || 0) + pares;
+                }
+            });
+
+            renderCards(aggregatedData);
+        }
+
+        // Adicionar listeners para os filtros
+        filterDataCorte.addEventListener('change', applyFiltersAndAggregate);
+        filterTipoCliente.addEventListener('change', applyFiltersAndAggregate);
+        filterLinha.addEventListener('input', applyFiltersAndAggregate); 
+        filterModelo.addEventListener('input', applyFiltersAndAggregate); 
+
+        // --- Renderizar os Cards ---
+        function renderCards(data) {
+            cardsGrid.innerHTML = ''; // Limpa os cards existentes
+
+            // Renderiza o card de Corte primeiro
+            const corteCard = document.createElement('div');
+            corteCard.classList.add('card', 'corte-card');
+            let totalParesCorte = 0;
+            let corteContentHtml = '';
+            const corteData = data['Corte'];
+            // Status a serem exibidos no layout do card de Corte
+            const corteDisplayStatuses = ['Pendente', 'Cortando', 'Cortado']; 
+            let hasCorteData = false;
+
+            corteDisplayStatuses.forEach(status => {
+                const statusData = corteData[status];
+                let currentStatusTotal = 0; // Total para o status atual
+                
+                // Se o status for "Pendente", inclui os pares de "Aguardando Material" no total
+                if (status === 'Pendente' && corteData['Aguardando Material']) {
+                    currentStatusTotal += Object.values(corteData['Aguardando Material'].byLineModel).reduce((sum, pares) => sum + pares, 0);
+                }
+
+                if (statusData && (Object.keys(statusData.byLine).length > 0 || Object.keys(statusData.byLineModel).length > 0 || (status === 'Pendente' && corteData['Aguardando Material'] && Object.keys(corteData['Aguardando Material'].byLineModel).length > 0))) {
+                    hasCorteData = true;
+                    let statusSectionHtml = `<h4>Status: ${status}</h4>`;
+                    
+                    // Seção "Por Linha" para este status
+                    let byLineContent = '';
+                    if (Object.keys(statusData.byLine).length > 0) {
+                        for (const linha in statusData.byLine) {
+                            byLineContent += `
+                                <div class="card-item">
+                                    <span class="item-label">Linha ${linha}</span>
+                                    <span class="item-value">${statusData.byLine[linha]} pares</span>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        byLineContent = '<p class="no-data-message">Nenhum talão por linha.</p>';
+                    }
+                    statusSectionHtml += `
+                        <div class="card-content-sub">
+                            <h5>Por Linha</h5>
+                            ${byLineContent}
+                        </div>
+                    `;
+
+                    // Seção "Por Linha - Modelo" para este status
+                    let byLineModelContent = '';
+                    if (Object.keys(statusData.byLineModel).length > 0) {
+                        for (const key in statusData.byLineModel) {
+                            byLineModelContent += `
+                                <div class="card-item">
+                                    <span class="item-label">${key.replace('.', ' - ')}</span>
+                                    <span class="item-value">${statusData.byLineModel[key]} pares</span>
+                                </div>
+                            `;
+                            // Soma para o total do status, considerando apenas o byLineModel para evitar duplicação
+                            if (status !== 'Pendente' || key !== 'Aguardando Material') { // Evita dupla contagem se "Aguardando Material" já foi somado
+                                currentStatusTotal += statusData.byLineModel[key];
+                            }
+                        }
+                    } else {
+                        byLineModelContent = '<p class="no-data-message">Nenhum talão por linha - modelo.</p>';
+                    }
+                    statusSectionHtml += `
+                        <div class="card-content-sub">
+                            <h5>Por Linha - Modelo</h5>
+                            ${byLineModelContent}
+                        </div>
+                    `;
+                    
+                    statusSectionHtml += `<div class="card-total-sub">Total: ${currentStatusTotal} pares</div>`; // Total por status
+                    corteContentHtml += `<div class="card-section">${statusSectionHtml}</div>`;
+                    totalParesCorte += currentStatusTotal; // Soma para o total geral do card de Corte
+                }
+            });
+
+            if (!hasCorteData) {
+                corteContentHtml = '<p class="no-data-message" style="grid-column: 1 / -1;">Nenhum talão neste setor.</p>';
+            }
+
+            corteCard.innerHTML = `
+                <h3>Corte</h3>
+                ${corteContentHtml}
+                <div class="card-total" style="grid-column: 1 / -1;">Total: ${totalParesCorte} pares</div>
+            `;
+            cardsGrid.appendChild(corteCard);
+
+            // Renderiza os cards de Distribuição e Talonagem
+            const otherSectors = ['Distribuição', 'Talonagem'];
+            otherSectors.forEach(sector => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                let totalParesSetor = 0;
+
+                let contentHtml = '';
+                const sectorData = data[sector];
+
+                // Seção "Por Linha"
+                let byLineContent = '';
+                if (Object.keys(sectorData.byLine).length > 0) {
+                    for (const linha in sectorData.byLine) {
+                        byLineContent += `
+                            <div class="card-item">
+                                <span class="item-label">Linha ${linha}</span>
+                                <span class="item-value">${sectorData.byLine[linha]} pares</span>
+                            </div>
+                        `;
+                    }
+                } else {
+                    byLineContent = '<p class="no-data-message">Nenhum talão por linha.</p>';
+                }
+                contentHtml += `
+                    <div class="card-section">
+                        <h4>Por Linha</h4>
+                        <div class="card-content-sub">${byLineContent}</div>
+                    </div>
+                `;
+                
+
+                // Seção "Por Linha - Modelo"
+                let byLineModelContent = '';
+                if (Object.keys(sectorData.byLineModel).length > 0) {
+                    for (const key in sectorData.byLineModel) {
+                        byLineModelContent += `
+                            <div class="card-item">
+                                <span class="item-label">${key.replace('.', ' - ')}</span>
+                                <span class="item-value">${sectorData.byLineModel[key]} pares</span>
+                            </div>
+                        `;
+                        totalParesSetor += sectorData.byLineModel[key]; // Soma para o total geral do card
+                    }
+                } else {
+                    byLineModelContent = '<p class="no-data-message">Nenhum talão por linha - modelo.</p>';
+                }
+                contentHtml += `
+                    <div class="card-section">
+                        <h4>Por Linha - Modelo</h4>
+                        <div class="card-content-sub">${byLineModelContent}</div>
+                    </div>
+                `;
+
+                if (contentHtml === '') {
+                    contentHtml = '<p class="no-data-message">Nenhum talão neste setor.</p>';
+                }
+
+                card.innerHTML = `
+                    <h3>${sector}</h3>
+                    <div class="card-content">${contentHtml}</div>
+                    <div class="card-total">Total: ${totalParesSetor} pares</div>
+                `;
+                cardsGrid.appendChild(card);
+            });
+
+            // Renderiza cards para cada ateliê
+            for (const atelierName in data.Ateliês) {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                let totalParesAtelier = 0;
+
+                let contentHtml = '';
+                const atelierData = data.Ateliês[atelierName];
+                if (Object.keys(atelierData).length > 0) {
+                    for (const key in atelierData) {
+                        contentHtml += `
+                            <div class="card-item">
+                                <span class="item-label">${key.replace('.', ' - ')}</span>
+                                <span class="item-value">${atelierData[key]} pares</span>
+                            </div>
+                        `;
+                        totalParesAtelier += atelierData[key];
+                    }
+                } else {
+                    contentHtml = '<p class="no-data-message">Nenhum talão neste ateliê.</p>';
+                }
+
+                card.innerHTML = `
+                    <h3> ${atelierName}</h3>
+                    <div class="card-content">${contentHtml}</div>
+                    <div class="card-total">Total: ${totalParesAtelier} pares</div>
+                `;
+                cardsGrid.appendChild(card);
+            }
+
+            if (cardsGrid.innerHTML === '') {
+                cardsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">Nenhum dado disponível com os filtros aplicados.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

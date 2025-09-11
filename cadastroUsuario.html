@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Usuário - SistemaTaloes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745; /* Cor verde para adicionar */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .message {
+            margin-top: 15px;
+            font-size: 0.9em;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success-message {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .error-message {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        /* O botão de Logout está escondido, pois não há controle de sessão nesta página temporariamente */
+        #logoutButton {
+            display: none; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Cadastro de Usuário</h2>
+        <form id="cadastroUsuarioForm">
+            <div class="form-group">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" required>
+            </div>
+            <div class="form-group">
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" required>
+            </div>
+            <div class="form-group">
+                <label for="nivelAcesso">Nível de Acesso:</label>
+                <select id="nivelAcesso" required>
+                    <option value="">Selecione um nível</option>
+                    <option value="01">01 - Cadastro</option>
+                    <option value="02">02 - Corte</option>
+                    <option value="03">03 - Costura</option>
+                    <option value="04">04 - Montagem</option>
+                    <option value="05">05 - Admin</option>
+                </select>
+            </div>
+            <button type="submit">Cadastrar Usuário</button>
+            <p id="message" class="message"></p>
+        </form>
+        <button id="logoutButton">Sair</button> 
+    </div>
+
+    <script type="module">
+        const firebaseConfig = {
+            apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+            authDomain: "sistemataloes.firebaseapp.com",
+            projectId: "sistemataloes",
+            storageBucket: "sistemataloes.appspot.com",
+            messagingSenderId: "684534379685",
+            appId: "1:684534379685:web:..." // Substitua pelo seu appId real do Firebase Project Settings
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Referências aos elementos HTML
+        const cadastroUsuarioForm = document.getElementById('cadastroUsuarioForm');
+        const nomeInput = document.getElementById('nome');
+        const emailInput = document.getElementById('email');
+        const senhaInput = document.getElementById('senha');
+        const nivelAcessoSelect = document.getElementById('nivelAcesso');
+        const messageDiv = document.getElementById('message');
+        // O botão de logout existe no HTML, mas está escondido e sem funcionalidade ativa nesta versão
+        // const logoutButton = document.getElementById('logoutButton'); 
+
+        // --- Lógica de Cadastro de Usuário ---
+        cadastroUsuarioForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            messageDiv.textContent = '';
+            messageDiv.className = 'message'; 
+
+            const nome = nomeInput.value;
+            const email = emailInput.value;
+            const senha = senhaInput.value;
+            const nivelAcesso = nivelAcessoSelect.value;
+
+            // Validação simples
+            if (senha.length < 6) {
+                messageDiv.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+                messageDiv.classList.add('error-message');
+                return;
+            }
+
+            try {
+                // 1. Criar o usuário no Firebase Authentication
+                // Atenção: Com as regras de Firestore como estão, qualquer um pode criar usuários aqui.
+                // Esta é uma medida TEMPORÁRIA para desenvolvimento.
+                const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+                const user = userCredential.user;
+
+                // 2. Salvar os dados adicionais do usuário no Firestore
+                // O ID do documento será o e-mail do usuário
+                await setDoc(doc(db, 'Usuario', email), {
+                    Nome: nome,
+                    nivelAcesso: nivelAcesso 
+                });
+
+                messageDiv.textContent = `Usuário ${email} cadastrado com sucesso!`;
+                messageDiv.classList.add('success-message');
+
+                // Limpar o formulário após o cadastro
+                cadastroUsuarioForm.reset();
+
+            } catch (error) {
+                let msg = 'Erro ao cadastrar usuário.';
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        msg = 'Este e-mail já está em uso.';
+                        break;
+                    case 'auth/invalid-email':
+                        msg = 'Formato de e-mail inválido.';
+                        break;
+                    case 'auth/weak-password':
+                        msg = 'A senha deve ter pelo menos 6 caracteres.';
+                        break;
+                    case 'auth/network-request-failed':
+                        msg = 'Erro de conexão. Verifique sua internet.';
+                        break;
+                    default:
+                        msg = `Erro: ${error.message}`;
+                }
+                messageDiv.textContent = msg;
+                messageDiv.classList.add('error-message');
+                console.error("Erro de Cadastro:", error);
+            }
+        });
+
+        // O botão de logout e sua lógica foram removidos/desativados para este teste direto
+        // pois a página não verifica o estado de autenticação.
+        // Se precisar de logout ao testar, faça-o através do console do navegador ou
+        // volte para a página de Login.html e use o mecanismo de login/logout de lá.
+    </script>
+</body>
+</html>
