@@ -231,7 +231,7 @@
                     <tr>
                         <th>Remessa</th>
                         <th>Talão</th>
-                        <th>Modelo</th>
+                        <th>Linha.Modelo</th>
                         <th>Pares</th>
                         <th>Data Saída Costura</th>
                         <th>Data Entrada Distribuição</th>
@@ -481,6 +481,7 @@
                 resumoPorLinhaModelo[chaveGeral] += pares;
 
                 // Soma para o resumo de pendentes
+                
                 if (!talao.dataEntradaDistribuicao) {
                     totalTaloesPendentes++;
                     totalParesPendentes += pares;
@@ -544,7 +545,7 @@
                 row.innerHTML = `
                     <td>${talao.numeroRemessa || ''}</td>
                     <td>${talao.numeroTalaoSequencial || ''}</td>
-                    <td>${talao.modelo || ''}</td>
+                    <td>${talao.linha || ''}.${talao.modelo || ''}</td>
                     <td>${talao.pares || 0}</td>
                     <td>${formatDate(talao.dataSaidaCostura)}</td>
                     <td>${formatDate(talao.dataEntradaDistribuicao) || 'PENDENTE'}</td>
