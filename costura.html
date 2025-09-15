@@ -178,6 +178,18 @@
             border-bottom: none;
         }
 
+        /* Novo estilo para a mensagem de carregamento */
+        .loading-message {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ffc107;
+            background-color: #fff3cd;
+            color: #856404;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+
         /* --- MEDIA QUERIES PARA ADAPTAÇÃO MOBILE --- */
         @media (max-width: 768px) {
             header {
@@ -248,11 +260,13 @@
     </nav>
 
     <div class="main-content">
+        <div id="loadingMessage" class="loading-message">Carregando dados... Por favor, aguarde.</div>
+        
         <div class="scanner-sections-container">
             <div class="barcode-scanner-container entry-section">
                 <div class="barcode-input-group">
                     <label for="barcodeInputEntry">Escaneamento para Entrada:</label>
-                    <input type="text" id="barcodeInputEntry" placeholder="Leia o código de barras aqui" autofocus>
+                    <input type="text" id="barcodeInputEntry" placeholder="Leia o código de barras aqui" autofocus disabled>
                     <div id="entryMessage" class="scanner-message"></div>
                 </div>
                 <div class="last-scanned-container">
@@ -265,7 +279,7 @@
             <div class="barcode-scanner-container exit-section">
                 <div class="barcode-input-group">
                     <label for="barcodeInputExit">Escaneamento para Saída:</label>
-                    <input type="text" id="barcodeInputExit" placeholder="Leia o código de barras aqui">
+                    <input type="text" id="barcodeInputExit" placeholder="Leia o código de barras aqui" disabled>
                     <div id="exitMessage" class="scanner-message"></div>
                 </div>
                 <div class="last-scanned-container">
@@ -308,6 +322,7 @@
         const exitMessageDiv = document.getElementById('exitMessage');
         const lastScannedEntryList = document.getElementById('lastScannedEntryList');
         const lastScannedExitList = document.getElementById('lastScannedExitList');
+        const loadingMessageDiv = document.getElementById('loadingMessage');
 
         let allTaloes = []; 
         let currentUserEmail = '';
@@ -315,6 +330,7 @@
         const lastEntries = [];
         const lastExits = [];
         const MAX_LAST_SCANNED = 5;
+        let isDataLoaded = false;
 
     // Tipos de Usuarios e niveis
         const nivelNomes = {
@@ -431,7 +447,17 @@
             const taloesColRef = collection(db, 'taloes'); 
             onSnapshot(taloesColRef, (snapshot) => {
                 allTaloes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log("Todos os talões carregados para scanner:", allTaloes);
+                
+                // Habilita a interface de escaneamento após o primeiro carregamento
+                if (!isDataLoaded) {
+                    isDataLoaded = true;
+                    loadingMessageDiv.style.display = 'none';
+                    barcodeInputEntry.disabled = false;
+                    barcodeInputExit.disabled = false;
+                    barcodeInputEntry.focus(); // Coloca o foco no primeiro campo
+                    console.log("Todos os talões carregados para scanner:", allTaloes);
+                }
+                
             }, (error) => {
                 console.error("Erro ao escutar talões:", error);
             });
@@ -483,6 +509,13 @@
         barcodeInputEntry.addEventListener('keypress', async (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
+
+                if (!isDataLoaded) {
+                    entryMessageDiv.textContent = 'Aguarde o carregamento dos dados.';
+                    entryMessageDiv.className = 'scanner-message error';
+                    return;
+                }
+
                 let barcode = barcodeInputEntry.value.trim();
 
                 // Lógica de transformação do código de barras
@@ -553,6 +586,13 @@
         barcodeInputExit.addEventListener('keypress', async (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
+
+                if (!isDataLoaded) {
+                    exitMessageDiv.textContent = 'Aguarde o carregamento dos dados.';
+                    exitMessageDiv.className = 'scanner-message error';
+                    return;
+                }
+
                 let barcode = barcodeInputExit.value.trim();
 
                 // Lógica de transformação do código de barras
