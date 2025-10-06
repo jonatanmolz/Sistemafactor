@@ -32,8 +32,27 @@
     #logoutButton:hover{background:var(--danger-700)}
     .container{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.08);width:100%;max-width:1200px}
     .summary-info{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;background:var(--chip);padding:8px;border-radius:8px;margin-bottom:12px;font-size:.9em}
-    .summary-item{background:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 10px;text-align:center}
+    .summary-item{
+      background:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 10px;text-align:center;
+      flex-grow: 1; /* Permite que ocupe o espaço */
+      min-width: 100px;
+    }
     .summary-item strong{display:block;font-size:1.15em}
+    /* Estilos para os novos filtros (links) */
+    .filter-link {
+        cursor: pointer;
+        text-decoration: none;
+        color: var(--ink);
+        transition: background .1s;
+    }
+    .filter-link:hover {
+        background: #e0e0e0;
+    }
+    .filter-link.active-filter {
+        background: #add8e6; /* Azul claro para filtro ativo */
+        border: 1px solid var(--pri);
+    }
+
     .table-container{width:100%;overflow:auto}
     table{width:100%;border-collapse:collapse;font-size:.78em}
     th,td{padding:5px 6px;text-align:center;border:1px solid var(--bd);white-space:nowrap}
@@ -195,6 +214,7 @@
     const loading=document.getElementById('loading'), noData=document.getElementById('noData'), reportContent=document.getElementById('reportContent'), summaryInfo=document.getElementById('summaryInfo'), cronogramaTableBody=document.getElementById('cronogramaTableBody');
     const detailsModal=document.getElementById('detailsModal'), modalTitle=document.getElementById('modalTitle'), modalTableBody=document.getElementById('modalTableBody'), closeModalBtn=document.querySelector('.close-btn');
     let allFetchedTaloes=[];
+    let currentStageFilter = null; // NOVO: Variável global para o filtro de etapa ativa
 
     // Tipos de Usuarios e niveis
         const nivelNomes = {
@@ -215,12 +235,11 @@
           // Cadastro
             { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
             { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05','07'] },
-            { name: 'Cadastro Manual', href: 'cadastromanual.html', levels: ['05', '07'] },
-           
-            // Ferramentas
+
+          // Ferramentas
             { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
             { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
-            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['05','07'] },
+            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
           
           // Corte
             { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
@@ -250,7 +269,7 @@
     onAuthStateChanged(auth, async (user)=>{ if(!user){window.location.href='login.html';return;} const snap=await getDoc(doc(db,'Usuario',user.email)); if(!snap.exists()){alert('Dados do usuário não encontrados. Faça login novamente.'); await signOut(auth); window.location.href='login.html'; return;} const {nivelAcesso,Nome}=snap.data(); if(!pages.find(p=>p.href==='cronograma.html'&&p.levels.includes(nivelAcesso))){alert('Você não tem permissão para acessar esta página.'); window.location.href='index.html'; return;} generateMenu(nivelAcesso,Nome); loadAtelies(); });
     logoutButton.addEventListener('click', async()=>{ try{ await signOut(auth); window.location.href='login.html'; }catch(e){ console.error(e); alert('Erro ao fazer logout. Tente novamente.'); }});
     async function loadAtelies(){ try{ const qSnap=await getDocs(query(collection(db,'Usuario'), where('nivelAcesso','==','03'))); const names=qSnap.docs.map(d=>d.data().Nome).filter(Boolean).sort((a,b)=>a.localeCompare(b)); names.forEach(n=>{const opt=document.createElement('option'); opt.value=n; opt.textContent=n; filterAtelie.appendChild(opt);}); }catch(err){ console.error('Erro ao carregar ateliês:',err);} }
-    clearFiltersButton.addEventListener('click',()=>{ [filterLinha,filterRemessa,filterDataCorteInicio,filterDataCorteFim,filterDataEntregaInicio,filterDataEntregaFim].forEach(i=>i.value=''); filterTipoCliente.value=''; filterAtelie.value=''; cronogramaTableBody.innerHTML=''; summaryInfo.innerHTML=''; reportContent.style.display='none'; noData.textContent='Selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; });
+    clearFiltersButton.addEventListener('click',()=>{ [filterLinha,filterRemessa,filterDataCorteInicio,filterDataCorteFim,filterDataEntregaInicio,filterDataEntregaFim].forEach(i=>i.value=''); filterTipoCliente.value=''; filterAtelie.value=''; cronogramaTableBody.innerHTML=''; summaryInfo.innerHTML=''; reportContent.style.display='none'; noData.textContent='Selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; currentStageFilter = null; });
     searchButton.addEventListener('click', runSearch);
 
     // Helpers
@@ -269,6 +288,8 @@
         if(tipoCliente){ qRef=query(qRef, where('tipoCliente','==',tipoCliente)); hasFilters=true; }
         if(atelieResponsavel){ qRef=query(qRef, where('idAtelieResponsavel','==',atelieResponsavel)); hasFilters=true; }
         if(dataCorteInicio && dataCorteFim){ qRef=query(qRef, where('dataCorte','>=',dataCorteInicio), where('dataCorte','<=',dataCorteFim)); hasFilters=true; }
+        // Se a busca inicial for sem filtro, reseta o filtro de etapa.
+        currentStageFilter = null;
         if(!hasFilters){ loading.style.display='none'; noData.textContent='Por favor, selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; return; }
         const snap=await getDocs(qRef); allFetchedTaloes=snap.docs.map(d=>d.data()); if(dataEntregaInicio && dataEntregaFim){ allFetchedTaloes=allFetchedTaloes.filter(t=> t.dataEntrega && t.dataEntrega>=dataEntregaInicio && t.dataEntrega<=dataEntregaFim ); }
         generateGroupedReport(allFetchedTaloes);
@@ -330,46 +351,129 @@
         else { g.montagem.paresFaltando+=pares; g.montagem.taloesFaltando+=1; g.montagem.allDone=false; }
       });
 
-      // --- Lógica de cálculo ajustada ---
+      // --- Lógica de cálculo ajustada (Removendo Giro Costura) ---
       const corte = paresSemCorte;
-      let giroCostura = (totalPares - paresSemCorte) - paresCosturaConcl;
-      if(giroCostura < 0) giroCostura = 0;
+      // Removida a variável giroCostura.
       const costura = totalPares - paresCosturaConcl;
       
-      // Nova lógica: Faltando para entrar na Distribuição e Talonagem
+      // Faltando para entrar nas etapas
       const paresFaltandoDistribuicao = totalPares - paresDist;
       const paresFaltandoTalonagem = totalPares - paresTalon;
       
       const montar = totalPares - paresMont;
 
-      updateSummaryExcel(totalPares,totalTaloes,corte,giroCostura,costura,paresFaltandoDistribuicao,paresFaltandoTalonagem,montar);
+      // ATUALIZADO: Remoção do argumento giroCostura
+      updateSummaryExcel(totalPares,totalTaloes,corte,costura,paresFaltandoDistribuicao,paresFaltandoTalonagem,montar);
       renderTable(grouped);
     }
 
-    function updateSummaryExcel(totalPares,totalTaloes,corte,giroCostura,costura,distribuicao,talonagem,montagem){
+    // ATUALIZADO: Nova função updateSummaryExcel (Substitui a original)
+    function updateSummaryExcel(totalPares,totalTaloes,corte,costura,distribuicao,talonagem,montagem){
       summaryInfo.innerHTML = `
         <div class="summary-item">Total pares<br><strong>${totalPares}</strong></div>
         <div class="summary-item">Talões Filtrados<br><strong>${totalTaloes}</strong></div>
-        <div class="summary-item">Corte<br><strong>${corte}</strong></div>
-        <div class="summary-item">Giro Costura<br><strong>${giroCostura}</strong></div>
-        <div class="summary-item">Costura<br><strong>${costura}</strong></div>
-        <div class="summary-item">Distribuição<br><strong>${distribuicao}</strong></div>
-        <div class="summary-item">Talonagem<br><strong>${talonagem}</strong></div>
-        <div class="summary-item">Montagem<br><strong>${montagem}</strong></div>
+        
+        <a href="#" class="summary-item filter-link ${currentStageFilter === 'corte' ? 'active-filter' : ''}" data-stage="corte">Corte (Faltando)<br><strong>${corte}</strong></a>
+        <a href="#" class="summary-item filter-link ${currentStageFilter === 'costura' ? 'active-filter' : ''}" data-stage="costura">Costura (Faltando)<br><strong>${costura}</strong></a>
+        <a href="#" class="summary-item filter-link ${currentStageFilter === 'distribuicao' ? 'active-filter' : ''}" data-stage="distribuicao">Distribuição (Faltando)<br><strong>${distribuicao}</strong></a>
+        <a href="#" class="summary-item filter-link ${currentStageFilter === 'talonagem' ? 'active-filter' : ''}" data-stage="talonagem">Talonagem (Faltando)<br><strong>${talonagem}</strong></a>
+        <a href="#" class="summary-item filter-link ${currentStageFilter === 'montagem' ? 'active-filter' : ''}" data-stage="montagem">Montagem (Faltando)<br><strong>${montagem}</strong></a>
       `;
     }
 
-    function getTipoClienteClass(tipo){ switch(tipo){ case 'Exportacao': return 'exportacao-row'; case 'Cliente especial': return 'cliente-especial-row'; case 'mercado interno': return 'mercado-interno-row'; case 'Estoque': return 'estoque-row'; case 'Amostra': return 'amostra-row'; default: return ''; } }
-    function renderTable(data){ cronogramaTableBody.innerHTML=''; const keys=Object.keys(data).sort((a,b)=>{ const da=data[a].dataCorte||'9999-12-31', db=data[b].dataCorte||'9999-12-31'; if(da!==db) return da.localeCompare(db); const la=parseInt(String(data[a].linha).replace(/\\D/g,''))||0; const lb=parseInt(String(data[b].linha).replace(/\\D/g,''))||0; if(la!==lb) return la-lb; const ra=parseInt(String(data[a].remessa).replace(/\\D/g,''))||0; const rb=parseInt(String(data[b].remessa).replace(/\\D/g,''))||0; return ra-rb; }); if(keys.length===0){ noData.style.display='block'; return; }
-      keys.forEach(k=>{ const grp=data[k]; const tr=document.createElement('tr'); tr.className=getTipoClienteClass(grp.tipoCliente); const remessaCell=`<td><a href="#" class="remessa-link" data-remessa="${grp.remessa}">${grp.remessa}</a></td>`; let html=`<td>${grp.linha}</td>${remessaCell}<td>${grp.paresTotal}</td><td>${grp.taloesTotal}</td><td>${formatDateAbreviado(grp.dataCorte)}</td><td>${formatDateAbreviado(grp.dataEntrega)}</td>`;
-        function etapaCell(etapa, addSep){ if(etapa.paresFaltando===0 && etapa.allDone && etapa.maxDate){ return `<td colspan="2" ${addSep? 'class="separator-border"':''}><span class="status-check">✔ ${formatDateAbreviado(etapa.maxDate)}</span></td>`; } return `<td>${etapa.paresFaltando}</td><td ${addSep? 'class="separator-border"':''}>${etapa.taloesFaltando}</td>`; }
-        html += etapaCell(grp.corte,true); html += etapaCell(grp.costura,true); html += etapaCell(grp.distribuicao,true); html += etapaCell(grp.talonagem,true);
-        if(grp.montagem.paresFaltando===0 && grp.montagem.allDone && grp.montagem.maxDate){ html += `<td colspan="2"><span class="status-check">✔ ${formatDateAbreviado(grp.montagem.maxDate)}</span></td>`; } else { html += `<td>${grp.montagem.paresFaltando}</td><td>${grp.montagem.taloesFaltando}</td>`; }
+    function getTipoClienteClass(tipo){ switch(tipo){ case 'Exportacao': return 'exportacao-row'; case 'Cliente especial': return 'cliente-especial-row'; case 'Mercado Interno': return 'mercado-interno-row'; case 'Estoque': return 'estoque-row'; case 'Amostra': return 'amostra-row'; default: return ''; } }
+    
+    // ATUALIZADO: Função renderTable com lógica de filtragem condicional
+    function renderTable(data){ 
+      cronogramaTableBody.innerHTML=''; 
+      const keys=Object.keys(data).sort((a,b)=>{ 
+        const da=data[a].dataCorte||'9999-12-31', db=data[b].dataCorte||'9999-12-31'; 
+        if(da!==db) return da.localeCompare(db); 
+        const la=parseInt(String(data[a].linha).replace(/\\D/g,''))||0; 
+        const lb=parseInt(String(data[b].linha).replace(/\\D/g,''))||0; 
+        if(la!==lb) return la-lb; 
+        const ra=parseInt(String(data[a].remessa).replace(/\\D/g,''))||0; 
+        const rb=parseInt(String(data[b].remessa).replace(/\\D/g,''))||0; 
+        return ra-rb; 
+      }); 
+
+      if(keys.length===0){ noData.style.display='block'; return; }
+
+      // NOVA LÓGICA DE FILTRAGEM POR ETAPA ABERTA
+      const filteredKeys = [];
+
+      keys.forEach(k => {
+        const grp = data[k];
+        let showRow = true;
+
+        if (currentStageFilter) {
+            // Se a etapa está filtrada E o número de talões faltantes é ZERO, esconde a linha.
+            if (grp[currentStageFilter].taloesFaltando === 0) {
+                showRow = false; 
+            }
+        }
+        
+        if (showRow) {
+            filteredKeys.push(k);
+        }
+      });
+      
+      // Se o filtro estiver ativo e não houver resultados
+      if (filteredKeys.length === 0 && currentStageFilter) {
+          cronogramaTableBody.innerHTML = `<tr><td colspan="15" style="text-align:center;">Nenhuma remessa encontrada com a etapa de **${currentStageFilter.toUpperCase()}** em aberto.</td></tr>`;
+          return;
+      }
+
+      // Renderiza apenas as chaves filtradas
+      filteredKeys.forEach(k=>{ 
+        const grp=data[k]; 
+        const tr=document.createElement('tr'); 
+        tr.className=getTipoClienteClass(grp.tipoCliente); 
+        const remessaCell=`<td><a href="#" class="remessa-link" data-remessa="${grp.remessa}">${grp.remessa}</a></td>`; 
+        let html=`<td>${grp.linha}</td>${remessaCell}<td>${grp.paresTotal}</td><td>${grp.taloesTotal}</td><td>${formatDateAbreviado(grp.dataCorte)}</td><td>${formatDateAbreviado(grp.dataEntrega)}</td>`;
+        function etapaCell(etapa, addSep){ 
+          if(etapa.paresFaltando===0 && etapa.allDone && etapa.maxDate){ 
+            return `<td colspan="2" ${addSep? 'class="separator-border"':''}><span class="status-check">✔ ${formatDateAbreviado(etapa.maxDate)}</span></td>`; 
+          } 
+          return `<td>${etapa.paresFaltando}</td><td ${addSep? 'class="separator-border"':''}>${etapa.taloesFaltando}</td>`; 
+        }
+        html += etapaCell(grp.corte,true); 
+        html += etapaCell(grp.costura,true); 
+        html += etapaCell(grp.distribuicao,true); 
+        html += etapaCell(grp.talonagem,true);
+        if(grp.montagem.paresFaltando===0 && grp.montagem.allDone && grp.montagem.maxDate){ 
+          html += `<td colspan="2"><span class="status-check">✔ ${formatDateAbreviado(grp.montagem.maxDate)}</span></td>`; 
+        } else { 
+          html += `<td>${grp.montagem.paresFaltando}</td><td>${grp.montagem.taloesFaltando}</td>`; 
+        }
         tr.innerHTML=html; cronogramaTableBody.appendChild(tr);
-      }); }
+      }); 
+    }
+
     document.addEventListener('click',(e)=>{ const a=e.target.closest('.remessa-link'); if(a){ e.preventDefault(); showDetailsModal(a.dataset.remessa); }});
     closeModalBtn.addEventListener('click',()=> detailsModal.style.display='none');
     window.addEventListener('click',(e)=>{ if(e.target===detailsModal) detailsModal.style.display='none'; });
+    
+    // NOVO: Listener para os links de resumo (Filtro por Etapa)
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('.filter-link');
+        if (link) {
+            e.preventDefault();
+            const stage = link.dataset.stage; // 'corte', 'costura', 'distribuicao', etc.
+            
+            // Toggles the filter: Se o filtro for o mesmo, desativa; senão, ativa o novo.
+            currentStageFilter = (currentStageFilter === stage) ? null : stage;
+
+            // Re-renderiza tudo para aplicar o filtro e re-renderizar o summary (com a classe 'active-filter')
+            if (allFetchedTaloes.length > 0) {
+                generateGroupedReport(allFetchedTaloes);
+            } else {
+                // Se o usuário clicar no filtro antes de buscar, aciona a busca.
+                runSearch(); 
+            }
+        }
+    });
+
     function showDetailsModal(remessa){ modalTitle.textContent=`Detalhes da Remessa: ${remessa}`; modalTableBody.innerHTML=''; const list=allFetchedTaloes.filter(t=>t.numeroRemessa===remessa); if(list.length===0){ modalTableBody.innerHTML = `<tr><td colspan="14" style="text-align:center;">Nenhum detalhe encontrado para esta remessa.</td></tr>`; detailsModal.style.display='block'; return; } list.sort((a,b)=> (parseInt(a.numeroTalaoSequencial,10)||0) - (parseInt(b.numeroTalaoSequencial,10)||0)); list.forEach(t=>{ const hasCab=hasDate(t.cabedalData), hasFor=hasDate(t.forroData), hasAvi=hasDate(t.aviamentoData); let fechamentoISO=null; if(hasCab&&hasFor&&hasAvi){ fechamentoISO=[t.cabedalData,t.forroData,t.aviamentoData].reduce((m,cur)=>maxISO(m,cur),null); }
         const tr=document.createElement('tr'); tr.innerHTML = `
           <td>${t.numeroTalaoSequencial||''}</td>
@@ -390,5 +494,4 @@
           modalTableBody.appendChild(tr); }); detailsModal.style.display='block'; }
   </script>
 </body>
-
 </html>
