@@ -1100,33 +1100,131 @@ addSafeListener(btnFecharCorte, 'click', () => {
 
 // Botão Fechar Costura
 addSafeListener(btnFecharCostura, 'click', () => {
-  performMassUpdate({
-    dataSaidaCostura: getTodayDate(),
-    statusCostura: 'Finalizado',
-    costuraDataInicio: getTodayDate()
+  if (filteredTaloes.length === 0) {
+    showMessageModal('Atenção', 'Nenhum talão filtrado para atualização.', 'error');
+    return;
+  }
+  const confirmationMessage = `Tem certeza que deseja fechar a Costura para ${filteredTaloes.length} talões filtrados? Apenas talões **sem data de saída** serão atualizados.`;
+
+  showMessageModal('Confirmar Ação', confirmationMessage, 'confirm', async () => {
+    let successCount = 0;
+    const today = getTodayDate();
+    try {
+      for (const talao of filteredTaloes) {
+        // Checa se a data de Saída da Costura está vazia
+        if (!talao.dataSaidaCostura) {
+          const docRef = db.collection('taloes').doc(talao.id);
+          const updateData = {
+            dataSaidaCostura: today,
+            statusCostura: 'Finalizado',
+            costuraDataInicio: today // Pode ser um campo redundante, mas mantido.
+          };
+          await docRef.update(updateData);
+          successCount++;
+        }
+      }
+      showMessageModal('Sucesso', `${successCount} talões atualizados (Saída Costura registrada).`, 'success');
+    } catch (error) {
+      console.error('Erro na atualização em massa da Costura:', error);
+      showMessageModal('Erro', `Erro na atualização da Costura: ${error.message}`, 'error');
+    }
   });
 }, 'btnFecharCostura');
 
 // Botão Distribuição
 addSafeListener(btnFecharDistribuicao, 'click', () => {
-  performMassUpdate({
-    dataEntradaDistribuicao: getTodayDate(),
-    statusCostura: 'Finalizado'
+  if (filteredTaloes.length === 0) {
+    showMessageModal('Atenção', 'Nenhum talão filtrado para atualização.', 'error');
+    return;
+  }
+  const confirmationMessage = `Tem certeza que deseja fechar a Distribuição para ${filteredTaloes.length} talões filtrados? Apenas talões **sem data de entrada** serão atualizados.`;
+
+  showMessageModal('Confirmar Ação', confirmationMessage, 'confirm', async () => {
+    let successCount = 0;
+    const today = getTodayDate();
+    try {
+      for (const talao of filteredTaloes) {
+        // Checa se a data de Entrada na Distribuição está vazia
+        if (!talao.dataEntradaDistribuicao) {
+          const docRef = db.collection('taloes').doc(talao.id);
+          const updateData = {
+            dataEntradaDistribuicao: today,
+            statusCostura: 'Finalizado' // Mantém a atualização do status
+          };
+          await docRef.update(updateData);
+          successCount++;
+        }
+      }
+      showMessageModal('Sucesso', `${successCount} talões atualizados (Entrada Distribuição registrada).`, 'success');
+    } catch (error) {
+      console.error('Erro na atualização em massa da Distribuição:', error);
+      showMessageModal('Erro', `Erro na atualização da Distribuição: ${error.message}`, 'error');
+    }
   });
 }, 'btnFecharDistribuicao');
 
 // Botão Talonagem
 addSafeListener(btnFecharTalonagem, 'click', () => {
-  performMassUpdate({
-    dataEntradaTalonagem: getTodayDate()
+  if (filteredTaloes.length === 0) {
+    showMessageModal('Atenção', 'Nenhum talão filtrado para atualização.', 'error');
+    return;
+  }
+  const confirmationMessage = `Tem certeza que deseja fechar a Talonagem para ${filteredTaloes.length} talões filtrados? Apenas talões **sem data de entrada** serão atualizados.`;
+
+  showMessageModal('Confirmar Ação', confirmationMessage, 'confirm', async () => {
+    let successCount = 0;
+    const today = getTodayDate();
+    try {
+      for (const talao of filteredTaloes) {
+        // Checa se a data de Entrada na Talonagem está vazia
+        if (!talao.dataEntradaTalonagem) {
+          const docRef = db.collection('taloes').doc(talao.id);
+          const updateData = {
+            dataEntradaTalonagem: today
+          };
+          await docRef.update(updateData);
+          successCount++;
+        }
+      }
+      showMessageModal('Sucesso', `${successCount} talões atualizados (Entrada Talonagem registrada).`, 'success');
+    } catch (error) {
+      console.error('Erro na atualização em massa da Talonagem:', error);
+      showMessageModal('Erro', `Erro na atualização da Talonagem: ${error.message}`, 'error');
+    }
   });
 }, 'btnFecharTalonagem');
 
 // Botão Montagem
 addSafeListener(btnFecharMontagem, 'click', () => {
-  performMassUpdate({
-    dataEntradaMontagem: getTodayDate(),
-    statusGeral: 'Montado'
+  if (filteredTaloes.length === 0) {
+    showMessageModal('Atenção', 'Nenhum talão filtrado para atualização.', 'error');
+    return;
+  }
+  const confirmationMessage = `Tem certeza que deseja fechar a Montagem para ${filteredTaloes.length} talões filtrados? Apenas talões **sem data de montagem** serão atualizados.`;
+  
+  showMessageModal('Confirmar Ação', confirmationMessage, 'confirm', async () => {
+    let successCount = 0;
+    const today = getTodayDate();
+    try {
+      // Itera APENAS sobre os talões filtrados
+      for (const talao of filteredTaloes) {
+        // ** VERIFICAÇÃO CONDICIONAL **
+        // Se o talão NÃO tiver dataEntradaMontagem (é nulo ou vazio)
+        if (!talao.dataEntradaMontagem) {
+          const docRef = db.collection('taloes').doc(talao.id);
+          const updateData = {
+            dataEntradaMontagem: today, // Seta a data de hoje
+            statusGeral: 'Montado'      // Garante que o status é 'Montado'
+          };
+          await docRef.update(updateData);
+          successCount++;
+        }
+      }
+      showMessageModal('Sucesso', `${successCount} talões atualizados (Montagem registrada).`, 'success');
+    } catch (error) {
+      console.error('Erro na atualização em massa da Montagem:', error);
+      showMessageModal('Erro', `Erro na atualização da Montagem: ${error.message}`, 'error');
+    }
   });
 }, 'btnFecharMontagem');
 
