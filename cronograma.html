@@ -18,6 +18,7 @@
     nav a{color:#fff;text-decoration:none;padding:6px 12px;border-radius:6px;display:block}
     nav a:hover{background:#777}
     .main-content{flex:1;padding:16px;display:flex;flex-direction:column;align-items:center}
+    /* Aumento o gap e centralizo para acomodar os novos botões */
     .filters-container{background:var(--card);padding:10px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08);width:100%;max-width:95%;margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:flex-end}
     .form-group{display:flex;flex-direction:column;min-width:120px}
     .filters-container label{margin-bottom:3px;color:var(--ink-2);font-weight:700;font-size:.8em}
@@ -28,13 +29,29 @@
     .btn-primary:hover{background:var(--pri-700)}
     .btn-secondary{background:#e9ecef;color:#111}
     .btn-secondary:hover{background:#dde2e6}
+    /* Estilo para os botões de Resumo */
+    .btn-resumo{background:#6c757d;color:#fff; min-width: 140px;}
+    .btn-resumo:hover{background:#5a6268}
+    /* NOVO: Estilo para o container dos botões de resumo dentro do relatório */
+    #resumoButtonsContainer {
+        display: flex; 
+        gap: 12px; 
+        margin: 12px 0; 
+        padding: 8px 0;
+        border-top: 1px dashed var(--bd);
+        border-bottom: 1px dashed var(--bd);
+        justify-content: center;
+        width: 100%;
+    }
+
+
     #logoutButton{background:var(--danger);color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer}
     #logoutButton:hover{background:var(--danger-700)}
     .container{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.08);width:100%;max-width:1200px}
     .summary-info{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;background:var(--chip);padding:8px;border-radius:8px;margin-bottom:12px;font-size:.9em}
     .summary-item{
       background:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 10px;text-align:center;
-      flex-grow: 1; /* Permite que ocupe o espaço */
+      flex-grow: 1; 
       min-width: 100px;
     }
     .summary-item strong{display:block;font-size:1.15em}
@@ -51,6 +68,43 @@
     .filter-link.active-filter {
         background: #add8e6; /* Azul claro para filtro ativo */
         border: 1px solid var(--pri);
+    }
+    
+    /* Regra para ocultar colunas */
+    .hidden-column {
+        display: none !important;
+    }
+
+    /* Estilo para o Menu de Controle de Colunas */
+    #columnControlMenu {
+        background: var(--card);
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,.08);
+        width: 100%;
+        max-width: 1200px;
+        margin-bottom: 14px;
+        text-align: left;
+        font-size: 0.9em;
+        border: 1px solid var(--bd);
+    }
+    #columnControlMenu h4 {
+        margin: 0 0 8px 0;
+        color: var(--ink-2);
+    }
+    .column-checkboxes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 15px;
+    }
+    .column-checkboxes label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-weight: normal;
+    }
+    .column-checkboxes input[type="checkbox"] {
+        margin-right: 5px;
     }
 
     .table-container{width:100%;overflow:auto}
@@ -85,10 +139,70 @@
     .close-btn{position:absolute;right:10px;top:6px;color:#888;font-size:26px;font-weight:700;cursor:pointer}
     .close-btn:hover{color:#000}
     .modal-head{display:flex;gap:8px;align-items:center;justify-content:space-between}
-    .modal-body-table-container{overflow:auto;max-height:80vh}
+    /* CLASSE APLICADA À ESTRUTURA DA TABELA DE DETALHES */
+    #detailsTableContainer {
+        overflow:auto; 
+        max-height:80vh;
+        /* Garante que o container da tabela de detalhes tenha uma altura máxima e scroll */
+    }
     .modal-body-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.8em;table-layout:auto}
     .modal-body-table th,.modal-body-table td{border:1px solid var(--bd);padding:6px;text-align:center;white-space:nowrap}
     .modal-body-table th{background:#f2f2f2}
+    
+    /* Estilos Específicos para Resumo (Cards) - Usado para Giro, Corte e Costura */
+    .resumo-cards-wrapper { /* Novo wrapper para os cards de resumo */
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+        max-height: 80vh; /* Limite de altura para o scroll */
+        overflow-y: auto; /* Adiciona scroll se necessário */
+        padding-right: 15px; /* Espaço para a barra de rolagem */
+    }
+    .atelie-card {
+        border: 1px solid var(--bd);
+        border-radius: 8px;
+        padding: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        background-color: var(--chip);
+        display: flex;
+        flex-direction: column;
+    }
+    .atelie-card h4 {
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 1.1em;
+        color: var(--pri-700);
+        border-bottom: 2px solid var(--pri);
+        padding-bottom: 4px;
+    }
+    .model-list {
+        flex-grow: 1; /* Permite que a lista cresça e ocupe o espaço */
+    }
+    .model-list p {
+        margin: 4px 0;
+        font-size: 0.9em;
+        font-weight: 500;
+        display: flex;
+        justify-content: space-between;
+    }
+    .model-list span:last-child {
+        font-weight: 700;
+        color: var(--ink-2);
+    }
+    /* NOVO: Estilo para o total de pares dentro de cada card */
+    .card-total {
+        margin-top: 10px !important; 
+        padding-top: 5px;
+        border-top: 1px dashed var(--muted);
+        font-size: 1.0em !important;
+        font-weight: 700 !important;
+        color: var(--ink); /* Cor padrão */
+    }
+    .card-total span:last-child {
+        color: var(--pri) !important; /* Destaque azul para o total do card */
+    }
+
     @media (max-width:768px){.filters-container{justify-content:stretch}.form-group{flex:1}.modal-content{width:98%;max-width:98%}.modal-body-table{font-size:.74em}}
     .modal-body-table tr:nth-child(even) {background-color: #f2f2f2;}
   </style>
@@ -126,35 +240,49 @@
       <div class="form-group"><label for="filterDataEntregaFim">Data de Entrega (Fim):</label><input type="date" id="filterDataEntregaFim" /></div>
       <button class="btn btn-primary" id="searchButton">Gerar Relatório</button>
       <button class="btn btn-secondary" id="clearFiltersButton" title="Limpar filtros">Limpar</button>
-    </div>
+      
+      </div>
     <div class="container">
       <h2>Relatório de Cronograma</h2>
       <div id="loading" class="loader" style="display:none">Carregando dados...</div>
       <div id="noData" class="loader">Selecione ao menos um filtro para iniciar a busca.</div>
       <div id="reportContent" style="display:none">
+        
         <div id="summaryInfo" class="summary-info"></div>
+
+        <div id="resumoButtonsContainer">
+            <button class="btn btn-resumo" id="resumoCorteButton">Corte</button>
+            <button class="btn btn-resumo" id="resumoCosturaButton">Giro Costura</button>
+            <button class="btn btn-resumo" id="resumoGiroFabricaButton">Giro Fábrica</button>
+        </div>
+        <div id="columnControlMenu">
+          <h4>Mostrar Colunas:</h4>
+          <div id="checkboxContainer" class="column-checkboxes">
+            </div>
+        </div>
         <div id="tableContainer" class="table-container">
           <table>
             <thead>
               <tr>
-                <th rowspan="2">Linha</th>
-                <th rowspan="2">Remessa</th>
-                <th rowspan="2">Pares</th>
-                <th rowspan="2">Talões</th>
-                <th rowspan="2">Data de Corte</th>
-                <th rowspan="2">Data de Entrega</th>
-                <th colspan="2" class="separator-border">Cortar</th>
-                <th colspan="2" class="separator-border">Costurar</th>
-                <th colspan="2" class="separator-border">Distribuir</th>
-                <th colspan="2" class="separator-border">Talonar</th>
-                <th colspan="2">Montar</th>
+                <th rowspan="2" class="col-linha">Linha</th>
+                <th rowspan="2" class="col-remessa">Remessa</th>
+                <th rowspan="2" class="col-pares-ident">Pares</th> 
+                <th rowspan="2" class="col-taloes-ident">Talões</th> 
+                <th rowspan="2" class="col-data-corte">Data de Corte</th>
+                <th rowspan="2" class="col-data-entrega">Data de Entrega</th>
+                
+                <th colspan="2" class="separator-border col-corte-group">Cortar</th>
+                <th colspan="2" class="separator-border col-costura-group">Costurar</th>
+                <th colspan="2" class="separator-border col-distribuicao-group">Distribuir</th>
+                <th colspan="2" class="separator-border col-talonagem-group">Talonar</th>
+                <th colspan="2" class="col-montagem-group">Montar</th>
               </tr>
               <tr>
-                <th>Pares</th><th class="separator-border">Talões</th>
-                <th>Pares</th><th class="separator-border">Talões</th>
-                <th>Pares</th><th class="separator-border">Talões</th>
-                <th>Pares</th><th class="separator-border">Talões</th>
-                <th>Pares</th><th>Talões</th>
+                <th class="col-corte">Pares</th><th class="separator-border col-corte">Talões</th>
+                <th class="col-costura">Pares</th><th class="separator-border col-costura">Talões</th>
+                <th class="col-distribuicao">Pares</th><th class="separator-border col-distribuicao">Talões</th>
+                <th class="col-talonagem">Pares</th><th class="separator-border col-talonagem">Talões</th>
+                <th class="col-montagem">Pares</th><th class="col-montagem">Talões</th>
               </tr>
             </thead>
             <tbody id="cronogramaTableBody"></tbody>
@@ -163,33 +291,13 @@
       </div>
     </div>
   </div>
+  
   <div id="detailsModal" class="modal">
     <div class="modal-content">
       <span class="close-btn">&times;</span>
-      <div class="modal-head"><h3 id="modalTitle" style="margin:0">Detalhes da Remessa</h3></div>
-      <div class="modal-body-table-container">
-        <table class="modal-body-table">
-          <thead>
-            <tr>
-              <th>Talão</th>
-              <th>Linha</th>
-              <th>Modelo</th>
-              <th>Pares</th>
-              <th>Cor</th>
-              <th>Data Corte</th>
-              <th>Ateliê</th>
-              <th>Corte</th>
-              <th>Entrada Ateliê</th>
-              <th>Saída Costura</th>
-              <th>Distribuição</th>
-              <th>Talonagem</th>
-              <th>Montagem</th>
-              <th>Trilho</th>
-            </tr>
-          </thead>
-          <tbody id="modalTableBody"></tbody>
-        </table>
-      </div>
+      <div class="modal-head"><h3 id="modalTitle" style="margin:0">Detalhes / Resumo</h3></div>
+      <div id="modalBodyContent">
+          </div>
     </div>
   </div>
   <script type="module">
@@ -211,62 +319,53 @@
     const menuNav=document.getElementById('menuNav'), userNameDisplay=document.getElementById('userNameDisplay'), userNivelDisplay=document.getElementById('userNivelDisplay'), logoutButton=document.getElementById('logoutButton');
     const filterLinha=document.getElementById('filterLinha'), filterRemessa=document.getElementById('filterRemessa'), filterDataCorteInicio=document.getElementById('filterDataCorteInicio'), filterDataCorteFim=document.getElementById('filterDataCorteFim'), filterTipoCliente=document.getElementById('filterTipoCliente'), filterAtelie=document.getElementById('filterAtelie'), filterDataEntregaInicio=document.getElementById('filterDataEntregaInicio'), filterDataEntregaFim=document.getElementById('filterDataEntregaFim');
     const searchButton=document.getElementById('searchButton'), clearFiltersButton=document.getElementById('clearFiltersButton');
+    
+    // NOVAS REFERÊNCIAS DE BOTÕES (AGORA NO CORPO DO RELATÓRIO)
+    const resumoCorteButton=document.getElementById('resumoCorteButton'), resumoCosturaButton=document.getElementById('resumoCosturaButton'), resumoGiroFabricaButton=document.getElementById('resumoGiroFabricaButton');
+    
     const loading=document.getElementById('loading'), noData=document.getElementById('noData'), reportContent=document.getElementById('reportContent'), summaryInfo=document.getElementById('summaryInfo'), cronogramaTableBody=document.getElementById('cronogramaTableBody');
-    const detailsModal=document.getElementById('detailsModal'), modalTitle=document.getElementById('modalTitle'), modalTableBody=document.getElementById('modalTableBody'), closeModalBtn=document.querySelector('.close-btn');
+    const detailsModal=document.getElementById('detailsModal'), modalTitle=document.getElementById('modalTitle'), closeModalBtn=document.querySelector('.close-btn');
+    const modalBodyContent = document.getElementById('modalBodyContent'); 
+    const checkboxContainer = document.getElementById('checkboxContainer'); 
+    
+    // Variável para a tabela de detalhes
+    let modalTableBody = null; 
+    
     let allFetchedTaloes=[];
-    let currentStageFilter = null; // NOVO: Variável global para o filtro de etapa ativa
+    let currentStageFilter = null; 
 
     // Tipos de Usuarios e niveis
         const nivelNomes = {
-            '01': 'Cadastro',
-            '02': 'Corte',
-            '03': 'Costura',
-            '04': 'Montagem',
-            '05': 'Admin',
-            '06': 'Consultor',
-            '07':'Super'
-
+            '01': 'Cadastro', '02': 'Corte', '03': 'Costura', '04': 'Montagem',
+            '05': 'Admin', '06': 'Consultor', '07':'Super'
         };
 
-        // Definição das páginas e seus níveis de acesso (copiado do index.html)
+        // Definição das páginas e seus níveis de acesso 
         const pages = [
-          // Inicio
             { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06','07'] },
-          // Cadastro
             { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
             { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05','07'] },
-
-          // Ferramentas
             { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
             { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
             { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
-          
-          // Corte
             { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
             { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
-
-          // Relatorios
             { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
             { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05','06','07'] },
             { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['06','07'] },
             { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
-
-          //Costura
             { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
             { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
             { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
-
-          // Fabrica
             { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
             { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
             { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
-            
         ];
 
     //Funçoes
 
     function generateMenu(userLevel,userName){menuNav.innerHTML='';const userNivelText=nivelNomes[userLevel]||`Nível ${userLevel}`;userNameDisplay.textContent=`Olá, ${userName||'Usuário'}!`;userNivelDisplay.textContent=`Setor: ${userNivelText}`;pages.forEach(p=>{if(p.levels.includes(userLevel)){const li=document.createElement('li');const a=document.createElement('a');a.href=p.href;a.textContent=p.name;li.appendChild(a);menuNav.appendChild(li);}});}
-    onAuthStateChanged(auth, async (user)=>{ if(!user){window.location.href='login.html';return;} const snap=await getDoc(doc(db,'Usuario',user.email)); if(!snap.exists()){alert('Dados do usuário não encontrados. Faça login novamente.'); await signOut(auth); window.location.href='login.html'; return;} const {nivelAcesso,Nome}=snap.data(); if(!pages.find(p=>p.href==='cronograma.html'&&p.levels.includes(nivelAcesso))){alert('Você não tem permissão para acessar esta página.'); window.location.href='index.html'; return;} generateMenu(nivelAcesso,Nome); loadAtelies(); });
+    onAuthStateChanged(auth, async (user)=>{ if(!user){window.location.href='login.html';return;} const snap=await getDoc(doc(db,'Usuario',user.email)); if(!snap.exists()){alert('Dados do usuário não encontrados. Faça login novamente.'); await signOut(auth); window.location.href='login.html'; return;} const {nivelAcesso,Nome}=snap.data(); if(!pages.find(p=>p.href==='cronograma.html'&&p.levels.includes(nivelAcesso))){alert('Você não tem permissão para acessar esta página.'); window.location.href='index.html'; return;} generateMenu(nivelAcesso,Nome); loadAtelies(); setupColumnControl();}); 
     logoutButton.addEventListener('click', async()=>{ try{ await signOut(auth); window.location.href='login.html'; }catch(e){ console.error(e); alert('Erro ao fazer logout. Tente novamente.'); }});
     async function loadAtelies(){ try{ const qSnap=await getDocs(query(collection(db,'Usuario'), where('nivelAcesso','==','03'))); const names=qSnap.docs.map(d=>d.data().Nome).filter(Boolean).sort((a,b)=>a.localeCompare(b)); names.forEach(n=>{const opt=document.createElement('option'); opt.value=n; opt.textContent=n; filterAtelie.appendChild(opt);}); }catch(err){ console.error('Erro ao carregar ateliês:',err);} }
     clearFiltersButton.addEventListener('click',()=>{ [filterLinha,filterRemessa,filterDataCorteInicio,filterDataCorteFim,filterDataEntregaInicio,filterDataEntregaFim].forEach(i=>i.value=''); filterTipoCliente.value=''; filterAtelie.value=''; cronogramaTableBody.innerHTML=''; summaryInfo.innerHTML=''; reportContent.style.display='none'; noData.textContent='Selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; currentStageFilter = null; });
@@ -277,6 +376,63 @@
     function formatDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); if(!y||!m||!d) return ''; return `${d}/${m}/${y}`; }
     function formatDateAbreviado(iso){ if(!iso) return ''; const dt=new Date(iso+'T00:00:00'); if(isNaN(dt)) return ''; const dd=String(dt.getDate()).padStart(2,'0'); const mm=String(dt.getMonth()+1).padStart(2,'0'); return `${dd}/${mm}`; }
     function maxISO(a,b){ if(!a) return b||null; if(!b) return a||null; return (new Date(a)>new Date(b))?a:b; }
+    function groupAndSum(taloes, keyFunc) {
+        const grouped = {};
+        taloes.forEach(t => {
+            const key = keyFunc(t);
+            const pares = Number(t.pares) || 0;
+            if (key) {
+                grouped[key] = (grouped[key] || 0) + pares;
+            }
+        });
+        return grouped;
+    }
+    
+    // NOVO: Função para coletar e formatar os filtros aplicados
+    function getAppliedFiltersText() {
+        const filters = [];
+        
+        const linha = filterLinha.value.trim();
+        if (linha) filters.push(`Linha: ${linha}`);
+
+        const remessa = filterRemessa.value.trim();
+        if (remessa) filters.push(`Remessa: ${remessa}`);
+
+        const tipoCliente = filterTipoCliente.value;
+        if (tipoCliente) filters.push(`Tipo Cliente: ${tipoCliente}`);
+        
+        const atelie = filterAtelie.value;
+        if (atelie) filters.push(`Ateliê: ${atelie}`);
+
+        // Datas de Corte
+        const dcI = filterDataCorteInicio.value;
+        const dcF = filterDataCorteFim.value;
+        if (dcI && dcF) {
+            filters.push(`Corte: ${formatDateAbreviado(dcI)} - ${formatDateAbreviado(dcF)}`);
+        } else if (dcI) {
+             filters.push(`Corte (Início): ${formatDateAbreviado(dcI)}`);
+        } else if (dcF) {
+             filters.push(`Corte (Fim): ${formatDateAbreviado(dcF)}`);
+        }
+        
+        // Datas de Entrega
+        const deI = filterDataEntregaInicio.value;
+        const deF = filterDataEntregaFim.value;
+        if (deI && deF) {
+            filters.push(`Entrega: ${formatDateAbreviado(deI)} - ${formatDateAbreviado(deF)}`);
+        } else if (deI) {
+             filters.push(`Entrega (Início): ${formatDateAbreviado(deI)}`);
+        } else if (deF) {
+             filters.push(`Entrega (Fim): ${formatDateAbreviado(deF)}`);
+        }
+        
+        if (filters.length === 0) {
+            return ""; 
+        }
+
+        return ` Filtros: (${filters.join(' | ')})`;
+    }
+
 
     async function runSearch(){
       loading.style.display='block'; noData.style.display='none'; reportContent.style.display='none'; cronogramaTableBody.innerHTML=''; allFetchedTaloes=[];
@@ -302,11 +458,11 @@
       let totalPares=0,totalTaloes=0;
 
       // --- SUMÁRIOS estilo Excel ---
-      let paresSemCorte=0;        // "Corte": pares que NÃO têm corte completo
-      let paresCosturaConcl=0;    // pares com dataSaidaCostura
-      let paresDist=0;            // pares com dataEntradaDistribuicao
-      let paresTalon=0;           // pares com dataEntradaTalonagem
-      let paresMont=0;            // pares com dataEntradaMontagem
+      let paresSemCorte=0;        
+      let paresCosturaConcl=0;    
+      let paresDist=0;            
+      let paresTalon=0;           
+      let paresMont=0;            
 
       if(!taloes||taloes.length===0){ noData.textContent='Nenhum dado encontrado para os filtros selecionados.'; noData.style.display='block'; reportContent.style.display='none'; return; }
 
@@ -351,39 +507,38 @@
         else { g.montagem.paresFaltando+=pares; g.montagem.taloesFaltando+=1; g.montagem.allDone=false; }
       });
 
-      // --- Lógica de cálculo ajustada (Removendo Giro Costura) ---
       const corte = paresSemCorte;
-      // Removida a variável giroCostura.
       const costura = totalPares - paresCosturaConcl;
-      
-      // Faltando para entrar nas etapas
       const paresFaltandoDistribuicao = totalPares - paresDist;
       const paresFaltandoTalonagem = totalPares - paresTalon;
-      
       const montar = totalPares - paresMont;
 
-      // ATUALIZADO: Remoção do argumento giroCostura
       updateSummaryExcel(totalPares,totalTaloes,corte,costura,paresFaltandoDistribuicao,paresFaltandoTalonagem,montar);
       renderTable(grouped);
     }
 
-    // ATUALIZADO: Nova função updateSummaryExcel (Substitui a original)
     function updateSummaryExcel(totalPares,totalTaloes,corte,costura,distribuicao,talonagem,montagem){
       summaryInfo.innerHTML = `
-        <div class="summary-item">Total pares<br><strong>${totalPares}</strong></div>
-        <div class="summary-item">Talões Filtrados<br><strong>${totalTaloes}</strong></div>
+        <div class="summary-item" style="background-color: var(--pri); color: white;">Total pares<br><strong>${totalPares.toLocaleString()}</strong></div>
+        <div class="summary-item" style="background-color: var(--pri); color: white;">Talões Filtrados<br><strong>${totalTaloes.toLocaleString()}</strong></div>
         
-        <a href="#" class="summary-item filter-link ${currentStageFilter === 'corte' ? 'active-filter' : ''}" data-stage="corte">Corte (Faltando)<br><strong>${corte}</strong></a>
-        <a href="#" class="summary-item filter-link ${currentStageFilter === 'costura' ? 'active-filter' : ''}" data-stage="costura">Costura (Faltando)<br><strong>${costura}</strong></a>
-        <a href="#" class="summary-item filter-link ${currentStageFilter === 'distribuicao' ? 'active-filter' : ''}" data-stage="distribuicao">Distribuição (Faltando)<br><strong>${distribuicao}</strong></a>
-        <a href="#" class="summary-item filter-link ${currentStageFilter === 'talonagem' ? 'active-filter' : ''}" data-stage="talonagem">Talonagem (Faltando)<br><strong>${talonagem}</strong></a>
-        <a href="#" class="summary-item filter-link ${currentStageFilter === 'montagem' ? 'active-filter' : ''}" data-stage="montagem">Montagem (Faltando)<br><strong>${montagem}</strong></a>
+        <a href="#" class="summary-item filter-link ${currentStageFilter === 'corte' ? 'active-filter' : ''}" data-stage="corte">Corte (Faltando)<br><strong>${corte.toLocaleString()}</strong></a>
+        <a href="#" class="summary-item filter-link ${currentStageFilter === 'costura' ? 'active-filter' : ''}" data-stage="costura">Costura (Faltando)<br><strong>${costura.toLocaleString()}</strong></a>
+        <a href="#" class="summary-item filter-link ${currentStageFilter === 'distribuicao' ? 'active-filter' : ''}" data-stage="distribuicao">Distribuição (Faltando)<br><strong>${distribuicao.toLocaleString()}</strong></a>
+        <a href="#" class="summary-item filter-link ${currentStageFilter === 'talonagem' ? 'active-filter' : ''}" data-stage="talonagem">Talonagem (Faltando)<br><strong>${talonagem.toLocaleString()}</strong></a>
+        <a href="#" class="summary-item filter-link ${currentStageFilter === 'montagem' ? 'active-filter' : ''}" data-stage="montagem">Montagem (Faltando)<br><strong>${montagem.toLocaleString()}</strong></a>
       `;
     }
 
     function getTipoClienteClass(tipo){ switch(tipo){ case 'Exportacao': return 'exportacao-row'; case 'Cliente especial': return 'cliente-especial-row'; case 'Mercado Interno': return 'mercado-interno-row'; case 'Estoque': return 'estoque-row'; case 'Amostra': return 'amostra-row'; default: return ''; } }
     
-    // ATUALIZADO: Função renderTable com lógica de filtragem condicional
+    function etapaCell(etapa, addSep, stageName){ 
+      if(etapa.paresFaltando===0 && etapa.allDone && etapa.maxDate){ 
+        return `<td colspan="2" class="${addSep? 'separator-border':''} col-${stageName}"><span class="status-check">✔ ${formatDateAbreviado(etapa.maxDate)}</span></td>`; 
+      } 
+      return `<td class="col-${stageName}">${etapa.paresFaltando}</td><td class="col-${stageName} ${addSep? 'separator-border':''}">${etapa.taloesFaltando}</td>`; 
+    }
+
     function renderTable(data){ 
       cronogramaTableBody.innerHTML=''; 
       const keys=Object.keys(data).sort((a,b)=>{ 
@@ -399,7 +554,6 @@
 
       if(keys.length===0){ noData.style.display='block'; return; }
 
-      // NOVA LÓGICA DE FILTRAGEM POR ETAPA ABERTA
       const filteredKeys = [];
 
       keys.forEach(k => {
@@ -407,7 +561,7 @@
         let showRow = true;
 
         if (currentStageFilter) {
-            // Se a etapa está filtrada E o número de talões faltantes é ZERO, esconde a linha.
+            // Se houver um filtro de etapa ativo, só mostra a linha se houver talões faltando naquela etapa
             if (grp[currentStageFilter].taloesFaltando === 0) {
                 showRow = false; 
             }
@@ -418,64 +572,76 @@
         }
       });
       
-      // Se o filtro estiver ativo e não houver resultados
       if (filteredKeys.length === 0 && currentStageFilter) {
-          cronogramaTableBody.innerHTML = `<tr><td colspan="15" style="text-align:center;">Nenhuma remessa encontrada com a etapa de **${currentStageFilter.toUpperCase()}** em aberto.</td></tr>`;
+          cronogramaTableBody.innerHTML = `<tr><td colspan="16" style="text-align:center;">Nenhuma remessa encontrada com a etapa de **${currentStageFilter.toUpperCase()}** em aberto.</td></tr>`;
           return;
       }
 
-      // Renderiza apenas as chaves filtradas
       filteredKeys.forEach(k=>{ 
         const grp=data[k]; 
         const tr=document.createElement('tr'); 
         tr.className=getTipoClienteClass(grp.tipoCliente); 
-        const remessaCell=`<td><a href="#" class="remessa-link" data-remessa="${grp.remessa}">${grp.remessa}</a></td>`; 
-        let html=`<td>${grp.linha}</td>${remessaCell}<td>${grp.paresTotal}</td><td>${grp.taloesTotal}</td><td>${formatDateAbreviado(grp.dataCorte)}</td><td>${formatDateAbreviado(grp.dataEntrega)}</td>`;
-        function etapaCell(etapa, addSep){ 
-          if(etapa.paresFaltando===0 && etapa.allDone && etapa.maxDate){ 
-            return `<td colspan="2" ${addSep? 'class="separator-border"':''}><span class="status-check">✔ ${formatDateAbreviado(etapa.maxDate)}</span></td>`; 
-          } 
-          return `<td>${etapa.paresFaltando}</td><td ${addSep? 'class="separator-border"':''}>${etapa.taloesFaltando}</td>`; 
-        }
-        html += etapaCell(grp.corte,true); 
-        html += etapaCell(grp.costura,true); 
-        html += etapaCell(grp.distribuicao,true); 
-        html += etapaCell(grp.talonagem,true);
+        
+        const remessaCell=`<td class="col-remessa"><a href="#" class="remessa-link" data-remessa="${grp.remessa}">${grp.remessa}</a></td>`; 
+        let html=`
+          <td class="col-linha">${grp.linha}</td>
+          ${remessaCell}
+          <td class="col-pares-ident">${grp.paresTotal.toLocaleString()}</td>
+          <td class="col-taloes-ident">${grp.taloesTotal.toLocaleString()}</td>
+          <td class="col-data-corte">${formatDateAbreviado(grp.dataCorte)}</td>
+          <td class="col-data-entrega">${formatDateAbreviado(grp.dataEntrega)}</td>
+        `;
+        
+        html += etapaCell(grp.corte,true, 'corte'); 
+        html += etapaCell(grp.costura,true, 'costura'); 
+        html += etapaCell(grp.distribuicao,true, 'distribuicao'); 
+        html += etapaCell(grp.talonagem,true, 'talonagem');
+        
         if(grp.montagem.paresFaltando===0 && grp.montagem.allDone && grp.montagem.maxDate){ 
-          html += `<td colspan="2"><span class="status-check">✔ ${formatDateAbreviado(grp.montagem.maxDate)}</span></td>`; 
+          html += `<td colspan="2" class="col-montagem"><span class="status-check">✔ ${formatDateAbreviado(grp.montagem.maxDate)}</span></td>`; 
         } else { 
-          html += `<td>${grp.montagem.paresFaltando}</td><td>${grp.montagem.taloesFaltando}</td>`; 
+          html += `<td class="col-montagem">${grp.montagem.paresFaltando}</td><td class="col-montagem">${grp.montagem.taloesFaltando}</td>`; 
         }
         tr.innerHTML=html; cronogramaTableBody.appendChild(tr);
       }); 
     }
-
-    document.addEventListener('click',(e)=>{ const a=e.target.closest('.remessa-link'); if(a){ e.preventDefault(); showDetailsModal(a.dataset.remessa); }});
-    closeModalBtn.addEventListener('click',()=> detailsModal.style.display='none');
-    window.addEventListener('click',(e)=>{ if(e.target===detailsModal) detailsModal.style.display='none'; });
     
-    // NOVO: Listener para os links de resumo (Filtro por Etapa)
-    document.addEventListener('click', (e) => {
-        const link = e.target.closest('.filter-link');
-        if (link) {
-            e.preventDefault();
-            const stage = link.dataset.stage; // 'corte', 'costura', 'distribuicao', etc.
-            
-            // Toggles the filter: Se o filtro for o mesmo, desativa; senão, ativa o novo.
-            currentStageFilter = (currentStageFilter === stage) ? null : stage;
+    // === FUNÇÕES DO MODAL DE DETALHES DA REMESSA (TABELA) ===
+    
+    // Define a estrutura HTML padrão para a tabela de detalhes
+    function setupModalForDetails() {
+        modalBodyContent.innerHTML = `
+            <div id="detailsTableContainer">
+                <table class="modal-body-table">
+                    <thead>
+                        <tr>
+                        <th>Talão</th><th>Linha</th><th>Modelo</th><th>Pares</th><th>Cor</th><th>Data Corte</th><th>Ateliê</th>
+                        <th>Corte</th><th>Entrada Ateliê</th><th>Saída Costura</th><th>Distribuição</th><th>Talonagem</th><th>Montagem</th><th>Trilho</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modalTableBody"></tbody>
+                </table>
+            </div>
+        `;
+        // Atualiza a referência global para o novo tbody
+        modalTableBody = document.getElementById('modalTableBody'); 
+    }
 
-            // Re-renderiza tudo para aplicar o filtro e re-renderizar o summary (com a classe 'active-filter')
-            if (allFetchedTaloes.length > 0) {
-                generateGroupedReport(allFetchedTaloes);
-            } else {
-                // Se o usuário clicar no filtro antes de buscar, aciona a busca.
-                runSearch(); 
-            }
-        }
-    });
-
-    function showDetailsModal(remessa){ modalTitle.textContent=`Detalhes da Remessa: ${remessa}`; modalTableBody.innerHTML=''; const list=allFetchedTaloes.filter(t=>t.numeroRemessa===remessa); if(list.length===0){ modalTableBody.innerHTML = `<tr><td colspan="14" style="text-align:center;">Nenhum detalhe encontrado para esta remessa.</td></tr>`; detailsModal.style.display='block'; return; } list.sort((a,b)=> (parseInt(a.numeroTalaoSequencial,10)||0) - (parseInt(b.numeroTalaoSequencial,10)||0)); list.forEach(t=>{ const hasCab=hasDate(t.cabedalData), hasFor=hasDate(t.forroData), hasAvi=hasDate(t.aviamentoData); let fechamentoISO=null; if(hasCab&&hasFor&&hasAvi){ fechamentoISO=[t.cabedalData,t.forroData,t.aviamentoData].reduce((m,cur)=>maxISO(m,cur),null); }
-        const tr=document.createElement('tr'); tr.innerHTML = `
+    // Preenche e exibe o modal de detalhes (tabela)
+    function showDetailsModal(remessa){ 
+      setupModalForDetails(); // Garante que a estrutura da tabela está no modal
+      modalTitle.textContent=`Detalhes da Remessa: ${remessa}`; 
+      modalTableBody.innerHTML=''; 
+      const list=allFetchedTaloes.filter(t=>t.numeroRemessa===remessa); 
+      if(list.length===0){ 
+        modalTableBody.innerHTML = `<tr><td colspan="14" style="text-align:center;">Nenhum detalhe encontrado para esta remessa.</td></tr>`; 
+        detailsModal.style.display='block'; 
+        return; 
+      } 
+      list.sort((a,b)=> (parseInt(a.numeroTalaoSequencial,10)||0) - (parseInt(b.numeroTalaoSequencial,10)||0)); 
+      list.forEach(t=>{ const hasCab=hasDate(t.cabedalData), hasFor=hasDate(t.forroData), hasAvi=hasDate(t.aviamentoData); let fechamentoISO=null; if(hasCab&&hasFor&&hasAvi){ fechamentoISO=[t.cabedalData,t.forroData,t.aviamentoData].reduce((m,cur)=>maxISO(m,cur),null); }
+        const tr=document.createElement('tr'); 
+        tr.innerHTML = `
           <td>${t.numeroTalaoSequencial||''}</td>
           <td>${t.linha||''}</td>
           <td>${t.modelo||''}</td>
@@ -491,7 +657,309 @@
           <td>${t.dataEntradaMontagem? `✔ ${formatDateAbreviado(t.dataEntradaMontagem)}` : ''}</td>
           <td>${t.trilhoProduzido||''}</td>
         `;
-          modalTableBody.appendChild(tr); }); detailsModal.style.display='block'; }
+        modalTableBody.appendChild(tr); 
+      }); 
+      detailsModal.style.display='block'; 
+    }
+          
+    // === Lógica dos Botões de Resumo (Cards) ===
+
+    function checkTaloesAndAlert(){
+        if(allFetchedTaloes.length === 0){
+            alert('Nenhum talão carregado. Por favor, use o botão "Gerar Relatório" primeiro.');
+            return false;
+        }
+        return true;
+    }
+    
+    // Função genérica para exibir o resumo em formato de cards
+    function displayResumoCards(title, cardData, grandTotalOverride = null) {
+        modalTitle.textContent = title;
+        
+        let totalGeral = 0; 
+        
+        // Altera o conteúdo do modalBodyContent para a estrutura de cards
+        let htmlContent = '<div class="resumo-cards-wrapper">'; 
+        
+        if (cardData.length === 0 || Object.keys(cardData.flatMap(c => Object.keys(c.items))).length === 0) {
+            htmlContent = `<p style="text-align:center; font-size:1.1em; padding:15px;">Nenhum item encontrado para o resumo.</p>`;
+        } else {
+            cardData.forEach(card => {
+                const models = card.items;
+                const sortedModels = Object.keys(models).sort((a, b) => a.localeCompare(b));
+                let modelListHtml = '<div class="model-list">';
+                let totalParesCard = 0;
+
+                sortedModels.forEach(model => {
+                    modelListHtml += `<p><span>${model}</span><span>${models[model].toLocaleString()} pares</span></p>`;
+                    totalParesCard += models[model];
+                });
+                
+                modelListHtml += `<p class="card-total"><span>Total de pares:</span><span>${totalParesCard.toLocaleString()} pares</span></p>`;
+                modelListHtml += '</div>';
+
+                htmlContent += `
+                    <div class="atelie-card" style="background-color: ${card.cardColor || '#f0f0f0'};">
+                        <h4>${card.title}</h4>
+                        ${modelListHtml}
+                    </div>
+                `;
+            });
+            
+            // Cálculo do total geral
+            totalGeral = grandTotalOverride !== null 
+                ? grandTotalOverride 
+                : (cardData[0] ? Object.values(cardData[0].items).reduce((sum, pares) => sum + pares, 0) : 0);
+            
+            // Card de Total Geral (sempre no final)
+            htmlContent += `
+                <div class="atelie-card" style="grid-column: 1 / -1; background-color: #bdbdbd; text-align: right;">
+                    <h4 style="border-bottom: 0; padding-bottom: 0; font-size: 1.2em; color: var(--ink);">Total de pares: <strong style="color: var(--ink);">${totalGeral.toLocaleString()} pares</strong></h4>
+                </div>
+            `;
+
+            htmlContent += '</div>';
+        }
+        
+        modalBodyContent.innerHTML = htmlContent;
+        detailsModal.style.display = 'block';
+    }
+
+
+    resumoCorteButton.addEventListener('click', () => {
+        if (checkTaloesAndAlert()) {
+            showResumoCorteModal(allFetchedTaloes);
+        }
+    });
+
+    resumoCosturaButton.addEventListener('click', () => {
+        if (checkTaloesAndAlert()) {
+            showResumoCosturaModal(allFetchedTaloes);
+        }
+    });
+
+    resumoGiroFabricaButton.addEventListener('click', () => {
+        if (checkTaloesAndAlert()) {
+            showResumoGiroFabricaModal(allFetchedTaloes);
+        }
+    });
+
+    function showResumoCorteModal(taloes) {
+        // Pares faltando: pelo menos 1 etapa de corte não foi concluída
+        const faltamCorte = taloes.filter(t => 
+            !hasDate(t.cabedalData) || !hasDate(t.forroData) || !hasDate(t.aviamentoData)
+        );
+        
+        // Cálculo do total de pares no corte
+        const totalFaltando = faltamCorte.reduce((sum, t) => sum + (Number(t.pares) || 0), 0);
+        
+        // Card 1: Modelo.Linha
+        const faltamML = groupAndSum(faltamCorte, t => `${t.linha}.${t.modelo}`);
+
+        // Card 2: Linha
+        const faltamL = groupAndSum(faltamCorte, t => t.linha);
+
+        const cardData = [
+            {
+                title: 'Falta Cortar por modelo',
+                items: faltamML,
+                cardColor: '#bdbdbd' // Vermelho/Rosa Claro
+            },
+            {
+                title: 'Flata Cortar por Linha',
+                items: faltamL,
+                cardColor: '#bdbdbd' // Amarelo Suave
+            }
+        ];
+
+        // NOVO: Coleta e anexa os filtros ao título
+        const appliedFilters = getAppliedFiltersText();
+        const modalTitleText = `Pares no Corte ${appliedFilters}`;
+
+        displayResumoCards(modalTitleText, cardData, totalFaltando); 
+    }
+
+    function showResumoCosturaModal(taloes) {
+        // Pares faltando: não saiu da costura
+        const faltamCosturar = taloes.filter(t => !hasDate(t.dataSaidaCostura));
+        
+        // Cálculo do total de pares na costura
+        const totalFaltando = faltamCosturar.reduce((sum, t) => sum + (Number(t.pares) || 0), 0);
+
+        // Agrupar por Ateliê > Linha.Modelo
+        const groupedByAtelie = {};
+        faltamCosturar.forEach(t => {
+            const atelie = t.idAtelieResponsavel || 'Sem Atelier';
+            const key = `${t.linha}.${t.modelo}`;
+            const pares = Number(t.pares) || 0;
+
+            if (!groupedByAtelie[atelie]) {
+                groupedByAtelie[atelie] = {};
+            }
+            groupedByAtelie[atelie][key] = (groupedByAtelie[atelie][key] || 0) + pares;
+        });
+
+        // Mapear para o formato displayResumoCards
+        const cardData = Object.keys(groupedByAtelie).sort((a, b) => a.localeCompare(b)).map(atelie => {
+            return {
+                title: `${atelie}`, 
+                items: groupedByAtelie[atelie],
+                cardColor: '#bdbdbd' // Amarelo Padrão para Costura/Alerta
+            };
+        });
+        
+        // NOVO: Coleta e anexa os filtros ao título
+        const appliedFilters = getAppliedFiltersText();
+        const modalTitleText = `Resumo: Pares Faltando na Costura (por Ateliê) ${appliedFilters}`;
+
+        displayResumoCards(modalTitleText, cardData, totalFaltando);
+    }
+
+    function showResumoGiroFabricaModal(taloes) {
+        
+        // 1. Disponível para Montar (Entrou em Dist. ou Tal. E Não entrou em Mont.)
+        const disponivelTaloes = taloes.filter(t => 
+            (hasDate(t.dataEntradaDistribuicao) || hasDate(t.dataEntradaTalonagem)) && 
+            !hasDate(t.dataEntradaMontagem)
+        );
+        
+        // Cálculo do total de pares disponíveis (Conjunto principal)
+        const totalDisponivel = disponivelTaloes.reduce((sum, t) => sum + (Number(t.pares) || 0), 0);
+        
+        // 2. Talonado (Entrou em Tal. E Não entrou em Mont.)
+        const talonadoTaloes = taloes.filter(t => 
+            hasDate(t.dataEntradaTalonagem) && 
+            !hasDate(t.dataEntradaMontagem)
+        );
+
+        // Card 1: Disponível Modelo.Linha
+        const disponivelML = groupAndSum(disponivelTaloes, t => `${t.linha}.${t.modelo}`);
+
+        // Card 2: Talonado Modelo.Linha
+        const talonadoML = groupAndSum(talonadoTaloes, t => `${t.linha}.${t.modelo}`);
+        
+        // Card 3: Disponível Linha
+        const disponivelL = groupAndSum(disponivelTaloes, t => t.linha);
+
+        // NOVO Card 4: Talonado Linha (Exatamente igual ao Talonado, mas agrupado por linha)
+        const talonadoL = groupAndSum(talonadoTaloes, t => t.linha);
+
+
+        const cardData = [
+            {
+                title: 'Na Fabrica por modelo',
+                items: disponivelML,
+                cardColor: '#bdbdbd' // Verde Claro (Pronto/Estoque)
+            },
+            {
+                title: 'Talonado por Modelo',
+                items: talonadoML,
+                cardColor: '#bdbdbd' // Laranja Claro (Em Etapa Chave)
+            },
+            {
+                title: 'Na Fabrica por Linha',
+                items: disponivelL,
+                cardColor: '#bdbdbd' // Azul Claro (Resumo Linha)
+            },
+            {
+                title: 'Talonado por Linha', 
+                items: talonadoL,         
+                cardColor: '#bdbdbd'      // Rosa Claro (Destaque para o subconjunto)
+            }
+        ];
+        
+        // Coleta e anexa os filtros ao título
+        const appliedFilters = getAppliedFiltersText();
+        const modalTitleText = `Giro fabrica: ${appliedFilters}`;
+
+        displayResumoCards(modalTitleText, cardData, totalDisponivel); 
+    }
+    
+    // Event listener para clique no link da remessa (chama o modal de detalhes)
+    document.addEventListener('click',(e)=>{ 
+        const a=e.target.closest('.remessa-link'); 
+        if(a){ 
+            e.preventDefault(); 
+            showDetailsModal(a.dataset.remessa); 
+        }
+    });
+    
+    // Listeners do Modal
+    closeModalBtn.addEventListener('click',()=> detailsModal.style.display='none');
+    window.addEventListener('click',(e)=>{ if(e.target===detailsModal) detailsModal.style.display='none'; });
+    
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('.filter-link');
+        if (link) {
+            e.preventDefault();
+            const stage = link.dataset.stage; 
+            currentStageFilter = (currentStageFilter === stage) ? null : stage;
+            if (allFetchedTaloes.length > 0) {
+                generateGroupedReport(allFetchedTaloes);
+            } else {
+                runSearch(); 
+            }
+        }
+    });
+          
+    // === Lógica de Ocultar/Expandir Colunas com Checkbox ===
+
+    const COLUMN_DEFS = [
+        { label: 'Linha', selectors: ['.col-linha'], defaultChecked: true },
+        { label: 'Remessa', selectors: ['.col-remessa'], defaultChecked: true },
+        { label: 'Pares', selectors: ['.col-pares-ident'], defaultChecked: true },
+        { label: 'Talões', selectors: ['.col-taloes-ident'], defaultChecked: true },
+        { label: 'Data de Corte', selectors: ['.col-data-corte'], defaultChecked: true },
+        { label: 'Data de Entrega', selectors: ['.col-data-entrega'], defaultChecked: true },
+        { label: 'Corte', selectors: ['.col-corte-group', '.col-corte'], defaultChecked: true },
+        { label: 'Costura', selectors: ['.col-costura-group', '.col-costura'], defaultChecked: true },
+        { label: 'Distribuição', selectors: ['.col-distribuicao-group', '.col-distribuicao'], defaultChecked: true },
+        { label: 'Talonagem', selectors: ['.col-talonagem-group', '.col-talonagem'], defaultChecked: true },
+        { label: 'Montagem', selectors: ['.col-montagem-group', '.col-montagem'], defaultChecked: true },
+    ];
+
+    function setupColumnControl() {
+        if (!checkboxContainer) return;
+        checkboxContainer.innerHTML = ''; 
+
+        COLUMN_DEFS.forEach(col => {
+            const id = `toggle-${col.selectors[0].substring(1).replace('-group','')}`;
+            
+            const label = document.createElement('label');
+            label.htmlFor = id;
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = id;
+            checkbox.checked = col.defaultChecked;
+            checkbox.dataset.selectors = col.selectors.join(','); 
+
+            checkbox.addEventListener('change', (e) => {
+                const selectors = e.target.dataset.selectors.split(',');
+                const isChecked = e.target.checked;
+                
+                selectors.forEach(selector => {
+                    const elements = document.querySelectorAll(`th${selector}, td${selector}`);
+                    elements.forEach(el => {
+                        el.classList.toggle('hidden-column', !isChecked);
+                    });
+                });
+            });
+
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(col.label));
+            checkboxContainer.appendChild(label);
+
+            if (!col.defaultChecked) {
+                col.selectors.forEach(selector => {
+                    document.querySelectorAll(`th${selector}, td${selector}`).forEach(el => {
+                        el.classList.add('hidden-column');
+                    });
+                });
+            }
+        });
+    }
+
   </script>
 </body>
 </html>
