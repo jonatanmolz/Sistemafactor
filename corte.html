@@ -67,17 +67,18 @@
             flex-direction: column;
             align-items: center;
         }
+        /* AJUSTE 1: FILTERS CONTAINER 100% E MAIS COMPACTO */
         .filters-container {
             background-color: #fff;
-            padding: 10px; /* Reduced padding */
+            padding: 10px; 
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 85%;
-            max-width: 85%; /* Allow to take full available width */
+            width: 100%;             
+            max-width: 100%;         
             margin-bottom: 20px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Smaller columns */
-            gap: 8px; /* Reduced gap */
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* slightly wider columns for date fields */
+            gap: 8px; 
         }
         .form-group {
             display: flex;
@@ -85,20 +86,30 @@
         }
         .filters-container label {
             display: block;
-            margin-bottom: 3px; /* Reduced margin-bottom */
+            margin-bottom: 2px; 
             color: #555;
-            font-size: 0.75em; /* Smaller font */
+            font-size: 0.70em; /* Fonte menor */
         }
-        .filters-container input,
+        .filters-container input[type="text"],
+        .filters-container input[type="date"],
         .filters-container select {
             width: 100%;
-            padding: 10px 12px;        /* aumenta altura e largura interna */
-            font-size: 1em;            /* aumenta o tamanho da fonte */
-            height: 38px;              /* força altura mínima */
+            padding: 8px 10px;        
+            font-size: 0.9em;         
+            height: 32px;             
             border: 1px solid #ccc;
             border-radius: 6px;
             box-sizing: border-box;
         }
+        .filters-container input[type="checkbox"] {
+            width: auto; 
+            height: auto; 
+            transform: scale(1.4); 
+            margin-left: 5px; 
+            margin-bottom: 2px;
+            align-self: flex-end;
+        }
+
         /* Styles for new bulk action controls */
         .bulk-actions-container {
             grid-column: 1 / -1; /* Occupies all columns */
@@ -122,17 +133,46 @@
             cursor: pointer;
             font-size: 0.85em;
             transition: background-color 0.3s ease;
+            height: 32px; 
         }
         .bulk-actions-container button:hover {
             background-color: #218838;
         }
 
+        /* AJUSTE 3: Card de Relatório */
+        .report-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px;
+            flex-grow: 1;
+            text-align: center;
+            border-left: 5px solid #007bff; /* Color highlight */
+            min-width: 200px;
+        }
+        .report-card h3 {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+            color: #555;
+            text-transform: uppercase;
+        }
+        .report-card p {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+        /* FIM AJUSTE 3 */
+
+
         .table-container {
             width: 100%;
-            max-width: 100%; /* Occupy full available width */
+            max-width: 100%; 
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
         table {
         table-layout: fixed;
@@ -143,7 +183,7 @@
             padding: 4px 6px;
             font-size: 0.75em;
             line-height: 1;
-            height: 25px; /* força altura mínima */
+            height: 25px; 
             vertical-align: middle;
         }
         table th {
@@ -157,28 +197,29 @@
         }
 
         .atelie-dropdown {
-            font-size: 0.9em;     /* Aumenta o tamanho da fonte */
-            padding: 8px 16px;    /* Aumenta o preenchimento interno */
-            min-width: 120px;     /* Aumenta a largura mínima */
+            font-size: 0.85em;     
+            padding: 4px 8px;      
+            min-width: 100px;     
             border-radius: 4px;
-}
+            height: 25px; 
+        }
 
-        /* Define column widths (adjusted to fit on screen) */
-        table th:nth-child(1), table td:nth-child(1) { width: 8%; } /* Data Corte */
-        table th:nth-child(2), table td:nth-child(2) { width: 5%; } /* Remessa */
-        table th:nth-child(3), table td:nth-child(3) { width: 3%; } /* Talão */
-        table th:nth-child(4), table td:nth-child(4) { width: 5%; } /* Linha */
-        table th:nth-child(5), table td:nth-child(5) { width: 5%; } /* Modelo */
-        table th:nth-child(6), table td:nth-child(6) { width: 5%; } /* Cor Sapato */
-        table th:nth-child(7), table td:nth-child(7) { width: 3%; } /* Pares */
-        table th:nth-child(8), table td:nth-child(8) { width: 8%; } /* Tipo Cliente */
-        table th:nth-child(9), table td:nth-child(9) { width: 8%; } /* Ateliê Pré-Designado */
-        table th:nth-child(10), table td:nth-child(10) { width: 8%; } /* Status Corte */
-        table th:nth-child(11), table td:nth-child(11) { width: 8%; } /* Entrada Atelier */
-        table th:nth-child(12), table td:nth-child(12) { width: 5%; text-align: center; } /* Cabedal */
-        table th:nth-child(13), table td:nth-child(13) { width: 5%; text-align: center; } /* Forro */
-        table th:nth-child(14), table td:nth-child(14) { width: 5%; text-align: center; } /* tiras */
-        table th:nth-child(15), table td:nth-child(15) { width: 5%; text-align: center; } /* Aviamento */
+        /* Define column widths */
+        table th:nth-child(1), table td:nth-child(1) { width: 8%; } 
+        table th:nth-child(2), table td:nth-child(2) { width: 5%; } 
+        table th:nth-child(3), table td:nth-child(3) { width: 3%; } 
+        table th:nth-child(4), table td:nth-child(4) { width: 5%; } 
+        table th:nth-child(5), table td:nth-child(5) { width: 5%; } 
+        table th:nth-child(6), table td:nth-child(6) { width: 5%; } 
+        table th:nth-child(7), table td:nth-child(7) { width: 3%; } 
+        table th:nth-child(8), table td:nth-child(8) { width: 8%; } 
+        table th:nth-child(9), table td:nth-child(9) { width: 8%; } 
+        table th:nth-child(10), table td:nth-child(10) { width: 8%; } 
+        table th:nth-child(11), table td:nth-child(11) { width: 8%; } 
+        table th:nth-child(12), table td:nth-child(12) { width: 5%; text-align: center; } 
+        table th:nth-child(13), table td:nth-child(13) { width: 5%; text-align: center; } 
+        table th:nth-child(14), table td:nth-child(14) { width: 5%; text-align: center; } 
+        table th:nth-child(15), table td:nth-child(15) { width: 5%; text-align: center; } 
 
         /* Row colors based on client type */
         .row-azul { background-color: #8dbafd; } /* Exportação */
@@ -189,9 +230,9 @@
 
         .status-badge {
             display: inline-block;
-            padding: 7px 13px; /* Further reduced padding */
-            border-radius: 5px; /* Further reduced border-radius */
-            font-size: 0.9em; /* Even smaller font for badges */
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 0.85em; 
             font-weight: bold;
             color: rgb(0, 0, 0);
             text-align: center;
@@ -199,11 +240,11 @@
         }
 
         input[type="checkbox"] {
-            width: 14px;       /* Aumenta a largura */
-            height: 14px;      /* Aumenta a altura */
-            transform: scale(1.3); /* Escala proporcional (opcional) */
+            width: 14px;       
+            height: 14px;      
+            transform: scale(1.1); 
             cursor: pointer;
-}
+        }
 
         .status-badge.aguardando-material { background-color: #ff9800; } /* Orange */
         .status-badge.em-producao { background-color: #2196f3; } /* Blue */
@@ -211,7 +252,7 @@
         .status-badge.costurando { background-color: #9c27b0; } /* Purple */
 
         button#logoutButton {
-            background-color: #f82e2e; /* Azul */
+            background-color: #f82e2e; 
             color: white;
             border: none;
             padding: 2px 10px;
@@ -224,25 +265,26 @@
             background-color: #c82333;
         }
 
-                .search-button {
+        .search-button {
             background-color: #007bff; /* Azul */
             color: white;
             border: none;
-            padding: 12px 12px;
+            padding: 0 12px;
             border-radius: 3px;
             cursor: pointer;
             font-size: 14px;
             transition: background-color 0.3s ease, transform 0.1s ease;
+            height: 32px; 
+            width: 100%;
         }
-
         .search-button:hover {
-            background-color: #0056b3; /* Azul mais escuro ao passar o mouse */
+            background-color: #0056b3; 
         }
-
         .search-button:active {
-            background-color: #00428a; /* Azul ainda mais escuro ao clicar */
+            background-color: #00428a; 
             transform: translateY(1px);
         }
+        
     </style>
 </head>
 <body>
@@ -259,14 +301,18 @@
 
     <nav>
         <ul id="menuNav">
-            </ul>
+        </ul>
     </nav>
 
     <div class="main-content">
         <div class="filters-container">
             <div class="form-group">
-                <label for="filterDataCorte">Data de Corte:</label>
-                <input type="date" id="filterDataCorte">
+                <label for="filterDataCorteInicio">Data Corte (Início):</label>
+                <input type="date" id="filterDataCorteInicio">
+            </div>
+            <div class="form-group">
+                <label for="filterDataCorteFim">Data Corte (Fim):</label>
+                <input type="date" id="filterDataCorteFim">
             </div>
             <div class="form-group">
                 <label for="filterRemessa">Remessa:</label>
@@ -304,7 +350,7 @@
                 <label for="filterAteliePredesignado">Ateliê Pré-Designado:</label>
                 <select id="filterAteliePredesignado">
                     <option value="">Todos</option>
-                    </select>
+                </select>
             </div>
             <div class="form-group">
                 <label for="filterStatusCorte">Status Corte:</label>
@@ -315,19 +361,26 @@
                     <option value="Cortado">Cortado</option>
                 </select>
             </div>
-
-            <div class="filters-container">
-                <div class="form-group">
-                     <button type="button" id="searchButton" class="search-button">Buscar Talões</button>
-                </div>
+            
+            <div class="form-group" style="grid-column: span 1; display: flex; align-items: flex-end;">
+                <label for="corteAbertoCheckbox" style="margin-bottom: 5px; font-weight: bold;">Corte Aberto:</label>
+                <input type="checkbox" id="corteAbertoCheckbox">
+            </div>
+            <div class="form-group">
+                <label for="searchButton" style="visibility: hidden; height: 0; margin-bottom: 0;">_</label>
+                <button type="button" id="searchButton" class="search-button">Buscar Talões</button>
             </div>
 
+            <div class="form-group">
+                <label for="clearFiltersButton" style="visibility: hidden; height: 0; margin-bottom: 0;">_</label>
+                <button type="button" id="clearFiltersButton" class="search-button" style="background-color: #6c757d;">Limpar Filtros</button>
+            </div>
             <div class="bulk-actions-container">
                 <div class="form-group">
                     <label for="bulkAtelieSelect">Atribuir Ateliê (Massa):</label>
                     <select id="bulkAtelieSelect">
                         <option value="">Nenhum</option>
-                        </select>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="bulkCheckboxSelect">Marcar/Desmarcar Checkbox (Massa):</label>
@@ -346,16 +399,30 @@
                             <option value="aviamento_false">Desmarcar Aviamento</option>
                         </optgroup>
                     </select>
-
                 </div>
-                <div>
-                    <button id="clearFiltersButton"> Limpar Filtros</button>
-                </div>
-                <button id="applyBulkActionButton">Aplicar Ação em Massa</button>
+                <button id="applyBulkActionButton" style="height: 32px;">Aplicar Ação em Massa</button>
             </div>
 
         </div>
 
+        <div id="reportCardContainer" style="display: flex; gap: 15px; margin-bottom: 20px; width: 100%; max-width: 100%; flex-wrap: wrap;">
+            <div class="report-card" style="border-left: 5px solid #007bff;">
+                <h3>Talões Filtrados</h3>
+                <p id="taloesCount">0</p>
+            </div>
+            <div class="report-card" style="border-left: 5px solid #28a745;">
+                <h3>Total Pares</h3>
+                <p id="totalPares">0</p>
+            </div>
+            <div class="report-card" style="border-left: 5px solid #ffc107;">
+                <h3>Pares em Aberto</h3>
+                <p id="paresEmAberto">0</p>
+            </div>
+            <div class="report-card" style="border-left: 5px solid #4caf50;">
+                <h3>Pares Completos</h3>
+                <p id="paresCompletos">0</p>
+            </div>
+        </div>
         <div class="table-container">
             <table>
                 <thead>
@@ -378,7 +445,7 @@
                     </tr>
                 </thead>
                 <tbody id="taloesTableBody">
-                    <tr><td colspan="13" style="text-align: center;">Carregando talões...</td></tr>
+                    <tr><td colspan="15" style="text-align: center;">Aplique os filtros e clique em "Buscar Talões" para carregar os dados.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -409,7 +476,8 @@
     const logoutButton = document.getElementById('logoutButton');
 
     // Elementos do Filtro
-    const filterDataCorte = document.getElementById('filterDataCorte');
+    const filterDataCorteInicio = document.getElementById('filterDataCorteInicio'); // NOVO
+    const filterDataCorteFim = document.getElementById('filterDataCorteFim');       // NOVO
     const filterRemessa = document.getElementById('filterRemessa');
     const filterTalao = document.getElementById('filterTalao');
     const filterLinha = document.getElementById('filterLinha');
@@ -418,7 +486,14 @@
     const filterTipoCliente = document.getElementById('filterTipoCliente');
     const filterAteliePredesignado = document.getElementById('filterAteliePredesignado');
     const filterStatusCorte = document.getElementById('filterStatusCorte');
+    const corteAbertoCheckbox = document.getElementById('corteAbertoCheckbox'); // NOVO
     const taloesTableBody = document.getElementById('taloesTableBody');
+
+    // Elementos do Card de Relatório (NOVO)
+    const taloesCountDisplay = document.getElementById('taloesCount');
+    const totalParesDisplay = document.getElementById('totalPares');
+    const paresEmAbertoDisplay = document.getElementById('paresEmAberto');
+    const paresCompletosDisplay = document.getElementById('paresCompletos');
 
     // Novos Elementos para Ação em Massa
     const bulkAtelieSelect = document.getElementById('bulkAtelieSelect');
@@ -433,6 +508,10 @@
     let currentUserName = '';
     let ateliesList = [];
 
+    // AJUSTE 2: Inicia o checkbox de Corte Aberto marcado por padrão
+    corteAbertoCheckbox.checked = true;
+
+
     // Tipos de Usuarios e niveis
         const nivelNomes = {
             '01': 'Cadastro',
@@ -445,7 +524,7 @@
 
         };
 
-        // Definição das páginas e seus níveis de acesso (copiado do index.html)
+        // Definição das páginas e seus níveis de acesso 
         const pages = [
           // Inicio
             { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06','07'] },
@@ -480,7 +559,6 @@
             
         ];
 
-    //Funçoes
     // Mapeamento Tipo de Cliente para Cor da Linha
     const corTalaoMapping = {
         'Exportacao': 'row-azul',
@@ -529,7 +607,7 @@
 
                 generateMenu(nivelAcesso, currentUserName);
                 await loadAtelies();
-                fetchTaloesWithFilters();
+                // A busca inicial foi removida para aguardar o clique no botão "Buscar Talões".
 
             } else {
                 alert('Dados do usuário não encontrados. Faça login novamente.');
@@ -583,23 +661,26 @@
     // --- BUSCAR TALÕES DO FIRESTORE COM FILTROS ---
     async function fetchTaloesWithFilters() {
         taloesTableBody.innerHTML = '<tr><td colspan="15" style="text-align: center;">Buscando talões...</td></tr>';
+        
+        // Novos Inputs
+        const dataCorteInicio = filterDataCorteInicio.value;
+        const dataCorteFim = filterDataCorteFim.value;
+        const corteAbertoFilter = corteAbertoCheckbox.checked;
 
-        const dataCorte = filterDataCorte.value;
+        // Inputs Existentes
         const tipoCliente = filterTipoCliente.value;
         const ateliePredesignado = filterAteliePredesignado.value;
         const statusCorte = filterStatusCorte.value;
-        const remessa = filterRemessa.value.toLowerCase();
-        const talao = filterTalao.value.toLowerCase();
-        const linha = filterLinha.value.toLowerCase();
-        const modelo = filterModelo.value.toLowerCase();
-        const cor = filterCor.value.toLowerCase();
+        const remessa = filterRemessa.value.toLowerCase().trim();
+        const talao = filterTalao.value.toLowerCase().trim();
+        const linha = filterLinha.value.toLowerCase().trim();
+        const modelo = filterModelo.value.toLowerCase().trim();
+        const cor = filterCor.value.toLowerCase().trim();
 
         let taloesColRef = collection(db, 'taloes');
         let q = taloesColRef;
 
-        if (dataCorte) {
-            q = query(q, where('dataCorte', '==', dataCorte));
-        }
+        // FILTROS FIRESTORE
         if (tipoCliente) {
             q = query(q, where('tipoCliente', '==', tipoCliente));
         }
@@ -615,17 +696,41 @@
 
             allTaloes = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
+            // FILTROS LOCAIS
             let localFilteredTaloes = allTaloes.filter(t => {
-                const hasNoDates = !t.dataEntradaMontagem && !t.dataEntradaTalonagem && !t.dataEntradaDistribuicao;
-                return hasNoDates &&
-                       (!remessa || (t.numeroRemessa && String(t.numeroRemessa).toLowerCase().includes(remessa))) &&
-                       (!talao || (t.numeroTalaoSequencial && String(t.numeroTalaoSequencial).toLowerCase().includes(talao))) &&
-                       (!linha || (t.linha && String(t.linha).toLowerCase().includes(linha))) &&
-                       (!modelo || (t.modelo && String(t.modelo).toLowerCase().includes(modelo))) &&
-                       (!cor || (t.corSapato && String(t.corSapato).toLowerCase().includes(cor)));
+                
+                // AJUSTE 1: FILTRO POR RANGE DE DATA
+                if (dataCorteInicio && t.dataCorte) {
+                    if (t.dataCorte < dataCorteInicio) return false;
+                }
+                if (dataCorteFim && t.dataCorte) {
+                    if (t.dataCorte > dataCorteFim) return false;
+                }
+
+                // AJUSTE 2: CHECKBOX CORTE ABERTO
+                if (corteAbertoFilter) {
+                    const isCompleto = t.cabedalConcluido && t.forroConcluido && t.tirasConcluido && t.aviamentoConcluido;
+                    
+                    if (isCompleto && t.statusCorte === 'Cortado') {
+                        return false; // Exclui se o filtro está ligado E o talão está completamente cortado
+                    }
+                }
+
+                // Outros filtros de texto
+                const remessaMatch = !remessa || (t.numeroRemessa && String(t.numeroRemessa).toLowerCase().includes(remessa));
+                const talaoMatch = !talao || (t.numeroTalaoSequencial && String(t.numeroTalaoSequencial).toLowerCase().includes(talao));
+                const linhaMatch = !linha || (t.linha && String(t.linha).toLowerCase().includes(linha));
+                const modeloMatch = !modelo || (t.modelo && String(t.modelo).toLowerCase().includes(modelo));
+                const corMatch = !cor || (t.corSapato && String(t.corSapato).toLowerCase().includes(cor));
+                
+                return remessaMatch && talaoMatch && linhaMatch && modeloMatch && corMatch;
             });
 
             filteredTaloes = localFilteredTaloes;
+            
+            // AJUSTE 3: ATUALIZA CARD DE RELATÓRIO
+            updateReportCard(filteredTaloes); 
+            
             renderTable(filteredTaloes);
 
         } catch (error) {
@@ -634,11 +739,40 @@
         }
     }
 
+    // --- FUNÇÃO PARA ATUALIZAR O CARD DE RELATÓRIO (AJUSTE 3) ---
+    function updateReportCard(taloes) {
+        let totalPares = 0;
+        let paresCompletos = 0;
+
+        taloes.forEach(t => {
+            const pares = parseInt(t.pares) || 0;
+            totalPares += pares;
+
+            const isCompleto = t.cabedalConcluido && 
+                               t.forroConcluido && 
+                               t.tirasConcluido && 
+                               t.aviamentoConcluido &&
+                               t.statusCorte === 'Cortado'; // Garante que o status final está correto
+
+            if (isCompleto) {
+                paresCompletos += pares;
+            }
+        });
+
+        const paresEmAberto = totalPares - paresCompletos;
+
+        taloesCountDisplay.textContent = taloes.length;
+        totalParesDisplay.textContent = totalPares.toLocaleString('pt-BR');
+        paresEmAbertoDisplay.textContent = paresEmAberto.toLocaleString('pt-BR');
+        paresCompletosDisplay.textContent = paresCompletos.toLocaleString('pt-BR');
+    }
+
     // --- LISTENERS PARA FILTROS E BOTÕES ---
     searchButton.addEventListener('click', fetchTaloesWithFilters);
 
     clearFiltersButton.addEventListener('click', () => {
-        filterDataCorte.value = '';
+        filterDataCorteInicio.value = ''; // NOVO
+        filterDataCorteFim.value = '';   // NOVO
         filterRemessa.value = '';
         filterTalao.value = '';
         filterLinha.value = '';
@@ -647,7 +781,17 @@
         filterTipoCliente.value = '';
         filterAteliePredesignado.value = '';
         filterStatusCorte.value = '';
-        fetchTaloesWithFilters();
+        corteAbertoCheckbox.checked = true; // NOVO: Volta para o estado inicial marcado
+        
+        // Limpa os dados do card
+        taloesCountDisplay.textContent = '0';
+        totalParesDisplay.textContent = '0';
+        paresEmAbertoDisplay.textContent = '0';
+        paresCompletosDisplay.textContent = '0';
+        
+        allTaloes = [];
+        filteredTaloes = [];
+        taloesTableBody.innerHTML = '<tr><td colspan="15" style="text-align: center;">Aplique os filtros e clique em "Buscar Talões" para carregar os dados.</td></tr>';
     });
 
     // --- Listener para Ação em Massa ---
@@ -694,7 +838,12 @@
                 updates[`${selectedCheckboxEtapa}Usuario`] = isMarked ? currentUserName : '';
                 hasUpdate = true;
 
-                const simulatedTalao = { ...talao, ...updates };
+                const simulatedTalao = { 
+                    ...talao, 
+                    ...updates,
+                    idAtelieResponsavel: updates.idAtelieResponsavel || talao.idAtelieResponsavel,
+                    [`${selectedCheckboxEtapa}Concluido`]: isMarked
+                };
 
                 const allStepsCompleted = simulatedTalao.cabedalConcluido &&
                                         simulatedTalao.forroConcluido &&
@@ -706,8 +855,8 @@
                                         simulatedTalao.tirasConcluido ||
                                         simulatedTalao.aviamentoConcluido;
 
-                let newStatusCorte = talao.statusCorte;
-                let newStatusGeral = talao.statusGeral;
+                let newStatusCorte;
+                let newStatusGeral;
 
                 if (allStepsCompleted) {
                     newStatusCorte = 'Cortado';
@@ -726,6 +875,12 @@
 
             if (hasUpdate) {
                 updatesPromises.push(updateTalaoInFirestore(talao.id, updates));
+                
+                // Atualiza o objeto na memória (necessário para re-renderizar corretamente após o batch)
+                const currentTalaoIndex = allTaloes.findIndex(t => t.id === talao.id);
+                if (currentTalaoIndex !== -1) {
+                    allTaloes[currentTalaoIndex] = { ...talao, ...updates };
+                }
             }
         }
 
@@ -734,7 +889,8 @@
             alert('Ação em massa aplicada com sucesso!');
             bulkAtelieSelect.value = '';
             bulkCheckboxSelect.value = '';
-            fetchTaloesWithFilters();
+            // Força a re-aplicação dos filtros locais e re-renderização
+            fetchTaloesWithFilters(); 
         } catch (error) {
             console.error("Erro ao aplicar ação em massa:", error);
             alert("Erro ao aplicar ação em massa. Verifique o console.");
@@ -743,6 +899,14 @@
 
     // --- Renderizar Tabela de Talões ---
     function renderTable(taloes) {
+        // Remove listeners antes de limpar e recriar as linhas
+        document.querySelectorAll('#taloesTableBody input[type="checkbox"]').forEach(checkbox => {
+            checkbox.removeEventListener('change', handleCheckboxChange);
+        });
+        document.querySelectorAll('#taloesTableBody .atelie-dropdown').forEach(dropdown => {
+            dropdown.removeEventListener('change', handleAtelieChange);
+        });
+        
         taloesTableBody.innerHTML = '';
         if (taloes.length === 0) {
             taloesTableBody.innerHTML = '<tr><td colspan="15" style="text-align: center;">Nenhum talão encontrado com os filtros aplicados.</td></tr>';
@@ -751,8 +915,12 @@
 
         const formatDate = (dateString) => {
             if (!dateString) return '';
-            const [year, month, day] = dateString.split('-');
-            return `${day}/${month}/${year}`;
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                 const [year, month, day] = parts;
+                 return `${day}/${month}/${year}`;
+            }
+            return dateString;
         };
 
         const getStatusClass = (status) => {
@@ -762,7 +930,7 @@
 
         taloes.forEach(talao => {
             const row = document.createElement('tr');
-            row.id = `talao-row-${talao.id}`; // Adiciona um ID único à linha
+            row.id = `talao-row-${talao.id}`; 
             const rowColorClass = corTalaoMapping[talao.tipoCliente] || '';
             row.classList.add(rowColorClass);
 
@@ -799,6 +967,7 @@
             taloesTableBody.appendChild(row);
         });
 
+        // Adiciona listeners aos novos elementos
         document.querySelectorAll('#taloesTableBody input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', handleCheckboxChange);
         });
@@ -812,7 +981,6 @@
         try {
             const talaoRef = doc(db, 'taloes', talaoId);
             await updateDoc(talaoRef, updates);
-            // NÃO CHAMAMOS MAIS fetchTaloesWithFilters() AQUI
         } catch (error) {
             console.error(`Erro ao atualizar talão ${talaoId}:`, error);
             throw error;
@@ -833,17 +1001,33 @@
         updates[`${etapa}Usuario`] = isChecked ? currentUserName : '';
 
         // Encontra e atualiza o talão na memória
-        const currentTalaoIndex = filteredTaloes.findIndex(t => t.id === talaoId);
+        const currentTalaoIndex = allTaloes.findIndex(t => t.id === talaoId);
         if (currentTalaoIndex === -1) return;
 
-        const currentTalao = filteredTaloes[currentTalaoIndex];
-        const simulatedTalao = { ...currentTalao, ...updates };
+        const currentTalao = allTaloes[currentTalaoIndex];
+        
+        // Cria um objeto simulado para calcular o novo status sem salvar no Firestore ainda
+        const simulatedTalao = { 
+            ...currentTalao,
+            cabedalConcluido: currentTalao.cabedalConcluido, 
+            forroConcluido: currentTalao.forroConcluido, 
+            tirasConcluido: currentTalao.tirasConcluido, 
+            aviamentoConcluido: currentTalao.aviamentoConcluido,
+            [`${etapa}Concluido`]: isChecked // Simula o estado do checkbox alterado
+        };
+        
+        const allStepsCompleted = simulatedTalao.cabedalConcluido && 
+                                  simulatedTalao.forroConcluido && 
+                                  simulatedTalao.tirasConcluido && 
+                                  simulatedTalao.aviamentoConcluido;
+        
+        const anyStepCompleted = simulatedTalao.cabedalConcluido || 
+                                 simulatedTalao.forroConcluido || 
+                                 simulatedTalao.tirasConcluido || 
+                                 simulatedTalao.aviamentoConcluido;
 
-        const allStepsCompleted = simulatedTalao.cabedalConcluido && simulatedTalao.forroConcluido && simulatedTalao.tirasConcluido && simulatedTalao.aviamentoConcluido;
-        const anyStepCompleted = simulatedTalao.cabedalConcluido || simulatedTalao.forroConcluido || simulatedTalao.tirasConcluido || simulatedTalao.aviamentoConcluido;
-
-        let newStatusCorte = currentTalao.statusCorte;
-        let newStatusGeral = currentTalao.statusGeral;
+        let newStatusCorte;
+        let newStatusGeral;
 
         if (allStepsCompleted) {
             newStatusCorte = 'Cortado';
@@ -858,8 +1042,8 @@
 
         updates.statusCorte = newStatusCorte;
         updates.statusGeral = newStatusGeral;
-
-        // Atualiza a tabela na tela sem recarregar tudo
+        
+        // Atualiza a tabela na tela (DOM)
         const row = document.getElementById(`talao-row-${talaoId}`);
         if (row) {
             const statusBadge = row.querySelector('.status-badge');
@@ -867,12 +1051,17 @@
                 statusBadge.textContent = newStatusCorte;
                 statusBadge.className = `status-badge ${newStatusCorte.toLowerCase().replace(/ /g, '-')}`;
             }
-            // Aqui, você também pode atualizar o HTML da data e do usuário se quiser
-            // Ex: `const dataCell = row.querySelector('td:nth-child(11)'); dataCell.textContent = formatDate(updates.costuraDataInicio);`
         }
+        
+        // Atualiza o objeto na memória (allTaloes) com o novo status
+        allTaloes[currentTalaoIndex] = { ...currentTalao, ...updates };
 
         // Salva as mudanças no Firestore
         await updateTalaoInFirestore(talaoId, updates);
+        
+        // Re-aplica filtros localmente para atualizar o card de relatório se o talão sumir
+        const currentFilteredTaloes = allTaloes.filter(t => filteredTaloes.some(ft => ft.id === t.id));
+        updateReportCard(currentFilteredTaloes);
     }
 
     // --- Manipulador de Mudança do Ateliê Predesignado ---
@@ -884,6 +1073,13 @@
         const updates = {
             idAtelieResponsavel: selectedAtelie
         };
+        
+        // Atualiza o objeto na memória (allTaloes)
+        const currentTalaoIndex = allTaloes.findIndex(t => t.id === talaoId);
+        if (currentTalaoIndex !== -1) {
+            allTaloes[currentTalaoIndex].idAtelieResponsavel = selectedAtelie;
+        }
+        
         await updateTalaoInFirestore(talaoId, updates);
     }
 </script>
