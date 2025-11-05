@@ -75,8 +75,8 @@
         display: none !important;
     }
 
-    /* Estilo para o Menu de Controle de Colunas */
-    #columnControlMenu {
+    /* Estilo para o Menu de Controle de Colunas e Linhas */
+    #columnControlMenu, #lineFilterContainer {
         background: var(--card);
         padding: 10px;
         border-radius: 10px;
@@ -88,7 +88,7 @@
         font-size: 0.9em;
         border: 1px solid var(--bd);
     }
-    #columnControlMenu h4 {
+    #columnControlMenu h4, #lineFilterContainer h4 {
         margin: 0 0 8px 0;
         color: var(--ink-2);
     }
@@ -202,6 +202,19 @@
     .card-total span:last-child {
         color: var(--pri) !important; /* Destaque azul para o total do card */
     }
+    
+    /* Estilos específicos para a tabela dentro do modal de remessa */
+    #remessaFilterTable th, #remessaFilterTable td {
+        padding: 6px;
+        border: 1px solid var(--bd);
+        white-space: normal;
+    }
+    #remessaFilterTable th {
+        background-color: #f2f2f2;
+    }
+    #remessaFilterTable tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
 
     @media (max-width:768px){.filters-container{justify-content:stretch}.form-group{flex:1}.modal-content{width:98%;max-width:98%}.modal-body-table{font-size:.74em}}
     .modal-body-table tr:nth-child(even) {background-color: #f2f2f2;}
@@ -220,7 +233,13 @@
   <div class="main-content">
     <div class="filters-container">
       <div class="form-group"><label for="filterLinha">Linha:</label><input type="text" id="filterLinha" placeholder="Ex: 100" /></div>
-      <div class="form-group"><label for="filterRemessa">Remessa:</label><input type="text" id="filterRemessa" placeholder="Ex: 2684982" /></div>
+      <div class="form-group" style="display: flex; flex-direction: column; align-items: stretch; min-width: 120px;">
+          <label for="filterRemessa" style="margin-bottom: 3px;">Remessa:</label>
+          <div style="display: flex; gap: 5px;">
+              <input type="text" id="filterRemessa" placeholder="Ex: 2684982" style="flex-grow: 1;"/>
+
+          </div>
+      </div>
       <div class="form-group"><label for="filterDataCorteInicio">Data de Corte (Início):</label><input type="date" id="filterDataCorteInicio" /></div>
       <div class="form-group"><label for="filterDataCorteFim">Data de Corte (Fim):</label><input type="date" id="filterDataCorteFim" /></div>
       <div class="form-group"><label for="filterTipoCliente">Tipo de Cliente:</label>
@@ -244,6 +263,16 @@
       </div>
     <div class="container">
       <h2>Relatório de Cronograma</h2>
+        <div id="lineFilterContainer" class="filters-container" style="display:none; justify-content: flex-start; max-width: 1200px; margin-bottom: 14px; align-items: flex-start;">
+            <h4 style="margin: 5px 10px 0 0; color: var(--ink-2); font-size: 1em;">Filtrar Linhas:</h4>
+            <div id="lineCheckboxes" class="column-checkboxes">
+                </div>
+               <button class="btn btn-secondary" id="selectRemessasButton" disabled style="padding: 0 20; min-width: 120px;">
+                  <span id="remessaCount">0</span> Clique para Selecionar as Remessas
+              </button>
+
+
+        </div>
       <div id="loading" class="loader" style="display:none">Carregando dados...</div>
       <div id="noData" class="loader">Selecione ao menos um filtro para iniciar a busca.</div>
       <div id="reportContent" style="display:none">
@@ -300,6 +329,34 @@
           </div>
     </div>
   </div>
+
+  <div id="remessaFilterModal" class="modal">
+    <div class="modal-content" style="max-width: 650px;">
+      <span class="close-btn remessa-close-btn">&times;</span>
+      <div class="modal-head"><h3 style="margin:0">Selecionar Remessas (Filtro)</h3></div>
+      <p style="font-size: 0.9em; color: var(--muted);">
+          *A busca é limitada às remessas carregadas no relatório principal.<br>
+          **Os dados de pares/linha/cliente são a consolidação de todos os talões da remessa.
+      </p>
+      <div id="remessaFilterListContainer" style="max-height: 400px; overflow-y: auto; padding: 8px 0;">
+        <table id="remessaFilterTable" style="width: 100%; border-collapse: collapse; font-size: 0.85em;">
+            <thead>
+                <tr>
+                    <th style="width: 40px;"><input type="checkbox" id="selectAllRemessas" checked></th>
+                    <th>Remessa</th>
+                    <th>Linha(s)</th>
+                    <th>Pares Totais</th>
+                    <th>Tipo de Cliente</th>
+                </tr>
+            </thead>
+            <tbody id="remessaFilterTableBody"></tbody>
+        </table>
+      </div>
+      <div style="display: flex; justify-content: flex-end; padding-top: 10px; border-top: 1px solid var(--bd);">
+        <button class="btn btn-primary" id="saveRemessaSelectionButton">Salvar Seleção</button>
+      </div>
+    </div>
+  </div>
   <script type="module">
     // === Firebase ===
     const firebaseConfig = {
@@ -328,11 +385,34 @@
     const modalBodyContent = document.getElementById('modalBodyContent'); 
     const checkboxContainer = document.getElementById('checkboxContainer'); 
     
+    // NOVO: Referências para o controle de Linhas
+    const lineFilterContainer = document.getElementById('lineFilterContainer');
+    const lineCheckboxes = document.getElementById('lineCheckboxes');
+
+    // NOVO: Referências para o controle de Remessas
+    const selectRemessasButton = document.getElementById('selectRemessasButton');
+    const remessaCount = document.getElementById('remessaCount');
+    const remessaFilterModal = document.getElementById('remessaFilterModal');
+    const remessaCloseBtn = document.querySelector('.remessa-close-btn');
+    const remessaFilterTableBody = document.getElementById('remessaFilterTableBody');
+    const selectAllRemessas = document.getElementById('selectAllRemessas');
+    const saveRemessaSelectionButton = document.getElementById('saveRemessaSelectionButton');
+    
     // Variável para a tabela de detalhes
     let modalTableBody = null; 
     
     let allFetchedTaloes=[];
     let currentStageFilter = null; 
+    
+    // NOVO: Variáveis de estado para o filtro de Linhas
+    let availableLines = new Set();
+    let selectedLines = new Set(); // Armazena as linhas atualmente selecionadas/filtradas
+
+    // NOVO: Variáveis de estado para o filtro de Remessas
+    // Map<remessaNumber, {linhas: Set, pares: number, tiposCliente: Set}>
+    let availableRemessas = new Map(); 
+    let selectedRemessas = new Set();  // Set<remessaNumber>
+
 
     // Tipos de Usuarios e niveis
         const nivelNomes = {
@@ -368,7 +448,32 @@
     onAuthStateChanged(auth, async (user)=>{ if(!user){window.location.href='login.html';return;} const snap=await getDoc(doc(db,'Usuario',user.email)); if(!snap.exists()){alert('Dados do usuário não encontrados. Faça login novamente.'); await signOut(auth); window.location.href='login.html'; return;} const {nivelAcesso,Nome}=snap.data(); if(!pages.find(p=>p.href==='cronograma.html'&&p.levels.includes(nivelAcesso))){alert('Você não tem permissão para acessar esta página.'); window.location.href='index.html'; return;} generateMenu(nivelAcesso,Nome); loadAtelies(); setupColumnControl();}); 
     logoutButton.addEventListener('click', async()=>{ try{ await signOut(auth); window.location.href='login.html'; }catch(e){ console.error(e); alert('Erro ao fazer logout. Tente novamente.'); }});
     async function loadAtelies(){ try{ const qSnap=await getDocs(query(collection(db,'Usuario'), where('nivelAcesso','==','03'))); const names=qSnap.docs.map(d=>d.data().Nome).filter(Boolean).sort((a,b)=>a.localeCompare(b)); names.forEach(n=>{const opt=document.createElement('option'); opt.value=n; opt.textContent=n; filterAtelie.appendChild(opt);}); }catch(err){ console.error('Erro ao carregar ateliês:',err);} }
-    clearFiltersButton.addEventListener('click',()=>{ [filterLinha,filterRemessa,filterDataCorteInicio,filterDataCorteFim,filterDataEntregaInicio,filterDataEntregaFim].forEach(i=>i.value=''); filterTipoCliente.value=''; filterAtelie.value=''; cronogramaTableBody.innerHTML=''; summaryInfo.innerHTML=''; reportContent.style.display='none'; noData.textContent='Selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; currentStageFilter = null; });
+    
+    // MODIFICADO: Limpa também os filtros de linha e remessa
+    clearFiltersButton.addEventListener('click',()=>{ 
+        [filterLinha,filterRemessa,filterDataCorteInicio,filterDataCorteFim,filterDataEntregaInicio,filterDataEntregaFim].forEach(i=>i.value=''); 
+        filterTipoCliente.value=''; 
+        filterAtelie.value=''; 
+        cronogramaTableBody.innerHTML=''; 
+        summaryInfo.innerHTML=''; 
+        reportContent.style.display='none'; 
+        noData.textContent='Selecione ao menos um filtro para iniciar a busca.'; 
+        noData.style.display='block'; 
+        currentStageFilter = null; 
+        
+        // NOVO: Limpeza dos filtros de linha
+        lineFilterContainer.style.display = 'none'; 
+        availableLines = new Set(); 
+        selectedLines = new Set();
+
+        // NOVO: Limpeza dos filtros de remessa
+        remessaFilterModal.style.display = 'none';
+        selectRemessasButton.disabled = true;
+        selectRemessasButton.textContent = '0 Selecionadas';
+        availableRemessas = new Map();
+        selectedRemessas = new Set();
+    });
+    
     searchButton.addEventListener('click', runSearch);
 
     // Helpers
@@ -388,15 +493,163 @@
         return grouped;
     }
     
+    // NOVO: Função para atualizar o texto do botão do filtro de remessa
+    function updateRemessaCountDisplay() {
+        const totalAvailable = availableRemessas.size;
+        // remessaCount.textContent = selectedRemessas.size.toLocaleString(); // Não é mais necessário, usando o texto completo
+        selectRemessasButton.textContent = `Clique para selecionar as remessas`;
+    }
+
+    // NOVO: Função para coletar e inicializar os dados de remessa para o filtro
+    function setupRemessaFilter(taloes) {
+        const remessaData = new Map();
+
+        taloes.forEach(t => {
+            const remessa = t.numeroRemessa;
+            if (!remessa) return;
+            
+            const pares = Number(t.pares) || 0;
+            const linha = t.linha || 'N/A';
+            const tipoCliente = t.tipoCliente || 'N/A';
+
+            if (!remessaData.has(remessa)) {
+                remessaData.set(remessa, {
+                    linhas: new Set(),
+                    pares: 0,
+                    tiposCliente: new Set()
+                });
+            }
+            
+            const data = remessaData.get(remessa);
+            data.pares += pares;
+            if (linha) data.linhas.add(linha);
+            if (tipoCliente) data.tiposCliente.add(tipoCliente);
+        });
+
+        availableRemessas = remessaData;
+
+        // Inicializa `selectedRemessas` se estiver vazio (primeiro load)
+        if (selectedRemessas.size === 0) {
+            remessaData.forEach((_, remessa) => selectedRemessas.add(remessa));
+        }
+        
+        // Habilita o botão e atualiza a contagem
+        selectRemessasButton.disabled = false;
+        updateRemessaCountDisplay();
+    }
+    
+    // NOVO: Função para obter os talões atualmente filtrados pelas linhas E remessas selecionadas
+    function getCurrentFilteredTaloes() {
+        if (allFetchedTaloes.length === 0) return [];
+        
+        // 1. Aplica o filtro de Linhas
+        let filteredTaloes = allFetchedTaloes;
+        const availableRemessaKeys = Array.from(availableRemessas.keys());
+
+        // O filtro de Linha só é aplicado se houver linhas disponíveis e nem todas estiverem selecionadas
+        if (availableLines.size > 0 && selectedLines.size > 0 && selectedLines.size < availableLines.size) {
+            filteredTaloes = filteredTaloes.filter(t => selectedLines.has(t.linha));
+        }
+        
+        // 2. Aplica o filtro de Remessas
+        // O filtro de Remessa só é aplicado se houver remessas disponíveis e nem todas estiverem selecionadas
+        if (availableRemessaKeys.length > 0 && selectedRemessas.size > 0 && selectedRemessas.size < availableRemessaKeys.length) {
+            filteredTaloes = filteredTaloes.filter(t => selectedRemessas.has(t.numeroRemessa));
+        }
+        
+        // Se a busca inicial for por um número de remessa (input de texto), o filtro de modal não se aplica, 
+        // mas a lista de talões já vem pré-filtrada pelo Firebase (e o filtro de Linhas/Remessas no modal deve refletir isso).
+        
+        return filteredTaloes;
+    }
+    
+    // NOVO: Função para renderizar e gerenciar o filtro de linhas (a mesma função original)
+    function renderLineCheckboxes(taloes) {
+        // 1. Coleta todas as linhas únicas dos talões
+        const uniqueLines = new Set(taloes.map(t => t.linha).filter(Boolean));
+        
+        // 2. Atualiza a lista global de linhas disponíveis
+        availableLines = uniqueLines;
+
+        // 3. Se `selectedLines` estiver vazio (primeiro load após a busca), seleciona todas
+        if (selectedLines.size === 0 && uniqueLines.size > 0) {
+            selectedLines = new Set([...uniqueLines]);
+        }
+        
+        // 4. Ordena as linhas
+        const sortedLines = Array.from(uniqueLines).sort((a, b) => parseInt(a) - parseInt(b));
+
+        // 5. Gera os Checkboxes
+        lineCheckboxes.innerHTML = '';
+        sortedLines.forEach(line => {
+            const id = `line-filter-${line}`;
+            
+            const label = document.createElement('label');
+            label.htmlFor = id;
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = id;
+            checkbox.value = line;
+            
+            // Marca o checkbox se a linha estiver na lista de selecionadas
+            checkbox.checked = selectedLines.has(line);
+
+            checkbox.addEventListener('change', handleLineFilterChange);
+
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(line));
+            lineCheckboxes.appendChild(label);
+        });
+
+        // 6. Exibe o container de controle
+        lineFilterContainer.style.display = uniqueLines.size > 0 ? 'flex' : 'none';
+        
+        // 7. Chama a função de filtragem e geração do relatório
+        filterAndGenerateReport();
+    }
+    
+    // NOVO: Função para lidar com a mudança do checkbox de linha
+    function handleLineFilterChange(event) {
+        const line = event.target.value;
+        if (event.target.checked) {
+            selectedLines.add(line);
+        } else {
+            selectedLines.delete(line);
+        }
+        // Força a re-geração do relatório com o novo filtro
+        filterAndGenerateReport();
+    }
+    
+    // NOVO: Função para filtrar os dados e gerar o relatório (usada após o search e após a mudança do checkbox)
+    function filterAndGenerateReport() {
+        const filteredTaloes = getCurrentFilteredTaloes();
+        
+        // Re-gera o relatório (sumário e tabela) com os dados filtrados
+        generateGroupedReport(filteredTaloes);
+    }
+    
     // NOVO: Função para coletar e formatar os filtros aplicados
     function getAppliedFiltersText() {
         const filters = [];
         
+        // Filtro de linha no campo de texto (se houver, ele é o que prevalece na busca do Firebase)
         const linha = filterLinha.value.trim();
-        if (linha) filters.push(`Linha: ${linha}`);
+        if (linha) filters.push(`Linha (Busca): ${linha}`);
+        
+        // Filtro de linha nos checkboxes (se houver, após a busca)
+        if (!linha && selectedLines.size > 0 && selectedLines.size < availableLines.size) {
+            filters.push(`Linhas (Selecionadas): ${Array.from(selectedLines).sort().join(', ')}`);
+        }
 
-        const remessa = filterRemessa.value.trim();
-        if (remessa) filters.push(`Remessa: ${remessa}`);
+        const remessaText = filterRemessa.value.trim();
+        if (remessaText) filters.push(`Remessa (Busca): ${remessaText}`);
+        
+        // Filtro de remessa nos checkboxes (se houver, após a busca)
+        const availableRemessaKeys = Array.from(availableRemessas.keys());
+        if (!remessaText && availableRemessaKeys.length > 0 && selectedRemessas.size > 0 && selectedRemessas.size < availableRemessaKeys.length) {
+            filters.push(`Remessas (Selecionadas): ${selectedRemessas.size} de ${availableRemessaKeys.length}`);
+        }
 
         const tipoCliente = filterTipoCliente.value;
         if (tipoCliente) filters.push(`Tipo Cliente: ${tipoCliente}`);
@@ -434,8 +687,14 @@
     }
 
 
+    // MODIFICADO: Adiciona a lógica de renderização e filtro de linhas após a busca
     async function runSearch(){
       loading.style.display='block'; noData.style.display='none'; reportContent.style.display='none'; cronogramaTableBody.innerHTML=''; allFetchedTaloes=[];
+      lineFilterContainer.style.display='none'; // Esconde antes de uma nova busca
+      selectRemessasButton.disabled = true;
+      selectRemessasButton.textContent = '0 Selecionadas'; // Reset para o texto padrão
+
+
       const linha=filterLinha.value.trim(); const remessa=filterRemessa.value.trim(); const dataCorteInicio=filterDataCorteInicio.value; const dataCorteFim=filterDataCorteFim.value; const tipoCliente=filterTipoCliente.value; const atelieResponsavel=filterAtelie.value; const dataEntregaInicio=filterDataEntregaInicio.value; const dataEntregaFim=filterDataEntregaFim.value;
       try{
         let qRef=collection(db,'taloes'); let hasFilters=false;
@@ -444,15 +703,45 @@
         if(tipoCliente){ qRef=query(qRef, where('tipoCliente','==',tipoCliente)); hasFilters=true; }
         if(atelieResponsavel){ qRef=query(qRef, where('idAtelieResponsavel','==',atelieResponsavel)); hasFilters=true; }
         if(dataCorteInicio && dataCorteFim){ qRef=query(qRef, where('dataCorte','>=',dataCorteInicio), where('dataCorte','<=',dataCorteFim)); hasFilters=true; }
-        // Se a busca inicial for sem filtro, reseta o filtro de etapa.
+        
         currentStageFilter = null;
         if(!hasFilters){ loading.style.display='none'; noData.textContent='Por favor, selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; return; }
-        const snap=await getDocs(qRef); allFetchedTaloes=snap.docs.map(d=>d.data()); if(dataEntregaInicio && dataEntregaFim){ allFetchedTaloes=allFetchedTaloes.filter(t=> t.dataEntrega && t.dataEntrega>=dataEntregaInicio && t.dataEntrega<=dataEntregaFim ); }
-        generateGroupedReport(allFetchedTaloes);
-        loading.style.display='none'; if(allFetchedTaloes.length>0){ reportContent.style.display='block'; } else { noData.textContent='Nenhum dado encontrado para os filtros selecionados.'; noData.style.display='block'; }
-      }catch(err){ console.error('Erro ao gerar relatório:',err); loading.style.display='none'; noData.textContent='Erro ao carregar os dados. Verifique o console.'; noData.style.display='block'; }
+        
+        const snap=await getDocs(qRef); 
+        allFetchedTaloes=snap.docs.map(d=>d.data()); 
+        
+        // Aplica o filtro de data de entrega localmente
+        if(dataEntregaInicio && dataEntregaFim){ 
+            allFetchedTaloes=allFetchedTaloes.filter(t=> t.dataEntrega && t.dataEntrega>=dataEntregaInicio && t.dataEntrega<=dataEntregaFim ); 
+        }
+        
+        loading.style.display='none'; 
+        
+        if(allFetchedTaloes.length>0){ 
+            // NOVO: 1. Configura e prepara o filtro de remessas
+            setupRemessaFilter(allFetchedTaloes);
+
+            // NOVO: 2. Se a busca foi por uma Linha específica, o filtro de checkbox já deve começar apenas com ela.
+            if(linha) selectedLines = new Set([linha]); 
+            else selectedLines = new Set(); // Reset para que renderLineCheckboxes selecione todos disponíveis
+            
+            // NOVO: 3. Renderiza os checkboxes e dispara a geração do relatório
+            renderLineCheckboxes(allFetchedTaloes);
+        } else { 
+            noData.textContent='Nenhum dado encontrado para os filtros selecionados.'; 
+            noData.style.display='block'; 
+            selectRemessasButton.disabled = true; // Garante que o botão fica desabilitado
+        }
+        
+      }catch(err){ 
+        console.error('Erro ao gerar relatório:',err); 
+        loading.style.display='none'; 
+        noData.textContent='Erro ao carregar os dados. Verifique o console.'; 
+        noData.style.display='block'; 
+      }
     }
 
+    // MODIFICADO: Recebe talões já filtrados e lida com a exibição final
     function generateGroupedReport(taloes){
       const grouped={};
       let totalPares=0,totalTaloes=0;
@@ -464,7 +753,16 @@
       let paresTalon=0;           
       let paresMont=0;            
 
-      if(!taloes||taloes.length===0){ noData.textContent='Nenhum dado encontrado para os filtros selecionados.'; noData.style.display='block'; reportContent.style.display='none'; return; }
+      // MODIFICADO: Exibe/Oculta o reportContent baseado nos talões passados
+      if(!taloes||taloes.length===0){ 
+        noData.textContent='Nenhum dado encontrado para os filtros selecionados.'; 
+        noData.style.display='block'; 
+        reportContent.style.display='none'; 
+        return; 
+      }
+        
+      reportContent.style.display='block';
+      noData.style.display='none';
 
       taloes.forEach(t=>{
         const linha=t.linha||'N/A'; const remessa=t.numeroRemessa||'N/A'; const tipo=t.tipoCliente||'';
@@ -632,6 +930,7 @@
       setupModalForDetails(); // Garante que a estrutura da tabela está no modal
       modalTitle.textContent=`Detalhes da Remessa: ${remessa}`; 
       modalTableBody.innerHTML=''; 
+      // É importante usar allFetchedTaloes aqui para mostrar todos os detalhes da remessa, ignorando o filtro de linha
       const list=allFetchedTaloes.filter(t=>t.numeroRemessa===remessa); 
       if(list.length===0){ 
         modalTableBody.innerHTML = `<tr><td colspan="14" style="text-align:center;">Nenhum detalhe encontrado para esta remessa.</td></tr>`; 
@@ -665,8 +964,8 @@
     // === Lógica dos Botões de Resumo (Cards) ===
 
     function checkTaloesAndAlert(){
-        if(allFetchedTaloes.length === 0){
-            alert('Nenhum talão carregado. Por favor, use o botão "Gerar Relatório" primeiro.');
+        if (getCurrentFilteredTaloes().length === 0){
+            alert('Nenhum talão carregado ou selecionado nos filtros. Por favor, use o botão "Gerar Relatório" e selecione as linhas/remessas desejadas.');
             return false;
         }
         return true;
@@ -681,8 +980,11 @@
         // Altera o conteúdo do modalBodyContent para a estrutura de cards
         let htmlContent = '<div class="resumo-cards-wrapper">'; 
         
-        if (cardData.length === 0 || Object.keys(cardData.flatMap(c => Object.keys(c.items))).length === 0) {
-            htmlContent = `<p style="text-align:center; font-size:1.1em; padding:15px;">Nenhum item encontrado para o resumo.</p>`;
+        // Verifica se há dados a serem exibidos (pelo menos um item em qualquer um dos cards)
+        const hasCardItems = cardData.some(card => Object.keys(card.items).length > 0);
+
+        if (cardData.length === 0 || !hasCardItems) {
+            htmlContent = `<p style="text-align:center; font-size:1.1em; padding:15px;">Nenhum item encontrado para o resumo com as linhas selecionadas.</p>`;
         } else {
             cardData.forEach(card => {
                 const models = card.items;
@@ -725,22 +1027,24 @@
         detailsModal.style.display = 'block';
     }
 
-
+    // MODIFICADO: Passa a lista filtrada
     resumoCorteButton.addEventListener('click', () => {
         if (checkTaloesAndAlert()) {
-            showResumoCorteModal(allFetchedTaloes);
+            showResumoCorteModal(getCurrentFilteredTaloes());
         }
     });
 
+    // MODIFICADO: Passa a lista filtrada
     resumoCosturaButton.addEventListener('click', () => {
         if (checkTaloesAndAlert()) {
-            showResumoCosturaModal(allFetchedTaloes);
+            showResumoCosturaModal(getCurrentFilteredTaloes());
         }
     });
 
+    // MODIFICADO: Passa a lista filtrada
     resumoGiroFabricaButton.addEventListener('click', () => {
         if (checkTaloesAndAlert()) {
-            showResumoGiroFabricaModal(allFetchedTaloes);
+            showResumoGiroFabricaModal(getCurrentFilteredTaloes());
         }
     });
 
@@ -884,9 +1188,78 @@
         }
     });
     
-    // Listeners do Modal
+    // Listeners do Modal de Detalhes
     closeModalBtn.addEventListener('click',()=> detailsModal.style.display='none');
     window.addEventListener('click',(e)=>{ if(e.target===detailsModal) detailsModal.style.display='none'; });
+
+    // NOVO: Listeners do Modal de Filtro de Remessa
+    remessaCloseBtn.addEventListener('click',()=> remessaFilterModal.style.display='none');
+    window.addEventListener('click',(e)=>{ if(e.target===remessaFilterModal) remessaFilterModal.style.display='none'; });
+    
+    selectRemessasButton.addEventListener('click', openRemessaFilterModal);
+
+    // Event Listener para "Salvar Seleção" do filtro de remessa
+    saveRemessaSelectionButton.addEventListener('click', handleRemessaFilterSave);
+
+    // Event Listener para "Selecionar Todos" do filtro de remessa
+    selectAllRemessas.addEventListener('change', (e) => {
+        const isChecked = e.target.checked;
+        document.querySelectorAll('#remessaFilterTableBody .remessa-checkbox').forEach(cb => {
+            cb.checked = isChecked;
+        });
+    });
+
+    function openRemessaFilterModal() {
+        if (availableRemessas.size === 0) {
+            alert("Nenhuma remessa disponível para filtrar. Gere o relatório primeiro.");
+            return;
+        }
+
+        remessaFilterTableBody.innerHTML = '';
+        const sortedRemessas = Array.from(availableRemessas.keys()).sort((a, b) => a.localeCompare(b));
+        let allChecked = true;
+
+        sortedRemessas.forEach(remessa => {
+            const data = availableRemessas.get(remessa);
+            const isChecked = selectedRemessas.has(remessa);
+            
+            if (!isChecked) allChecked = false;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="checkbox" class="remessa-checkbox" value="${remessa}" ${isChecked ? 'checked' : ''}></td>
+                <td style="text-align: left;">${remessa}</td>
+                <td style="text-align: left;">${Array.from(data.linhas).sort().join(', ')}</td>
+                <td>${data.pares.toLocaleString()}</td>
+                <td>${Array.from(data.tiposCliente).join(', ')}</td>
+            `;
+            remessaFilterTableBody.appendChild(tr);
+        });
+        
+        // Atualiza o checkbox "Selecionar Todos"
+        selectAllRemessas.checked = allChecked;
+
+        remessaFilterModal.style.display = 'block';
+    }
+
+    function handleRemessaFilterSave() {
+        // 1. Coleta a nova seleção
+        const newSelectedRemessas = new Set();
+        document.querySelectorAll('#remessaFilterTableBody .remessa-checkbox:checked').forEach(cb => {
+            newSelectedRemessas.add(cb.value);
+        });
+        
+        // 2. Atualiza o estado
+        selectedRemessas = newSelectedRemessas;
+        
+        // 3. Fecha o modal e atualiza a contagem
+        remessaFilterModal.style.display = 'none';
+        updateRemessaCountDisplay();
+        
+        // 4. Re-gera o relatório
+        filterAndGenerateReport();
+    }
+    
     
     document.addEventListener('click', (e) => {
         const link = e.target.closest('.filter-link');
@@ -895,7 +1268,8 @@
             const stage = link.dataset.stage; 
             currentStageFilter = (currentStageFilter === stage) ? null : stage;
             if (allFetchedTaloes.length > 0) {
-                generateGroupedReport(allFetchedTaloes);
+                // Ao mudar o filtro de etapa, re-renderiza o relatório com os talões de linha já filtrados.
+                filterAndGenerateReport();
             } else {
                 runSearch(); 
             }
