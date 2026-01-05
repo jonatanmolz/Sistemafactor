@@ -5,6 +5,7 @@
 // - Busca 1 talão por código (leve)
 // - Scanner robusto: ENTER/TAB/NEXT
 // - MODO: mantém foco em ENTRADA (até você tocar em SAÍDA)
+// - TRAVA: não deixa TAB/NEXT pular p/ SAÍDA no modo ENTRADA
 // ===============================
 
 (function () {
@@ -27,7 +28,7 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // ✅ Long Polling (ajuda em tablet/rede que trava canal padrão)
+  // ✅ Long Polling
   try {
     db.settings({
       experimentalForceLongPolling: true,
@@ -61,7 +62,7 @@
   let busyEntry = false;
   let busyExit = false;
 
-  // 🔁 Modo de operação (padrão: entrada)
+  // 🔁 Modo (padrão: entrada)
   let activeMode = "entry"; // "entry" | "exit"
 
   // Níveis e menu
@@ -77,26 +78,20 @@
 
   const pages = [
     { name: "Index", href: "index.html", levels: ["01", "02", "03", "04", "05", "06", "07"] },
-
     { name: "Cadastro Usuarios", href: "cadastroUsuarios.html", levels: ["07"] },
     { name: "Cadastro Talões", href: "cadastroTaloes.html", levels: ["01", "05", "07"] },
-
     { name: "Romaneio", href: "romaneio.html", levels: ["05", "07"] },
     { name: "Excluir Dados", href: "excluirDados.html", levels: ["05", "07"] },
     { name: "Registro em Massa", href: "registroEmMassa.html", levels: ["07"] },
-
     { name: "Corte", href: "corte.html", levels: ["02", "07"] },
     { name: "Relatório Erros", href: "relatorioerros.html", levels: ["02", "04", "07"] },
-
     { name: "Resumo", href: "resumo.html", levels: ["04", "06", "07"] },
     { name: "Cronograma", href: "cronograma.html", levels: ["01", "02", "04", "05", "06", "07"] },
     { name: "Cronograma Mobile", href: "cronogramamobile.html", levels: ["06", "07"] },
     { name: "Relatório Master", href: "relatorioMaster.html", levels: ["05", "07"] },
-
     { name: "Costura", href: "costura.html", levels: ["03", "07"] },
     { name: "Relatorio Atelier", href: "relatorioAtelier.html", levels: ["03", "07"] },
     { name: "Atlier Celular", href: "relatoriomobile.html", levels: ["03", "07"] },
-
     { name: "Distribuição", href: "distribuicao.html", levels: ["04", "07"] },
     { name: "Talonagem", href: "talonagem.html", levels: ["04", "07"] },
     { name: "Montagem", href: "montagem.html", levels: ["05", "07"] }
@@ -123,7 +118,13 @@
 
   function safeFocus(el) {
     try {
-      if (el) el.focus();
+      if (!el) return;
+      el.focus();
+      // força cursor no fim (ajuda alguns scanners)
+      const v = el.value || "";
+      if (typeof el.setSelectionRange === "function") {
+        el.setSelectionRange(v.length, v.length);
+      }
     } catch (e) {}
   }
 
@@ -136,9 +137,7 @@
 
   function normalizeBarcode(raw) {
     let barcode = (raw || "").trim();
-    // remove \n/\r que alguns leitores jogam no final
     barcode = barcode.replace(/[\r\n]+/g, "");
-
     if (barcode.length > 0 && barcode.charAt(0) !== "1") {
       barcode = "1" + barcode.substring(1);
     }
@@ -166,9 +165,7 @@
     });
   }
 
-  // -------------------------------
   // Firestore: busca 1 talão por código
-  // -------------------------------
   async function findTalaoByBarcode(barcode) {
     const snap = await db
       .collection("taloes")
@@ -194,9 +191,7 @@
     if (messageDiv) setTimeout(() => setMessage(messageDiv, "", ""), 2500);
   }
 
-  // -------------------------------
-  // Processadores
-  // -------------------------------
+  // ---- Processadores ----
   async function processEntrada() {
     if (busyEntry) return;
     busyEntry = true;
@@ -224,7 +219,6 @@
         return;
       }
 
-      // tentativa em ateliê errado
       if (talao.idAtelieResponsavel && talao.idAtelieResponsavel !== currentUserName) {
         try {
           await updateTalaoInFirestore(
@@ -266,8 +260,13 @@
       setMessage(entryMessageDiv, "Erro: " + (err.message || "falha"), "error");
     } finally {
       busyEntry = false;
-      // ✅ Sempre volta o foco para ENTRADA quando estiver em modo entrada
-      if (activeMode === "entry") safeFocus(barcodeInputEntry);
+
+      // ✅ FORÇA manter foco em ENTRADA (mesmo que o tablet tente tabular)
+      if (activeMode === "entry") {
+        setTimeout(() => safeFocus(barcodeInputEntry), 0);
+        setTimeout(() => safeFocus(barcodeInputEntry), 30);
+        setTimeout(() => safeFocus(barcodeInputEntry), 80);
+      }
     }
   }
 
@@ -328,23 +327,20 @@
       setMessage(exitMessageDiv, "Erro: " + (err.message || "falha"), "error");
     } finally {
       busyExit = false;
-      // mantém foco em SAÍDA se estiver no modo saída
-      if (activeMode === "exit") safeFocus(barcodeInputExit);
+      if (activeMode === "exit") {
+        setTimeout(() => safeFocus(barcodeInputExit), 0);
+      }
     }
   }
 
-  // -------------------------------
-  // Scanner robusto (Enter/Tab/Next)
-  // -------------------------------
+  // Scanner robusto
   function isScannerSubmitKey(e) {
     const key = e.key;
     const code = e.keyCode || e.which;
 
-    // Enter
+    // Enter / Tab / Next
     if (key === "Enter" || code === 13) return true;
-    // Tab (alguns scanners usam TAB pra "submit")
     if (key === "Tab" || code === 9) return true;
-    // "Next" (alguns Androids)
     if (key === "Next") return true;
 
     return false;
@@ -353,17 +349,16 @@
   function attachScannerInput(inputEl, processFn, modeName) {
     if (!inputEl) return;
 
-    // Quando tocar/clicar no input, troca o modo
+    // trocar modo quando tocar no campo
     inputEl.addEventListener("focus", () => {
       activeMode = modeName;
     });
 
-    // Captura teclas do scanner/leitor
+    // keydown: captura Enter/Tab/Next
     inputEl.addEventListener(
       "keydown",
       (e) => {
         if (isScannerSubmitKey(e)) {
-          // ✅ impede o "pular para o próximo campo"
           e.preventDefault();
           e.stopPropagation();
           processFn();
@@ -373,7 +368,7 @@
       true
     );
 
-    // Se o leitor colocar \n no valor
+    // se vier \n no valor
     inputEl.addEventListener("input", () => {
       const v = inputEl.value || "";
       if (v.includes("\n") || v.includes("\r")) {
@@ -382,33 +377,61 @@
       }
     });
 
-    // GARANTIA: se o teclado forçar blur, processa e volta foco conforme modo
+    // blur: processa se sobrou valor
     inputEl.addEventListener("blur", () => {
       setTimeout(() => {
-        // só tenta processar se tem algo digitado
         const v = (inputEl.value || "").trim();
         if (v.length > 0) processFn();
-
-        // ✅ volta foco pro input do modo ativo
-        if (activeMode === "entry") safeFocus(barcodeInputEntry);
-        if (activeMode === "exit") safeFocus(barcodeInputExit);
       }, 30);
     });
   }
 
-  // Atacha listeners
+  // ✅ Anexa scanners
   attachScannerInput(barcodeInputEntry, processEntrada, "entry");
   attachScannerInput(barcodeInputExit, processSaida, "exit");
 
-  // Força sempre o modo entrada ao abrir
+  // ✅ TRAVA GLOBAL: no modo ENTRADA, impedir TAB/NEXT mudar foco
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      if (activeMode !== "entry") return;
+
+      const key = e.key;
+      const code = e.keyCode || e.which;
+      const isTab = key === "Tab" || code === 9;
+      const isNext = key === "Next";
+
+      // Só trava TAB/NEXT se o foco estiver no input de entrada
+      if (document.activeElement === barcodeInputEntry && (isTab || isNext)) {
+        e.preventDefault();
+        e.stopPropagation();
+        // reafirma o foco
+        setTimeout(() => safeFocus(barcodeInputEntry), 0);
+      }
+    },
+    true
+  );
+
+  // ✅ “Puxador de foco”: se por qualquer motivo cair na SAÍDA durante modo ENTRADA, volta pra ENTRADA
+  document.addEventListener(
+    "focusin",
+    (e) => {
+      if (activeMode !== "entry") return;
+      if (e.target === barcodeInputExit) {
+        // impede o pulo pra saída
+        setTimeout(() => safeFocus(barcodeInputEntry), 0);
+      }
+    },
+    true
+  );
+
+  // Força modo entrada ao abrir
   function setEntryMode() {
     activeMode = "entry";
     safeFocus(barcodeInputEntry);
   }
 
-  // -------------------------------
   // Boot/Auth
-  // -------------------------------
   showLoading("Carregando dados...");
 
   auth.onAuthStateChanged(async (user) => {
@@ -450,7 +473,6 @@
       setEntryMode();
     } catch (err) {
       console.error("Erro no login/carregamento:", err);
-      // erro visível
       showLoading("Erro ao iniciar: " + (err && err.message ? err.message : "ver console"));
     }
   });
