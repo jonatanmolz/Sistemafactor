@@ -1,22 +1,15 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
-  authDomain: "sistemataloes.firebaseapp.com",
-  projectId: "sistemataloes",
-  storageBucket: "sistemataloes.appspot.com",
-  messagingSenderId: "684534379685",
-  appId: "default-app-id"
-};
+ const firebaseConfig = {
+            apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+            authDomain: "sistemataloes.firebaseapp.com",
+            projectId: "sistemataloes",
+            storageBucket: "sistemataloes.appspot.com",
+            messagingSenderId: "684534379685",
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'
+        };
 
-firebase.initializeApp(firebaseConfig);
-
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore-compat.js"></script>
-<script defer src="costura.js"></script>
-
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, onSnapshot, updateDoc, query, where, or, and } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js"; 
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -352,5 +345,4 @@ const db = firebase.firestore();
                 };
                 await updateTalaoInFirestore(talao.id, updates, exitMessageDiv, barcode);
             }
-
         });
