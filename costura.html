@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -39,7 +40,6 @@
             background-color: #555;
             padding: 10px 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            font-size: 0.8em
         }
         nav ul {
             list-style: none;
@@ -176,98 +176,6 @@
         .last-scanned-list li:last-child {
             border-bottom: none;
         }
-
-        /* --- Estilos para Responsividade (Mobile First ou Desktop First com Media Queries) --- */
-
-        /* Ajustes para telas menores que 1024px (por exemplo, tablets e celulares em paisagem) */
-        @media (max-width: 1024px) {
-            .scanner-sections-container {
-                gap: 50px; /* Reduz o espaçamento entre os scanners */
-            }
-        }
-
-        /* Ajustes para telas menores que 768px (por exemplo, a maioria dos tablets e celulares) */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column; /* Empilha itens do cabeçalho */
-                text-align: center;
-                padding: 10px;
-            }
-
-            header h1 {
-                margin-bottom: 10px;
-                font-size: 20px;
-            }
-
-            .user-info {
-                text-align: center;
-                margin-bottom: 10px;
-            }
-
-            button#logoutButton {
-                margin-left: 0; /* Remove margem extra em telas pequenas */
-                width: 100%; /* Ocupa a largura total */
-                padding: 10px;
-                box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
-            }
-
-            nav ul {
-                flex-direction: column; /* Links de navegação empilhados */
-                gap: 5px;
-                align-items: center; /* Centraliza os links */
-            }
-
-            nav ul li a {
-                padding: 10px 10px;
-                width: 100%; /* Faz os links ocuparem a largura total da nav */
-                text-align: center;
-                box-sizing: border-box;
-            }
-
-            .main-content {
-                padding: 10px; /* Reduz o padding geral do conteúdo principal */
-            }
-
-            .scanner-sections-container {
-                flex-direction: column; /* Empilha os scanners de entrada e saída */
-                gap: 30px; /* Espaçamento entre os scanners empilhados */
-                align-items: center; /* Centraliza os scanners */
-            }
-
-            .barcode-scanner-container {
-                flex: 1 1 90%; /* Permite que o contêiner cresça e ocupe mais largura */
-                max-width: 450px; /* Limita a largura máxima para não ficar muito largo em tablets */
-                width: 90%; /* Garante que ocupe a largura disponível no celular */
-                padding: 15px;
-            }
-
-            .barcode-input-group label {
-                font-size: 1em; /* Tamanho da fonte menor para rótulos */
-            }
-
-            .barcode-input-group input {
-                padding: 10px; /* Padding menor para inputs */
-                font-size: 1em; /* Tamanho da fonte menor para inputs */
-            }
-
-            .last-scanned-list {
-                max-height: 100px; /* Altura máxima menor para a lista de últimos lidos */
-            }
-        }
-
-        /* Ajustes para telas muito pequenas (ex: celulares em modo retrato) */
-        @media (max-width: 480px) {
-            header h1 {
-                font-size: 20px;
-            }
-            .user-info {
-                font-size: 12px;
-            }
-            .barcode-scanner-container {
-                width: 95%; /* Ocupa ainda mais largura em telas muito pequenas */
-                min-width: unset; /* Remove min-width para maior flexibilidade */
-            }
-        }
     </style>
 </head>
 <body>
@@ -284,7 +192,8 @@
 
     <nav>
         <ul id="menuNav">
-            </ul>
+            <!-- Os itens do menu serão injetados aqui via JavaScript -->
+        </ul>
     </nav>
 
     <div class="main-content">
@@ -298,7 +207,8 @@
                 <div class="last-scanned-container">
                     <h4>Últimos Códigos Lidos (Entrada):</h4>
                     <ul id="lastScannedEntryList" class="last-scanned-list">
-                        </ul>
+                        <!-- Últimos códigos de entrada serão injetados aqui -->
+                    </ul>
                 </div>
             </div>
 
@@ -311,12 +221,14 @@
                 <div class="last-scanned-container">
                     <h4>Últimos Códigos Lidos (Saída):</h4>
                     <ul id="lastScannedExitList" class="last-scanned-list">
-                        </ul>
+                        <!-- Últimos códigos de saída serão injetados aqui -->
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDKs -->
     <script type="module">
         const firebaseConfig = {
             apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
@@ -363,9 +275,18 @@
 
         // Definição das páginas e seus níveis de acesso
         const pages = [
+            { name: 'Cadastro Usuário', href: 'CadastroUsuario.html', levels: ['05'] },
+            { name: 'Resumo', href: 'Resumo.html', levels: ['05'] },
+            { name: 'Cadastro Talões', href: 'CadastroTaloes.html', levels: ['01', '05'] },
+            { name: 'Corte', href: 'Corte.html', levels: ['02', '05'] },
             { name: 'Costura', href: 'Costura.html', levels: ['03', '05'] },
             { name: 'Relatório Ateliê', href: 'RelatorioAtelier.html', levels: ['03', '05'] },
-
+            { name: 'Relatório Master', href: 'RelatorioMaster.html', levels: ['01', '02', '04', '05'] },
+            { name: 'Romaneio', href: 'Romaneio.html', levels: ['05'] },
+            { name: 'Fábrica', href: 'Fabrica.html', levels: ['04', '05'] },
+            { name: 'Excluir Dados', href: 'ExcluirDados.html', levels: ['05'] },
+            { name: 'Registro em Massa', href: 'RegistroEmMassa.html', levels: ['01', '04', '05'] },
+            { name: 'Romaneio', href: 'Romaneio.html', levels: ['05'] }
         ];
 
         // Função para gerar o menu dinamicamente
