@@ -2,7 +2,8 @@
 // COSTURA.JS (Firebase compat)
 // - Long Polling
 // - Erro aparece na tela
-// - NÃO carrega todos os talões: busca 1 por código (muito mais leve)
+// - Busca 1 talão por código (leve)
+// - ENTER corrigido em tablets (usa keydown e impede "próximo campo")
 // ===============================
 
 (function () {
@@ -15,7 +16,6 @@
     appId: "default-app-id"
   };
 
-  // Init Firebase
   try {
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   } catch (e) {
@@ -25,7 +25,7 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // ✅ (MELHORIA 1) Long Polling (ajuda em tablets/redes)
+  // ✅ Long Polling
   try {
     db.settings({
       experimentalForceLongPolling: true,
@@ -54,7 +54,11 @@
   const lastEntries = [];
   const lastExits = [];
   const MAX_LAST_SCANNED = 5;
-  let isReady = false; // fica true depois que autenticar e validar permissões
+  let isReady = false;
+
+  // 🔒 trava para não processar 2 vezes se o teclado disparar eventos repetidos
+  let busyEntry = false;
+  let busyExit = false;
 
   // Níveis
   const nivelNomes = {
@@ -149,9 +153,8 @@
     });
   }
 
-  // ✅ Busca 1 talão por código (não pesa o tablet)
+  // Busca 1 talão por código
   async function findTalaoByBarcode(barcode) {
-    // tente com o campo principal
     const q = await db
       .collection("taloes")
       .where("codigoBarrasIdentificador", "==", barcode)
@@ -166,23 +169,14 @@
   }
 
   async function updateTalaoInFirestore(talaoId, updates, messageDiv, barcode) {
-    try {
-      await db.collection("taloes").doc(talaoId).update(updates);
+    await db.collection("taloes").doc(talaoId).update(updates);
 
-      if (messageDiv) setMessage(messageDiv, "Sucesso!", "success");
+    if (messageDiv) setMessage(messageDiv, "Sucesso!", "success");
 
-      if (messageDiv === entryMessageDiv) addLastScanned(lastEntries, barcode, lastScannedEntryList);
-      if (messageDiv === exitMessageDiv) addLastScanned(lastExits, barcode, lastScannedExitList);
+    if (messageDiv === entryMessageDiv) addLastScanned(lastEntries, barcode, lastScannedEntryList);
+    if (messageDiv === exitMessageDiv) addLastScanned(lastExits, barcode, lastScannedExitList);
 
-      if (messageDiv) setTimeout(() => setMessage(messageDiv, "", ""), 3000);
-    } catch (error) {
-      console.error("Erro ao atualizar talão:", talaoId, error);
-      if (messageDiv) {
-        setMessage(messageDiv, `Erro: ${error.message || "falha ao atualizar"}`, "error");
-        setTimeout(() => setMessage(messageDiv, "", ""), 5000);
-      }
-      throw error;
-    }
+    if (messageDiv) setTimeout(() => setMessage(messageDiv, "", ""), 2500);
   }
 
   // Boot
@@ -218,16 +212,15 @@
 
       generateMenu(nivelAcesso, currentUserName);
 
-      // ✅ agora não precisamos carregar "taloes" inteiro
       isReady = true;
       hideLoading();
+
       if (barcodeInputEntry) barcodeInputEntry.disabled = false;
       if (barcodeInputExit) barcodeInputExit.disabled = false;
+
       safeFocus(barcodeInputEntry);
     } catch (err) {
       console.error("Erro no login/carregamento:", err);
-
-      // ✅ (MELHORIA 2) erro visível na tela
       showLoading("Erro ao iniciar: " + (err && err.message ? err.message : "ver console"));
     }
   });
@@ -245,12 +238,14 @@
     });
   }
 
-  // Entrada
-  if (barcodeInputEntry) {
-    barcodeInputEntry.addEventListener("keypress", async (event) => {
-      if (event.key !== "Enter") return;
-      event.preventDefault();
+  // ===============================
+  // PROCESSADORES (separados)
+  // ===============================
+  async function processEntrada() {
+    if (busyEntry) return;
+    busyEntry = true;
 
+    try {
       if (!isReady) {
         setMessage(entryMessageDiv, "Aguarde o carregamento.", "error");
         return;
@@ -258,6 +253,7 @@
 
       let barcode = normalizeBarcode(barcodeInputEntry.value);
       barcodeInputEntry.value = "";
+
       setMessage(entryMessageDiv, "Processando...", "");
 
       if (!barcode) {
@@ -265,14 +261,7 @@
         return;
       }
 
-      let talao;
-      try {
-        talao = await findTalaoByBarcode(barcode);
-      } catch (err) {
-        console.error("Erro na busca do talão:", err);
-        setMessage(entryMessageDiv, "Erro ao buscar talão: " + (err.message || ""), "error");
-        return;
-      }
+      let talao = await findTalaoByBarcode(barcode);
 
       if (!talao) {
         setMessage(entryMessageDiv, `Talão com código ${barcode} não encontrado.`, "error");
@@ -315,15 +304,21 @@
       };
 
       await updateTalaoInFirestore(talao.id, updates, entryMessageDiv, barcode);
-    });
+    } catch (err) {
+      console.error("Erro na entrada:", err);
+      setMessage(entryMessageDiv, "Erro: " + (err.message || "falha"), "error");
+    } finally {
+      busyEntry = false;
+      // ✅ garante que o foco fica na ENTRADA
+      safeFocus(barcodeInputEntry);
+    }
   }
 
-  // Saída
-  if (barcodeInputExit) {
-    barcodeInputExit.addEventListener("keypress", async (event) => {
-      if (event.key !== "Enter") return;
-      event.preventDefault();
+  async function processSaida() {
+    if (busyExit) return;
+    busyExit = true;
 
+    try {
       if (!isReady) {
         setMessage(exitMessageDiv, "Aguarde o carregamento.", "error");
         return;
@@ -331,6 +326,7 @@
 
       let barcode = normalizeBarcode(barcodeInputExit.value);
       barcodeInputExit.value = "";
+
       setMessage(exitMessageDiv, "Processando...", "");
 
       if (!barcode) {
@@ -338,14 +334,7 @@
         return;
       }
 
-      let talao;
-      try {
-        talao = await findTalaoByBarcode(barcode);
-      } catch (err) {
-        console.error("Erro na busca do talão:", err);
-        setMessage(exitMessageDiv, "Erro ao buscar talão: " + (err.message || ""), "error");
-        return;
-      }
+      let talao = await findTalaoByBarcode(barcode);
 
       if (!talao) {
         setMessage(exitMessageDiv, `Talão com código ${barcode} não encontrado.`, "error");
@@ -377,6 +366,51 @@
       };
 
       await updateTalaoInFirestore(talao.id, updates, exitMessageDiv, barcode);
+    } catch (err) {
+      console.error("Erro na saída:", err);
+      setMessage(exitMessageDiv, "Erro: " + (err.message || "falha"), "error");
+    } finally {
+      busyExit = false;
+      // ✅ garante que o foco fica na SAÍDA
+      safeFocus(barcodeInputExit);
+    }
+  }
+
+  // ===============================
+  // LISTENERS: usar KEYDOWN (tablet)
+  // ===============================
+  if (barcodeInputEntry) {
+    barcodeInputEntry.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        // ✅ impede o tablet de trocar pro próximo campo
+        event.preventDefault();
+        event.stopPropagation();
+        processEntrada();
+      }
     });
   }
+
+  if (barcodeInputExit) {
+    barcodeInputExit.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        event.stopPropagation();
+        processSaida();
+      }
+    });
+  }
+
+  // ✅ Extra: impedir que o ENTER em qualquer lugar "tabule" pra outro input
+  document.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.key === "Enter") {
+        const el = document.activeElement;
+        if (el && (el.id === "barcodeInputEntry" || el.id === "barcodeInputExit")) {
+          e.preventDefault();
+        }
+      }
+    },
+    true
+  );
 })();
