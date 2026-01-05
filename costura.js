@@ -1,5 +1,7 @@
 // ===============================
-// COSTURA.JS (Firebase compat)
+// COSTURA.JS (Firebase compat + melhorias)
+// 1) Força Long Polling no Firestore (tablet/rede teimosa)
+// 2) Mostra erro na tela quando onSnapshot falhar
 // ===============================
 
 (function () {
@@ -23,15 +25,15 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
+  // ✅ (MELHORIA 1) Força Long Polling (evita travar em tablets/redes)
   try {
-  db.settings({
-    experimentalForceLongPolling: true,
-    experimentalAutoDetectLongPolling: true
-  });
-} catch (e) {
-  console.warn("Firestore settings warning:", e);
-}
-  
+    db.settings({
+      experimentalForceLongPolling: true,
+      experimentalAutoDetectLongPolling: true
+    });
+  } catch (e) {
+    console.warn("Firestore settings warning:", e);
+  }
 
   // --- Elementos ---
   const menuNav = document.getElementById("menuNav");
@@ -159,7 +161,9 @@
   function listenToTaloes() {
     if (typeof unsubscribeTaloes === "function") unsubscribeTaloes();
 
-    unsubscribeTaloes = db.collection("taloes").onSnapshot(
+    const taloesColRef = db.collection("taloes");
+
+    unsubscribeTaloes = taloesColRef.onSnapshot(
       (snapshot) => {
         allTaloes = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 
@@ -169,14 +173,17 @@
 
           if (barcodeInputEntry) barcodeInputEntry.disabled = false;
           if (barcodeInputExit) barcodeInputExit.disabled = false;
+
           safeFocus(barcodeInputEntry);
 
           console.log("Talões carregados:", allTaloes.length);
         }
       },
       (error) => {
-        console.error("Erro ao escutar talões:", error);
-        showLoading("Erro ao carregar talões. Confira internet e data/hora do tablet.");
+        console.error("Erro ao carregar talões:", error);
+
+        // ✅ (MELHORIA 2) Mostrar erro na tela
+        showLoading("Erro ao carregar talões: " + (error && error.message ? error.message : "ver console"));
       }
     );
   }
@@ -281,7 +288,6 @@
         return;
       }
 
-      // tentativa errada
       if (talao.idAtelieResponsavel && talao.idAtelieResponsavel !== currentUserName) {
         try {
           await updateTalaoInFirestore(
@@ -375,4 +381,3 @@
     });
   }
 })();
-
