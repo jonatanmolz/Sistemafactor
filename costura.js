@@ -1,11 +1,11 @@
 // ===============================
-// COSTURA.JS (Firebase compat + melhorias)
-// 1) Força Long Polling no Firestore (tablet/rede teimosa)
-// 2) Mostra erro na tela quando onSnapshot falhar
+// COSTURA.JS (Firebase compat)
+// - Long Polling
+// - Erro aparece na tela
+// - NÃO carrega todos os talões: busca 1 por código (muito mais leve)
 // ===============================
 
 (function () {
-  // --- Firebase config ---
   const firebaseConfig = {
     apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
     authDomain: "sistemataloes.firebaseapp.com",
@@ -15,7 +15,7 @@
     appId: "default-app-id"
   };
 
-  // --- Init Firebase ---
+  // Init Firebase
   try {
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   } catch (e) {
@@ -25,7 +25,7 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // ✅ (MELHORIA 1) Força Long Polling (evita travar em tablets/redes)
+  // ✅ (MELHORIA 1) Long Polling (ajuda em tablets/redes)
   try {
     db.settings({
       experimentalForceLongPolling: true,
@@ -35,7 +35,7 @@
     console.warn("Firestore settings warning:", e);
   }
 
-  // --- Elementos ---
+  // Elementos
   const menuNav = document.getElementById("menuNav");
   const userNameDisplay = document.getElementById("userNameDisplay");
   const userNivelDisplay = document.getElementById("userNivelDisplay");
@@ -49,16 +49,14 @@
   const lastScannedExitList = document.getElementById("lastScannedExitList");
   const loadingMessageDiv = document.getElementById("loadingMessage");
 
-  // --- Estado ---
-  let allTaloes = [];
+  // Estado
   let currentUserName = "";
   const lastEntries = [];
   const lastExits = [];
   const MAX_LAST_SCANNED = 5;
-  let isDataLoaded = false;
-  let unsubscribeTaloes = null;
+  let isReady = false; // fica true depois que autenticar e validar permissões
 
-  // --- Níveis ---
+  // Níveis
   const nivelNomes = {
     "01": "Cadastro",
     "02": "Corte",
@@ -71,32 +69,26 @@
 
   const pages = [
     { name: "Index", href: "index.html", levels: ["01", "02", "03", "04", "05", "06", "07"] },
-
     { name: "Cadastro Usuarios", href: "cadastroUsuarios.html", levels: ["07"] },
     { name: "Cadastro Talões", href: "cadastroTaloes.html", levels: ["01", "05", "07"] },
-
     { name: "Romaneio", href: "romaneio.html", levels: ["05", "07"] },
     { name: "Excluir Dados", href: "excluirDados.html", levels: ["05", "07"] },
     { name: "Registro em Massa", href: "registroEmMassa.html", levels: ["07"] },
-
     { name: "Corte", href: "corte.html", levels: ["02", "07"] },
     { name: "Relatório Erros", href: "relatorioerros.html", levels: ["02", "04", "07"] },
-
     { name: "Resumo", href: "resumo.html", levels: ["04", "06", "07"] },
     { name: "Cronograma", href: "cronograma.html", levels: ["01", "02", "04", "05", "06", "07"] },
     { name: "Cronograma Mobile", href: "cronogramamobile.html", levels: ["06", "07"] },
     { name: "Relatório Master", href: "relatorioMaster.html", levels: ["05", "07"] },
-
     { name: "Costura", href: "costura.html", levels: ["03", "07"] },
     { name: "Relatorio Atelier", href: "relatorioAtelier.html", levels: ["03", "07"] },
     { name: "Atlier Celular", href: "relatoriomobile.html", levels: ["03", "07"] },
-
     { name: "Distribuição", href: "distribuicao.html", levels: ["04", "07"] },
     { name: "Talonagem", href: "talonagem.html", levels: ["04", "07"] },
     { name: "Montagem", href: "montagem.html", levels: ["05", "07"] }
   ];
 
-  // --- UI helpers ---
+  // UI helpers
   function showLoading(msg) {
     if (!loadingMessageDiv) return;
     loadingMessageDiv.style.display = "block";
@@ -157,44 +149,27 @@
     });
   }
 
-  // --- Listener Talões ---
-  function listenToTaloes() {
-    if (typeof unsubscribeTaloes === "function") unsubscribeTaloes();
+  // ✅ Busca 1 talão por código (não pesa o tablet)
+  async function findTalaoByBarcode(barcode) {
+    // tente com o campo principal
+    const q = await db
+      .collection("taloes")
+      .where("codigoBarrasIdentificador", "==", barcode)
+      .limit(1)
+      .get();
 
-    const taloesColRef = db.collection("taloes");
-
-    unsubscribeTaloes = taloesColRef.onSnapshot(
-      (snapshot) => {
-        allTaloes = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-
-        if (!isDataLoaded) {
-          isDataLoaded = true;
-          hideLoading();
-
-          if (barcodeInputEntry) barcodeInputEntry.disabled = false;
-          if (barcodeInputExit) barcodeInputExit.disabled = false;
-
-          safeFocus(barcodeInputEntry);
-
-          console.log("Talões carregados:", allTaloes.length);
-        }
-      },
-      (error) => {
-        console.error("Erro ao carregar talões:", error);
-
-        // ✅ (MELHORIA 2) Mostrar erro na tela
-        showLoading("Erro ao carregar talões: " + (error && error.message ? error.message : "ver console"));
-      }
-    );
+    if (!q.empty) {
+      const docSnap = q.docs[0];
+      return { id: docSnap.id, ...docSnap.data() };
+    }
+    return null;
   }
 
   async function updateTalaoInFirestore(talaoId, updates, messageDiv, barcode) {
     try {
       await db.collection("taloes").doc(talaoId).update(updates);
 
-      if (messageDiv) {
-        setMessage(messageDiv, "Sucesso!", "success");
-      }
+      if (messageDiv) setMessage(messageDiv, "Sucesso!", "success");
 
       if (messageDiv === entryMessageDiv) addLastScanned(lastEntries, barcode, lastScannedEntryList);
       if (messageDiv === exitMessageDiv) addLastScanned(lastExits, barcode, lastScannedExitList);
@@ -210,7 +185,7 @@
     }
   }
 
-  // --- Boot ---
+  // Boot
   showLoading("Carregando dados...");
 
   auth.onAuthStateChanged(async (user) => {
@@ -242,10 +217,18 @@
       }
 
       generateMenu(nivelAcesso, currentUserName);
-      listenToTaloes();
+
+      // ✅ agora não precisamos carregar "taloes" inteiro
+      isReady = true;
+      hideLoading();
+      if (barcodeInputEntry) barcodeInputEntry.disabled = false;
+      if (barcodeInputExit) barcodeInputExit.disabled = false;
+      safeFocus(barcodeInputEntry);
     } catch (err) {
       console.error("Erro no login/carregamento:", err);
-      showLoading("Erro ao carregar. Verifique internet e data/hora do tablet e tente novamente.");
+
+      // ✅ (MELHORIA 2) erro visível na tela
+      showLoading("Erro ao iniciar: " + (err && err.message ? err.message : "ver console"));
     }
   });
 
@@ -268,8 +251,8 @@
       if (event.key !== "Enter") return;
       event.preventDefault();
 
-      if (!isDataLoaded) {
-        setMessage(entryMessageDiv, "Aguarde o carregamento dos dados.", "error");
+      if (!isReady) {
+        setMessage(entryMessageDiv, "Aguarde o carregamento.", "error");
         return;
       }
 
@@ -282,7 +265,15 @@
         return;
       }
 
-      const talao = allTaloes.find((t) => t.codigoBarrasIdentificador === barcode);
+      let talao;
+      try {
+        talao = await findTalaoByBarcode(barcode);
+      } catch (err) {
+        console.error("Erro na busca do talão:", err);
+        setMessage(entryMessageDiv, "Erro ao buscar talão: " + (err.message || ""), "error");
+        return;
+      }
+
       if (!talao) {
         setMessage(entryMessageDiv, `Talão com código ${barcode} não encontrado.`, "error");
         return;
@@ -333,8 +324,8 @@
       if (event.key !== "Enter") return;
       event.preventDefault();
 
-      if (!isDataLoaded) {
-        setMessage(exitMessageDiv, "Aguarde o carregamento dos dados.", "error");
+      if (!isReady) {
+        setMessage(exitMessageDiv, "Aguarde o carregamento.", "error");
         return;
       }
 
@@ -347,7 +338,15 @@
         return;
       }
 
-      const talao = allTaloes.find((t) => t.codigoBarrasIdentificador === barcode);
+      let talao;
+      try {
+        talao = await findTalaoByBarcode(barcode);
+      } catch (err) {
+        console.error("Erro na busca do talão:", err);
+        setMessage(exitMessageDiv, "Erro ao buscar talão: " + (err.message || ""), "error");
+        return;
+      }
+
       if (!talao) {
         setMessage(exitMessageDiv, `Talão com código ${barcode} não encontrado.`, "error");
         return;
