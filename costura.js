@@ -1,9 +1,10 @@
 // ===============================
 // COSTURA.JS (Firebase compat)
-// - Long Polling
-// - Erro aparece na tela
+// - Long Polling (tablets/redes)
+// - Mostra erro na tela
 // - Busca 1 talão por código (leve)
-// - ENTER corrigido em tablets (usa keydown e impede "próximo campo")
+// - Scanner robusto: ENTER/TAB/NEXT
+// - MODO: mantém foco em ENTRADA (até você tocar em SAÍDA)
 // ===============================
 
 (function () {
@@ -16,6 +17,7 @@
     appId: "default-app-id"
   };
 
+  // Init Firebase
   try {
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   } catch (e) {
@@ -25,7 +27,7 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  // ✅ Long Polling
+  // ✅ Long Polling (ajuda em tablet/rede que trava canal padrão)
   try {
     db.settings({
       experimentalForceLongPolling: true,
@@ -54,13 +56,15 @@
   const lastEntries = [];
   const lastExits = [];
   const MAX_LAST_SCANNED = 5;
-  let isReady = false;
 
-  // 🔒 trava para não processar 2 vezes se o teclado disparar eventos repetidos
+  let isReady = false;
   let busyEntry = false;
   let busyExit = false;
 
-  // Níveis
+  // 🔁 Modo de operação (padrão: entrada)
+  let activeMode = "entry"; // "entry" | "exit"
+
+  // Níveis e menu
   const nivelNomes = {
     "01": "Cadastro",
     "02": "Corte",
@@ -73,20 +77,26 @@
 
   const pages = [
     { name: "Index", href: "index.html", levels: ["01", "02", "03", "04", "05", "06", "07"] },
+
     { name: "Cadastro Usuarios", href: "cadastroUsuarios.html", levels: ["07"] },
     { name: "Cadastro Talões", href: "cadastroTaloes.html", levels: ["01", "05", "07"] },
+
     { name: "Romaneio", href: "romaneio.html", levels: ["05", "07"] },
     { name: "Excluir Dados", href: "excluirDados.html", levels: ["05", "07"] },
     { name: "Registro em Massa", href: "registroEmMassa.html", levels: ["07"] },
+
     { name: "Corte", href: "corte.html", levels: ["02", "07"] },
     { name: "Relatório Erros", href: "relatorioerros.html", levels: ["02", "04", "07"] },
+
     { name: "Resumo", href: "resumo.html", levels: ["04", "06", "07"] },
     { name: "Cronograma", href: "cronograma.html", levels: ["01", "02", "04", "05", "06", "07"] },
     { name: "Cronograma Mobile", href: "cronogramamobile.html", levels: ["06", "07"] },
     { name: "Relatório Master", href: "relatorioMaster.html", levels: ["05", "07"] },
+
     { name: "Costura", href: "costura.html", levels: ["03", "07"] },
     { name: "Relatorio Atelier", href: "relatorioAtelier.html", levels: ["03", "07"] },
     { name: "Atlier Celular", href: "relatoriomobile.html", levels: ["03", "07"] },
+
     { name: "Distribuição", href: "distribuicao.html", levels: ["04", "07"] },
     { name: "Talonagem", href: "talonagem.html", levels: ["04", "07"] },
     { name: "Montagem", href: "montagem.html", levels: ["05", "07"] }
@@ -126,6 +136,9 @@
 
   function normalizeBarcode(raw) {
     let barcode = (raw || "").trim();
+    // remove \n/\r que alguns leitores jogam no final
+    barcode = barcode.replace(/[\r\n]+/g, "");
+
     if (barcode.length > 0 && barcode.charAt(0) !== "1") {
       barcode = "1" + barcode.substring(1);
     }
@@ -153,17 +166,19 @@
     });
   }
 
-  // Busca 1 talão por código
+  // -------------------------------
+  // Firestore: busca 1 talão por código
+  // -------------------------------
   async function findTalaoByBarcode(barcode) {
-    const q = await db
+    const snap = await db
       .collection("taloes")
       .where("codigoBarrasIdentificador", "==", barcode)
       .limit(1)
       .get();
 
-    if (!q.empty) {
-      const docSnap = q.docs[0];
-      return { id: docSnap.id, ...docSnap.data() };
+    if (!snap.empty) {
+      const d = snap.docs[0];
+      return { id: d.id, ...d.data() };
     }
     return null;
   }
@@ -179,68 +194,9 @@
     if (messageDiv) setTimeout(() => setMessage(messageDiv, "", ""), 2500);
   }
 
-  // Boot
-  showLoading("Carregando dados...");
-
-  auth.onAuthStateChanged(async (user) => {
-    try {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
-
-      const email = user.email || "";
-      const userSnap = await db.collection("Usuario").doc(email).get();
-
-      if (!userSnap.exists) {
-        alert("Dados do usuário não encontrados. Faça login novamente.");
-        await auth.signOut();
-        window.location.href = "login.html";
-        return;
-      }
-
-      const userData = userSnap.data() || {};
-      const nivelAcesso = userData.nivelAcesso;
-      currentUserName = userData.Nome || "";
-
-      const allowed = pages.find((p) => p.href === "costura.html" && p.levels.includes(nivelAcesso));
-      if (!allowed) {
-        alert("Você não tem permissão para acessar esta página.");
-        window.location.href = "index.html";
-        return;
-      }
-
-      generateMenu(nivelAcesso, currentUserName);
-
-      isReady = true;
-      hideLoading();
-
-      if (barcodeInputEntry) barcodeInputEntry.disabled = false;
-      if (barcodeInputExit) barcodeInputExit.disabled = false;
-
-      safeFocus(barcodeInputEntry);
-    } catch (err) {
-      console.error("Erro no login/carregamento:", err);
-      showLoading("Erro ao iniciar: " + (err && err.message ? err.message : "ver console"));
-    }
-  });
-
-  // Logout
-  if (logoutButton) {
-    logoutButton.addEventListener("click", async () => {
-      try {
-        await auth.signOut();
-        window.location.href = "login.html";
-      } catch (error) {
-        console.error("Erro ao fazer logout:", error);
-        alert("Erro ao fazer logout. Tente novamente.");
-      }
-    });
-  }
-
-  // ===============================
-  // PROCESSADORES (separados)
-  // ===============================
+  // -------------------------------
+  // Processadores
+  // -------------------------------
   async function processEntrada() {
     if (busyEntry) return;
     busyEntry = true;
@@ -251,7 +207,7 @@
         return;
       }
 
-      let barcode = normalizeBarcode(barcodeInputEntry.value);
+      const barcode = normalizeBarcode(barcodeInputEntry.value);
       barcodeInputEntry.value = "";
 
       setMessage(entryMessageDiv, "Processando...", "");
@@ -261,13 +217,14 @@
         return;
       }
 
-      let talao = await findTalaoByBarcode(barcode);
+      const talao = await findTalaoByBarcode(barcode);
 
       if (!talao) {
         setMessage(entryMessageDiv, `Talão com código ${barcode} não encontrado.`, "error");
         return;
       }
 
+      // tentativa em ateliê errado
       if (talao.idAtelieResponsavel && talao.idAtelieResponsavel !== currentUserName) {
         try {
           await updateTalaoInFirestore(
@@ -309,8 +266,8 @@
       setMessage(entryMessageDiv, "Erro: " + (err.message || "falha"), "error");
     } finally {
       busyEntry = false;
-      // ✅ garante que o foco fica na ENTRADA
-      safeFocus(barcodeInputEntry);
+      // ✅ Sempre volta o foco para ENTRADA quando estiver em modo entrada
+      if (activeMode === "entry") safeFocus(barcodeInputEntry);
     }
   }
 
@@ -324,7 +281,7 @@
         return;
       }
 
-      let barcode = normalizeBarcode(barcodeInputExit.value);
+      const barcode = normalizeBarcode(barcodeInputExit.value);
       barcodeInputExit.value = "";
 
       setMessage(exitMessageDiv, "Processando...", "");
@@ -334,7 +291,7 @@
         return;
       }
 
-      let talao = await findTalaoByBarcode(barcode);
+      const talao = await findTalaoByBarcode(barcode);
 
       if (!talao) {
         setMessage(exitMessageDiv, `Talão com código ${barcode} não encontrado.`, "error");
@@ -371,46 +328,143 @@
       setMessage(exitMessageDiv, "Erro: " + (err.message || "falha"), "error");
     } finally {
       busyExit = false;
-      // ✅ garante que o foco fica na SAÍDA
-      safeFocus(barcodeInputExit);
+      // mantém foco em SAÍDA se estiver no modo saída
+      if (activeMode === "exit") safeFocus(barcodeInputExit);
     }
   }
 
-  // ===============================
-  // LISTENERS: usar KEYDOWN (tablet)
-  // ===============================
-  if (barcodeInputEntry) {
-    barcodeInputEntry.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        // ✅ impede o tablet de trocar pro próximo campo
-        event.preventDefault();
-        event.stopPropagation();
-        processEntrada();
-      }
-    });
+  // -------------------------------
+  // Scanner robusto (Enter/Tab/Next)
+  // -------------------------------
+  function isScannerSubmitKey(e) {
+    const key = e.key;
+    const code = e.keyCode || e.which;
+
+    // Enter
+    if (key === "Enter" || code === 13) return true;
+    // Tab (alguns scanners usam TAB pra "submit")
+    if (key === "Tab" || code === 9) return true;
+    // "Next" (alguns Androids)
+    if (key === "Next") return true;
+
+    return false;
   }
 
-  if (barcodeInputExit) {
-    barcodeInputExit.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        event.stopPropagation();
-        processSaida();
-      }
-    });
-  }
+  function attachScannerInput(inputEl, processFn, modeName) {
+    if (!inputEl) return;
 
-  // ✅ Extra: impedir que o ENTER em qualquer lugar "tabule" pra outro input
-  document.addEventListener(
-    "keydown",
-    (e) => {
-      if (e.key === "Enter") {
-        const el = document.activeElement;
-        if (el && (el.id === "barcodeInputEntry" || el.id === "barcodeInputExit")) {
+    // Quando tocar/clicar no input, troca o modo
+    inputEl.addEventListener("focus", () => {
+      activeMode = modeName;
+    });
+
+    // Captura teclas do scanner/leitor
+    inputEl.addEventListener(
+      "keydown",
+      (e) => {
+        if (isScannerSubmitKey(e)) {
+          // ✅ impede o "pular para o próximo campo"
           e.preventDefault();
+          e.stopPropagation();
+          processFn();
+          return false;
         }
+      },
+      true
+    );
+
+    // Se o leitor colocar \n no valor
+    inputEl.addEventListener("input", () => {
+      const v = inputEl.value || "";
+      if (v.includes("\n") || v.includes("\r")) {
+        inputEl.value = v.replace(/[\r\n]+/g, "");
+        processFn();
       }
-    },
-    true
-  );
+    });
+
+    // GARANTIA: se o teclado forçar blur, processa e volta foco conforme modo
+    inputEl.addEventListener("blur", () => {
+      setTimeout(() => {
+        // só tenta processar se tem algo digitado
+        const v = (inputEl.value || "").trim();
+        if (v.length > 0) processFn();
+
+        // ✅ volta foco pro input do modo ativo
+        if (activeMode === "entry") safeFocus(barcodeInputEntry);
+        if (activeMode === "exit") safeFocus(barcodeInputExit);
+      }, 30);
+    });
+  }
+
+  // Atacha listeners
+  attachScannerInput(barcodeInputEntry, processEntrada, "entry");
+  attachScannerInput(barcodeInputExit, processSaida, "exit");
+
+  // Força sempre o modo entrada ao abrir
+  function setEntryMode() {
+    activeMode = "entry";
+    safeFocus(barcodeInputEntry);
+  }
+
+  // -------------------------------
+  // Boot/Auth
+  // -------------------------------
+  showLoading("Carregando dados...");
+
+  auth.onAuthStateChanged(async (user) => {
+    try {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const email = user.email || "";
+      const userSnap = await db.collection("Usuario").doc(email).get();
+
+      if (!userSnap.exists) {
+        alert("Dados do usuário não encontrados. Faça login novamente.");
+        await auth.signOut();
+        window.location.href = "login.html";
+        return;
+      }
+
+      const userData = userSnap.data() || {};
+      const nivelAcesso = userData.nivelAcesso;
+      currentUserName = userData.Nome || "";
+
+      const allowed = pages.find((p) => p.href === "costura.html" && p.levels.includes(nivelAcesso));
+      if (!allowed) {
+        alert("Você não tem permissão para acessar esta página.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      generateMenu(nivelAcesso, currentUserName);
+
+      isReady = true;
+      hideLoading();
+
+      if (barcodeInputEntry) barcodeInputEntry.disabled = false;
+      if (barcodeInputExit) barcodeInputExit.disabled = false;
+
+      setEntryMode();
+    } catch (err) {
+      console.error("Erro no login/carregamento:", err);
+      // erro visível
+      showLoading("Erro ao iniciar: " + (err && err.message ? err.message : "ver console"));
+    }
+  });
+
+  // Logout
+  if (logoutButton) {
+    logoutButton.addEventListener("click", async () => {
+      try {
+        await auth.signOut();
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("Erro ao fazer logout:", error);
+        alert("Erro ao fazer logout. Tente novamente.");
+      }
+    });
+  }
 })();
