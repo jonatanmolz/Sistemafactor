@@ -23,6 +23,16 @@
   const auth = firebase.auth();
   const db = firebase.firestore();
 
+  try {
+  db.settings({
+    experimentalForceLongPolling: true,
+    experimentalAutoDetectLongPolling: true
+  });
+} catch (e) {
+  console.warn("Firestore settings warning:", e);
+}
+  
+
   // --- Elementos ---
   const menuNav = document.getElementById("menuNav");
   const userNameDisplay = document.getElementById("userNameDisplay");
@@ -365,3 +375,4 @@
     });
   }
 })();
+
