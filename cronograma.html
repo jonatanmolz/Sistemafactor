@@ -305,8 +305,8 @@
             <input type="checkbox" id="hideAmostrasCheckbox" checked>
             Não exibir amostras
           </label>
-          <button type="button" id="copyRemessasButton" class="btn btn-secondary">Monatgem whtas</button>
-          <button type="button" id="copyCosturaButton" class="btn btn-secondary">Costura whats</button>
+          <button type="button" id="copyRemessasButton" class="btn btn-secondary">Montagem Whats</button>
+          <button type="button" id="copyCosturaButton" class="btn btn-secondary">Costura Whats</button>
         </div>
       </div>
         <div id="lineFilterContainer" class="filters-container" style="display:none; justify-content: flex-start; max-width: 1200px; margin-bottom: 14px; align-items: flex-start;">
@@ -490,6 +490,23 @@
     let selectedRemessas = new Set();  // Set<remessaNumber>
     let lastDisplayedTaloes = [];
     let currentQuickFilterMode = '';
+
+
+    function getQuickFilterLabel(mode) {
+      const labels = {
+        'exp-hoje': 'Exportação de hoje',
+        'exp-segunda': 'Exportação de Segunda',
+        'exp-quinta': 'Exportação de Quinta',
+        'exp-atraso': 'Exportações em atraso',
+        'fechamento-semana': 'Fechamento dessa semana',
+        'fechamento-proxima-semana': 'Fechamento da próxima semana',
+        'fechamento-semana-passada': 'Semana passada',
+        'fechamento-mes-atual': 'Fechamento desse mês',
+        'fechamento-mes-passado': 'Fechamento mês passado',
+        'fechamento-proximo-mes': 'Fechamento próximo mês'
+      };
+      return labels[mode] || '';
+    }
 
 
     // Tipos de Usuarios e niveis
@@ -1337,9 +1354,11 @@
 
     function buildCosturaTextFromTaloes(taloes) {
       const pendentes = (taloes || []).filter(t => !hasDate(t.dataEntradaDistribuicao));
+      const quickFilterLabel = getQuickFilterLabel(currentQuickFilterMode);
+      const titulo = quickFilterLabel ? `Falta costura (${quickFilterLabel})` : 'Falta costura';
 
       if (!pendentes.length) {
-        return `Falta costura
+        return `${titulo}
 Nenhum talão pendente de entrada na distribuição no filtro atual.`;
       }
 
@@ -1368,7 +1387,7 @@ Nenhum talão pendente de entrada na distribuição no filtro atual.`;
         atelierModeloMap.get(atelier).set(modelKey, atual + pares);
       });
 
-      const partes = ['Falta costura'];
+      const partes = [titulo];
 
       Array.from(remessasMap.values())
         .sort((a,b) => {
@@ -1397,7 +1416,6 @@ Nenhum talão pendente de entrada na distribuição no filtro atual.`;
               partes.push(`${modeloKey} - ${total} pares`);
             });
         });
-
       while (partes.length && partes[partes.length-1] === '') partes.pop();
       return partes.join('\n');
     }
