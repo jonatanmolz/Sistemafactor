@@ -1376,16 +1376,16 @@ Nenhum talão pendente de entrada na distribuição no filtro atual.`;
           return a.remessa.localeCompare(b.remessa, undefined, {numeric:true});
         })
       .forEach(grupo => {
-          partes.push(`Remessa - ${grupo.remessa} - ${grupo.linha}`);
+          partes.push(`R. - ${grupo.remessa} - ${grupo.linha}`);
           grupo.itens
             .sort((a,b) => (parseInt(a.talao,10)||0) - (parseInt(b.talao,10)||0))
             .forEach(item => {
-              partes.push(`T.${item.talao} - ${grupo.linha || '.'}.${item.modelo || '-'} - ${item.pares} pares -${item.atelier}`);
+              partes.push(`T.${item.talao} - ${item.atelier}`);
             });
           partes.push('');
         });
 
-      partes.push('Total de pares por modelo');
+      partes.push('Total de pares');
 
       Array.from(atelierModeloMap.entries())
         .sort((a,b) => a[0].localeCompare(b[0]))
@@ -1396,7 +1396,6 @@ Nenhum talão pendente de entrada na distribuição no filtro atual.`;
             .forEach(([modeloKey, total]) => {
               partes.push(`${modeloKey} - ${total} pares`);
             });
-          partes.push('');
         });
 
       while (partes.length && partes[partes.length-1] === '') partes.pop();
