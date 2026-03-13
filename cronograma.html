@@ -218,6 +218,25 @@
 
     @media (max-width:768px){.filters-container{justify-content:stretch}.form-group{flex:1}.modal-content{width:98%;max-width:98%}.modal-body-table{font-size:.74em}}
     .modal-body-table tr:nth-child(even) {background-color: #f2f2f2;}
+
+    .nav-collapsed{display:none}
+    #menuToggleButton{background:#6c757d;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;margin-right:8px}
+    #menuToggleButton:hover{background:#5a6268}
+    .header-actions{display:flex;gap:8px;align-items:center}
+    .dist-montagem-filter-box{background:var(--card);padding:10px;border-radius:10px;border:1px solid var(--bd);display:flex;flex-direction:column;gap:6px;min-width:280px}
+    .dist-montagem-filter-box label{margin-bottom:0}
+    .dist-montagem-checks{display:flex;flex-wrap:wrap;gap:10px}
+    .dist-montagem-checks label{display:flex;align-items:center;gap:6px;font-weight:normal}
+    .dist-montagem-summary{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+    .dist-montagem-chip{border:1px solid #cfcfcf;background:#fff;border-radius:999px;padding:6px 10px;font-size:.78em;cursor:pointer;transition:all .2s ease;color:#333}
+    .dist-montagem-chip:hover{background:#f0f0f0}
+    .dist-montagem-chip.active{background:#345fec;color:#fff;border-color:#345fec}
+    .quick-filters-wrapper{position:relative;display:flex;align-items:flex-end}
+    .quick-filters-panel{display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:20;min-width:280px;background:#fff;border:1px solid var(--bd);border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.12);padding:10px}
+    .quick-filters-panel.open{display:block}
+    .quick-filters-title{font-size:.9em;font-weight:700;color:var(--ink-2);margin-bottom:8px}
+    .quick-filters-list{display:flex;flex-direction:column;gap:8px}
+    .quick-filter-btn{width:100%;justify-content:flex-start;text-align:left}
   </style>
 </head>
 <body>
@@ -227,9 +246,9 @@
       <span id="userNameDisplay">Carregando...</span>
       <span id="userNivelDisplay"></span>
     </div>
-    <div><button id="logoutButton">Sair</button></div>
+    <div class="header-actions"><button id="menuToggleButton">Menu</button><button id="logoutButton">Sair</button></div>
   </header>
-  <nav><ul id="menuNav"></ul></nav>
+  <nav id="mainNav" class="nav-collapsed"><ul id="menuNav"></ul></nav>
   <div class="main-content">
     <div class="filters-container">
       <div class="form-group"><label for="filterLinha">Linha:</label><input type="text" id="filterLinha" placeholder="Ex: 100" /></div>
@@ -257,12 +276,48 @@
       </div>
       <div class="form-group"><label for="filterDataEntregaInicio">Data de Entrega (Início):</label><input type="date" id="filterDataEntregaInicio" /></div>
       <div class="form-group"><label for="filterDataEntregaFim">Data de Entrega (Fim):</label><input type="date" id="filterDataEntregaFim" /></div>
+      <div class="dist-montagem-filter-box">
+        <label>Dist. → Montagem:</label>
+        <div id="filterDistMontagemChecks" class="dist-montagem-checks">
+          <label><input type="checkbox" value="completas"> Completas</label>
+          <label><input type="checkbox" value="falta1"> Falta 1 talão</label>
+          <label><input type="checkbox" value="falta2"> Falta 2 talões</label>
+          <label><input type="checkbox" value="falta3"> Falta 3 talões</label>
+        </div>
+        <div id="distMontagemSummary" class="dist-montagem-summary"></div>
+      </div>
+      <div class="quick-filters-wrapper">
+        <button type="button" id="toggleQuickFiltersButton" class="btn btn-secondary">Filtros rápidos</button>
+        <div id="quickFiltersPanel" class="quick-filters-panel">
+          <div class="quick-filters-title">Atalhos de filtro</div>
+          <div class="quick-filters-list">
+            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-hoje">Exportação de hoje</button>
+            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-segunda">Exportação de Segunda</button>
+            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-quinta">Exportação de Quinta</button>
+            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-semana">Fechamento dessa semana</button>
+            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-proxima-semana">Fechamento da próxima semana</button>
+            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-semana-passada">Semana passada</button>
+            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-mes-atual">Fechamento desse mês</button>
+            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-mes-passado">Fechamento mês passado</button>
+            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-proximo-mes">Fechamento próximo mês</button>
+          </div>
+        </div>
+      </div>
       <button class="btn btn-primary" id="searchButton">Gerar Relatório</button>
       <button class="btn btn-secondary" id="clearFiltersButton" title="Limpar filtros">Limpar</button>
       
       </div>
     <div class="container">
-      <h2>Relatório de Cronograma</h2>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+        <h2 style="margin:0;">Relatório de Cronograma</h2>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:600;cursor:pointer;">
+            <input type="checkbox" id="hideAmostrasCheckbox" checked>
+            Não exibir amostras
+          </label>
+          <button type="button" id="copyRemessasButton" class="btn btn-secondary">Copiar remessas</button>
+        </div>
+      </div>
         <div id="lineFilterContainer" class="filters-container" style="display:none; justify-content: flex-start; max-width: 1200px; margin-bottom: 14px; align-items: flex-start;">
             <h4 style="margin: 5px 10px 0 0; color: var(--ink-2); font-size: 1em;">Filtrar Linhas:</h4>
             <div id="lineCheckboxes" class="column-checkboxes">
@@ -373,7 +428,7 @@
     const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
 
     // === DOM ===
-    const menuNav=document.getElementById('menuNav'), userNameDisplay=document.getElementById('userNameDisplay'), userNivelDisplay=document.getElementById('userNivelDisplay'), logoutButton=document.getElementById('logoutButton');
+    const menuNav=document.getElementById('menuNav'), mainNav=document.getElementById('mainNav'), menuToggleButton=document.getElementById('menuToggleButton'), userNameDisplay=document.getElementById('userNameDisplay'), userNivelDisplay=document.getElementById('userNivelDisplay'), logoutButton=document.getElementById('logoutButton');
     const filterLinha=document.getElementById('filterLinha'), filterRemessa=document.getElementById('filterRemessa'), filterDataCorteInicio=document.getElementById('filterDataCorteInicio'), filterDataCorteFim=document.getElementById('filterDataCorteFim'), filterTipoCliente=document.getElementById('filterTipoCliente'), filterAtelie=document.getElementById('filterAtelie'), filterDataEntregaInicio=document.getElementById('filterDataEntregaInicio'), filterDataEntregaFim=document.getElementById('filterDataEntregaFim');
     const searchButton=document.getElementById('searchButton'), clearFiltersButton=document.getElementById('clearFiltersButton');
     
@@ -397,12 +452,19 @@
     const remessaFilterTableBody = document.getElementById('remessaFilterTableBody');
     const selectAllRemessas = document.getElementById('selectAllRemessas');
     const saveRemessaSelectionButton = document.getElementById('saveRemessaSelectionButton');
+    const filterDistMontagemChecks = document.getElementById('filterDistMontagemChecks');
+    const distMontagemSummary = document.getElementById('distMontagemSummary');
+    const toggleQuickFiltersButton = document.getElementById('toggleQuickFiltersButton');
+    const quickFiltersPanel = document.getElementById('quickFiltersPanel');
+    const hideAmostrasCheckbox = document.getElementById('hideAmostrasCheckbox');
+    const copyRemessasButton = document.getElementById('copyRemessasButton');
     
     // Variável para a tabela de detalhes
     let modalTableBody = null; 
     
     let allFetchedTaloes=[];
-    let currentStageFilter = null; 
+    let currentStageFilter = null;
+    let currentDistMontagemFilters = new Set(); 
     
     // NOVO: Variáveis de estado para o filtro de Linhas
     let availableLines = new Set();
@@ -412,6 +474,7 @@
     // Map<remessaNumber, {linhas: Set, pares: number, tiposCliente: Set}>
     let availableRemessas = new Map(); 
     let selectedRemessas = new Set();  // Set<remessaNumber>
+    let lastDisplayedTaloes = [];
 
 
     // Tipos de Usuarios e niveis
@@ -472,9 +535,19 @@
         selectRemessasButton.textContent = '0 Selecionadas';
         availableRemessas = new Map();
         selectedRemessas = new Set();
+        lastDisplayedTaloes = [];
     });
     
     searchButton.addEventListener('click', runSearch);
+    if(menuToggleButton && mainNav){ menuToggleButton.addEventListener('click', ()=> mainNav.classList.toggle('nav-collapsed')); }
+    if (toggleQuickFiltersButton && quickFiltersPanel) {
+      toggleQuickFiltersButton.addEventListener('click', (e) => { e.stopPropagation(); quickFiltersPanel.classList.toggle('open'); });
+      document.addEventListener('click', (e) => { if (!quickFiltersPanel.contains(e.target) && e.target !== toggleQuickFiltersButton) quickFiltersPanel.classList.remove('open'); });
+    }
+    document.querySelectorAll('[data-quick-filter]').forEach(btn => btn.addEventListener('click', ()=> applyQuickFilter(btn.dataset.quickFilter)));
+    if(filterDistMontagemChecks){ filterDistMontagemChecks.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.addEventListener('change', ()=>{ currentDistMontagemFilters = new Set(Array.from(filterDistMontagemChecks.querySelectorAll('input[type="checkbox"]:checked')).map(x=>x.value)); if(allFetchedTaloes.length>0) filterAndGenerateReport(); })); }
+    if(hideAmostrasCheckbox){ hideAmostrasCheckbox.addEventListener('change', ()=>{ if(allFetchedTaloes.length>0) filterAndGenerateReport(); }); }
+    if(copyRemessasButton){ copyRemessasButton.addEventListener('click', ()=> copyFechamentoRemessas()); }
 
     // Helpers
     function hasDate(v){ return v!==undefined && v!==null && String(v).trim()!==''; }
@@ -492,12 +565,23 @@
         });
         return grouped;
     }
+
+    function normalizeTipoCliente(tipo) {
+        const t = (tipo || '').trim().toLowerCase();
+        if (t === 'exportacao' || t === 'exportação' || t === 'exportações' || t === 'exportacoes') return 'Exportacao';
+        if (t === 'cliente especial') return 'Cliente especial';
+        if (t === 'mercado interno') return 'Mercado Interno';
+        if (t === 'estoque') return 'Estoque';
+        if (t === 'amostra' || t === 'amostras') return 'Amostra';
+        return tipo || '';
+    }
     
     // NOVO: Função para atualizar o texto do botão do filtro de remessa
     function updateRemessaCountDisplay() {
-        const totalAvailable = availableRemessas.size;
-        // remessaCount.textContent = selectedRemessas.size.toLocaleString(); // Não é mais necessário, usando o texto completo
-        selectRemessasButton.textContent = `Clique para selecionar as remessas`;
+        const totalSelected = selectedRemessas.size;
+        const countEl = document.getElementById('remessaCount');
+        if (countEl) countEl.textContent = `${totalSelected}`;
+        selectRemessasButton.disabled = availableRemessas.size === 0;
     }
 
     // NOVO: Função para coletar e inicializar os dados de remessa para o filtro
@@ -559,7 +643,7 @@
         
         // Se a busca inicial for por um número de remessa (input de texto), o filtro de modal não se aplica, 
         // mas a lista de talões já vem pré-filtrada pelo Firebase (e o filtro de Linhas/Remessas no modal deve refletir isso).
-        
+        filteredTaloes = applyDistMontagemFilter(filteredTaloes);
         return filteredTaloes;
     }
     
@@ -623,12 +707,23 @@
     
     // NOVO: Função para filtrar os dados e gerar o relatório (usada após o search e após a mudança do checkbox)
     function filterAndGenerateReport() {
-        const filteredTaloes = getCurrentFilteredTaloes();
-        
-        // Re-gera o relatório (sumário e tabela) com os dados filtrados
+        let baseTaloes = allFetchedTaloes.filter(t => {
+          if (availableLines.size > 0 && selectedLines.size > 0 && selectedLines.size < availableLines.size && !selectedLines.has(t.linha)) return false;
+          const availableRemessaKeys = Array.from(availableRemessas.keys());
+          if (availableRemessaKeys.length > 0 && selectedRemessas.size > 0 && selectedRemessas.size < availableRemessaKeys.length && !selectedRemessas.has(t.numeroRemessa)) return false;
+          return true;
+        });
+
+        if (hideAmostrasCheckbox && hideAmostrasCheckbox.checked) {
+          baseTaloes = baseTaloes.filter(t => normalizeTipoCliente(t.tipoCliente) !== 'Amostra');
+        }
+
+        renderDistMontagemSummary(baseTaloes);
+        const filteredTaloes = applyDistMontagemFilter(baseTaloes);
+        lastDisplayedTaloes = [...filteredTaloes];
         generateGroupedReport(filteredTaloes);
     }
-    
+
     // NOVO: Função para coletar e formatar os filtros aplicados
     function getAppliedFiltersText() {
         const filters = [];
@@ -679,6 +774,7 @@
              filters.push(`Entrega (Fim): ${formatDateAbreviado(deF)}`);
         }
         
+        if (currentDistMontagemFilters.size > 0) filters.push(`Dist→Montagem: ${Array.from(currentDistMontagemFilters).join(', ')}`);
         if (filters.length === 0) {
             return ""; 
         }
@@ -686,58 +782,66 @@
         return ` Filtros: (${filters.join(' | ')})`;
     }
 
+    function formatLocalISO(dateObj){ const y=dateObj.getFullYear(); const m=String(dateObj.getMonth()+1).padStart(2,'0'); const d=String(dateObj.getDate()).padStart(2,'0'); return `${y}-${m}-${d}`; }
+    function getTodayLocal(){ const now=new Date(); return new Date(now.getFullYear(), now.getMonth(), now.getDate()); }
+    function getNextWeekday(targetWeekday){ const today=getTodayLocal(); const current=today.getDay(); let diff=targetWeekday-current; if(diff<=0) diff+=7; const result=new Date(today); result.setDate(today.getDate()+diff); return result; }
+    function getWeekMonday(dateObj){ const d=new Date(dateObj.getFullYear(),dateObj.getMonth(),dateObj.getDate()); const day=d.getDay(); const diff=day===0?-6:1-day; d.setDate(d.getDate()+diff); return d; }
+    function getWeekFridayFromMonday(monday){ const friday=new Date(monday); friday.setDate(monday.getDate()+4); return friday; }
+    function getMonthStart(dateObj){ return new Date(dateObj.getFullYear(), dateObj.getMonth(), 1); }
+    function getMonthEnd(dateObj){ return new Date(dateObj.getFullYear(), dateObj.getMonth()+1, 0); }
+    function getPreviousMonthDate(dateObj){ return new Date(dateObj.getFullYear(), dateObj.getMonth()-1, 1); }
+    function getNextMonthDate(dateObj){ return new Date(dateObj.getFullYear(), dateObj.getMonth()+1, 1); }
+    function setDateRangeInputs(startDate,endDate){ filterDataEntregaInicio.value=formatLocalISO(startDate); filterDataEntregaFim.value=formatLocalISO(endDate); }
+    function normalizeExportacaoValue(){ const options=Array.from(filterTipoCliente.options).map(o=>o.value); if(options.includes('Exportações')) return 'Exportações'; if(options.includes('Exportacao')) return 'Exportacao'; if(options.includes('Exportação')) return 'Exportação'; return 'Exportacao'; }
+    function resetCronogramaState(clearInputs=false){ allFetchedTaloes=[]; currentStageFilter=null; currentDistMontagemFilters=new Set(); availableLines=new Set(); selectedLines=new Set(); availableRemessas=new Map(); selectedRemessas=new Set(); cronogramaTableBody.innerHTML=''; summaryInfo.innerHTML=''; reportContent.style.display='none'; noData.style.display='block'; noData.textContent='Selecione ao menos um filtro para iniciar a busca.'; lineFilterContainer.style.display='none'; if(lineCheckboxes) lineCheckboxes.innerHTML=''; if(remessaFilterTableBody) remessaFilterTableBody.innerHTML=''; if(selectRemessasButton) selectRemessasButton.disabled=true; if(distMontagemSummary) distMontagemSummary.innerHTML=''; if(filterDistMontagemChecks) filterDistMontagemChecks.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false); document.querySelectorAll('.filter-link.active-filter').forEach(el=>el.classList.remove('active-filter')); updateRemessaCountDisplay(); if(clearInputs){ [filterLinha,filterRemessa,filterDataCorteInicio,filterDataCorteFim,filterDataEntregaInicio,filterDataEntregaFim].forEach(i=>i.value=''); filterTipoCliente.value=''; filterAtelie.value=''; } }
+    
+    function analyzeRemessasDistMontagem(taloes){ const remessas=new Map(); taloes.forEach(t=>{ const remessa=t.numeroRemessa; if(!remessa) return; if(!remessas.has(remessa)) remessas.set(remessa,{totalTaloes:0,distribuicaoFechados:0,montagemAbertos:0,taloesUnicos:new Set()}); const info=remessas.get(remessa); const talhaoKey=`${t.numeroRemessa||''}__${t.numeroTalaoSequencial||t.numeroTalao||t.id||Math.random()}`; if(!info.taloesUnicos.has(talhaoKey)){ info.taloesUnicos.add(talhaoKey); info.totalTaloes+=1; if(hasDate(t.dataEntradaDistribuicao)) info.distribuicaoFechados+=1; if(!hasDate(t.dataEntradaMontagem)) info.montagemAbertos+=1; }}); const resumo={todos:0,completas:0,falta1:0,falta2:0,falta3:0}; const detalhes=new Map(); remessas.forEach((info,remessa)=>{ const faltandoDistribuicao=Math.max(0, info.totalTaloes-info.distribuicaoFechados); const montagemAberta=info.montagemAbertos>0; const distribuicaoCompleta=info.totalTaloes>0 && info.distribuicaoFechados===info.totalTaloes; const categoria={ completas:distribuicaoCompleta&&montagemAberta, falta1:faltandoDistribuicao===1&&montagemAberta, falta2:faltandoDistribuicao===2&&montagemAberta, falta3:faltandoDistribuicao===3&&montagemAberta }; const entraEmAlguma=categoria.completas||categoria.falta1||categoria.falta2||categoria.falta3; if(entraEmAlguma) resumo.todos+=1; if(categoria.completas) resumo.completas+=1; if(categoria.falta1) resumo.falta1+=1; if(categoria.falta2) resumo.falta2+=1; if(categoria.falta3) resumo.falta3+=1; detalhes.set(remessa,{...info,faltandoDistribuicao,montagemAberta,distribuicaoCompleta,...categoria,entraEmAlguma}); }); return {resumo,detalhes}; }
+    function renderDistMontagemSummary(taloes){ if(!distMontagemSummary) return; const {resumo}=analyzeRemessasDistMontagem(taloes); const chips=[{key:'todos',label:`Todas (${resumo.todos})`},{key:'completas',label:`Completas (${resumo.completas})`},{key:'falta1',label:`Falta 1 (${resumo.falta1})`},{key:'falta2',label:`Falta 2 (${resumo.falta2})`},{key:'falta3',label:`Falta 3 (${resumo.falta3})`}]; distMontagemSummary.innerHTML=chips.map(chip=>`<button type="button" class="dist-montagem-chip ${chip.key!=='todos'&&currentDistMontagemFilters.has(chip.key)?'active':''}" data-dist-chip="${chip.key}">${chip.label}</button>`).join(''); distMontagemSummary.querySelectorAll('[data-dist-chip]').forEach(btn=>btn.addEventListener('click',()=>{ const key=btn.dataset.distChip; if(key==='todos'){ currentDistMontagemFilters.clear(); if(filterDistMontagemChecks) filterDistMontagemChecks.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false); } else { const input=filterDistMontagemChecks?.querySelector(`input[value="${key}"]`); if(currentDistMontagemFilters.has(key)){ currentDistMontagemFilters.delete(key); if(input) input.checked=false; } else { currentDistMontagemFilters.add(key); if(input) input.checked=true; } } filterAndGenerateReport(); })); }
+    function applyDistMontagemFilter(taloes){ if(!currentDistMontagemFilters || currentDistMontagemFilters.size===0) return taloes; const {detalhes}=analyzeRemessasDistMontagem(taloes); const remessasPermitidas=new Set(); detalhes.forEach((info,remessa)=>{ if(currentDistMontagemFilters.has('completas')&&info.completas) remessasPermitidas.add(remessa); if(currentDistMontagemFilters.has('falta1')&&info.falta1) remessasPermitidas.add(remessa); if(currentDistMontagemFilters.has('falta2')&&info.falta2) remessasPermitidas.add(remessa); if(currentDistMontagemFilters.has('falta3')&&info.falta3) remessasPermitidas.add(remessa); }); return taloes.filter(t=>remessasPermitidas.has(t.numeroRemessa)); }
+    function applyQuickFilter(type){ const today=getTodayLocal(); filterLinha.value=''; filterRemessa.value=''; filterAtelie.value=''; switch(type){ case 'exp-hoje': filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(today,today); break; case 'exp-segunda': { const d=getNextWeekday(1); filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(d,d); break;} case 'exp-quinta': { const d=getNextWeekday(4); filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(d,d); break;} case 'fechamento-semana': { const m=getWeekMonday(today); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-proxima-semana': { const m=getWeekMonday(today); m.setDate(m.getDate()+7); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-semana-passada': { const m=getWeekMonday(today); m.setDate(m.getDate()-7); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-mes-atual': { const start=getMonthStart(today), end=getMonthEnd(today); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} case 'fechamento-mes-passado': { const base=getPreviousMonthDate(today), start=getMonthStart(base), end=getMonthEnd(base); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} case 'fechamento-proximo-mes': { const base=getNextMonthDate(today), start=getMonthStart(base), end=getMonthEnd(base); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} default: return; } if(quickFiltersPanel) quickFiltersPanel.classList.remove('open'); runSearch(); }
+
 
     // MODIFICADO: Adiciona a lógica de renderização e filtro de linhas após a busca
     async function runSearch(){
-      loading.style.display='block'; noData.style.display='none'; reportContent.style.display='none'; cronogramaTableBody.innerHTML=''; allFetchedTaloes=[];
-      lineFilterContainer.style.display='none'; // Esconde antes de uma nova busca
-      selectRemessasButton.disabled = true;
-      selectRemessasButton.textContent = '0 Selecionadas'; // Reset para o texto padrão
-
-
-      const linha=filterLinha.value.trim(); const remessa=filterRemessa.value.trim(); const dataCorteInicio=filterDataCorteInicio.value; const dataCorteFim=filterDataCorteFim.value; const tipoCliente=filterTipoCliente.value; const atelieResponsavel=filterAtelie.value; const dataEntregaInicio=filterDataEntregaInicio.value; const dataEntregaFim=filterDataEntregaFim.value;
+      const linha=filterLinha.value.trim();
+      const remessa=filterRemessa.value.trim();
+      const dataCorteInicio=filterDataCorteInicio.value;
+      const dataCorteFim=filterDataCorteFim.value;
+      const tipoCliente=filterTipoCliente.value;
+      const atelieResponsavel=filterAtelie.value;
+      const dataEntregaInicio=filterDataEntregaInicio.value;
+      const dataEntregaFim=filterDataEntregaFim.value;
+      const hasFilters = !!(linha || remessa || dataCorteInicio || dataCorteFim || tipoCliente || atelieResponsavel || dataEntregaInicio || dataEntregaFim);
+      if(!hasFilters){ noData.textContent='Por favor, selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; reportContent.style.display='none'; return; }
+      resetCronogramaState(false);
+      loading.style.display='block'; noData.style.display='none'; reportContent.style.display='none'; cronogramaTableBody.innerHTML='';
       try{
-        let qRef=collection(db,'taloes'); let hasFilters=false;
-        if(linha){ qRef=query(qRef, where('linha','==',linha)); hasFilters=true; }
-        if(remessa){ qRef=query(qRef, where('numeroRemessa','==',remessa)); hasFilters=true; }
-        if(tipoCliente){ qRef=query(qRef, where('tipoCliente','==',tipoCliente)); hasFilters=true; }
-        if(atelieResponsavel){ qRef=query(qRef, where('idAtelieResponsavel','==',atelieResponsavel)); hasFilters=true; }
-        if(dataCorteInicio && dataCorteFim){ qRef=query(qRef, where('dataCorte','>=',dataCorteInicio), where('dataCorte','<=',dataCorteFim)); hasFilters=true; }
-        
-        currentStageFilter = null;
-        if(!hasFilters){ loading.style.display='none'; noData.textContent='Por favor, selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; return; }
-        
-        const snap=await getDocs(qRef); 
-        allFetchedTaloes=snap.docs.map(d=>d.data()); 
-        
-        // Aplica o filtro de data de entrega localmente
-        if(dataEntregaInicio && dataEntregaFim){ 
-            allFetchedTaloes=allFetchedTaloes.filter(t=> t.dataEntrega && t.dataEntrega>=dataEntregaInicio && t.dataEntrega<=dataEntregaFim ); 
-        }
-        
-        loading.style.display='none'; 
-        
-        if(allFetchedTaloes.length>0){ 
-            // NOVO: 1. Configura e prepara o filtro de remessas
+        let qRef=collection(db,'taloes');
+        if(linha){ qRef=query(qRef, where('linha','==',linha)); }
+        if(remessa){ qRef=query(qRef, where('numeroRemessa','==',remessa)); }
+        if(tipoCliente){ qRef=query(qRef, where('tipoCliente','==',tipoCliente)); }
+        if(atelieResponsavel){ qRef=query(qRef, where('nomeAtelieResponsavel','==',atelieResponsavel)); }
+        const snap=await getDocs(qRef);
+        allFetchedTaloes=snap.docs.map(d=>({id:d.id,...d.data()}));
+        if(dataCorteInicio){ allFetchedTaloes=allFetchedTaloes.filter(t=> t.dataCorte && t.dataCorte>=dataCorteInicio); }
+        if(dataCorteFim){ allFetchedTaloes=allFetchedTaloes.filter(t=> t.dataCorte && t.dataCorte<=dataCorteFim); }
+        if(dataEntregaInicio){ allFetchedTaloes=allFetchedTaloes.filter(t=> t.dataEntrega && t.dataEntrega>=dataEntregaInicio); }
+        if(dataEntregaFim){ allFetchedTaloes=allFetchedTaloes.filter(t=> t.dataEntrega && t.dataEntrega<=dataEntregaFim); }
+        loading.style.display='none';
+        if(allFetchedTaloes.length>0){
             setupRemessaFilter(allFetchedTaloes);
-
-            // NOVO: 2. Se a busca foi por uma Linha específica, o filtro de checkbox já deve começar apenas com ela.
-            if(linha) selectedLines = new Set([linha]); 
-            else selectedLines = new Set(); // Reset para que renderLineCheckboxes selecione todos disponíveis
-            
-            // NOVO: 3. Renderiza os checkboxes e dispara a geração do relatório
+            if(linha) selectedLines = new Set([linha]); else selectedLines = new Set();
             renderLineCheckboxes(allFetchedTaloes);
-        } else { 
-            noData.textContent='Nenhum dado encontrado para os filtros selecionados.'; 
-            noData.style.display='block'; 
-            selectRemessasButton.disabled = true; // Garante que o botão fica desabilitado
+        } else {
+            noData.textContent='Nenhum dado encontrado para os filtros selecionados.';
+            noData.style.display='block';
+            selectRemessasButton.disabled = true;
         }
-        
-      }catch(err){ 
-        console.error('Erro ao gerar relatório:',err); 
-        loading.style.display='none'; 
-        noData.textContent='Erro ao carregar os dados. Verifique o console.'; 
-        noData.style.display='block'; 
+      }catch(err){
+        console.error('Erro ao gerar relatório:',err);
+        loading.style.display='none';
+        noData.textContent='Erro ao carregar os dados. Verifique o console.';
+        noData.style.display='block';
       }
     }
 
@@ -1047,6 +1151,87 @@
             showResumoGiroFabricaModal(getCurrentFilteredTaloes());
         }
     });
+
+    function formatDateShortBR(value) {
+      if (!value) return '';
+      return formatDateAbreviado(value);
+    }
+
+    function isMontagemFechadaTalhao(t) {
+      return !!(t.dataEntradaMontagem && String(t.dataEntradaMontagem).trim() !== '');
+    }
+
+    function buildFechamentoTextFromTaloes(taloes) {
+      const grouped = new Map();
+
+      taloes.forEach(t => {
+        const linha = String(t.linha || '').trim();
+        const remessa = String(t.numeroRemessa || '').trim();
+        const dataCorte = t.dataCorte || '';
+        const pares = Number(t.pares) || 0;
+
+        if (!linha || !remessa) return;
+        if (isMontagemFechadaTalhao(t)) return;
+
+        const key = `${linha}__${remessa}__${dataCorte}`;
+        if (!grouped.has(key)) {
+          grouped.set(key, { linha, remessa, dataCorte, paresMontagem: 0 });
+        }
+
+        grouped.get(key).paresMontagem += pares;
+      });
+
+      const rows = Array.from(grouped.values())
+        .filter(r => r.paresMontagem > 0)
+        .sort((a, b) => {
+          if (a.linha !== b.linha) return a.linha.localeCompare(b.linha, undefined, { numeric: true });
+          if (a.remessa !== b.remessa) return a.remessa.localeCompare(b.remessa, undefined, { numeric: true });
+          return String(a.dataCorte).localeCompare(String(b.dataCorte));
+        });
+
+      if (!rows.length) {
+        return 'Fechamento:\nNenhuma remessa encontrada no filtro atual.';
+      }
+
+      const somaLinhas = new Map();
+      let totalGeral = 0;
+
+      rows.forEach(r => {
+        somaLinhas.set(r.linha, (somaLinhas.get(r.linha) || 0) + r.paresMontagem);
+        totalGeral += r.paresMontagem;
+      });
+
+      const linhasTexto = rows.map(r => `${r.linha} - ${r.remessa} - ${formatDateShortBR(r.dataCorte)} - ${r.paresMontagem} pares`);
+      const resumoTexto = Array.from(somaLinhas.entries())
+        .sort((a, b) => String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }))
+        .map(([linha, total]) => `${linha} - ${total} pares`);
+
+      return [
+        'Fechamento:',
+        'Linha - Remessa - Corte - Pares montagem',
+        ...linhasTexto,
+        '',
+        'Soma das linhas:',
+        ...resumoTexto,
+        `Total - ${totalGeral} pares`
+      ].join('\n');
+    }
+
+    async function copyFechamentoRemessas() {
+      const texto = buildFechamentoTextFromTaloes(lastDisplayedTaloes || []);
+      try {
+        await navigator.clipboard.writeText(texto);
+        alert('Fechamento copiado com sucesso.');
+      } catch (err) {
+        const textarea = document.createElement('textarea');
+        textarea.value = texto;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('Fechamento copiado com sucesso.');
+      }
+    }
 
     function showResumoCorteModal(taloes) {
         // Pares faltando: pelo menos 1 etapa de corte não foi concluída
