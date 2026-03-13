@@ -305,7 +305,8 @@
             <input type="checkbox" id="hideAmostrasCheckbox" checked>
             Não exibir amostras
           </label>
-          <button type="button" id="copyRemessasButton" class="btn btn-secondary">Copiar remessas</button>
+          <button type="button" id="copyRemessasButton" class="btn btn-secondary">Monatgem whtas</button>
+          <button type="button" id="copyCosturaButton" class="btn btn-secondary">Costura whats</button>
         </div>
       </div>
         <div id="lineFilterContainer" class="filters-container" style="display:none; justify-content: flex-start; max-width: 1200px; margin-bottom: 14px; align-items: flex-start;">
@@ -412,6 +413,7 @@
         <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-hoje">Exportação de hoje</button>
         <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-segunda">Exportação de Segunda</button>
         <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-quinta">Exportação de Quinta</button>
+        <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-atraso">Exportações em atraso</button>
         <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-semana">Fechamento dessa semana</button>
         <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-proxima-semana">Fechamento da próxima semana</button>
         <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-semana-passada">Semana passada</button>
@@ -469,6 +471,7 @@
     const closeQuickFiltersModal = document.getElementById('closeQuickFiltersModal');
     const hideAmostrasCheckbox = document.getElementById('hideAmostrasCheckbox');
     const copyRemessasButton = document.getElementById('copyRemessasButton');
+    const copyCosturaButton = document.getElementById('copyCosturaButton');
     
     // Variável para a tabela de detalhes
     let modalTableBody = null; 
@@ -486,6 +489,7 @@
     let availableRemessas = new Map(); 
     let selectedRemessas = new Set();  // Set<remessaNumber>
     let lastDisplayedTaloes = [];
+    let currentQuickFilterMode = '';
 
 
     // Tipos de Usuarios e niveis
@@ -549,7 +553,7 @@
         lastDisplayedTaloes = [];
     });
     
-    searchButton.addEventListener('click', runSearch);
+    searchButton.addEventListener('click', () => { currentQuickFilterMode = ''; runSearch(); });
     if(menuToggleButton && mainNav){ menuToggleButton.addEventListener('click', ()=> mainNav.classList.toggle('nav-collapsed')); }
     if (toggleQuickFiltersButton && quickFiltersModal) {
       toggleQuickFiltersButton.addEventListener('click', () => { quickFiltersModal.classList.add('open'); });
@@ -565,6 +569,7 @@
     if(filterDistMontagemChecks){ filterDistMontagemChecks.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.addEventListener('change', ()=>{ currentDistMontagemFilters = new Set(Array.from(filterDistMontagemChecks.querySelectorAll('input[type="checkbox"]:checked')).map(x=>x.value)); if(allFetchedTaloes.length>0) filterAndGenerateReport(); })); }
     if(hideAmostrasCheckbox){ hideAmostrasCheckbox.addEventListener('change', ()=>{ if(allFetchedTaloes.length>0) filterAndGenerateReport(); }); }
     if(copyRemessasButton){ copyRemessasButton.addEventListener('click', ()=> copyFechamentoRemessas()); }
+    if(copyCosturaButton){ copyCosturaButton.addEventListener('click', ()=> copyCosturaPendencias()); }
 
     // Helpers
     function hasDate(v){ return v!==undefined && v!==null && String(v).trim()!==''; }
@@ -736,7 +741,12 @@
         }
 
         renderDistMontagemSummary(baseTaloes);
-        const filteredTaloes = applyDistMontagemFilter(baseTaloes);
+        let filteredTaloes = applyDistMontagemFilter(baseTaloes);
+
+        if (currentQuickFilterMode === 'exp-atraso') {
+          filteredTaloes = filteredTaloes.filter(t => !hasDate(t.dataEntradaMontagem));
+        }
+
         lastDisplayedTaloes = [...filteredTaloes];
         generateGroupedReport(filteredTaloes);
     }
@@ -815,7 +825,82 @@
     function analyzeRemessasDistMontagem(taloes){ const remessas=new Map(); taloes.forEach(t=>{ const remessa=t.numeroRemessa; if(!remessa) return; if(!remessas.has(remessa)) remessas.set(remessa,{totalTaloes:0,distribuicaoFechados:0,montagemAbertos:0,taloesUnicos:new Set()}); const info=remessas.get(remessa); const talhaoKey=`${t.numeroRemessa||''}__${t.numeroTalaoSequencial||t.numeroTalao||t.id||Math.random()}`; if(!info.taloesUnicos.has(talhaoKey)){ info.taloesUnicos.add(talhaoKey); info.totalTaloes+=1; if(hasDate(t.dataEntradaDistribuicao)) info.distribuicaoFechados+=1; if(!hasDate(t.dataEntradaMontagem)) info.montagemAbertos+=1; }}); const resumo={todos:0,completas:0,falta1:0,falta2:0,falta3:0}; const detalhes=new Map(); remessas.forEach((info,remessa)=>{ const faltandoDistribuicao=Math.max(0, info.totalTaloes-info.distribuicaoFechados); const montagemAberta=info.montagemAbertos>0; const distribuicaoCompleta=info.totalTaloes>0 && info.distribuicaoFechados===info.totalTaloes; const categoria={ completas:distribuicaoCompleta&&montagemAberta, falta1:faltandoDistribuicao===1&&montagemAberta, falta2:faltandoDistribuicao===2&&montagemAberta, falta3:faltandoDistribuicao===3&&montagemAberta }; const entraEmAlguma=categoria.completas||categoria.falta1||categoria.falta2||categoria.falta3; if(entraEmAlguma) resumo.todos+=1; if(categoria.completas) resumo.completas+=1; if(categoria.falta1) resumo.falta1+=1; if(categoria.falta2) resumo.falta2+=1; if(categoria.falta3) resumo.falta3+=1; detalhes.set(remessa,{...info,faltandoDistribuicao,montagemAberta,distribuicaoCompleta,...categoria,entraEmAlguma}); }); return {resumo,detalhes}; }
     function renderDistMontagemSummary(taloes){ if(!distMontagemSummary) return; const {resumo}=analyzeRemessasDistMontagem(taloes); const chips=[{key:'todos',label:`Todas (${resumo.todos})`},{key:'completas',label:`Completas (${resumo.completas})`},{key:'falta1',label:`Falta 1 (${resumo.falta1})`},{key:'falta2',label:`Falta 2 (${resumo.falta2})`},{key:'falta3',label:`Falta 3 (${resumo.falta3})`}]; distMontagemSummary.innerHTML=chips.map(chip=>`<button type="button" class="dist-montagem-chip ${chip.key!=='todos'&&currentDistMontagemFilters.has(chip.key)?'active':''}" data-dist-chip="${chip.key}">${chip.label}</button>`).join(''); distMontagemSummary.querySelectorAll('[data-dist-chip]').forEach(btn=>btn.addEventListener('click',()=>{ const key=btn.dataset.distChip; if(key==='todos'){ currentDistMontagemFilters.clear(); if(filterDistMontagemChecks) filterDistMontagemChecks.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false); } else { const input=filterDistMontagemChecks?.querySelector(`input[value="${key}"]`); if(currentDistMontagemFilters.has(key)){ currentDistMontagemFilters.delete(key); if(input) input.checked=false; } else { currentDistMontagemFilters.add(key); if(input) input.checked=true; } } filterAndGenerateReport(); })); }
     function applyDistMontagemFilter(taloes){ if(!currentDistMontagemFilters || currentDistMontagemFilters.size===0) return taloes; const {detalhes}=analyzeRemessasDistMontagem(taloes); const remessasPermitidas=new Set(); detalhes.forEach((info,remessa)=>{ if(currentDistMontagemFilters.has('completas')&&info.completas) remessasPermitidas.add(remessa); if(currentDistMontagemFilters.has('falta1')&&info.falta1) remessasPermitidas.add(remessa); if(currentDistMontagemFilters.has('falta2')&&info.falta2) remessasPermitidas.add(remessa); if(currentDistMontagemFilters.has('falta3')&&info.falta3) remessasPermitidas.add(remessa); }); return taloes.filter(t=>remessasPermitidas.has(t.numeroRemessa)); }
-    function applyQuickFilter(type){ const today=getTodayLocal(); filterLinha.value=''; filterRemessa.value=''; filterAtelie.value=''; switch(type){ case 'exp-hoje': filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(today,today); break; case 'exp-segunda': { const d=getNextWeekday(1); filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(d,d); break;} case 'exp-quinta': { const d=getNextWeekday(4); filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(d,d); break;} case 'fechamento-semana': { const m=getWeekMonday(today); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-proxima-semana': { const m=getWeekMonday(today); m.setDate(m.getDate()+7); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-semana-passada': { const m=getWeekMonday(today); m.setDate(m.getDate()-7); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-mes-atual': { const start=getMonthStart(today), end=getMonthEnd(today); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} case 'fechamento-mes-passado': { const base=getPreviousMonthDate(today), start=getMonthStart(base), end=getMonthEnd(base); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} case 'fechamento-proximo-mes': { const base=getNextMonthDate(today), start=getMonthStart(base), end=getMonthEnd(base); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} default: return; } if(quickFiltersModal) quickFiltersModal.classList.remove('open'); runSearch(); }
+    function applyQuickFilter(type){
+      const today=getTodayLocal();
+      currentQuickFilterMode = type || '';
+      filterLinha.value='';
+      filterRemessa.value='';
+      filterAtelie.value='';
+      switch(type){
+        case 'exp-hoje':
+          filterTipoCliente.value=normalizeExportacaoValue();
+          setDateRangeInputs(today,today);
+          break;
+        case 'exp-segunda': {
+          const d=getNextWeekday(1);
+          filterTipoCliente.value=normalizeExportacaoValue();
+          setDateRangeInputs(d,d);
+          break;
+        }
+        case 'exp-quinta': {
+          const d=getNextWeekday(4);
+          filterTipoCliente.value=normalizeExportacaoValue();
+          setDateRangeInputs(d,d);
+          break;
+        }
+        case 'exp-atraso': {
+          filterTipoCliente.value=normalizeExportacaoValue();
+          filterDataEntregaInicio.value='';
+          const yesterday=new Date(today);
+          yesterday.setDate(today.getDate()-1);
+          filterDataEntregaFim.value=formatLocalISO(yesterday);
+          break;
+        }
+        case 'fechamento-semana': {
+          const m=getWeekMonday(today);
+          setDateRangeInputs(m,getWeekFridayFromMonday(m));
+          filterTipoCliente.value='';
+          break;
+        }
+        case 'fechamento-proxima-semana': {
+          const m=getWeekMonday(today);
+          m.setDate(m.getDate()+7);
+          setDateRangeInputs(m,getWeekFridayFromMonday(m));
+          filterTipoCliente.value='';
+          break;
+        }
+        case 'fechamento-semana-passada': {
+          const m=getWeekMonday(today);
+          m.setDate(m.getDate()-7);
+          setDateRangeInputs(m,getWeekFridayFromMonday(m));
+          filterTipoCliente.value='';
+          break;
+        }
+        case 'fechamento-mes-atual': {
+          const start=getMonthStart(today), end=getMonthEnd(today);
+          setDateRangeInputs(start,end);
+          filterTipoCliente.value='';
+          break;
+        }
+        case 'fechamento-mes-passado': {
+          const base=getPreviousMonthDate(today), start=getMonthStart(base), end=getMonthEnd(base);
+          setDateRangeInputs(start,end);
+          filterTipoCliente.value='';
+          break;
+        }
+        case 'fechamento-proximo-mes': {
+          const base=getNextMonthDate(today), start=getMonthStart(base), end=getMonthEnd(base);
+          setDateRangeInputs(start,end);
+          filterTipoCliente.value='';
+          break;
+        }
+        default:
+          currentQuickFilterMode = '';
+          return;
+      }
+      if(quickFiltersModal) quickFiltersModal.classList.remove('open');
+      runSearch();
+    }
 
 
     // MODIFICADO: Adiciona a lógica de renderização e filtro de linhas após a busca
@@ -837,7 +922,7 @@
         if(linha){ qRef=query(qRef, where('linha','==',linha)); }
         if(remessa){ qRef=query(qRef, where('numeroRemessa','==',remessa)); }
         if(tipoCliente){ qRef=query(qRef, where('tipoCliente','==',tipoCliente)); }
-        if(atelieResponsavel){ qRef=query(qRef, where('nomeAtelieResponsavel','==',atelieResponsavel)); }
+        if(atelieResponsavel){ qRef=query(qRef, where('idAtelieResponsavel','==',atelieResponsavel)); }
         const snap=await getDocs(qRef);
         allFetchedTaloes=snap.docs.map(d=>({id:d.id,...d.data()}));
         if(dataCorteInicio){ allFetchedTaloes=allFetchedTaloes.filter(t=> t.dataCorte && t.dataCorte>=dataCorteInicio); }
@@ -1247,6 +1332,90 @@
         document.execCommand('copy');
         document.body.removeChild(textarea);
         alert('Fechamento copiado com sucesso.');
+      }
+    }
+
+    function buildCosturaTextFromTaloes(taloes) {
+      const pendentes = (taloes || []).filter(t => !hasDate(t.dataEntradaDistribuicao));
+
+      if (!pendentes.length) {
+        return `Falta costura
+Nenhum talão pendente de entrada na distribuição no filtro atual.`;
+      }
+
+      const remessasMap = new Map();
+      const atelierModeloMap = new Map();
+
+      pendentes.forEach(t => {
+        const remessa = String(t.numeroRemessa || '').trim();
+        const linha = String(t.linha || '').trim();
+        const talao = String(t.numeroTalaoSequencial || t.numeroTalao || '').trim();
+        const modelo = String(t.modelo || '').trim();
+        const pares = Number(t.pares) || 0;
+        const atelier = String(t.idAtelieResponsavel || 'Sem ateliê').trim() || 'Sem ateliê';
+
+        if (!remessa || !linha || !talao) return;
+
+        const remKey = `${remessa}__${linha}`;
+        if (!remessasMap.has(remKey)) {
+          remessasMap.set(remKey, { remessa, linha, itens: [] });
+        }
+        remessasMap.get(remKey).itens.push({ talao, modelo, pares, atelier });
+
+        if (!atelierModeloMap.has(atelier)) atelierModeloMap.set(atelier, new Map());
+        const modelKey = `${linha}.${modelo || 'S/Modelo'}`;
+        const atual = atelierModeloMap.get(atelier).get(modelKey) || 0;
+        atelierModeloMap.get(atelier).set(modelKey, atual + pares);
+      });
+
+      const partes = ['Falta costura'];
+
+      Array.from(remessasMap.values())
+        .sort((a,b) => {
+          if (a.linha !== b.linha) return a.linha.localeCompare(b.linha, undefined, {numeric:true});
+          return a.remessa.localeCompare(b.remessa, undefined, {numeric:true});
+        })
+      .forEach(grupo => {
+          partes.push(`Remessa - ${grupo.remessa} - ${grupo.linha}`);
+          grupo.itens
+            .sort((a,b) => (parseInt(a.talao,10)||0) - (parseInt(b.talao,10)||0))
+            .forEach(item => {
+              partes.push(`T.${item.talao} - ${grupo.linha || '.'}.${item.modelo || '-'} - ${item.pares} pares -${item.atelier}`);
+            });
+          partes.push('');
+        });
+
+      partes.push('Total de pares por modelo');
+
+      Array.from(atelierModeloMap.entries())
+        .sort((a,b) => a[0].localeCompare(b[0]))
+        .forEach(([atelier, modelos]) => {
+          partes.push(atelier);
+          Array.from(modelos.entries())
+            .sort((a,b) => a[0].localeCompare(b[0], undefined, {numeric:true}))
+            .forEach(([modeloKey, total]) => {
+              partes.push(`${modeloKey} - ${total} pares`);
+            });
+          partes.push('');
+        });
+
+      while (partes.length && partes[partes.length-1] === '') partes.pop();
+      return partes.join('\n');
+    }
+
+    async function copyCosturaPendencias() {
+      const texto = buildCosturaTextFromTaloes(lastDisplayedTaloes || []);
+      try {
+        await navigator.clipboard.writeText(texto);
+        alert('Mensagem de costura copiada com sucesso.');
+      } catch (err) {
+        const textarea = document.createElement('textarea');
+        textarea.value = texto;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('Mensagem de costura copiada com sucesso.');
       }
     }
 
