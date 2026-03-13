@@ -231,12 +231,16 @@
     .dist-montagem-chip{border:1px solid #cfcfcf;background:#fff;border-radius:999px;padding:6px 10px;font-size:.78em;cursor:pointer;transition:all .2s ease;color:#333}
     .dist-montagem-chip:hover{background:#f0f0f0}
     .dist-montagem-chip.active{background:#345fec;color:#fff;border-color:#345fec}
-    .quick-filters-wrapper{position:relative;display:flex;align-items:flex-end}
-    .quick-filters-panel{display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:20;min-width:280px;background:#fff;border:1px solid var(--bd);border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.12);padding:10px}
-    .quick-filters-panel.open{display:block}
-    .quick-filters-title{font-size:.9em;font-weight:700;color:var(--ink-2);margin-bottom:8px}
-    .quick-filters-list{display:flex;flex-direction:column;gap:8px}
+    .quick-filters-wrapper{display:flex;align-items:flex-end}
+    .quick-filters-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;padding:16px;align-items:center;justify-content:center}
+    .quick-filters-modal.open{display:flex}
+    .quick-filters-modal-content{width:100%;max-width:420px;max-height:85vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:16px}
+    .quick-filters-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .quick-filters-modal-header h3{margin:0;font-size:1.1rem}
+    .quick-filters-close{border:none;background:transparent;font-size:28px;cursor:pointer;line-height:1}
+    .quick-filters-modal-body{display:flex;flex-direction:column;gap:10px}
     .quick-filter-btn{width:100%;justify-content:flex-start;text-align:left}
+    @media (min-width:769px){.quick-filters-modal-content{max-width:480px}}
   </style>
 </head>
 <body>
@@ -288,20 +292,6 @@
       </div>
       <div class="quick-filters-wrapper">
         <button type="button" id="toggleQuickFiltersButton" class="btn btn-secondary">Filtros rápidos</button>
-        <div id="quickFiltersPanel" class="quick-filters-panel">
-          <div class="quick-filters-title">Atalhos de filtro</div>
-          <div class="quick-filters-list">
-            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-hoje">Exportação de hoje</button>
-            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-segunda">Exportação de Segunda</button>
-            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-quinta">Exportação de Quinta</button>
-            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-semana">Fechamento dessa semana</button>
-            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-proxima-semana">Fechamento da próxima semana</button>
-            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-semana-passada">Semana passada</button>
-            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-mes-atual">Fechamento desse mês</button>
-            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-mes-passado">Fechamento mês passado</button>
-            <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-proximo-mes">Fechamento próximo mês</button>
-          </div>
-        </div>
       </div>
       <button class="btn btn-primary" id="searchButton">Gerar Relatório</button>
       <button class="btn btn-secondary" id="clearFiltersButton" title="Limpar filtros">Limpar</button>
@@ -412,6 +402,26 @@
       </div>
     </div>
   </div>
+  <div id="quickFiltersModal" class="quick-filters-modal">
+    <div class="quick-filters-modal-content">
+      <div class="quick-filters-modal-header">
+        <h3>Filtros rápidos</h3>
+        <button type="button" id="closeQuickFiltersModal" class="quick-filters-close">&times;</button>
+      </div>
+      <div class="quick-filters-modal-body">
+        <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-hoje">Exportação de hoje</button>
+        <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-segunda">Exportação de Segunda</button>
+        <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="exp-quinta">Exportação de Quinta</button>
+        <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-semana">Fechamento dessa semana</button>
+        <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-proxima-semana">Fechamento da próxima semana</button>
+        <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-semana-passada">Semana passada</button>
+        <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-mes-atual">Fechamento desse mês</button>
+        <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-mes-passado">Fechamento mês passado</button>
+        <button type="button" class="btn btn-secondary quick-filter-btn" data-quick-filter="fechamento-proximo-mes">Fechamento próximo mês</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     // === Firebase ===
     const firebaseConfig = {
@@ -455,7 +465,8 @@
     const filterDistMontagemChecks = document.getElementById('filterDistMontagemChecks');
     const distMontagemSummary = document.getElementById('distMontagemSummary');
     const toggleQuickFiltersButton = document.getElementById('toggleQuickFiltersButton');
-    const quickFiltersPanel = document.getElementById('quickFiltersPanel');
+    const quickFiltersModal = document.getElementById('quickFiltersModal');
+    const closeQuickFiltersModal = document.getElementById('closeQuickFiltersModal');
     const hideAmostrasCheckbox = document.getElementById('hideAmostrasCheckbox');
     const copyRemessasButton = document.getElementById('copyRemessasButton');
     
@@ -540,11 +551,17 @@
     
     searchButton.addEventListener('click', runSearch);
     if(menuToggleButton && mainNav){ menuToggleButton.addEventListener('click', ()=> mainNav.classList.toggle('nav-collapsed')); }
-    if (toggleQuickFiltersButton && quickFiltersPanel) {
-      toggleQuickFiltersButton.addEventListener('click', (e) => { e.stopPropagation(); quickFiltersPanel.classList.toggle('open'); });
-      document.addEventListener('click', (e) => { if (!quickFiltersPanel.contains(e.target) && e.target !== toggleQuickFiltersButton) quickFiltersPanel.classList.remove('open'); });
+    if (toggleQuickFiltersButton && quickFiltersModal) {
+      toggleQuickFiltersButton.addEventListener('click', () => { quickFiltersModal.classList.add('open'); });
     }
-    document.querySelectorAll('[data-quick-filter]').forEach(btn => btn.addEventListener('click', ()=> applyQuickFilter(btn.dataset.quickFilter)));
+    if (closeQuickFiltersModal && quickFiltersModal) {
+      closeQuickFiltersModal.addEventListener('click', () => { quickFiltersModal.classList.remove('open'); });
+      quickFiltersModal.addEventListener('click', (e) => { if (e.target === quickFiltersModal) quickFiltersModal.classList.remove('open'); });
+    }
+    document.querySelectorAll('[data-quick-filter]').forEach(btn => btn.addEventListener('click', ()=> {
+      if (quickFiltersModal) quickFiltersModal.classList.remove('open');
+      applyQuickFilter(btn.dataset.quickFilter);
+    }));
     if(filterDistMontagemChecks){ filterDistMontagemChecks.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.addEventListener('change', ()=>{ currentDistMontagemFilters = new Set(Array.from(filterDistMontagemChecks.querySelectorAll('input[type="checkbox"]:checked')).map(x=>x.value)); if(allFetchedTaloes.length>0) filterAndGenerateReport(); })); }
     if(hideAmostrasCheckbox){ hideAmostrasCheckbox.addEventListener('change', ()=>{ if(allFetchedTaloes.length>0) filterAndGenerateReport(); }); }
     if(copyRemessasButton){ copyRemessasButton.addEventListener('click', ()=> copyFechamentoRemessas()); }
@@ -798,7 +815,7 @@
     function analyzeRemessasDistMontagem(taloes){ const remessas=new Map(); taloes.forEach(t=>{ const remessa=t.numeroRemessa; if(!remessa) return; if(!remessas.has(remessa)) remessas.set(remessa,{totalTaloes:0,distribuicaoFechados:0,montagemAbertos:0,taloesUnicos:new Set()}); const info=remessas.get(remessa); const talhaoKey=`${t.numeroRemessa||''}__${t.numeroTalaoSequencial||t.numeroTalao||t.id||Math.random()}`; if(!info.taloesUnicos.has(talhaoKey)){ info.taloesUnicos.add(talhaoKey); info.totalTaloes+=1; if(hasDate(t.dataEntradaDistribuicao)) info.distribuicaoFechados+=1; if(!hasDate(t.dataEntradaMontagem)) info.montagemAbertos+=1; }}); const resumo={todos:0,completas:0,falta1:0,falta2:0,falta3:0}; const detalhes=new Map(); remessas.forEach((info,remessa)=>{ const faltandoDistribuicao=Math.max(0, info.totalTaloes-info.distribuicaoFechados); const montagemAberta=info.montagemAbertos>0; const distribuicaoCompleta=info.totalTaloes>0 && info.distribuicaoFechados===info.totalTaloes; const categoria={ completas:distribuicaoCompleta&&montagemAberta, falta1:faltandoDistribuicao===1&&montagemAberta, falta2:faltandoDistribuicao===2&&montagemAberta, falta3:faltandoDistribuicao===3&&montagemAberta }; const entraEmAlguma=categoria.completas||categoria.falta1||categoria.falta2||categoria.falta3; if(entraEmAlguma) resumo.todos+=1; if(categoria.completas) resumo.completas+=1; if(categoria.falta1) resumo.falta1+=1; if(categoria.falta2) resumo.falta2+=1; if(categoria.falta3) resumo.falta3+=1; detalhes.set(remessa,{...info,faltandoDistribuicao,montagemAberta,distribuicaoCompleta,...categoria,entraEmAlguma}); }); return {resumo,detalhes}; }
     function renderDistMontagemSummary(taloes){ if(!distMontagemSummary) return; const {resumo}=analyzeRemessasDistMontagem(taloes); const chips=[{key:'todos',label:`Todas (${resumo.todos})`},{key:'completas',label:`Completas (${resumo.completas})`},{key:'falta1',label:`Falta 1 (${resumo.falta1})`},{key:'falta2',label:`Falta 2 (${resumo.falta2})`},{key:'falta3',label:`Falta 3 (${resumo.falta3})`}]; distMontagemSummary.innerHTML=chips.map(chip=>`<button type="button" class="dist-montagem-chip ${chip.key!=='todos'&&currentDistMontagemFilters.has(chip.key)?'active':''}" data-dist-chip="${chip.key}">${chip.label}</button>`).join(''); distMontagemSummary.querySelectorAll('[data-dist-chip]').forEach(btn=>btn.addEventListener('click',()=>{ const key=btn.dataset.distChip; if(key==='todos'){ currentDistMontagemFilters.clear(); if(filterDistMontagemChecks) filterDistMontagemChecks.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false); } else { const input=filterDistMontagemChecks?.querySelector(`input[value="${key}"]`); if(currentDistMontagemFilters.has(key)){ currentDistMontagemFilters.delete(key); if(input) input.checked=false; } else { currentDistMontagemFilters.add(key); if(input) input.checked=true; } } filterAndGenerateReport(); })); }
     function applyDistMontagemFilter(taloes){ if(!currentDistMontagemFilters || currentDistMontagemFilters.size===0) return taloes; const {detalhes}=analyzeRemessasDistMontagem(taloes); const remessasPermitidas=new Set(); detalhes.forEach((info,remessa)=>{ if(currentDistMontagemFilters.has('completas')&&info.completas) remessasPermitidas.add(remessa); if(currentDistMontagemFilters.has('falta1')&&info.falta1) remessasPermitidas.add(remessa); if(currentDistMontagemFilters.has('falta2')&&info.falta2) remessasPermitidas.add(remessa); if(currentDistMontagemFilters.has('falta3')&&info.falta3) remessasPermitidas.add(remessa); }); return taloes.filter(t=>remessasPermitidas.has(t.numeroRemessa)); }
-    function applyQuickFilter(type){ const today=getTodayLocal(); filterLinha.value=''; filterRemessa.value=''; filterAtelie.value=''; switch(type){ case 'exp-hoje': filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(today,today); break; case 'exp-segunda': { const d=getNextWeekday(1); filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(d,d); break;} case 'exp-quinta': { const d=getNextWeekday(4); filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(d,d); break;} case 'fechamento-semana': { const m=getWeekMonday(today); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-proxima-semana': { const m=getWeekMonday(today); m.setDate(m.getDate()+7); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-semana-passada': { const m=getWeekMonday(today); m.setDate(m.getDate()-7); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-mes-atual': { const start=getMonthStart(today), end=getMonthEnd(today); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} case 'fechamento-mes-passado': { const base=getPreviousMonthDate(today), start=getMonthStart(base), end=getMonthEnd(base); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} case 'fechamento-proximo-mes': { const base=getNextMonthDate(today), start=getMonthStart(base), end=getMonthEnd(base); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} default: return; } if(quickFiltersPanel) quickFiltersPanel.classList.remove('open'); runSearch(); }
+    function applyQuickFilter(type){ const today=getTodayLocal(); filterLinha.value=''; filterRemessa.value=''; filterAtelie.value=''; switch(type){ case 'exp-hoje': filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(today,today); break; case 'exp-segunda': { const d=getNextWeekday(1); filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(d,d); break;} case 'exp-quinta': { const d=getNextWeekday(4); filterTipoCliente.value=normalizeExportacaoValue(); setDateRangeInputs(d,d); break;} case 'fechamento-semana': { const m=getWeekMonday(today); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-proxima-semana': { const m=getWeekMonday(today); m.setDate(m.getDate()+7); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-semana-passada': { const m=getWeekMonday(today); m.setDate(m.getDate()-7); setDateRangeInputs(m,getWeekFridayFromMonday(m)); filterTipoCliente.value=''; break;} case 'fechamento-mes-atual': { const start=getMonthStart(today), end=getMonthEnd(today); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} case 'fechamento-mes-passado': { const base=getPreviousMonthDate(today), start=getMonthStart(base), end=getMonthEnd(base); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} case 'fechamento-proximo-mes': { const base=getNextMonthDate(today), start=getMonthStart(base), end=getMonthEnd(base); setDateRangeInputs(start,end); filterTipoCliente.value=''; break;} default: return; } if(quickFiltersModal) quickFiltersModal.classList.remove('open'); runSearch(); }
 
 
     // MODIFICADO: Adiciona a lógica de renderização e filtro de linhas após a busca
