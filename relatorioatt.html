@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resumo Atelier - SistemaTaloes</title>
+  <style>
+    :root{
+      --bg:#f4f4f4; --ink:#333; --ink-2:#555; --card:#fff; --muted:#777;
+      --pri:#007bff; --pri-700:#0056b3; --danger:#dc3545; --danger-700:#c82333;
+      --ok:#345fec; --bd:#ddd; --chip:#f0f0f0; --shadow:0 4px 14px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;min-height:100vh;display:flex;flex-direction:column;color:var(--ink)}
+    header{background:#333;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,.2);gap:12px}
+    header h1{margin:0;font-size:22px}
+    .header-actions{display:flex;align-items:center;gap:10px}
+    .user-info{font-size:13px;text-align:right}
+    .user-info span{display:block;font-weight:700}
+    nav{background-color:#555;padding:10px 20px;box-shadow:0 2px 5px rgba(0,0,0,.1);font-size:.8em;display:none}
+    nav.open{display:block}
+    nav ul{list-style:none;margin:0;padding:0;display:flex;gap:12px;flex-wrap:wrap}
+    nav a{color:#fff;text-decoration:none;padding:6px 12px;border-radius:6px;display:block}
+    nav a:hover{background:#777}
+    .btn{padding:10px 14px;border:none;border-radius:8px;cursor:pointer;font-size:.95em;transition:background .2s,transform .02s;display:inline-flex;gap:.5rem;align-items:center}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:var(--pri);color:#fff}
+    .btn-primary:hover{background:var(--pri-700)}
+    .btn-secondary{background:#e9ecef;color:#111}
+    .btn-secondary:hover{background:#dde2e6}
+    .btn-mode-inactive{background:#e9ecef;color:#111}
+    .btn-mode-active{background:var(--pri);color:#fff}
+    #logoutButton{background:var(--danger);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+    #logoutButton:hover{background:var(--danger-700)}
+
+    .main-content{flex:1;padding:18px;display:flex;flex-direction:column;align-items:center;gap:16px}
+    .toolbar,.container{background:var(--card);padding:16px;border-radius:14px;box-shadow:var(--shadow);width:100%;max-width:1400px}
+    .toolbar-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .toolbar h2{margin:0;font-size:1.8rem}
+    .toolbar p{margin:6px 0 0;color:var(--ink-2)}
+    .toolbar-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .toolbar-actions .btn-mode-active{background:#355c7d;color:#fff}
+    .toolbar-actions .btn-mode-inactive{background:#dfe6ee;color:#1f2d3d}
+    .refresh-row{display:flex;justify-content:flex-end;margin-top:14px}
+    .status-line{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .status-badge{background:var(--chip);border:1px solid var(--bd);border-radius:999px;padding:8px 12px;font-size:.9em}
+
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+    .summary-card{background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:340px;overflow:hidden}
+    .summary-card.card-export-atraso{background:#eaf5ff}
+    .summary-card.card-export-atraso .card-header{background:linear-gradient(180deg,#d9edff,#c9e5ff)}
+    .summary-card.card-export-atraso .card-title{color:#dc3545}
+    .summary-card.card-export{background:#eef6ff}
+    .summary-card.card-export .card-header{background:linear-gradient(180deg,#dbeeff,#cfe7ff)}
+    .card-header{padding:14px 16px;border-bottom:1px solid #ececec;background:linear-gradient(180deg,#fafafa,#f3f3f3)}
+    .card-title{margin:0 0 4px;font-size:1.1rem}
+    .card-subtitle{margin:0;color:var(--ink-2);font-size:.9em}
+    .card-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .meta-chip{background:#fff;border:1px solid var(--bd);border-radius:999px;padding:5px 10px;font-size:.82em}
+    .card-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;overflow:auto}
+
+    .remessa-block{border:1px solid #ececec;border-radius:12px;padding:10px 12px;background:#fafafa}
+    .remessa-head{font-weight:700;margin-bottom:8px;color:#1f1f1f}
+    .talhao-list{display:flex;flex-direction:column;gap:5px}
+    .talhao-item{font-size:.93em;color:#333;display:flex;align-items:flex-start;gap:8px}
+    .talhao-status{font-weight:700;min-width:16px;line-height:1.2}
+    .talhao-status.ok{color:#159947}
+    .talhao-status.no{color:#d93025}
+    .talhao-text{flex:1}
+    .totals-box{border-top:1px dashed #cfcfcf;padding-top:10px;margin-top:2px}
+    .totals-title{font-weight:700;margin:0 0 8px}
+    .totals-line{font-size:.93em;margin:4px 0}
+    .total-geral{margin-top:10px;font-weight:700;color:var(--pri-700)}
+    .empty-state{padding:30px 10px;text-align:center;color:var(--muted)}
+    .loading{padding:30px 10px;text-align:center;color:var(--ink-2)}
+
+    .footer-note{font-size:.9em;color:var(--ink-2)}
+
+    @media (max-width:768px){
+      header{align-items:flex-start}
+      .header-actions{width:100%;justify-content:flex-end}
+      .toolbar h2{font-size:1.45rem}
+      .cards-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SistemaTaloes</h1>
+    <div class="user-info">
+      <span id="userNameDisplay">Carregando...</span>
+      <span id="userNivelDisplay"></span>
+    </div>
+    <div class="header-actions">
+      <button id="toggleMenuButton" class="btn btn-secondary" type="button">Menu</button>
+      <button id="logoutButton" type="button">Sair</button>
+    </div>
+  </header>
+
+  <nav id="topNav"><ul id="menuNav"></ul></nav>
+
+  <div class="main-content">
+    <section class="toolbar">
+      <div class="toolbar-top">
+        <div>
+          <h2>Resumo Atelier</h2>
+          <p>Mostra somente os talões do ateliê logado que ainda não entraram na distribuição.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button id="modeEntregaButton" class="btn btn-mode-active" type="button">Produção por entrega</button>
+          <button id="modeCorteButton" class="btn btn-mode-inactive" type="button">Produção por corte</button>
+        </div>
+      </div>
+      <div class="status-line">
+        <div class="status-badge">Ateliê logado: <strong id="atelierNameBadge">...</strong></div>
+        <div class="status-badge">Última atualização: <strong id="lastUpdateBadge">-</strong></div>
+        <div class="status-badge">Modo: <strong id="modeBadge">Produção por entrega</strong></div>
+      </div>
+      <div class="refresh-row">
+        <button id="refreshButton" class="btn btn-primary" type="button">Atualizar</button>
+      </div>
+    </section>
+
+    <section class="container">
+      <div id="cardsGrid" class="cards-grid">
+        <article class="summary-card card-export-atraso" id="articleExportacoesAtraso">
+          <div class="card-header">
+            <h3 class="card-title">Exportações em atraso</h3>
+            <p class="card-subtitle">Exportações com data de entrega de hoje ou anterior.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaAtraso">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardExportacoesAtraso"><div class="loading">Carregando...</div></div>
+        </article>
+
+        <article class="summary-card card-export" id="articleExportSegunda">
+          <div class="card-header">
+            <h3 class="card-title" id="titleExportSegunda">Exportações de Sexta</h3>
+            <p class="card-subtitle">Exportações com entrega na próxima segunda-feira.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaExportSegunda">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardExportSegunda"><div class="loading">Carregando...</div></div>
+        </article>
+
+        <article class="summary-card card-export" id="articleExportQuinta">
+          <div class="card-header">
+            <h3 class="card-title" id="titleExportQuinta">Exportações de Quarta</h3>
+            <p class="card-subtitle">Exportações com entrega na próxima quinta-feira.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaExportQuinta">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardExportQuinta"><div class="loading">Carregando...</div></div>
+        </article>
+
+        <article class="summary-card" id="articleSemanaPassada">
+          <div class="card-header">
+            <h3 class="card-title" style="color:#dc3545;">Semana passada em atraso</h3>
+            <p class="card-subtitle">Remessas com entrega entre segunda e sexta da semana passada.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaSemanaPassada">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardSemanaPassada"><div class="loading">Carregando...</div></div>
+        </article>
+
+        <article class="summary-card" id="articleSemanaAtual">
+          <div class="card-header">
+            <h3 class="card-title">Semana em atraso</h3>
+            <p class="card-subtitle">Remessas com entrega entre segunda e sexta da semana atual.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaSemanaAtual">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardSemanaAtual"><div class="loading">Carregando...</div></div>
+        </article>
+
+        <article class="summary-card card-export-atraso" id="articleCorteAtrasado" style="display:none;">
+          <div class="card-header">
+            <h3 class="card-title" style="color:#dc3545;">Corte atrasado</h3>
+            <p class="card-subtitle">Talões abertos cujo prazo por corte já venceu.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaCorteAtrasado">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardCorteAtrasado"><div class="loading">Carregando...</div></div>
+        </article>
+
+        <article class="summary-card card-export" id="articleCorteSemana" style="display:none;">
+          <div class="card-header">
+            <h3 class="card-title" id="titleCorteSemana">Corte dessa semana</h3>
+            <p class="card-subtitle">Talões com prazo para a próxima terça-feira.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaCorteSemana">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardCorteSemana"><div class="loading">Carregando...</div></div>
+        </article>
+
+        <article class="summary-card card-export" id="articleCorteProximaSemana" style="display:none;">
+          <div class="card-header">
+            <h3 class="card-title" id="titleCorteProximaSemana">Corte da próxima semana</h3>
+            <p class="card-subtitle">Talões com prazo para a terça-feira seguinte.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaCorteProximaSemana">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardCorteProximaSemana"><div class="loading">Carregando...</div></div>
+        </article>
+      </div>
+    </section>
+
+    <div class="footer-note">Baseado no mesmo cabeçalho do cronograma e filtrando automaticamente por <strong>idAtelieResponsavel</strong> do usuário logado.</div>
+  </div>
+
+  <script type="module">
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+      authDomain: "sistemataloes.firebaseapp.com",
+      projectId: "sistemataloes",
+      storageBucket: "sistemataloes.appspot.com",
+      messagingSenderId: "684534379685",
+      appId: "1:684534379685:web:..."
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const menuNav = document.getElementById('menuNav');
+    const topNav = document.getElementById('topNav');
+    const toggleMenuButton = document.getElementById('toggleMenuButton');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const userNivelDisplay = document.getElementById('userNivelDisplay');
+    const logoutButton = document.getElementById('logoutButton');
+    const refreshButton = document.getElementById('refreshButton');
+    const modeEntregaButton = document.getElementById('modeEntregaButton');
+    const modeCorteButton = document.getElementById('modeCorteButton');
+    const atelierNameBadge = document.getElementById('atelierNameBadge');
+    const lastUpdateBadge = document.getElementById('lastUpdateBadge');
+    const modeBadge = document.getElementById('modeBadge');
+
+    const articleExportacoesAtraso = document.getElementById('articleExportacoesAtraso');
+    const articleExportSegunda = document.getElementById('articleExportSegunda');
+    const articleExportQuinta = document.getElementById('articleExportQuinta');
+    const articleSemanaPassada = document.getElementById('articleSemanaPassada');
+    const articleSemanaAtual = document.getElementById('articleSemanaAtual');
+    const cardExportacoesAtraso = document.getElementById('cardExportacoesAtraso');
+    const cardSemanaPassada = document.getElementById('cardSemanaPassada');
+    const cardSemanaAtual = document.getElementById('cardSemanaAtual');
+    const cardExportSegunda = document.getElementById('cardExportSegunda');
+    const cardExportQuinta = document.getElementById('cardExportQuinta');
+    const metaAtraso = document.getElementById('metaAtraso');
+    const metaSemanaPassada = document.getElementById('metaSemanaPassada');
+    const metaSemanaAtual = document.getElementById('metaSemanaAtual');
+    const metaExportSegunda = document.getElementById('metaExportSegunda');
+    const metaExportQuinta = document.getElementById('metaExportQuinta');
+    const titleExportSegunda = document.getElementById('titleExportSegunda');
+    const titleExportQuinta = document.getElementById('titleExportQuinta');
+    const articleCorteAtrasado = document.getElementById('articleCorteAtrasado');
+    const articleCorteSemana = document.getElementById('articleCorteSemana');
+    const articleCorteProximaSemana = document.getElementById('articleCorteProximaSemana');
+    const cardCorteAtrasado = document.getElementById('cardCorteAtrasado');
+    const cardCorteSemana = document.getElementById('cardCorteSemana');
+    const cardCorteProximaSemana = document.getElementById('cardCorteProximaSemana');
+    const metaCorteAtrasado = document.getElementById('metaCorteAtrasado');
+    const metaCorteSemana = document.getElementById('metaCorteSemana');
+    const metaCorteProximaSemana = document.getElementById('metaCorteProximaSemana');
+    const titleCorteSemana = document.getElementById('titleCorteSemana');
+    const titleCorteProximaSemana = document.getElementById('titleCorteProximaSemana');
+
+    let currentUserData = null;
+    let atelierTaloes = [];
+    let currentMode = 'entrega';
+
+    const nivelNomes = {
+      '01': 'Cadastro', '02': 'Corte', '03': 'Costura', '04': 'Montagem',
+      '05': 'Admin', '06': 'Consultor', '07': 'Super'
+    };
+
+    const pages = [
+      { name: 'Index', href: 'index.html', levels: ['01','02','03','04','05','06','07'] },
+      { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
+      { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01','05','07'] },
+      { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
+      { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
+      { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
+      { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
+      { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
+      { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
+      { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02','04','05','06','07'] },
+      { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['06','07'] },
+      { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
+      { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
+      { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
+      { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
+      { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
+      { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
+      { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
+    ];
+
+    function generateMenu(userLevel, userName) {
+      menuNav.innerHTML = '';
+      const userNivelText = nivelNomes[userLevel] || `Nível ${userLevel}`;
+      userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
+      userNivelDisplay.textContent = `Setor: ${userNivelText}`;
+
+      pages.forEach(p => {
+        if (p.levels.includes(userLevel)) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = p.href;
+          a.textContent = p.name;
+          li.appendChild(a);
+          menuNav.appendChild(li);
+        }
+      });
+    }
+
+    function hasDate(v) {
+      return v !== undefined && v !== null && String(v).trim() !== '';
+    }
+
+    function toISODateOnly(v) {
+      if (!v) return '';
+      if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+      try {
+        const dt = new Date(v);
+        if (isNaN(dt)) return '';
+        return dt.toISOString().slice(0,10);
+      } catch {
+        return '';
+      }
+    }
+
+    function formatDateShortBR(v) {
+      const iso = toISODateOnly(v);
+      if (!iso) return '';
+      const [y,m,d] = iso.split('-');
+      return `${d}/${m}`;
+    }
+
+
+    function getUniqueSortedCutDates(taloes) {
+      return Array.from(new Set(taloes.map(t => toISODateOnly(t.dataCorte)).filter(Boolean)))
+        .sort();
+    }
+
+    function joinCutDatesLabel(dateList) {
+      const formatted = dateList.map(formatDateShortBR);
+      if (!formatted.length) return '';
+      if (formatted.length === 1) return formatted[0];
+      if (formatted.length === 2) return `${formatted[0]} e ${formatted[1]}`;
+      return `${formatted.slice(0, -1).join(', ')} e ${formatted[formatted.length - 1]}`;
+    }
+
+    function setCardVisibility(articleEl, shouldShow) {
+      articleEl.style.display = shouldShow ? '' : 'none';
+    }
+
+    function formatDateTimeNow() {
+      const dt = new Date();
+      return dt.toLocaleString('pt-BR');
+    }
+
+    function getTodayLocal() {
+      const now = new Date();
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    function formatLocalISO(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getWeekMonday(dateObj) {
+      const d = new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
+      const day = d.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      d.setDate(d.getDate() + diff);
+      return d;
+    }
+
+    function getWeekFridayFromMonday(monday) {
+      const friday = new Date(monday);
+      friday.setDate(monday.getDate() + 4);
+      return friday;
+    }
+
+    function getNextWeekday(targetWeekday) {
+      const today = getTodayLocal();
+      const current = today.getDay();
+      let diff = targetWeekday - current;
+      if (diff <= 0) diff += 7;
+      const result = new Date(today);
+      result.setDate(today.getDate() + diff);
+      return result;
+    }
+
+    function normalizeTipoCliente(tipo) {
+      const t = (tipo || '').trim().toLowerCase();
+      if (t === 'exportacao' || t === 'exportação' || t === 'exportações' || t === 'exportacoes') return 'Exportacao';
+      if (t === 'amostra' || t === 'amostras') return 'Amostra';
+      return tipo || '';
+    }
+
+    function isPendenteDistribuicao(t) {
+      return !hasDate(t.dataEntradaDistribuicao);
+    }
+
+    function getNextTuesday(fromDate) {
+      const base = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+      const day = base.getDay();
+      let diff = 2 - day;
+      if (diff <= 0) diff += 7;
+      base.setDate(base.getDate() + diff);
+      return base;
+    }
+
+    function getCutDueTuesday(cutDateValue) {
+      const iso = toISODateOnly(cutDateValue);
+      if (!iso) return '';
+      const cutDate = new Date(iso + 'T00:00:00');
+      const cutWeekMonday = getWeekMonday(cutDate);
+      cutWeekMonday.setDate(cutWeekMonday.getDate() + 15); // terça de duas semanas depois
+      return formatLocalISO(cutWeekMonday);
+    }
+
+    function updateModeUI() {
+      const entregaMode = currentMode === 'entrega';
+      modeBadge.textContent = entregaMode ? 'Produção por entrega' : 'Produção por corte';
+      modeEntregaButton.className = entregaMode ? 'btn btn-mode-active' : 'btn btn-mode-inactive';
+      modeCorteButton.className = entregaMode ? 'btn btn-mode-inactive' : 'btn btn-mode-active';
+
+      [articleExportacoesAtraso, articleExportSegunda, articleExportQuinta, articleSemanaPassada, articleSemanaAtual].forEach(el => {
+        el.dataset.mode = 'entrega';
+      });
+      [articleCorteAtrasado, articleCorteSemana, articleCorteProximaSemana].forEach(el => {
+        el.dataset.mode = 'corte';
+      });
+    }
+
+
+    function hasEntradaAtelier(t) {
+      return !!(t.costuraDataInicio && String(t.costuraDataInicio).trim() !== '');
+    }
+
+    function buildCardHtml(taloes, tituloResumo) {
+      const grouped = new Map();
+      const totalPorModelo = new Map();
+      let totalGeral = 0;
+
+      taloes.forEach(t => {
+        const remessa = String(t.numeroRemessa || '').trim();
+        const linha = String(t.linha || '').trim();
+        const dataCorte = t.dataCorte || '';
+        const numeroTalao = String(t.numeroTalaoSequencial || t.numeroTalao || '').trim();
+        const modeloNum = String(t.modelo || t.referencia || '').trim();
+        const modelo = `${linha}.${modeloNum || 'S/Modelo'}`;
+        const pares = Number(t.pares) || 0;
+
+        if (!remessa || !linha || !numeroTalao) return;
+
+        const remessaKey = `${remessa}__${linha}__${dataCorte}`;
+        if (!grouped.has(remessaKey)) {
+          grouped.set(remessaKey, {
+            remessa,
+            linha,
+            dataCorte,
+            itens: []
+          });
+        }
+
+        grouped.get(remessaKey).itens.push({
+          numeroTalao,
+          modelo,
+          pares,
+          entrouAtelier: hasEntradaAtelier(t)
+        });
+
+        totalPorModelo.set(modelo, (totalPorModelo.get(modelo) || 0) + pares);
+        totalGeral += pares;
+      });
+
+      const blocks = Array.from(grouped.values()).sort((a,b) => {
+        if (a.linha !== b.linha) return a.linha.localeCompare(b.linha, undefined, { numeric: true });
+        return a.remessa.localeCompare(b.remessa, undefined, { numeric: true });
+      });
+
+      if (!blocks.length) {
+        return {
+          html: `<div class="empty-state">Nenhum talão pendente neste card.</div>`,
+          meta: '0 talões pendentes',
+          totalGeral: 0
+        };
+      }
+
+      const blockHtml = blocks.map(block => {
+        const itensHtml = block.itens
+          .sort((a,b) => a.numeroTalao.localeCompare(b.numeroTalao, undefined, { numeric: true }))
+          .map(item => `<div class="talhao-item"><span class="talhao-status ${item.entrouAtelier ? 'ok' : 'no'}">${item.entrouAtelier ? '✔' : '✘'}</span><span class="talhao-text">Talão ${item.numeroTalao} - Modelo ${item.modelo} - Pares ${item.pares}</span></div>`)
+          .join('');
+
+        return `
+          <div class="remessa-block">
+            <div class="remessa-head">Remessa ${block.remessa} - ${block.linha} - Data de corte ${formatDateShortBR(block.dataCorte)}</div>
+            <div class="talhao-list">${itensHtml}</div>
+          </div>
+        `;
+      }).join('');
+
+      const totalModeloHtml = Array.from(totalPorModelo.entries())
+        .sort((a,b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
+        .map(([modelo, pares]) => `<div class="totals-line">Modelo ${modelo} - Pares ${pares}</div>`)
+        .join('');
+
+      const html = `
+        <div style="font-weight:700;color:#444;">Falta costura (${tituloResumo})</div>
+        <div class="totals-box">
+          <div class="totals-title">Total de pares</div>
+          ${totalModeloHtml}
+          <div class="total-geral">Total ${totalGeral} pares</div>
+        </div>
+        ${blockHtml}
+      `;
+
+      const totalTaloes = taloes.length;
+      return {
+        html,
+        meta: `${blocks.length} remessas · ${totalTaloes} talões`,
+        totalGeral
+      };
+    }
+
+    function renderCards() {
+      const today = getTodayLocal();
+      const todayIso = formatLocalISO(today);
+      const monday = getWeekMonday(today);
+      const friday = getWeekFridayFromMonday(monday);
+      const mondayIso = formatLocalISO(monday);
+      const fridayIso = formatLocalISO(friday);
+
+      const prevMonday = new Date(monday);
+      prevMonday.setDate(prevMonday.getDate() - 7);
+      const prevFriday = getWeekFridayFromMonday(prevMonday);
+      const prevMondayIso = formatLocalISO(prevMonday);
+      const prevFridayIso = formatLocalISO(prevFriday);
+
+      const nextMonday = getNextWeekday(1);
+      const nextThursday = getNextWeekday(4);
+      const nextMondayIso = formatLocalISO(nextMonday);
+      const nextThursdayIso = formatLocalISO(nextThursday);
+      const nextTuesdayIso = formatLocalISO(getNextTuesday(today));
+      const nextNextTuesday = new Date(nextTuesdayIso + 'T00:00:00');
+      nextNextTuesday.setDate(nextNextTuesday.getDate() + 7);
+      const nextNextTuesdayIso = formatLocalISO(nextNextTuesday);
+
+      titleExportSegunda.textContent = `Exportações de Sexta (${formatDateShortBR(nextMondayIso)})`;
+      titleExportQuinta.textContent = `Exportações de Quarta (${formatDateShortBR(nextThursdayIso)})`;
+
+      const pendentes = atelierTaloes.filter(isPendenteDistribuicao);
+
+      const exportAtraso = pendentes.filter(t => normalizeTipoCliente(t.tipoCliente) === 'Exportacao' && toISODateOnly(t.dataEntrega) && toISODateOnly(t.dataEntrega) <= todayIso);
+      const exportSegunda = pendentes.filter(t => normalizeTipoCliente(t.tipoCliente) === 'Exportacao' && toISODateOnly(t.dataEntrega) === nextMondayIso);
+      const exportQuinta = pendentes.filter(t => normalizeTipoCliente(t.tipoCliente) === 'Exportacao' && toISODateOnly(t.dataEntrega) === nextThursdayIso);
+      const semanaPassada = pendentes.filter(t => {
+        const entrega = toISODateOnly(t.dataEntrega);
+        return entrega && entrega >= prevMondayIso && entrega <= prevFridayIso;
+      });
+      const semanaAtual = pendentes.filter(t => {
+        const entrega = toISODateOnly(t.dataEntrega);
+        return entrega && entrega >= mondayIso && entrega <= fridayIso;
+      });
+
+      const corteAtrasado = pendentes.filter(t => {
+        const due = getCutDueTuesday(t.dataCorte);
+        return due && due < nextTuesdayIso;
+      });
+      const corteSemana = pendentes.filter(t => getCutDueTuesday(t.dataCorte) === nextTuesdayIso);
+      const corteProximaSemana = pendentes.filter(t => getCutDueTuesday(t.dataCorte) === nextNextTuesdayIso);
+
+      const corteSemanaDatesLabel = joinCutDatesLabel(getUniqueSortedCutDates(corteSemana));
+      const corteProximaDatesLabel = joinCutDatesLabel(getUniqueSortedCutDates(corteProximaSemana));
+      titleCorteSemana.textContent = corteSemanaDatesLabel
+        ? `Corte dessa semana (${corteSemanaDatesLabel}) entrega ${formatDateShortBR(nextTuesdayIso)}`
+        : `Corte dessa semana entrega ${formatDateShortBR(nextTuesdayIso)}`;
+      titleCorteProximaSemana.textContent = corteProximaDatesLabel
+        ? `Corte da próxima semana (${corteProximaDatesLabel}) entrega ${formatDateShortBR(nextNextTuesdayIso)}`
+        : `Corte da próxima semana entrega ${formatDateShortBR(nextNextTuesdayIso)}`;
+
+      const atrasoCard = buildCardHtml(exportAtraso, 'Exportações em atraso');
+      const segundaCard = buildCardHtml(exportSegunda, 'Exportações de Sexta');
+      const quintaCard = buildCardHtml(exportQuinta, 'Exportações de Quarta');
+      const semanaPassadaCard = buildCardHtml(semanaPassada, 'Semana passada em atraso');
+      const semanaCard = buildCardHtml(semanaAtual, 'Semana em atraso');
+      const corteAtrasadoCard = buildCardHtml(corteAtrasado, 'Corte atrasado');
+      const corteSemanaCard = buildCardHtml(corteSemana, 'Corte dessa semana');
+      const corteProximaCard = buildCardHtml(corteProximaSemana, 'Corte da próxima semana');
+
+      cardExportacoesAtraso.innerHTML = atrasoCard.html;
+      cardExportSegunda.innerHTML = segundaCard.html;
+      cardExportQuinta.innerHTML = quintaCard.html;
+      cardSemanaPassada.innerHTML = semanaPassadaCard.html;
+      cardSemanaAtual.innerHTML = semanaCard.html;
+      cardCorteAtrasado.innerHTML = corteAtrasadoCard.html;
+      cardCorteSemana.innerHTML = corteSemanaCard.html;
+      cardCorteProximaSemana.innerHTML = corteProximaCard.html;
+
+      metaAtraso.textContent = `${atrasoCard.meta} · ${atrasoCard.totalGeral} pares`;
+      metaExportSegunda.textContent = `${segundaCard.meta} · ${segundaCard.totalGeral} pares`;
+      metaExportQuinta.textContent = `${quintaCard.meta} · ${quintaCard.totalGeral} pares`;
+      metaSemanaPassada.textContent = `${semanaPassadaCard.meta} · ${semanaPassadaCard.totalGeral} pares`;
+      metaSemanaAtual.textContent = `${semanaCard.meta} · ${semanaCard.totalGeral} pares`;
+      metaCorteAtrasado.textContent = `${corteAtrasadoCard.meta} · ${corteAtrasadoCard.totalGeral} pares`;
+      metaCorteSemana.textContent = `${corteSemanaCard.meta} · ${corteSemanaCard.totalGeral} pares`;
+      metaCorteProximaSemana.textContent = `${corteProximaCard.meta} · ${corteProximaCard.totalGeral} pares`;
+
+      const entregaVisibility = {
+        exportAtraso: exportAtraso.length > 0,
+        exportSegunda: exportSegunda.length > 0,
+        exportQuinta: exportQuinta.length > 0,
+        semanaPassada: semanaPassada.length > 0,
+        semanaAtual: semanaAtual.length > 0,
+      };
+      const corteVisibility = {
+        corteAtrasado: corteAtrasado.length > 0,
+        corteSemana: corteSemana.length > 0,
+        corteProxima: corteProximaSemana.length > 0,
+      };
+
+      setCardVisibility(articleExportacoesAtraso, currentMode === 'entrega' && entregaVisibility.exportAtraso);
+      setCardVisibility(articleExportSegunda, currentMode === 'entrega' && entregaVisibility.exportSegunda);
+      setCardVisibility(articleExportQuinta, currentMode === 'entrega' && entregaVisibility.exportQuinta);
+      setCardVisibility(articleSemanaPassada, currentMode === 'entrega' && entregaVisibility.semanaPassada);
+      setCardVisibility(articleSemanaAtual, currentMode === 'entrega' && entregaVisibility.semanaAtual);
+      setCardVisibility(articleCorteAtrasado, currentMode === 'corte' && corteVisibility.corteAtrasado);
+      setCardVisibility(articleCorteSemana, currentMode === 'corte' && corteVisibility.corteSemana);
+      setCardVisibility(articleCorteProximaSemana, currentMode === 'corte' && corteVisibility.corteProxima);
+
+      lastUpdateBadge.textContent = formatDateTimeNow();
+      updateModeUI();
+    }
+
+    async function loadResumoAtelier() {
+      if (!currentUserData) return;
+
+      [cardExportacoesAtraso, cardSemanaPassada, cardSemanaAtual, cardExportSegunda, cardExportQuinta, cardCorteAtrasado, cardCorteSemana, cardCorteProximaSemana].forEach(el => {
+        el.innerHTML = '<div class="loading">Carregando...</div>';
+      });
+      [metaAtraso, metaSemanaPassada, metaSemanaAtual, metaExportSegunda, metaExportQuinta, metaCorteAtrasado, metaCorteSemana, metaCorteProximaSemana].forEach(el => {
+        el.textContent = 'Carregando...';
+      });
+      [articleExportacoesAtraso, articleExportSegunda, articleExportQuinta, articleSemanaPassada, articleSemanaAtual, articleCorteAtrasado, articleCorteSemana, articleCorteProximaSemana].forEach(el => {
+        el.style.display = '';
+      });
+
+      try {
+        const atelierKey = currentUserData.Nome || currentUserData.idAtelieResponsavel || currentUserData.email;
+        atelierNameBadge.textContent = atelierKey || '-';
+
+        const qRef = query(collection(db, 'taloes'), where('idAtelieResponsavel', '==', atelierKey));
+        const snap = await getDocs(qRef);
+        atelierTaloes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderCards();
+      } catch (error) {
+        console.error('Erro ao carregar resumo do ateliê:', error);
+        const errorHtml = '<div class="empty-state">Erro ao carregar os dados.</div>';
+        [cardExportacoesAtraso, cardSemanaPassada, cardSemanaAtual, cardExportSegunda, cardExportQuinta, cardCorteAtrasado, cardCorteSemana, cardCorteProximaSemana].forEach(el => el.innerHTML = errorHtml);
+        [metaAtraso, metaSemanaPassada, metaSemanaAtual, metaExportSegunda, metaExportQuinta, metaCorteAtrasado, metaCorteSemana, metaCorteProximaSemana].forEach(el => el.textContent = 'Erro');
+      }
+    }
+
+    toggleMenuButton.addEventListener('click', () => {
+      topNav.classList.toggle('open');
+    });
+
+    modeEntregaButton.addEventListener('click', () => {
+      currentMode = 'entrega';
+      renderCards();
+    });
+
+    modeCorteButton.addEventListener('click', () => {
+      currentMode = 'corte';
+      renderCards();
+    });
+
+    refreshButton.addEventListener('click', () => {
+      loadResumoAtelier();
+    });
+
+    logoutButton.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch (e) {
+        console.error(e);
+        alert('Erro ao fazer logout. Tente novamente.');
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const snap = await getDoc(doc(db, 'Usuario', user.email));
+      if (!snap.exists()) {
+        alert('Dados do usuário não encontrados. Faça login novamente.');
+        await signOut(auth);
+        window.location.href = 'login.html';
+        return;
+      }
+
+      currentUserData = { email: user.email, ...snap.data() };
+      const { nivelAcesso, Nome } = currentUserData;
+
+      if (!['03','07'].includes(nivelAcesso)) {
+        alert('Você não tem permissão para acessar esta página.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      generateMenu(nivelAcesso, Nome);
+      await loadResumoAtelier();
+    });
+  </script>
+</body>
+</html>
