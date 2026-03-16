@@ -288,21 +288,25 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>SistemaTaloes</h1>
-        <div class="user-info">
-            <span id="userNameDisplay">Carregando...</span>
-            <span id="userNivelDisplay"></span>
-        </div>
-        <div>
-            <button id="logoutButton">Sair</button>
-        </div>
-    </header>
+<header>
+    <h1>Sistema Factor</h1>
 
-    <nav>
-        <ul id="menuNav">
-        </ul>
-    </nav>
+    <div class="user-info">
+        <span id="userNameDisplay">Carregando.</span>
+        <span id="userNivelDisplay"></span>
+    </div>
+
+    <div class="header-actions">
+        <button id="menuToggleButton" type="button">Menu</button>
+        <button id="logoutButton" type="button">Sair</button>
+    </div>
+</header>
+
+<nav id="mainNav" class="nav-collapsed">
+    <ul id="menuNav"></ul>
+</nav>
+<link rel="stylesheet" href="menu.css">
+<script src="menu.js"></script>
 
     <div class="main-content">
         <div class="filters-container">
