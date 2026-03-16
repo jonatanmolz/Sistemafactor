@@ -125,8 +125,8 @@
       <div id="cardsGrid" class="cards-grid">
         <article class="summary-card card-export-atraso" id="articleExportacoesAtraso">
           <div class="card-header">
-            <h3 class="card-title">Exportações em atraso</h3>
-            <p class="card-subtitle">Exportações com data de entrega de hoje ou anterior.</p>
+            <h3 class="card-title">Exp. em atraso URGENTE!!!!</h3>
+            <p class="card-subtitle">Exportações EM ATRASO</p>
             <div class="card-meta"><span class="meta-chip" id="metaAtraso">Carregando...</span></div>
           </div>
           <div class="card-body" id="cardExportacoesAtraso"><div class="loading">Carregando...</div></div>
@@ -143,7 +143,7 @@
 
         <article class="summary-card card-export" id="articleExportQuinta">
           <div class="card-header">
-            <h3 class="card-title" id="titleExportQuinta">Exportações de Quarta</h3>
+            <h3 class="card-title" id="titleExportQuinta">Exportações entrega Quarta</h3>
             <p class="card-subtitle">Exportações com entrega na próxima quinta-feira.</p>
             <div class="card-meta"><span class="meta-chip" id="metaExportQuinta">Carregando...</span></div>
           </div>
@@ -197,7 +197,7 @@
       </div>
     </section>
 
-    <div class="footer-note">Baseado no mesmo cabeçalho do cronograma e filtrando automaticamente por <strong>idAtelieResponsavel</strong> do usuário logado.</div>
+    <div class="footer-note">Baseado no mesmo cabeçalho do cronograma e filtrando por <strong>idAtelieResponsavel</strong> do usuário logado, ou exibindo todos os ateliês abertos para Montagem, Admin, Consultor e Super.</div>
   </div>
 
   <script type="module">
@@ -231,6 +231,7 @@
     const lastUpdateBadge = document.getElementById('lastUpdateBadge');
     const modeBadge = document.getElementById('modeBadge');
 
+    const cardsGrid = document.getElementById('cardsGrid');
     const articleExportacoesAtraso = document.getElementById('articleExportacoesAtraso');
     const articleExportSegunda = document.getElementById('articleExportSegunda');
     const articleExportQuinta = document.getElementById('articleExportQuinta');
@@ -263,6 +264,8 @@
     let currentUserData = null;
     let atelierTaloes = [];
     let currentMode = 'entrega';
+    let podeVerTodosAtelies = false;
+    let usuarioAtelieLogado = '';
 
     const nivelNomes = {
       '01': 'Cadastro', '02': 'Corte', '03': 'Costura', '04': 'Montagem',
@@ -451,15 +454,18 @@
         const modeloNum = String(t.modelo || t.referencia || '').trim();
         const modelo = `${linha}.${modeloNum || 'S/Modelo'}`;
         const pares = Number(t.pares) || 0;
+        const atelierNome = String(t.idAtelieResponsavel || t.nomeAtelieResponsavel || 'Sem ateliê').trim();
 
         if (!remessa || !linha || !numeroTalao) return;
 
-        const remessaKey = `${remessa}__${linha}__${dataCorte}`;
+        const remessaKey = `${remessa}__${linha}__${dataCorte}__${podeVerTodosAtelies ? atelierNome : ''}`;
         if (!grouped.has(remessaKey)) {
           grouped.set(remessaKey, {
             remessa,
             linha,
             dataCorte,
+            dataEntrega: t.dataEntrega || '',
+            atelierNome,
             itens: []
           });
         }
@@ -468,10 +474,12 @@
           numeroTalao,
           modelo,
           pares,
+          atelierNome,
           entrouAtelier: hasEntradaAtelier(t)
         });
 
-        totalPorModelo.set(modelo, (totalPorModelo.get(modelo) || 0) + pares);
+        const totalModeloKey = podeVerTodosAtelies ? `${atelierNome} - ${modelo}` : modelo;
+        totalPorModelo.set(totalModeloKey, (totalPorModelo.get(totalModeloKey) || 0) + pares);
         totalGeral += pares;
       });
 
@@ -491,12 +499,14 @@
       const blockHtml = blocks.map(block => {
         const itensHtml = block.itens
           .sort((a,b) => a.numeroTalao.localeCompare(b.numeroTalao, undefined, { numeric: true }))
-          .map(item => `<div class="talhao-item"><span class="talhao-status ${item.entrouAtelier ? 'ok' : 'no'}">${item.entrouAtelier ? '✔' : '✘'}</span><span class="talhao-text">Talão ${item.numeroTalao} - Modelo ${item.modelo} - Pares ${item.pares}</span></div>`)
+          .map(item => `<div class="talhao-item"><span class="talhao-status ${item.entrouAtelier ? 'ok' : 'no'}">${item.entrouAtelier ? '✔' : '✘'}</span><span class="talhao-text">T - ${item.numeroTalao} - Mod. ${item.modelo} - Prs. ${item.pares}</span></div>`)
           .join('');
+
+        const remessaTitulo = `R. ${block.remessa} - Crt ${formatDateShortBR(block.dataCorte)} - Entr. ${formatDateShortBR(block.dataEntrega)}`;
 
         return `
           <div class="remessa-block">
-            <div class="remessa-head">Remessa ${block.remessa} - ${block.linha} - Data de corte ${formatDateShortBR(block.dataCorte)}</div>
+            <div class="remessa-head">${remessaTitulo}</div>
             <div class="talhao-list">${itensHtml}</div>
           </div>
         `;
@@ -504,15 +514,16 @@
 
       const totalModeloHtml = Array.from(totalPorModelo.entries())
         .sort((a,b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
-        .map(([modelo, pares]) => `<div class="totals-line">Modelo ${modelo} - Pares ${pares}</div>`)
+        .map(([modelo, pares]) => `<div class="totals-line">Mod. ${modelo} - Pares ${pares}</div>`)
         .join('');
 
       const html = `
-        <div style="font-weight:700;color:#444;">Falta costura (${tituloResumo})</div>
+        <div style="font-weight:700;color:#444;">Falta costurar</div>
         <div class="totals-box">
           <div class="totals-title">Total de pares</div>
           ${totalModeloHtml}
           <div class="total-geral">Total ${totalGeral} pares</div>
+          <div style="font-weight:700;color:#444;">----------------------------------------</div>
         </div>
         ${blockHtml}
       `;
@@ -523,6 +534,19 @@
         meta: `${blocks.length} remessas · ${totalTaloes} talões`,
         totalGeral
       };
+    }
+
+    function reorderEntregaCards(nextMondayIso, nextThursdayIso) {
+      if (!cardsGrid) return;
+      const exportCards = [
+        { el: articleExportacoesAtraso, sort: '0000-00-00' },
+        { el: articleExportSegunda, sort: nextMondayIso || '9999-99-99' },
+        { el: articleExportQuinta, sort: nextThursdayIso || '9999-99-99' },
+        { el: articleSemanaPassada, sort: '9999-99-98' },
+        { el: articleSemanaAtual, sort: '9999-99-99' }
+      ];
+      exportCards.sort((a,b)=> String(a.sort).localeCompare(String(b.sort)));
+      exportCards.forEach(item => cardsGrid.appendChild(item.el));
     }
 
     function renderCards() {
@@ -548,8 +572,9 @@
       nextNextTuesday.setDate(nextNextTuesday.getDate() + 7);
       const nextNextTuesdayIso = formatLocalISO(nextNextTuesday);
 
-      titleExportSegunda.textContent = `Exportações de Sexta (${formatDateShortBR(nextMondayIso)})`;
-      titleExportQuinta.textContent = `Exportações de Quarta (${formatDateShortBR(nextThursdayIso)})`;
+      titleExportSegunda.textContent = `Exp. entrega  Sexta (${formatDateShortBR(nextMondayIso)})`;
+      titleExportQuinta.textContent = `Exp. entrega Quarta (${formatDateShortBR(nextThursdayIso)})`;
+      reorderEntregaCards(nextMondayIso, nextThursdayIso);
 
       const pendentes = atelierTaloes.filter(isPendenteDistribuicao);
 
@@ -575,7 +600,7 @@
       const corteSemanaDatesLabel = joinCutDatesLabel(getUniqueSortedCutDates(corteSemana));
       const corteProximaDatesLabel = joinCutDatesLabel(getUniqueSortedCutDates(corteProximaSemana));
       titleCorteSemana.textContent = corteSemanaDatesLabel
-        ? `Corte dessa semana (${corteSemanaDatesLabel}) entrega ${formatDateShortBR(nextTuesdayIso)}`
+        ? `Corte dessa semana -${corteSemanaDatesLabel} - entrega ${formatDateShortBR(nextTuesdayIso)}`
         : `Corte dessa semana entrega ${formatDateShortBR(nextTuesdayIso)}`;
       titleCorteProximaSemana.textContent = corteProximaDatesLabel
         ? `Corte da próxima semana (${corteProximaDatesLabel}) entrega ${formatDateShortBR(nextNextTuesdayIso)}`
@@ -648,10 +673,13 @@
       });
 
       try {
-        const atelierKey = currentUserData.Nome || currentUserData.idAtelieResponsavel || currentUserData.email;
-        atelierNameBadge.textContent = atelierKey || '-';
+        const atelierKey = usuarioAtelieLogado || currentUserData.Nome || currentUserData.idAtelieResponsavel || currentUserData.email;
+        atelierNameBadge.textContent = podeVerTodosAtelies ? 'Todos os ateliês em aberto' : (atelierKey || '-');
 
-        const qRef = query(collection(db, 'taloes'), where('idAtelieResponsavel', '==', atelierKey));
+        const ref = collection(db, 'taloes');
+        const qRef = podeVerTodosAtelies
+          ? query(ref)
+          : query(ref, where('idAtelieResponsavel', '==', atelierKey));
         const snap = await getDocs(qRef);
         atelierTaloes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         renderCards();
@@ -707,8 +735,10 @@
 
       currentUserData = { email: user.email, ...snap.data() };
       const { nivelAcesso, Nome } = currentUserData;
+      usuarioAtelieLogado = String(currentUserData.Nome || currentUserData.idAtelieResponsavel || currentUserData.email || '').trim();
+      podeVerTodosAtelies = ['04','05','06','07'].includes(String(nivelAcesso));
 
-      if (!['03','07'].includes(nivelAcesso)) {
+      if (!['03','04','05','06','07'].includes(String(nivelAcesso))) {
         alert('Você não tem permissão para acessar esta página.');
         window.location.href = 'index.html';
         return;
