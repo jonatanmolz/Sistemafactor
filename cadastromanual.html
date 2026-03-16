@@ -261,7 +261,7 @@
         const tipoClienteSelect = document.getElementById('tipoCliente');
         const messageDiv = document.getElementById('message');
 
-        // Tipos de Usuarios e niveis
+    // Tipos de Usuarios e niveis
         const nivelNomes = {
             '01': 'Cadastro',
             '02': 'Corte',
@@ -270,13 +270,14 @@
             '05': 'Admin',
             '06': 'Consultor',
             '07':'Super'
+
         };
 
-        // Definição das páginas e seus níveis de acesso
+        // Definição das páginas e seus níveis de acesso (copiado do index.html)
         const pages = [
-            // Inicio
+          // Inicio
             { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06','07'] },
-            // Cadastro
+          // Cadastro
             { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
             { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05','07'] },
             { name: 'Cadastro Manual', href: 'cadastromanual.html', levels: ['05', '07'] },
@@ -285,22 +286,27 @@
             { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
             { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
             { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['05','07'] },
-            // Corte
+          
+          // Corte
             { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
             { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
-            // Relatorios
+
+          // Relatorios
             { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
             { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05','06','07'] },
             { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['06','07'] },
             { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
-            //Costura
+
+          //Costura
             { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
             { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
             { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
-            // Fabrica
+
+          // Fabrica
             { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
             { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
             { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
+            
         ];
 
         // Função para gerar o menu dinamicamente
