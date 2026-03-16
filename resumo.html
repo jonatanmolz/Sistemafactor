@@ -1,734 +1,624 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resumo por Setor - SistemaTaloes</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .user-info {
-            font-size: 14px;
-            text-align: right;
-        }
-        .user-info span {
-            display: block;
-            font-weight: bold;
-        }
-        nav {
-            background-color: #555;
-            padding: 10px 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            font-size: 0.8em
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-            display: block;
-        }
-        nav ul li a:hover {
-            background-color: #777;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .filters-container {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 900px;
-            margin-bottom: 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .filters-container label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-size: 0.9em;
-        }
-        .filters-container input,
-        .filters-container select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 0.9em;
-        }
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 10px; /* Diminuído o gap entre os cards */
-            width: 75%;
-            max-width: 1000px;
-            margin-top: 20px;
-        }
-        /* Estilo específico para o card de Corte */
-        .card.corte-card {
-            grid-column: 1 / -1; /* Ocupa todas as colunas disponíveis */
-            display: grid;
-            /* Ajustado para 3 colunas, removendo "Aguardando Material" do layout direto */
-            grid-template-columns: repeat(3, minmax(200px, 1fr)); 
-            gap: 10px; /* Diminuído o gap entre as colunas de status */
-            padding: 15px; /* Diminuído o padding do card */
-            box-sizing: border-box; /* Garante que padding não aumente o tamanho total */
-        }
-        .card.corte-card h3 {
-            grid-column: 1 / -1; /* Título ocupa todas as colunas */
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .card.corte-card .card-section {
-            border-bottom: none; /* Remove a borda inferior das seções de status */
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-        .card.corte-card .card-section h4 {
-            border-bottom: 1px solid #eee; /* Adiciona borda abaixo do título do status */
-            padding-bottom: 5px;
-            margin-bottom: 10px;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resumo Fábrica - SistemaTaloes</title>
+  <style>
+    :root{
+      --bg:#f4f4f4; --ink:#333; --ink-2:#555; --card:#fff; --muted:#777;
+      --pri:#007bff; --pri-700:#0056b3; --danger:#dc3545; --danger-700:#c82333;
+      --ok:#169c49; --no:#de3b32; --bd:#ddd; --chip:#f0f0f0; --shadow:0 4px 14px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;min-height:100vh;display:flex;flex-direction:column;color:var(--ink)}
+    header{background:#333;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,.2);gap:12px}
+    header h1{margin:0;font-size:22px}
+    .header-actions{display:flex;align-items:center;gap:10px}
+    .user-info{font-size:13px;text-align:right}
+    .user-info span{display:block;font-weight:700}
+    nav{background:#555;padding:10px 20px;box-shadow:0 2px 5px rgba(0,0,0,.1);font-size:.8em;display:none}
+    nav.open{display:block}
+    nav ul{list-style:none;margin:0;padding:0;display:flex;gap:12px;flex-wrap:wrap}
+    nav a{color:#fff;text-decoration:none;padding:6px 12px;border-radius:6px;display:block}
+    nav a:hover{background:#777}
+    .btn{padding:10px 14px;border:none;border-radius:8px;cursor:pointer;font-size:.95em;transition:background .2s,transform .02s;display:inline-flex;gap:.5rem;align-items:center}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:var(--pri);color:#fff}.btn-primary:hover{background:var(--pri-700)}
+    .btn-secondary{background:#e9ecef;color:#111}.btn-secondary:hover{background:#dde2e6}
+    .btn-mode{background:#dbe5ef;color:#1f2d3d}.btn-mode.active{background:#2f6ea9;color:#fff}
+    .btn-copy{background:#eef3f8;color:#15314f;border:1px solid #cfd8e1;padding:7px 10px;font-size:.82rem}
+    .btn-copy:hover{background:#dde8f3}
+    #logoutButton{background:var(--danger);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+    #logoutButton:hover{background:var(--danger-700)}
+    .main-content{flex:1;padding:16px;display:flex;flex-direction:column;align-items:center;gap:16px}
+    .toolbar,.container{background:var(--card);padding:16px;border-radius:16px;box-shadow:var(--shadow);width:100%;max-width:1680px}
+    .toolbar-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+    .toolbar h2{margin:0;font-size:1.95rem}.toolbar p{margin:6px 0 0;color:var(--ink-2)}
+    .toolbar-actions{display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+    .mode-buttons{display:flex;gap:10px;flex-wrap:wrap}
+    .status-line{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .status-badge{background:var(--chip);border:1px solid var(--bd);border-radius:999px;padding:8px 12px;font-size:.92em}
+    .refresh-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+    .check-row{display:flex;align-items:center;gap:8px;font-size:.94rem;color:#222}
+    .check-row input{transform:scale(1.1)}
 
-        .card {
-            background-color: #fff;
-            padding: 15px; /* Diminuído o padding do card */
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-        .card h3 {
-            margin-top: 0;
-            color: #333;
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        .card-content {
-            flex-grow: 1;
-        }
-        /* Novas classes para seções dentro dos cards */
-        .card-section {
-            margin-bottom: 5px; /* Diminuído o margin-bottom */
-            padding-bottom: 5px; /* Diminuído o padding-bottom */
-            border-bottom: 1px dashed #ddd;
-        }
-        .card-section:last-of-type {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-        .card-section h4 {
-            margin-top: 0;
-            margin-bottom: 5px; /* Diminuído o margin-bottom */
-            color: #444;
-            font-size: 1.1em;
-            text-align: center;
-        }
-        .card-content-sub {
-            padding-left: 5px; /* Diminuído o padding-left */
-        }
-        .card-content-sub h5 { /* Novo estilo para sub-sub-títulos */
-            margin-top: 3px; /* Diminuído o margin-top */
-            margin-bottom: 3px; /* Diminuído o margin-bottom */
-            color: #666;
-            font-size: 0.9em; /* Ligeiramente diminuído o tamanho da fonte */
-            text-align: left;
-            padding-left: 5px;
-        }
-        /* Removido .card-total-sub para ter apenas um total por card-section */
-        /* .card-total-sub {
-            text-align: right;
-            font-weight: bold;
-            font-size: 1em;
-            color: #0056b3;
-            margin-top: 5px;
-        } */
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px}
+    .summary-card{background:var(--card);border:1px solid var(--bd);border-radius:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;min-height:310px}
+    .summary-card .card-header{padding:16px;border-bottom:1px solid #ececec;background:linear-gradient(180deg,#dbeeff,#cfe4f7)}
+    .summary-card.week-card .card-header{background:linear-gradient(180deg,#f4f4f4,#ededed)}
+    .summary-card.atraso-card .card-header{background:linear-gradient(180deg,#d8e9f8,#cce1f4)}
+    .card-title{margin:0 0 6px;font-size:1.12rem;color:#1f1f1f}
+    .week-card.past .card-title,.atraso-card .card-title{color:#f03030}
+    .card-subtitle{margin:0;color:#424242;font-size:.94rem;min-height:42px}
+    .card-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+    .meta-chip{background:#fff;border:1px solid var(--bd);border-radius:999px;padding:6px 11px;font-size:.84rem}
+    .card-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+    .card-body{padding:14px 14px 16px;display:flex;flex-direction:column;gap:10px;overflow:auto}
+    .remessa-line{border:1px solid #dadada;border-radius:14px;padding:10px 12px;background:#fafafa;display:flex;align-items:center;gap:10px;font-size:12.2px;line-height:1.15;cursor:pointer;transition:background .15s,border-color .15s}
+    .remessa-line:hover{background:#f2f7fd;border-color:#b8cde2}
+    .status-icon{font-weight:700;min-width:14px;font-size:18px;line-height:1;flex:0 0 auto}
+    .status-icon.ok{color:var(--ok)} .status-icon.no{color:var(--no)}
+    .remessa-text{flex:1;font-weight:700;color:#122844;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .empty-state,.loading{padding:28px 10px;text-align:center;color:var(--muted)}
+    .legend-note{font-size:.9em;color:var(--ink-2);width:100%;max-width:1680px}
 
-        .card-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 1px 0; /* Diminuído o padding vertical */
-            border-bottom: 1px dotted #eee;
-            font-size: 0.85em; /* Ligeiramente diminuído o tamanho da fonte */
-        }
-        .card-item:last-child {
-            border-bottom: none;
-        }
-        .card-item .item-label {
-            font-weight: bold;
-            color: #555;
-        }
-        .card-item .item-value {
-            color: #333;
-        }
-        .card-total {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 2px solid #eee;
-            text-align: right;
-            font-weight: bold;
-            font-size: 1.1em;
-            color: #007bff;
-        }
-        .no-data-message {
-            text-align: center;
-            color: #777;
-            font-style: italic;
-            margin-top: 10px;
-        }
-        button#logoutButton {
-            background-color: #dc3545;
-            margin-left: 20px;
-        }
-        button#logoutButton:hover {
-            background-color: #c82333;
-        }
-    </style>
+    .modal{display:none;position:fixed;z-index:1000;inset:0;background:rgba(0,0,0,.42);padding:12px}
+    .modal-content{background:#fff;margin:auto;padding:12px;border:1px solid #888;width:98%;max-width:1420px;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.2);position:relative;animation:animatetop .25s}
+    @keyframes animatetop{from{transform:translateY(-10px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .close-btn{position:absolute;right:10px;top:4px;color:#888;font-size:28px;font-weight:700;cursor:pointer}
+    .close-btn:hover{color:#000}
+    .modal-head{display:flex;gap:8px;align-items:center;justify-content:space-between;padding-right:28px}
+    #detailsTableContainer{overflow:auto;max-height:80vh}
+    .modal-body-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.82em}
+    .modal-body-table th,.modal-body-table td{border:1px solid var(--bd);padding:6px;text-align:center;white-space:nowrap}
+    .modal-body-table th{background:#f2f2f2}
+    .modal-body-table tr:nth-child(even){background:#f8f8f8}
+
+    @media (max-width:900px){
+      .toolbar h2{font-size:1.55rem}
+      .toolbar-actions{align-items:stretch}
+      .cards-grid{grid-template-columns:1fr}
+      .remessa-line{font-size:11.4px}
+      .remessa-text{white-space:normal;overflow:visible;text-overflow:unset}
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>SistemaTaloes</h1>
-        <div class="user-info">
-            <span id="userNameDisplay">Carregando...</span>
-            <span id="userNivelDisplay"></span>
-        </div>
-        <div>
-            <button id="logoutButton">Sair</button>
-        </div>
-    </header>
-
-    <nav>
-        <ul id="menuNav">
-            <!-- Os itens do menu serão injetados aqui via JavaScript -->
-        </ul>
-    </nav>
-
-    <div class="main-content">
-        <div class="filters-container">
-            <div class="form-group">
-                <label for="filterDataCorte">Data de Corte:</label>
-                <input type="date" id="filterDataCorte">
-            </div>
-            <div class="form-group">
-                <label for="filterTipoCliente">Tipo de Cliente:</label>
-                <select id="filterTipoCliente">
-                    <option value="">Todos</option>
-                    <option value="Exportacao">Exportação</option>
-                    <option value="Cliente especial">Cliente Especial</option>
-                    <option value="Mercado Interno">Mercado Interno</option>
-                    <option value="Estoque">Estoque</option>
-                    <option value="Amostra">Amostra</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="filterLinha">Linha:</label>
-                <input type="text" id="filterLinha" placeholder="Número da Linha">
-            </div>
-            <div class="form-group">
-                <label for="filterModelo">Modelo:</label>
-                <input type="text" id="filterModelo" placeholder="Modelo">
-            </div>
-        </div>
-
-        <div class="cards-grid" id="cardsGrid">
-            <!-- Os cards dos setores serão injetados aqui via JavaScript -->
-            <p style="grid-column: 1 / -1; text-align: center;">Carregando resumo dos talões...</p>
-        </div>
+  <header>
+    <h1>SistemaTaloes</h1>
+    <div class="user-info">
+      <span id="userNameDisplay">Carregando...</span>
+      <span id="userNivelDisplay"></span>
     </div>
+    <div class="header-actions">
+      <button id="toggleMenuButton" class="btn btn-secondary" type="button">Menu</button>
+      <button id="logoutButton" type="button">Sair</button>
+    </div>
+  </header>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        const firebaseConfig = {
-            apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
-            authDomain: "sistemataloes.firebaseapp.com",
-            projectId: "sistemataloes",
-            storageBucket: "sistemataloes.appspot.com",
-            messagingSenderId: "684534379685",
-            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'
-        };
+  <nav id="topNav"><ul id="menuNav"></ul></nav>
 
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  <div class="main-content">
+    <section class="toolbar">
+      <div class="toolbar-top">
+        <div>
+          <h2>Fábrica - Resumo por <span id="modeLabelText">entrega</span></h2>
+          <p id="modeDescription">Remessas em aberto na montagem, agrupadas por entrega.</p>
+        </div>
+        <div class="toolbar-actions">
+          <div class="mode-buttons">
+            <button id="btnModeEntrega" class="btn btn-mode active" type="button">Programação por entrega</button>
+            <button id="btnModeCorte" class="btn btn-mode" type="button">Programação por corte</button>
+          </div>
+        </div>
+      </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+      <div class="status-line">
+        <div class="status-badge">Setor: <strong>Montagem / Fábrica</strong></div>
+        <div class="status-badge">Última atualização: <strong id="lastUpdateBadge">-</strong></div>
+        <div class="status-badge">Legenda: <strong>✔ todos os talões na distribuição | ✘ ainda faltam talões na distribuição</strong></div>
+      </div>
 
-        // Elementos do Header e Navegação
-        const menuNav = document.getElementById('menuNav');
-        const userNameDisplay = document.getElementById('userNameDisplay');
-        const userNivelDisplay = document.getElementById('userNivelDisplay');
-        const logoutButton = document.getElementById('logoutButton');
+      <div class="refresh-row">
+        <label class="check-row"><input type="checkbox" id="onlyCompleteCheck"> Mostrar somente remessas completas na distribuição</label>
+        <button id="refreshButton" class="btn btn-primary" type="button">Atualizar</button>
+      </div>
+    </section>
 
-        // Elementos dos Filtros
-        const filterDataCorte = document.getElementById('filterDataCorte');
-        const filterTipoCliente = document.getElementById('filterTipoCliente');
-        const filterLinha = document.getElementById('filterLinha'); 
-        const filterModelo = document.getElementById('filterModelo'); 
-        const cardsGrid = document.getElementById('cardsGrid');
+    <section class="container">
+      <div class="cards-grid" id="cardsGrid">
+        <article class="summary-card atraso-card" id="articleAtraso">
+          <div class="card-header">
+            <h3 class="card-title" id="titleAtraso">1 - Exportação em atraso</h3>
+            <p class="card-subtitle" id="subtitleAtraso">Todas as exportações com entrega menor que hoje e em aberto na montagem.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaAtraso">Carregando...</span></div>
+            <div class="card-actions"><button class="btn btn-copy" data-copy-key="atraso" type="button">Copiar para o Whats</button></div>
+          </div>
+          <div class="card-body" id="cardAtraso"><div class="loading">Carregando...</div></div>
+        </article>
 
-        let allTaloes = []; 
-        let currentUserEmail = '';
-        let currentUserName = '';
-        let ateliesList = []; 
+        <article class="summary-card week-card past" id="articleSemanaPassada">
+          <div class="card-header">
+            <h3 class="card-title" id="titleSemanaPassada">2 - Entregas da semana passada</h3>
+            <p class="card-subtitle" id="subtitleSemanaPassada">Todas as remessas da semana passada em aberto na montagem.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaSemanaPassada">Carregando...</span></div>
+            <div class="card-actions"><button class="btn btn-copy" data-copy-key="semanaPassada" type="button">Copiar para o Whats</button></div>
+          </div>
+          <div class="card-body" id="cardSemanaPassada"><div class="loading">Carregando...</div></div>
+        </article>
 
-    // Tipos de Usuarios e niveis
-        const nivelNomes = {
-            '01': 'Cadastro',
-            '02': 'Corte',
-            '03': 'Costura',
-            '04': 'Montagem',
-            '05': 'Admin',
-            '06': 'Consultor',
-            '07':'Super'
+        <article class="summary-card" id="articleHoje">
+          <div class="card-header">
+            <h3 class="card-title" id="titleHoje">3 - Exportação de hoje</h3>
+            <p class="card-subtitle" id="subtitleHoje">Exportações com entrega de hoje e montagem em aberto.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaHoje">Carregando...</span></div>
+            <div class="card-actions"><button class="btn btn-copy" data-copy-key="hoje" type="button">Copiar para o Whats</button></div>
+          </div>
+          <div class="card-body" id="cardHoje"><div class="loading">Carregando...</div></div>
+        </article>
 
-        };
+        <article class="summary-card" id="articleSegunda">
+          <div class="card-header">
+            <h3 class="card-title" id="titleSegunda">4 - Exportação de segunda</h3>
+            <p class="card-subtitle" id="subtitleSegunda">Exportações com entrega para a próxima segunda-feira.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaSegunda">Carregando...</span></div>
+            <div class="card-actions"><button class="btn btn-copy" data-copy-key="segunda" type="button">Copiar para o Whats</button></div>
+          </div>
+          <div class="card-body" id="cardSegunda"><div class="loading">Carregando...</div></div>
+        </article>
 
-        // Definição das páginas e seus níveis de acesso (copiado do index.html)
-        const pages = [
-          // Inicio
-            { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06','07'] },
-          // Cadastro
-            { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
-            { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05','07'] },
+        <article class="summary-card" id="articleQuinta">
+          <div class="card-header">
+            <h3 class="card-title" id="titleQuinta">5 - Exportação de quinta</h3>
+            <p class="card-subtitle" id="subtitleQuinta">Exportações com entrega para a próxima quinta-feira.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaQuinta">Carregando...</span></div>
+            <div class="card-actions"><button class="btn btn-copy" data-copy-key="quinta" type="button">Copiar para o Whats</button></div>
+          </div>
+          <div class="card-body" id="cardQuinta"><div class="loading">Carregando...</div></div>
+        </article>
 
-          // Ferramentas
-            { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
-            { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
-            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
-          
-          // Corte
-            { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
-            { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
+        <article class="summary-card week-card" id="articleSemanaAtual">
+          <div class="card-header">
+            <h3 class="card-title" id="titleSemanaAtual">6 - Semana atual</h3>
+            <p class="card-subtitle" id="subtitleSemanaAtual">Todas as remessas da semana atual, de segunda a sexta, em aberto na montagem.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaSemanaAtual">Carregando...</span></div>
+            <div class="card-actions"><button class="btn btn-copy" data-copy-key="semanaAtual" type="button">Copiar para o Whats</button></div>
+          </div>
+          <div class="card-body" id="cardSemanaAtual"><div class="loading">Carregando...</div></div>
+        </article>
+      </div>
+    </section>
 
-          // Relatorios
-            { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
-            { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05','06','07'] },
-            { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['06','07'] },
-            { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
+    <div class="legend-note">Clique em uma remessa para abrir os detalhes dos talões ainda em aberto na montagem.</div>
+  </div>
 
-          //Costura
-            { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
-            { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
-            { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
+  <div id="detailsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" id="closeDetailsModal">&times;</span>
+      <div class="modal-head"><h3 id="modalTitle" style="margin:0">Detalhes da Remessa</h3></div>
+      <div id="detailsTableContainer">
+        <table class="modal-body-table">
+          <thead>
+            <tr>
+              <th>Talão</th><th>Linha</th><th>Modelo</th><th>Pares</th><th>Cor</th><th>Data Corte</th><th>Ateliê</th><th>Corte</th><th>Entrada Ateliê</th><th>Saída Costura</th><th>Distribuição</th><th>Talonagem</th><th>Montagem</th><th>Trilho</th>
+            </tr>
+          </thead>
+          <tbody id="modalTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-          // Fabrica
-            { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
-            { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
-            { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
-            
-        ];
+  <script type="module">
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+      authDomain: "sistemataloes.firebaseapp.com",
+      projectId: "sistemataloes",
+      storageBucket: "sistemataloes.appspot.com",
+      messagingSenderId: "684534379685",
+      appId: "1:684534379685:web:..."
+    };
 
-    //Funçoes
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        // Função para gerar o menu dinamicamente
-        function generateMenu(userLevel, userName) {
-            menuNav.innerHTML = '';
-            const userNivelText = nivelNomes[userLevel] || `Nível ${userLevel}`;
-            userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
-            userNivelDisplay.textContent = `Setor: ${userNivelText}`;
+    const menuNav = document.getElementById('menuNav');
+    const topNav = document.getElementById('topNav');
+    const toggleMenuButton = document.getElementById('toggleMenuButton');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const userNivelDisplay = document.getElementById('userNivelDisplay');
+    const logoutButton = document.getElementById('logoutButton');
+    const refreshButton = document.getElementById('refreshButton');
+    const onlyCompleteCheck = document.getElementById('onlyCompleteCheck');
+    const lastUpdateBadge = document.getElementById('lastUpdateBadge');
+    const btnModeEntrega = document.getElementById('btnModeEntrega');
+    const btnModeCorte = document.getElementById('btnModeCorte');
+    const modeLabelText = document.getElementById('modeLabelText');
+    const modeDescription = document.getElementById('modeDescription');
+    const cardsGrid = document.getElementById('cardsGrid');
+    const detailsModal = document.getElementById('detailsModal');
+    const closeDetailsModal = document.getElementById('closeDetailsModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalTableBody = document.getElementById('modalTableBody');
 
-            pages.forEach(page => {
-                if (page.levels.includes(userLevel)) {
-                    const listItem = document.createElement('li');
-                    const link = document.createElement('a');
-                    link.href = page.href; // Caminho relativo
-                    link.textContent = page.name;
-                    listItem.appendChild(link);
-                    menuNav.appendChild(listItem);
-                }
-            });
+    const refs = {
+      atraso: { key:'atraso', article: document.getElementById('articleAtraso'), title: document.getElementById('titleAtraso'), subtitle: document.getElementById('subtitleAtraso'), meta: document.getElementById('metaAtraso'), body: document.getElementById('cardAtraso') },
+      semanaPassada: { key:'semanaPassada', article: document.getElementById('articleSemanaPassada'), title: document.getElementById('titleSemanaPassada'), subtitle: document.getElementById('subtitleSemanaPassada'), meta: document.getElementById('metaSemanaPassada'), body: document.getElementById('cardSemanaPassada') },
+      hoje: { key:'hoje', article: document.getElementById('articleHoje'), title: document.getElementById('titleHoje'), subtitle: document.getElementById('subtitleHoje'), meta: document.getElementById('metaHoje'), body: document.getElementById('cardHoje') },
+      segunda: { key:'segunda', article: document.getElementById('articleSegunda'), title: document.getElementById('titleSegunda'), subtitle: document.getElementById('subtitleSegunda'), meta: document.getElementById('metaSegunda'), body: document.getElementById('cardSegunda') },
+      quinta: { key:'quinta', article: document.getElementById('articleQuinta'), title: document.getElementById('titleQuinta'), subtitle: document.getElementById('subtitleQuinta'), meta: document.getElementById('metaQuinta'), body: document.getElementById('cardQuinta') },
+      semanaAtual: { key:'semanaAtual', article: document.getElementById('articleSemanaAtual'), title: document.getElementById('titleSemanaAtual'), subtitle: document.getElementById('subtitleSemanaAtual'), meta: document.getElementById('metaSemanaAtual'), body: document.getElementById('cardSemanaAtual') }
+    };
+
+    const nivelNomes = {
+      '01': 'Cadastro', '02': 'Corte', '03': 'Costura', '04': 'Montagem', '05': 'Admin', '06': 'Consultor', '07': 'Super'
+    };
+
+    const pages = [
+      { name: 'Index', href: 'index.html', levels: ['01','02','03','04','05','06','07'] },
+      { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
+      { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01','05','07'] },
+      { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
+      { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
+      { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
+      { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
+      { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
+      { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
+      { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02','04','05','06','07'] },
+      { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['06','07'] },
+      { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
+      { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
+      { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
+      { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
+      { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
+      { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
+      { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
+    ];
+
+    let allTaloes = [];
+    let currentMode = 'entrega';
+    let lastRenderedBuckets = {};
+
+    function hasDate(v){ return !!(v && String(v).trim() !== ''); }
+    function normalizeTipoCliente(tipo){
+      const t = (tipo || '').trim().toLowerCase();
+      if (['exportacao','exportação','exportações','exportacoes'].includes(t)) return 'Exportacao';
+      if (t === 'cliente especial') return 'Cliente especial';
+      if (t === 'mercado interno') return 'Mercado Interno';
+      if (t === 'estoque') return 'Estoque';
+      if (['amostra','amostras'].includes(t)) return 'Amostra';
+      return tipo || '';
+    }
+    function formatDateShortBR(iso){
+      if(!iso) return '--/--';
+      const dt = new Date(iso + 'T00:00:00');
+      if(isNaN(dt)) return '--/--';
+      return `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}`;
+    }
+    function formatDateTimeNow(){ return new Date().toLocaleString('pt-BR'); }
+    function getTodayLocal(){ const now=new Date(); return new Date(now.getFullYear(), now.getMonth(), now.getDate()); }
+    function formatLocalISO(dateObj){ const y=dateObj.getFullYear(); const m=String(dateObj.getMonth()+1).padStart(2,'0'); const d=String(dateObj.getDate()).padStart(2,'0'); return `${y}-${m}-${d}`; }
+    function getWeekMonday(dateObj){ const d=new Date(dateObj.getFullYear(),dateObj.getMonth(),dateObj.getDate()); const day=d.getDay(); const diff=day===0?-6:1-day; d.setDate(d.getDate()+diff); return d; }
+    function getWeekFridayFromMonday(monday){ const friday=new Date(monday); friday.setDate(monday.getDate()+4); return friday; }
+    function getNextWeekday(targetWeekday){ const today=getTodayLocal(); const current=today.getDay(); let diff=targetWeekday-current; if(diff<=0) diff+=7; const result=new Date(today); result.setDate(today.getDate()+diff); return result; }
+    function parseDateSafe(v){ return v ? new Date(v + 'T00:00:00') : null; }
+
+    function generateMenu(userLevel, userName){
+      menuNav.innerHTML = '';
+      userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
+      userNivelDisplay.textContent = `Setor: ${nivelNomes[userLevel] || `Nível ${userLevel}`}`;
+      pages.forEach(p => {
+        if (p.levels.includes(userLevel)) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = p.href;
+          a.textContent = p.name;
+          li.appendChild(a);
+          menuNav.appendChild(li);
+        }
+      });
+    }
+
+    function aggregateRemessas(taloes){
+      const grouped = new Map();
+      taloes.forEach(t => {
+        const remessa = String(t.numeroRemessa || '').trim();
+        if (!remessa) return;
+        const pares = Number(t.pares) || 0;
+        if (!grouped.has(remessa)) {
+          grouped.set(remessa, {
+            remessa,
+            tipoCliente: normalizeTipoCliente(t.tipoCliente),
+            dataCorte: t.dataCorte || '',
+            dataEntrega: t.dataEntrega || '',
+            totalPares: 0,
+            paresMontados: 0,
+            totalTaloes: 0,
+            talhoesNaDistribuicao: 0,
+            linhas: new Set(),
+            talhoesUnicos: new Set()
+          });
         }
 
-        // --- Controle de Autenticação e Carregamento de Dados ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserEmail = user.email;
-                const userDocRef = doc(db, 'Usuario', user.email);
-                const userDocSnap = await getDoc(userDocRef);
+        const item = grouped.get(remessa);
+        item.totalPares += pares;
+        const linha = String(t.linha || '').trim();
+        if (linha) item.linhas.add(linha);
+        if (!item.dataCorte && t.dataCorte) item.dataCorte = t.dataCorte;
+        if (!item.dataEntrega && t.dataEntrega) item.dataEntrega = t.dataEntrega;
+        if (hasDate(t.dataEntradaMontagem)) item.paresMontados += pares;
 
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
-                    const nivelAcesso = userData.nivelAcesso;
-                    currentUserName = userData.Nome;
+        const talhaoKey = String(t.numeroTalaoSequencial || t.numeroTalao || t.id || `${remessa}-${item.totalTaloes+1}`);
+        if (!item.talhoesUnicos.has(talhaoKey)) {
+          item.talhoesUnicos.add(talhaoKey);
+          item.totalTaloes += 1;
+          if (hasDate(t.dataEntradaDistribuicao)) item.talhoesNaDistribuicao += 1;
+        }
+      });
 
-                    // Verificar se o usuário tem permissão para esta página
-                    if (!pages.find(p => p.href === 'resumo.html' && p.levels.includes(nivelAcesso))) {
-                        alert('Você não tem permissão para acessar esta página.');
-                        window.location.href = 'index.html';
-                        return;
-                    }
+      return Array.from(grouped.values()).map(r => ({
+        remessa: r.remessa,
+        tipoCliente: r.tipoCliente,
+        dataCorte: r.dataCorte,
+        dataEntrega: r.dataEntrega,
+        totalPares: r.totalPares,
+        linhas: Array.from(r.linhas || []).sort((a,b) => a.localeCompare(b, undefined, { numeric:true })),
+        paresMontados: r.paresMontados,
+        faltamMontar: Math.max(0, r.totalPares - r.paresMontados),
+        entrouDistribuicao: r.totalTaloes > 0 && r.talhoesNaDistribuicao === r.totalTaloes,
+        totalTaloes: r.totalTaloes
+      }))
+      .filter(r => r.faltamMontar > 0)
+      .sort((a,b) => {
+        const campo = currentMode === 'entrega' ? 'dataEntrega' : 'dataCorte';
+        const da = a[campo] || '9999-12-31';
+        const db = b[campo] || '9999-12-31';
+        if (da !== db) return da.localeCompare(db);
+        const la = (a.linhas?.[0] || '').padStart(8,'0');
+        const lb = (b.linhas?.[0] || '').padStart(8,'0');
+        if (la !== lb) return la.localeCompare(lb, undefined, { numeric:true });
+        return (parseInt(a.remessa,10)||0) - (parseInt(b.remessa,10)||0);
+      });
+    }
 
-                    generateMenu(nivelAcesso, currentUserName);
-                    await loadAtelies(); // Carrega os ateliês para o agrupamento
-                    listenToTaloes(); // Inicia a escuta de todos os talões
-                } else {
-                    alert('Dados do usuário não encontrados. Faça login novamente.');
-                    await signOut(auth);
-                    window.location.href = 'login.html';
-                }
-            } else {
-                window.location.href = 'login.html';
-            }
+    function formatLinhaTexto(linhas){
+      if (!Array.isArray(linhas) || !linhas.length) return 'S/L';
+      if (linhas.length === 1) return linhas[0];
+      return linhas.join('/');
+    }
+
+    function getVisibleRemessas(remessas){
+      return onlyCompleteCheck.checked ? remessas.filter(r => r.entrouDistribuicao) : remessas;
+    }
+
+    function buildWhatsMessage(title, remessas){
+      const visiveis = getVisibleRemessas(remessas);
+      const linhas = [title, 'Remessas', 'Linha - Remessa - Corte - pares'];
+      visiveis.forEach(r => {
+        linhas.push(`${formatLinhaTexto(r.linhas)} - ${r.remessa} - ${formatDateShortBR(r.dataCorte)} - ${r.faltamMontar.toLocaleString('pt-BR')} pares`);
+      });
+      return linhas.join('\n');
+    }
+
+    async function copyCardToClipboard(key){
+      const bucket = lastRenderedBuckets[key] || [];
+      const title = refs[key].title.textContent;
+      const message = buildWhatsMessage(title, bucket);
+      try {
+        await navigator.clipboard.writeText(message);
+        alert('Mensagem copiada para o Whats.');
+      } catch (e) {
+        console.error(e);
+        prompt('Copie a mensagem abaixo:', message);
+      }
+    }
+
+    function cardMarkup(remessas){
+      const visiveis = getVisibleRemessas(remessas);
+      if (!visiveis.length) {
+        return { html: '<div class="empty-state">Nenhuma remessa encontrada neste card.</div>', meta: '0 remessas' };
+      }
+      const html = visiveis.map(r => `
+        <div class="remessa-line" data-remessa="${r.remessa}">
+          <span class="status-icon ${r.entrouDistribuicao ? 'ok' : 'no'}">${r.entrouDistribuicao ? '✔' : '✘'}</span>
+          <span class="remessa-text">R. ${r.remessa} - L.${formatLinhaTexto(r.linhas)} - Crt ${formatDateShortBR(r.dataCorte)} - Entr. ${formatDateShortBR(r.dataEntrega)} - ${r.faltamMontar.toLocaleString('pt-BR')} pares</span>
+        </div>
+      `).join('');
+      return { html, meta: `${visiveis.length} remessas` };
+    }
+
+    function fillCard(ref, remessas){
+      lastRenderedBuckets[ref.key] = remessas;
+      const built = cardMarkup(remessas);
+      ref.body.innerHTML = built.html;
+      ref.meta.textContent = built.meta;
+      ref.article.style.display = '';
+    }
+
+    function setModeUi(){
+      modeLabelText.textContent = currentMode === 'entrega' ? 'entrega' : 'corte';
+      modeDescription.textContent = currentMode === 'entrega'
+        ? 'Remessas em aberto na montagem, agrupadas por entrega.'
+        : 'Remessas em aberto na montagem, agrupadas por corte. Nesta visão a semana fecha na sexta-feira.';
+      btnModeEntrega.classList.toggle('active', currentMode === 'entrega');
+      btnModeCorte.classList.toggle('active', currentMode === 'corte');
+
+      if (currentMode === 'entrega') {
+        refs.atraso.title.textContent = '1 - Exportação em atraso';
+        refs.atraso.subtitle.textContent = 'Todas as exportações com entrega menor que hoje e em aberto na montagem.';
+        refs.semanaPassada.title.textContent = '2 - Entregas da semana passada';
+        refs.semanaPassada.subtitle.textContent = 'Todas as remessas da semana passada em aberto na montagem.';
+        refs.hoje.subtitle.textContent = 'Exportações com entrega de hoje e montagem em aberto.';
+        refs.segunda.subtitle.textContent = 'Exportações com entrega para a próxima segunda-feira.';
+        refs.quinta.subtitle.textContent = 'Exportações com entrega para a próxima quinta-feira.';
+        refs.semanaAtual.title.textContent = '6 - Semana atual';
+        refs.semanaAtual.subtitle.textContent = 'Todas as remessas da semana atual, de segunda a sexta, em aberto na montagem.';
+      } else {
+        refs.atraso.title.textContent = '1 - Exportação em atraso';
+        refs.atraso.subtitle.textContent = 'Todas as exportações com corte menor que hoje e em aberto na montagem.';
+        refs.semanaPassada.title.textContent = '2 - Cortes da semana passada';
+        refs.semanaPassada.subtitle.textContent = 'Todas as remessas com corte da semana passada e montagem em aberto.';
+        refs.hoje.subtitle.textContent = 'Exportações com corte de hoje e montagem em aberto.';
+        refs.segunda.subtitle.textContent = 'Exportações com corte para a próxima segunda-feira.';
+        refs.quinta.subtitle.textContent = 'Exportações com corte para a próxima quinta-feira.';
+        refs.semanaAtual.title.textContent = '6 - Semana atual (fecha sexta)';
+        refs.semanaAtual.subtitle.textContent = 'Todas as remessas com corte da semana atual, de segunda a sexta, em aberto na montagem.';
+      }
+    }
+
+    function reorderDynamicCards(nextMondayIso, nextThursdayIso){
+      const mondayDate = parseDateSafe(nextMondayIso);
+      const thursdayDate = parseDateSafe(nextThursdayIso);
+      const midCards = [refs.atraso.article, refs.semanaPassada.article, refs.hoje.article];
+      midCards.forEach(el => cardsGrid.appendChild(el));
+      if (thursdayDate && mondayDate && thursdayDate < mondayDate) {
+        cardsGrid.appendChild(refs.quinta.article);
+        cardsGrid.appendChild(refs.segunda.article);
+      } else {
+        cardsGrid.appendChild(refs.segunda.article);
+        cardsGrid.appendChild(refs.quinta.article);
+      }
+      cardsGrid.appendChild(refs.semanaAtual.article);
+    }
+
+    function renderCards(){
+      setModeUi();
+      const remessas = aggregateRemessas(allTaloes);
+      const today = getTodayLocal();
+      const todayIso = formatLocalISO(today);
+      const monday = getWeekMonday(today);
+      const friday = getWeekFridayFromMonday(monday);
+      const mondayIso = formatLocalISO(monday);
+      const fridayIso = formatLocalISO(friday);
+      const prevMonday = new Date(monday); prevMonday.setDate(prevMonday.getDate() - 7);
+      const prevFriday = getWeekFridayFromMonday(prevMonday);
+      const prevMondayIso = formatLocalISO(prevMonday);
+      const prevFridayIso = formatLocalISO(prevFriday);
+      const nextMondayIso = formatLocalISO(getNextWeekday(1));
+      const nextThursdayIso = formatLocalISO(getNextWeekday(4));
+      const campoBase = currentMode === 'entrega' ? 'dataEntrega' : 'dataCorte';
+
+      refs.hoje.title.textContent = `3 - Exportação de hoje (${formatDateShortBR(todayIso)})`;
+      refs.segunda.title.textContent = `4 - Exportação de segunda (${formatDateShortBR(nextMondayIso)})`;
+      refs.quinta.title.textContent = `5 - Exportação de quinta (${formatDateShortBR(nextThursdayIso)})`;
+
+      const exportAtraso = remessas.filter(r => r.tipoCliente === 'Exportacao' && r[campoBase] && r[campoBase] < todayIso);
+      const semanaPassada = remessas.filter(r => r[campoBase] && r[campoBase] >= prevMondayIso && r[campoBase] <= prevFridayIso);
+      const exportHoje = remessas.filter(r => r.tipoCliente === 'Exportacao' && r[campoBase] === todayIso);
+      const exportSegunda = remessas.filter(r => r.tipoCliente === 'Exportacao' && r[campoBase] === nextMondayIso);
+      const exportQuinta = remessas.filter(r => r.tipoCliente === 'Exportacao' && r[campoBase] === nextThursdayIso);
+      const semanaAtual = remessas.filter(r => r[campoBase] && r[campoBase] >= mondayIso && r[campoBase] <= fridayIso);
+
+      fillCard(refs.atraso, exportAtraso);
+      fillCard(refs.semanaPassada, semanaPassada);
+      fillCard(refs.hoje, exportHoje);
+      fillCard(refs.segunda, exportSegunda);
+      fillCard(refs.quinta, exportQuinta);
+      fillCard(refs.semanaAtual, semanaAtual);
+      reorderDynamicCards(nextMondayIso, nextThursdayIso);
+      lastUpdateBadge.textContent = formatDateTimeNow();
+    }
+
+    function formatStageDate(v){ return hasDate(v) ? `✔ ${formatDateShortBR(v)}` : ''; }
+
+    function showDetailsModal(remessa){
+      modalTitle.textContent = `Detalhes da Remessa: ${remessa}`;
+      modalTableBody.innerHTML = '';
+      const list = allTaloes
+        .filter(t => String(t.numeroRemessa || '').trim() === String(remessa) && !hasDate(t.dataEntradaMontagem))
+        .sort((a,b) => (parseInt(a.numeroTalaoSequencial,10)||0) - (parseInt(b.numeroTalaoSequencial,10)||0));
+
+      if (!list.length) {
+        modalTableBody.innerHTML = '<tr><td colspan="14" style="text-align:center;">Nenhum talão em aberto encontrado para esta remessa.</td></tr>';
+        detailsModal.style.display = 'block';
+        return;
+      }
+
+      list.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${t.numeroTalaoSequencial || t.numeroTalao || ''}</td>
+          <td>${t.linha || ''}</td>
+          <td>${t.modelo || ''}</td>
+          <td>${Number(t.pares || 0).toLocaleString('pt-BR')}</td>
+          <td>${t.corSapato || t.cor || ''}</td>
+          <td>${formatDateShortBR(t.dataCorte || '')}</td>
+          <td>${t.idAtelieResponsavel || t.atelie || ''}</td>
+          <td>${formatStageDate(t.cabedalData || t.forroData || t.aviamentoData || '')}</td>
+          <td>${formatStageDate(t.costuraDataInicio || '')}</td>
+          <td>${formatStageDate(t.dataSaidaCostura || '')}</td>
+          <td>${formatStageDate(t.dataEntradaDistribuicao || '')}</td>
+          <td>${formatStageDate(t.dataEntradaTalonagem || '')}</td>
+          <td>${formatStageDate(t.dataEntradaMontagem || '')}</td>
+          <td>${t.trilhoProduzido || ''}</td>
+        `;
+        modalTableBody.appendChild(tr);
+      });
+      detailsModal.style.display = 'block';
+    }
+
+    async function loadData(){
+      Object.values(refs).forEach(ref => {
+        ref.body.innerHTML = '<div class="loading">Carregando...</div>';
+        ref.meta.textContent = 'Carregando...';
+      });
+      try {
+        const snap = await getDocs(collection(db, 'taloes'));
+        allTaloes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderCards();
+      } catch (error) {
+        console.error('Erro ao carregar resumo fábrica:', error);
+        Object.values(refs).forEach(ref => {
+          ref.body.innerHTML = '<div class="empty-state">Erro ao carregar os dados.</div>';
+          ref.meta.textContent = 'Erro';
         });
+      }
+    }
 
-        // --- Lógica de Logout ---
-        logoutButton.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                window.location.href = 'login.html';
-            } catch (error) {
-                console.error("Erro ao fazer logout:", error);
-                alert("Erro ao fazer logout. Tente novamente.");
-            }
-        });
+    toggleMenuButton.addEventListener('click', () => topNav.classList.toggle('open'));
+    refreshButton.addEventListener('click', loadData);
+    btnModeEntrega.addEventListener('click', () => { currentMode = 'entrega'; renderCards(); });
+    btnModeCorte.addEventListener('click', () => { currentMode = 'corte'; renderCards(); });
+    onlyCompleteCheck.addEventListener('change', renderCards);
+    logoutButton.addEventListener('click', async () => {
+      try { await signOut(auth); window.location.href = 'login.html'; }
+      catch (e) { console.error(e); alert('Erro ao fazer logout. Tente novamente.'); }
+    });
 
-        // --- Carregar Ateliês (Usuários Nível 03) para o Agrupamento ---
-        async function loadAtelies() {
-            try {
-                const q = query(collection(db, 'Usuario'), where('nivelAcesso', '==', '03'));
-                const querySnapshot = await getDocs(q);
-                ateliesList = querySnapshot.docs.map(doc => doc.data().Nome).filter(name => name);
-                console.log("Ateliês carregados:", ateliesList);
-            } catch (error) {
-                console.error("Erro ao carregar ateliês:", error);
-            }
-        }
+    cardsGrid.addEventListener('click', async (e) => {
+      const copyBtn = e.target.closest('[data-copy-key]');
+      if (copyBtn) {
+        await copyCardToClipboard(copyBtn.dataset.copyKey);
+        return;
+      }
+      const remessaLine = e.target.closest('.remessa-line');
+      if (remessaLine) showDetailsModal(remessaLine.dataset.remessa);
+    });
 
-        // --- Escutar Todos os Talões em Tempo Real ---
-        function listenToTaloes() {
-            const taloesColRef = collection(db, 'taloes'); 
-            onSnapshot(taloesColRef, (snapshot) => {
-                allTaloes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log("Todos os talões carregados:", allTaloes);
-                applyFiltersAndAggregate();
-            }, (error) => {
-                console.error("Erro ao escutar talões:", error);
-                cardsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: red;">Erro ao carregar talões.</p>';
-            });
-        }
+    closeDetailsModal.addEventListener('click', () => detailsModal.style.display = 'none');
+    window.addEventListener('click', (e) => { if (e.target === detailsModal) detailsModal.style.display = 'none'; });
 
-        // --- Aplicar Filtros e Agregar Dados ---
-        function applyFiltersAndAggregate() {
-            let currentFilteredTaloes = [...allTaloes];
-
-            const dataCorte = filterDataCorte.value;
-            const tipoCliente = filterTipoCliente.value;
-            const linhaFilter = filterLinha.value.toLowerCase(); 
-            const modeloFilter = filterModelo.value.toLowerCase(); 
-
-            // Filtro principal: Somente o que NÃO foi finalizado
-            currentFilteredTaloes = currentFilteredTaloes.filter(t => t.statusGeral !== 'Finalizado');
-
-            if (dataCorte) {
-                currentFilteredTaloes = currentFilteredTaloes.filter(t => t.dataCorte === dataCorte);
-            }
-            if (tipoCliente) {
-                currentFilteredTaloes = currentFilteredTaloes.filter(t => t.tipoCliente === tipoCliente);
-            }
-            if (linhaFilter) { 
-                currentFilteredTaloes = currentFilteredTaloes.filter(t => t.linha && String(t.linha).toLowerCase().includes(linhaFilter));
-            }
-            if (modeloFilter) { 
-                currentFilteredTaloes = currentFilteredTaloes.filter(t => t.modelo && String(t.modelo).toLowerCase().includes(modeloFilter));
-            }
-            
-            const aggregatedData = {
-                'Corte': { 
-                    'Pendente': { byLine: {}, byLineModel: {} },
-                    'Aguardando Material': { byLine: {}, byLineModel: {} },
-                    'Cortando': { byLine: {}, byLineModel: {} },
-                    'Cortado': { byLine: {}, byLineModel: {} }
-                },
-                'Distribuição': { byLine: {}, byLineModel: {} },
-                'Talonagem': { byLine: {}, byLineModel: {} },
-                'Ateliês': {} 
-            };
-
-            // Inicializa cada ateliê na estrutura de agregação
-            ateliesList.forEach(atelierName => {
-                aggregatedData.Ateliês[atelierName] = {};
-            });
-
-            currentFilteredTaloes.forEach(talao => {
-                const pares = talao.pares || 0;
-                const linhaKey = talao.linha || 'N/A';
-                const lineModelKey = `${linhaKey}.${talao.modelo || 'N/A'}`; 
-
-                // Agregação para Corte: Inclui 'Pendente', 'Aguardando Material', 'Cortando', 'Cortado'
-                if (['Pendente', 'Aguardando Material', 'Cortando', 'Cortado'].includes(talao.statusGeral)) {
-                    const status = talao.statusGeral;
-                    // Garante que o objeto de status exista
-                    if (!aggregatedData.Corte[status]) {
-                        aggregatedData.Corte[status] = { byLine: {}, byLineModel: {} };
-                    }
-                    aggregatedData.Corte[status].byLine[linhaKey] = (aggregatedData.Corte[status].byLine[linhaKey] || 0) + pares;
-                    aggregatedData.Corte[status].byLineModel[lineModelKey] = (aggregatedData.Corte[status].byLineModel[lineModelKey] || 0) + pares;
-                }
-                // Agregação para Distribuição
-                if (talao.statusGeral === 'Distribuído') {
-                    aggregatedData.Distribuição.byLine[linhaKey] = (aggregatedData.Distribuição.byLine[linhaKey] || 0) + pares;
-                    aggregatedData.Distribuição.byLineModel[lineModelKey] = (aggregatedData.Distribuição.byLineModel[lineModelKey] || 0) + pares;
-                }
-                // Agregação para Talonagem
-                if (talao.statusGeral === 'Talonado') {
-                    aggregatedData.Talonagem.byLine[linhaKey] = (aggregatedData.Talonagem.byLine[linhaKey] || 0) + pares;
-                    aggregatedData.Talonagem.byLineModel[lineModelKey] = (aggregatedData.Talonagem.byLineModel[lineModelKey] || 0) + pares;
-                }
-                // Agregação para Ateliês (mantém linha.modelo)
-                if (talao.statusGeral === 'Costurando' && talao.idAtelieResponsavel && ateliesList.includes(talao.idAtelieResponsavel)) {
-                    const atelierName = talao.idAtelieResponsavel;
-                    aggregatedData.Ateliês[atelierName][lineModelKey] = (aggregatedData.Ateliês[atelierName][lineModelKey] || 0) + pares;
-                }
-            });
-
-            renderCards(aggregatedData);
-        }
-
-        // Adicionar listeners para os filtros
-        filterDataCorte.addEventListener('change', applyFiltersAndAggregate);
-        filterTipoCliente.addEventListener('change', applyFiltersAndAggregate);
-        filterLinha.addEventListener('input', applyFiltersAndAggregate); 
-        filterModelo.addEventListener('input', applyFiltersAndAggregate); 
-
-        // --- Renderizar os Cards ---
-        function renderCards(data) {
-            cardsGrid.innerHTML = ''; // Limpa os cards existentes
-
-            // Renderiza o card de Corte primeiro
-            const corteCard = document.createElement('div');
-            corteCard.classList.add('card', 'corte-card');
-            let totalParesCorte = 0;
-            let corteContentHtml = '';
-            const corteData = data['Corte'];
-            // Status a serem exibidos no layout do card de Corte
-            const corteDisplayStatuses = ['Pendente', 'Cortando', 'Cortado']; 
-            let hasCorteData = false;
-
-            corteDisplayStatuses.forEach(status => {
-                const statusData = corteData[status];
-                let currentStatusTotal = 0; // Total para o status atual
-                
-                // Se o status for "Pendente", inclui os pares de "Aguardando Material" no total
-                if (status === 'Pendente' && corteData['Aguardando Material']) {
-                    currentStatusTotal += Object.values(corteData['Aguardando Material'].byLineModel).reduce((sum, pares) => sum + pares, 0);
-                }
-
-                if (statusData && (Object.keys(statusData.byLine).length > 0 || Object.keys(statusData.byLineModel).length > 0 || (status === 'Pendente' && corteData['Aguardando Material'] && Object.keys(corteData['Aguardando Material'].byLineModel).length > 0))) {
-                    hasCorteData = true;
-                    let statusSectionHtml = `<h4>Status: ${status}</h4>`;
-                    
-                    // Seção "Por Linha" para este status
-                    let byLineContent = '';
-                    if (Object.keys(statusData.byLine).length > 0) {
-                        for (const linha in statusData.byLine) {
-                            byLineContent += `
-                                <div class="card-item">
-                                    <span class="item-label">Linha ${linha}</span>
-                                    <span class="item-value">${statusData.byLine[linha]} pares</span>
-                                </div>
-                            `;
-                        }
-                    } else {
-                        byLineContent = '<p class="no-data-message">Nenhum talão por linha.</p>';
-                    }
-                    statusSectionHtml += `
-                        <div class="card-content-sub">
-                            <h5>Por Linha</h5>
-                            ${byLineContent}
-                        </div>
-                    `;
-
-                    // Seção "Por Linha - Modelo" para este status
-                    let byLineModelContent = '';
-                    if (Object.keys(statusData.byLineModel).length > 0) {
-                        for (const key in statusData.byLineModel) {
-                            byLineModelContent += `
-                                <div class="card-item">
-                                    <span class="item-label">${key.replace('.', ' - ')}</span>
-                                    <span class="item-value">${statusData.byLineModel[key]} pares</span>
-                                </div>
-                            `;
-                            // Soma para o total do status, considerando apenas o byLineModel para evitar duplicação
-                            if (status !== 'Pendente' || key !== 'Aguardando Material') { // Evita dupla contagem se "Aguardando Material" já foi somado
-                                currentStatusTotal += statusData.byLineModel[key];
-                            }
-                        }
-                    } else {
-                        byLineModelContent = '<p class="no-data-message">Nenhum talão por linha - modelo.</p>';
-                    }
-                    statusSectionHtml += `
-                        <div class="card-content-sub">
-                            <h5>Por Linha - Modelo</h5>
-                            ${byLineModelContent}
-                        </div>
-                    `;
-                    
-                    statusSectionHtml += `<div class="card-total-sub">Total: ${currentStatusTotal} pares</div>`; // Total por status
-                    corteContentHtml += `<div class="card-section">${statusSectionHtml}</div>`;
-                    totalParesCorte += currentStatusTotal; // Soma para o total geral do card de Corte
-                }
-            });
-
-            if (!hasCorteData) {
-                corteContentHtml = '<p class="no-data-message" style="grid-column: 1 / -1;">Nenhum talão neste setor.</p>';
-            }
-
-            corteCard.innerHTML = `
-                <h3>Corte</h3>
-                ${corteContentHtml}
-                <div class="card-total" style="grid-column: 1 / -1;">Total: ${totalParesCorte} pares</div>
-            `;
-            cardsGrid.appendChild(corteCard);
-
-            // Renderiza os cards de Distribuição e Talonagem
-            const otherSectors = ['Distribuição', 'Talonagem'];
-            otherSectors.forEach(sector => {
-                const card = document.createElement('div');
-                card.classList.add('card');
-                let totalParesSetor = 0;
-
-                let contentHtml = '';
-                const sectorData = data[sector];
-
-                // Seção "Por Linha"
-                let byLineContent = '';
-                if (Object.keys(sectorData.byLine).length > 0) {
-                    for (const linha in sectorData.byLine) {
-                        byLineContent += `
-                            <div class="card-item">
-                                <span class="item-label">Linha ${linha}</span>
-                                <span class="item-value">${sectorData.byLine[linha]} pares</span>
-                            </div>
-                        `;
-                    }
-                } else {
-                    byLineContent = '<p class="no-data-message">Nenhum talão por linha.</p>';
-                }
-                contentHtml += `
-                    <div class="card-section">
-                        <h4>Por Linha</h4>
-                        <div class="card-content-sub">${byLineContent}</div>
-                    </div>
-                `;
-                
-
-                // Seção "Por Linha - Modelo"
-                let byLineModelContent = '';
-                if (Object.keys(sectorData.byLineModel).length > 0) {
-                    for (const key in sectorData.byLineModel) {
-                        byLineModelContent += `
-                            <div class="card-item">
-                                <span class="item-label">${key.replace('.', ' - ')}</span>
-                                <span class="item-value">${sectorData.byLineModel[key]} pares</span>
-                            </div>
-                        `;
-                        totalParesSetor += sectorData.byLineModel[key]; // Soma para o total geral do card
-                    }
-                } else {
-                    byLineModelContent = '<p class="no-data-message">Nenhum talão por linha - modelo.</p>';
-                }
-                contentHtml += `
-                    <div class="card-section">
-                        <h4>Por Linha - Modelo</h4>
-                        <div class="card-content-sub">${byLineModelContent}</div>
-                    </div>
-                `;
-
-                if (contentHtml === '') {
-                    contentHtml = '<p class="no-data-message">Nenhum talão neste setor.</p>';
-                }
-
-                card.innerHTML = `
-                    <h3>${sector}</h3>
-                    <div class="card-content">${contentHtml}</div>
-                    <div class="card-total">Total: ${totalParesSetor} pares</div>
-                `;
-                cardsGrid.appendChild(card);
-            });
-
-            // Renderiza cards para cada ateliê
-            for (const atelierName in data.Ateliês) {
-                const card = document.createElement('div');
-                card.classList.add('card');
-                let totalParesAtelier = 0;
-
-                let contentHtml = '';
-                const atelierData = data.Ateliês[atelierName];
-                if (Object.keys(atelierData).length > 0) {
-                    for (const key in atelierData) {
-                        contentHtml += `
-                            <div class="card-item">
-                                <span class="item-label">${key.replace('.', ' - ')}</span>
-                                <span class="item-value">${atelierData[key]} pares</span>
-                            </div>
-                        `;
-                        totalParesAtelier += atelierData[key];
-                    }
-                } else {
-                    contentHtml = '<p class="no-data-message">Nenhum talão neste ateliê.</p>';
-                }
-
-                card.innerHTML = `
-                    <h3> ${atelierName}</h3>
-                    <div class="card-content">${contentHtml}</div>
-                    <div class="card-total">Total: ${totalParesAtelier} pares</div>
-                `;
-                cardsGrid.appendChild(card);
-            }
-
-            if (cardsGrid.innerHTML === '') {
-                cardsGrid.innerHTML = '<p style="grid-column: 1 / -1; text-align: center;">Nenhum dado disponível com os filtros aplicados.</p>';
-            }
-        }
-    </script>
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'login.html'; return; }
+      const snap = await getDoc(doc(db, 'Usuario', user.email));
+      if (!snap.exists()) {
+        alert('Dados do usuário não encontrados. Faça login novamente.');
+        await signOut(auth); window.location.href = 'login.html'; return;
+      }
+      const { nivelAcesso, Nome } = snap.data();
+      if (!['04','05','06','07'].includes(String(nivelAcesso))) {
+        alert('Você não tem permissão para acessar esta página.');
+        window.location.href = 'index.html'; return;
+      }
+      generateMenu(String(nivelAcesso), Nome);
+      await loadData();
+    });
+  </script>
 </body>
 </html>
