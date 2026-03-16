@@ -1,0 +1,45 @@
+.header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#menuToggleButton {
+    background: #6c757d;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#menuToggleButton:hover {
+    background: #5a6268;
+}
+
+#mainNav.nav-collapsed {
+    display: none;
+}
+
+#mainNav {
+    width: 100%;
+}
+
+#mainNav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* opcional para mobile */
+@media (max-width: 768px) {
+    .header-actions {
+        gap: 6px;
+    }
+
+    #menuToggleButton {
+        padding: 7px 10px;
+        font-size: 13px;
+    }
+}
