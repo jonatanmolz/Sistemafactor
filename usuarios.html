@@ -158,7 +158,10 @@
       doc,
       setDoc,
       updateDoc,
-      serverTimestamp
+      serverTimestamp,
+      query,
+      where,
+      writeBatch
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -295,6 +298,43 @@
       });
     }
 
+
+    async function atualizarTaloesPorTrocaDeNome(nomeAntigo, nomeNovo) {
+      const antigo = (nomeAntigo || '').trim();
+      const novo = (nomeNovo || '').trim();
+      if (!antigo || !novo || antigo === novo) return 0;
+
+      const q = query(collection(db, 'taloes'), where('idAtelieResponsavel', '==', antigo));
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) return 0;
+
+      let atualizados = 0;
+      let batch = writeBatch(db);
+      let contador = 0;
+
+      for (const d of snapshot.docs) {
+        batch.update(doc(db, 'taloes', d.id), {
+          idAtelieResponsavel: novo,
+          nomeAtelieResponsavel: novo,
+          atualizadoEm: serverTimestamp()
+        });
+        contador += 1;
+        atualizados += 1;
+
+        if (contador === 400) {
+          await batch.commit();
+          batch = writeBatch(db);
+          contador = 0;
+        }
+      }
+
+      if (contador > 0) {
+        await batch.commit();
+      }
+
+      return atualizados;
+    }
+
     async function criarUsuarioSemPerderSessaoAdmin({nomeValor,emailValor,senhaValor,nivelValor}){
       const secondaryName = 'secondary-' + Date.now();
       const secondaryApp = initializeApp(firebaseConfig, secondaryName);
@@ -383,12 +423,24 @@
       saveBtn.disabled = true;
       try {
         if (editingEmail) {
+          const usuarioAnterior = usuarios.find(u => u.email === editingEmail);
+          const nomeAntigo = usuarioAnterior?.nome || '';
+
           await updateDoc(doc(db,'Usuario',editingEmail), {
             Nome: nomeValor,
             nivelAcesso: nivelValor,
             atualizadoEm: serverTimestamp()
           });
-          showMessage('Usuário atualizado com sucesso.', 'success');
+
+          let msg = 'Usuário atualizado com sucesso.';
+          if (nomeAntigo && nomeAntigo !== nomeValor) {
+            const totalTaloes = await atualizarTaloesPorTrocaDeNome(nomeAntigo, nomeValor);
+            if (totalTaloes > 0) {
+              msg += ` ${totalTaloes} talões foram atualizados de ${nomeAntigo} para ${nomeValor}.`;
+            }
+          }
+
+          showMessage(msg, 'success');
         } else {
           await criarUsuarioSemPerderSessaoAdmin({ nomeValor, emailValor, senhaValor, nivelValor });
           showMessage('Usuário criado com sucesso.', 'success');
