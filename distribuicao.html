@@ -39,7 +39,11 @@
             background-color: #555;
             padding: 10px 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            font-size: 0.8em
+            font-size: 0.8em;
+            display: none;
+        }
+        nav.open {
+            display: block;
         }
         nav ul {
             list-style: none;
@@ -74,16 +78,23 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 800px;
+            max-width: 1100px;
             display: flex;
             flex-direction: column;
             gap: 20px;
+        }
+        .scanner-section {
+            padding: 18px 22px;
+            gap: 12px;
         }
         .scanner-section h2, .list-section h2 {
             margin-top: 0;
             color: #333;
             text-align: center;
             font-size: 1.5em;
+        }
+        .list-section {
+            padding-top: 20px;
         }
         .barcode-input-group {
             display: flex;
@@ -110,11 +121,12 @@
         }
         .scanner-message {
             margin-top: 10px;
-            font-size: 0.9em;
+            font-size: 0.95em;
             padding: 10px 15px;
             border-radius: 6px;
             text-align: center;
             font-weight: bold;
+            min-height: 20px;
         }
         .scanner-message.success {
             background-color: #d4edda;
@@ -126,15 +138,41 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        
+        .scanner-message.info {
+            background-color: #e7f1ff;
+            color: #084298;
+            border: 1px solid #b6d4fe;
+        }
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 0.95em;
+        }
+        .status-badge {
+            background: #f2f2f2;
+            border: 1px solid #ddd;
+            border-radius: 999px;
+            padding: 8px 12px;
+        }
         button#logoutButton {
             background-color: #dc3545;
-            margin-left: 20px;
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
         }
         button#logoutButton:hover {
             background-color: #c82333;
         }
-
+        #toggleMenuButton {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
         #scannedListTable {
             width: 100%;
             border-collapse: collapse;
@@ -156,29 +194,29 @@
     </style>
 </head>
 <body>
-<header>
-    <h1>Sistema Factor</h1>
+    <header>
+        <h1>SistemaTaloes</h1>
+        <div class="user-info">
+            <span id="userNameDisplay">Carregando...</span>
+            <span id="userNivelDisplay"></span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <button id="toggleMenuButton">Menu</button>
+            <button id="logoutButton">Sair</button>
+        </div>
+    </header>
 
-    <div class="user-info">
-        <span id="userNameDisplay">Carregando.</span>
-        <span id="userNivelDisplay"></span>
-    </div>
-
-    <div class="header-actions">
-        <button id="menuToggleButton" type="button">Menu</button>
-        <button id="logoutButton" type="button">Sair</button>
-    </div>
-</header>
-
-<nav id="mainNav" class="nav-collapsed">
-    <ul id="menuNav"></ul>
-</nav>
-<link rel="stylesheet" href="menu.css">
-<script src="menu.js"></script>
+    <nav id="topNav">
+        <ul id="menuNav"></ul>
+    </nav>
 
     <div class="main-content">
         <div class="scanner-section">
             <h2>Distribuição</h2>
+            <div class="status-row">
+                <div class="status-badge">Modo: <strong>Busca direta no Firestore</strong></div>
+                <div class="status-badge">Status: <strong id="engineStatus">Pronto</strong></div>
+            </div>
             <div class="barcode-input-group">
                 <label for="barcodeInputDistribuicao">Escaneamento para Distribuição:</label>
                 <input type="text" id="barcodeInputDistribuicao" placeholder="Leia o código de barras aqui" autofocus>
@@ -197,10 +235,10 @@
                             <th>Modelo</th>
                             <th>Pares</th>
                             <th>Ateliê</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody id="scannedListBody">
-                        </tbody>
+                    <tbody id="scannedListBody"></tbody>
                 </table>
             </div>
         </div>
@@ -218,69 +256,58 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, query, where, limit, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
         const menuNav = document.getElementById('menuNav');
+        const topNav = document.getElementById('topNav');
+        const toggleMenuButton = document.getElementById('toggleMenuButton');
         const userNameDisplay = document.getElementById('userNameDisplay');
         const userNivelDisplay = document.getElementById('userNivelDisplay');
         const logoutButton = document.getElementById('logoutButton');
         const barcodeInputDistribuicao = document.getElementById('barcodeInputDistribuicao');
         const distribuicaoMessageDiv = document.getElementById('distribuicaoMessage');
         const scannedListBody = document.getElementById('scannedListBody');
+        const engineStatus = document.getElementById('engineStatus');
 
-        let allTaloes = [];
-        let currentUserEmail = '';
         let currentUserName = '';
         let lastScannedTaloes = [];
+        let isProcessing = false;
         const LIST_LIMIT = 10;
 
-    //Login
-    const nivelNomes = {
-      '01': 'Cadastro',
-      '02': 'Corte',
-      '03': 'Costura',
-      '04': 'Montagem',
-      '05': 'Admin',
-      '06': 'Consultor',
-      '07': 'Super'
-    };
-    //Paginas
-    const pages = [
-      //Inicio
-      { name: 'Index', href: 'index.html', levels: ['01','02','03','04','05','06','07'] },
-      //Cadastro
-      { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
-      { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01','05','07'] },
-      { name: 'Cadastro Edição', href: 'edicao.html', levels: ['07'] },
-      //Ferramentas
-      { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
-      { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
-      { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
-      //Corte
-      { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
-      { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
-      //Relatorios
-      { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
-      { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02','04','05','06','07'] },
-      { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
-      { name: 'Programação', href: 'relatorioatt.html', levels: ['01','02','03','04','05','06','07'] },
-      //Costura
-      { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
-      { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
-      { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
-      //Montagem
-      { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
-      { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
-      { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
-    ];
+        const nivelNomes = {
+            '01': 'Cadastro',
+            '02': 'Corte',
+            '03': 'Costura',
+            '04': 'Montagem',
+            '05': 'Admin',
+            '06': 'Consultor',
+            '07': 'Super'
+        };
 
-
-    //Funçoes
-
+        const pages = [
+            { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06','07'] },
+            { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
+            { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05','07'] },
+            { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
+            { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
+            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
+            { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
+            { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
+            { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
+            { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05','06','07'] },
+            { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['06','07'] },
+            { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
+            { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
+            { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
+            { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
+            { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
+            { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
+            { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
+        ];
 
         function generateMenu(userLevel, userName) {
             menuNav.innerHTML = '';
@@ -292,7 +319,7 @@
                 if (page.levels.includes(userLevel)) {
                     const listItem = document.createElement('li');
                     const link = document.createElement('a');
-                    link.href = page.href; 
+                    link.href = page.href;
                     link.textContent = page.name;
                     listItem.appendChild(link);
                     menuNav.appendChild(listItem);
@@ -304,27 +331,148 @@
             scannedListBody.innerHTML = '';
             lastScannedTaloes.forEach(talao => {
                 const row = document.createElement('tr');
+                if (talao._statusTipo === 'error') {
+                    row.style.backgroundColor = '#ffe3e3';
+                }
                 row.innerHTML = `
-                    <td>${talao.codigoBarrasIdentificador}</td>
-                    <td>${talao.linha}</td>
-                    <td>${talao.modelo}</td>
-                    <td>${talao.pares}</td>
-                    <td>${talao.idAtelieResponsavel}</td>
+                    <td>${talao.codigoBarrasIdentificador || talao._codigoLido || ''}</td>
+                    <td>${talao.linha || '-'}</td>
+                    <td>${talao.modelo || '-'}</td>
+                    <td>${talao.pares || '-'}</td>
+                    <td>${talao.idAtelieResponsavel || '-'}</td>
+                    <td>${talao._statusTipo === 'error' ? `<span style="display:inline-block;background:#dc3545;color:#fff;padding:4px 8px;border-radius:999px;font-weight:700;font-size:12px;">${talao._statusTexto || 'Erro'}</span>` : `<span style="display:inline-block;background:#198754;color:#fff;padding:4px 8px;border-radius:999px;font-weight:700;font-size:12px;">Sucesso</span>`}</td>
                 `;
                 scannedListBody.appendChild(row);
             });
         }
-        
-        // Função auxiliar para formatar a data para DD/MM/AAAA
+
+        function setMessage(text, type = '') {
+            distribuicaoMessageDiv.textContent = text;
+            distribuicaoMessageDiv.className = type ? `scanner-message ${type}` : 'scanner-message';
+        }
+
+        function pushErrorToList(codigoLido, statusTexto, talaoData = null) {
+            lastScannedTaloes.unshift({
+                ...(talaoData || {}),
+                _codigoLido: codigoLido,
+                _statusTipo: 'error',
+                _statusTexto: statusTexto
+            });
+            if (lastScannedTaloes.length > LIST_LIMIT) {
+                lastScannedTaloes.pop();
+            }
+            renderScannedList();
+        }
+
         function formatDateToDDMMYYYY(dateString) {
             if (!dateString) return '';
-            const [year, month, day] = dateString.split('-');
+            const [year, month, day] = String(dateString).split('-');
+            if (!year || !month || !day) return String(dateString);
             return `${day}/${month}/${year}`;
+        }
+
+        function normalizeBarcodeCandidates(rawBarcode) {
+            const value = String(rawBarcode || '').trim();
+            if (!value) return [];
+
+            const clean = value.replace(/\s+/g, '');
+            const candidates = new Set([clean]);
+
+            if (!clean.startsWith('1') && clean.length > 1) {
+                candidates.add('1' + clean.substring(1));
+            }
+            if (clean.startsWith('1') && clean.length > 1) {
+                candidates.add(clean.substring(1));
+            }
+            return Array.from(candidates);
+        }
+
+        async function findTalaoByBarcode(rawBarcode) {
+            const candidates = normalizeBarcodeCandidates(rawBarcode);
+            for (const candidate of candidates) {
+                const q = query(
+                    collection(db, 'taloes'),
+                    where('codigoBarrasIdentificador', '==', candidate),
+                    limit(1)
+                );
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    const docSnap = snap.docs[0];
+                    return { id: docSnap.id, ...docSnap.data() };
+                }
+            }
+            return null;
+        }
+
+        async function updateTalaoInFirestore(talaoId, updates, talaoData) {
+            const talaoRef = doc(db, 'taloes', talaoId);
+            await updateDoc(talaoRef, updates);
+            lastScannedTaloes.unshift({ ...talaoData, ...updates, _statusTipo: 'success', _statusTexto: 'Sucesso' });
+            if (lastScannedTaloes.length > LIST_LIMIT) {
+                lastScannedTaloes.pop();
+            }
+            renderScannedList();
+        }
+
+        async function processBarcode(barcode) {
+            if (isProcessing) return;
+            isProcessing = true;
+            engineStatus.textContent = 'Lendo';
+            barcodeInputDistribuicao.disabled = true;
+
+            try {
+                setMessage('Buscando talão...', 'info');
+                const talao = await findTalaoByBarcode(barcode);
+
+                if (!talao) {
+                    const erro = 'Talão não encontrado';
+                    setMessage(`Talão com código ${barcode} não encontrado.`, 'error');
+                    pushErrorToList(barcode, erro);
+                    return;
+                }
+
+                if (talao.dataEntradaDistribuicao) {
+                    const formattedDate = formatDateToDDMMYYYY(talao.dataEntradaDistribuicao);
+                    const erro = `Já lido em ${formattedDate}`;
+                    setMessage(`Erro: Talão já lido em Distribuição. Data: ${formattedDate}`, 'error');
+                    pushErrorToList(barcode, erro, talao);
+                    return;
+                }
+
+                const today = new Date().toISOString().split('T')[0];
+                const updates = {
+                    statusGeral: 'Distribuído',
+                    statusCostura: 'Finalizado',
+                    statusCorte: 'Cortado',
+                    dataEntradaDistribuicao: today,
+                    usuarioDistribuicao: currentUserName
+                };
+
+                if (!talao.dataSaidaCostura) {
+                    updates.dataSaidaCostura = today;
+                    updates.usuarioCostura = currentUserName;
+                }
+                if (!talao.costuraDataInicio) {
+                    updates.costuraDataInicio = today;
+                }
+
+                await updateTalaoInFirestore(talao.id, updates, talao);
+                setMessage('Sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao processar leitura:', error);
+                setMessage(`Erro: ${error.message}`, 'error');
+                pushErrorToList(barcode, 'Erro de gravação');
+            } finally {
+                isProcessing = false;
+                engineStatus.textContent = 'Pronto';
+                barcodeInputDistribuicao.disabled = false;
+                barcodeInputDistribuicao.value = '';
+                barcodeInputDistribuicao.focus();
+            }
         }
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                currentUserEmail = user.email;
                 const userDocRef = doc(db, 'Usuario', user.email);
                 const userDocSnap = await getDoc(userDocRef);
 
@@ -340,7 +488,9 @@
                     }
 
                     generateMenu(nivelAcesso, currentUserName);
-                    listenToTaloes();
+                    engineStatus.textContent = 'Pronto';
+                    setMessage('Leitor pronto para uso.', 'info');
+                    barcodeInputDistribuicao.focus();
                 } else {
                     alert('Dados do usuário não encontrados. Faça login novamente.');
                     await signOut(auth);
@@ -351,103 +501,29 @@
             }
         });
 
+        toggleMenuButton.addEventListener('click', () => {
+            topNav.classList.toggle('open');
+        });
+
         logoutButton.addEventListener('click', async () => {
             try {
                 await signOut(auth);
                 window.location.href = '/login.html';
             } catch (error) {
-                console.error("Erro ao fazer logout:", error);
-                alert("Erro ao fazer logout. Tente novamente.");
+                console.error('Erro ao fazer logout:', error);
+                alert('Erro ao fazer logout. Tente novamente.');
             }
         });
 
-        function listenToTaloes() {
-            const q = collection(db, 'taloes');
-            onSnapshot(q, (snapshot) => {
-                allTaloes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            }, (error) => {
-                console.error("Erro ao escutar talões:", error);
-            });
-        }
-
-        async function updateTalaoInFirestore(talaoId, updates, talaoData, messageDiv) {
-            try {
-                const talaoRef = doc(db, 'taloes', talaoId);
-                await updateDoc(talaoRef, updates);
-                
-                lastScannedTaloes.unshift(talaoData);
-                if (lastScannedTaloes.length > LIST_LIMIT) {
-                    lastScannedTaloes.pop();
-                }
-                renderScannedList();
-
-                messageDiv.textContent = 'Sucesso!';
-                messageDiv.className = 'scanner-message success';
-                setTimeout(() => {
-                    messageDiv.textContent = '';
-                    barcodeInputDistribuicao.focus();
-                }, 3000);
-            } catch (error) {
-                console.error(`Erro ao atualizar talão ${talaoId}:`, error);
-                messageDiv.textContent = `Erro: ${error.message}`;
-                messageDiv.className = 'scanner-message error';
-                setTimeout(() => {
-                    messageDiv.textContent = '';
-                    barcodeInputDistribuicao.focus();
-                }, 5000);
-            }
-        }
-
-        barcodeInputDistribuicao.addEventListener('keypress', async (event) => {
+        barcodeInputDistribuicao.addEventListener('keydown', async (event) => {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 const barcode = barcodeInputDistribuicao.value.trim();
-                barcodeInputDistribuicao.value = '';
-                distribuicaoMessageDiv.textContent = 'Processando...';
-                distribuicaoMessageDiv.className = 'scanner-message';
-
                 if (!barcode) {
-                    distribuicaoMessageDiv.textContent = 'Código de barras vazio.';
-                    distribuicaoMessageDiv.className = 'scanner-message error';
+                    setMessage('Código de barras vazio.', 'error');
                     return;
                 }
-
-                const processedBarcode = barcode.startsWith('1') ? barcode : '1' + barcode.substring(1);
-                const talao = allTaloes.find(t => t.codigoBarrasIdentificador === processedBarcode);
-
-                if (!talao) {
-                    distribuicaoMessageDiv.textContent = `Talão com código ${processedBarcode} não encontrado.`;
-                    distribuicaoMessageDiv.className = 'scanner-message error';
-                    return;
-                }
-                
-                // Validação para evitar leituras duplicadas de Distribuição
-                if (talao.dataEntradaDistribuicao) {
-                    const formattedDate = formatDateToDDMMYYYY(talao.dataEntradaDistribuicao);
-                    distribuicaoMessageDiv.textContent = `Erro: Talão já lido em Distribuição. Data: ${formattedDate}`;
-                    distribuicaoMessageDiv.className = 'scanner-message error';
-                    return;
-                }
-
-                const today = new Date().toISOString().split('T')[0];
-                const updates = {
-                    statusGeral: 'Distribuído',
-                    statusCostura:'Finalizado',
-                    statusCorte: 'Cortado',
-                    dataEntradaDistribuicao: today,
-                    usuarioDistribuicao: currentUserName
-                };
-
-                if (!talao.dataSaidaCostura) {
-                    updates.dataSaidaCostura = today;
-                    updates.usuarioCostura = currentUserName;
-                }
-                if (!talao.costuraDataInicio) {
-                    updates.costuraDataInicio = today;
-                }
-
-
-                await updateTalaoInFirestore(talao.id, updates, talao, distribuicaoMessageDiv);
+                await processBarcode(barcode);
             }
         });
 
