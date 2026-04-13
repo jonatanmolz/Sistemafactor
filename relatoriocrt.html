@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatório Corte - SistemaTaloes</title>
+  <style>
+    :root{
+      --bg:#f4f4f4; --ink:#333; --ink-2:#555; --card:#fff; --muted:#777;
+      --pri:#007bff; --pri-700:#0056b3; --danger:#dc3545; --danger-700:#c82333;
+      --bd:#ddd; --chip:#f0f0f0; --shadow:0 4px 14px rgba(0,0,0,.08);
+      --exp:#e8f3ff; --exp-head:#cfe4ff;
+      --esp:#ffe8f3; --esp-head:#ffd3e7;
+      --int:#ffffff; --int-head:#f4f4f4;
+      --est:#fff8d9; --est-head:#ffef9a;
+      --amo:#ebffe8; --amo-head:#c9f7c1;
+      --atr:#fff0f0; --atr-head:#ffd7d7;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;min-height:100vh;display:flex;flex-direction:column;color:var(--ink)}
+    header{background:#333;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,.2);gap:12px}
+    header h1{margin:0;font-size:22px}
+    .header-actions{display:flex;align-items:center;gap:10px}
+    .user-info{font-size:13px;text-align:right}
+    .user-info span{display:block;font-weight:700}
+    nav{background-color:#555;padding:10px 20px;box-shadow:0 2px 5px rgba(0,0,0,.1);font-size:.8em;display:none}
+    nav.open{display:block}
+    nav ul{list-style:none;margin:0;padding:0;display:flex;gap:12px;flex-wrap:wrap}
+    nav a{color:#fff;text-decoration:none;padding:6px 12px;border-radius:6px;display:block}
+    nav a:hover{background:#777}
+    .btn{padding:10px 14px;border:none;border-radius:8px;cursor:pointer;font-size:.95em;transition:background .2s,transform .02s;display:inline-flex;gap:.5rem;align-items:center}
+    .btn:active{transform:translateY(1px)}
+    .btn-primary{background:var(--pri);color:#fff}
+    .btn-primary:hover{background:var(--pri-700)}
+    .btn-secondary{background:#e9ecef;color:#111}
+    .btn-secondary:hover{background:#dde2e6}
+    #logoutButton{background:var(--danger);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+    #logoutButton:hover{background:var(--danger-700)}
+
+    .main-content{flex:1;padding:18px;display:flex;flex-direction:column;align-items:center;gap:16px}
+    .toolbar,.container{background:var(--card);padding:16px;border-radius:14px;box-shadow:var(--shadow);width:100%;max-width:1780px;overflow:visible}
+    .toolbar-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .toolbar h2{margin:0;font-size:1.8rem}
+    .toolbar p{margin:6px 0 0;color:var(--ink-2)}
+    .refresh-row{display:flex;justify-content:flex-end;margin-top:14px}
+    .status-line{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .status-badge{background:var(--chip);border:1px solid var(--bd);border-radius:999px;padding:8px 12px;font-size:.9em}
+
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(480px,1fr));gap:16px;align-items:start}
+    .summary-card{background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;min-height:340px;overflow:visible}
+    .summary-card.atraso .card-header{background:linear-gradient(180deg,var(--atr-head),#ffeaea)}
+    .summary-card.amostra .card-header{background:linear-gradient(180deg,var(--amo-head),#e6ffe1)}
+    .summary-card.semana .card-header{background:linear-gradient(180deg,#dbeeff,#cfe7ff)}
+    .summary-card.proxima .card-header{background:linear-gradient(180deg,#dbeeff,#cfe7ff)}
+    .card-header{padding:14px 16px;border-bottom:1px solid #ececec;background:linear-gradient(180deg,#fafafa,#f3f3f3)}
+    .card-title{margin:0 0 4px;font-size:1.15rem}
+    .card-subtitle{margin:0;color:var(--ink-2);font-size:.9em}
+    .card-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .meta-chip{background:#fff;border:1px solid var(--bd);border-radius:999px;padding:5px 10px;font-size:.82em}
+    .card-body{padding:14px 16px;display:flex;flex-direction:column;gap:12px;overflow:visible}
+
+    .totals-box{border:1px dashed #cfcfcf;border-radius:12px;padding:12px;background:#fafafa}
+    .totals-title{font-weight:700;margin:0 0 8px}
+    .totals-line{font-size:.93em;margin:4px 0}
+    .total-geral{margin-top:10px;font-weight:700;color:var(--pri-700)}
+
+    .remessa-block{border:1px solid #ececec;border-radius:14px;overflow:hidden}
+    .tipo-exportacao{background:var(--exp);border-color:#b8d5ff}
+    .tipo-exportacao .remessa-head{background:var(--exp-head)}
+    .tipo-cliente-especial{background:var(--esp);border-color:#f8bfd7}
+    .tipo-cliente-especial .remessa-head{background:var(--esp-head)}
+    .tipo-mercado-interno{background:var(--int);border-color:#dfdfdf}
+    .tipo-mercado-interno .remessa-head{background:var(--int-head)}
+    .tipo-estoque{background:var(--est);border-color:#f0da76}
+    .tipo-estoque .remessa-head{background:var(--est-head)}
+    .tipo-amostra{background:var(--amo);border-color:#a6df98}
+    .tipo-amostra .remessa-head{background:var(--amo-head)}
+
+    .remessa-head{padding:12px 14px;font-weight:700;color:#1f1f1f;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+    .remessa-body{padding:10px 12px}
+    .remessa-sub{font-size:.83em;color:#555;font-weight:600}
+
+    .remessa-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .btn-close-cut{background:#1f6f43;color:#fff;border:none;border-radius:8px;padding:7px 10px;font-size:.82em;font-weight:700;cursor:pointer;min-width:92px;text-align:center}
+    .btn-close-cut:hover{background:#185a36}
+    .btn-close-cut.done{background:#169846;min-width:42px;padding:7px 12px}
+    .btn-close-cut.done:hover{background:#169846}
+
+
+    .linha-head,.talhao-row{display:grid;grid-template-columns:130px 1fr 38px 38px 38px 38px;gap:8px;align-items:center}
+    .linha-head{padding:4px 6px 8px 6px;border-bottom:1px dashed rgba(0,0,0,.12);font-weight:700;color:#333;font-size:.9em}
+    .talhao-row{padding:6px;border-bottom:1px dashed rgba(0,0,0,.08)}
+    .talhao-row:last-child{border-bottom:none}
+    .atelier-col{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700}
+    .desc-col{min-width:0}
+    .desc-col strong{font-size:1em}
+    .desc-col span{color:#444}
+    .status-col{text-align:center;font-weight:700;font-size:1.25rem;line-height:1}
+    .ok{color:#169846}.no{color:#d93025}
+    .empty-state{padding:30px 10px;text-align:center;color:var(--muted)}
+    .loading{padding:30px 10px;text-align:center;color:var(--ink-2)}
+    .footer-note{font-size:.9em;color:var(--ink-2)}
+
+    @media (max-width:1180px){
+      .cards-grid{grid-template-columns:1fr}
+    }
+
+    @media (max-width:880px){
+      header{align-items:flex-start}
+      .header-actions{width:100%;justify-content:flex-end}
+      .toolbar h2{font-size:1.45rem}
+      .linha-head,.talhao-row{grid-template-columns:96px 1fr 28px 28px 28px 28px;font-size:.88em;gap:6px}
+      .status-col{font-size:1.1rem}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sistema Factor</h1>
+    <div class="user-info">
+      <span id="userNameDisplay">Carregando...</span>
+      <span id="userNivelDisplay"></span>
+    </div>
+    <div class="header-actions">
+      <button id="toggleMenuButton" class="btn btn-secondary" type="button">Menu</button>
+      <button id="logoutButton" type="button">Sair</button>
+    </div>
+  </header>
+
+  <nav id="topNav"><ul id="menuNav"></ul></nav>
+
+  <div class="main-content">
+    <section class="toolbar">
+      <div class="toolbar-top">
+        <div>
+          <h2>Relatório Corte</h2>
+          <p>Mostra somente talões com pendência no corte ou sem entrada no ateliê.</p>
+        </div>
+      </div>
+      <div class="status-line">
+        <div class="status-badge">Setor logado: <strong id="setorBadge">...</strong></div>
+        <div class="status-badge">Última atualização: <strong id="lastUpdateBadge">-</strong></div>
+        <div class="status-badge">Fechamento da semana: <strong id="fechamentoBadge">-</strong></div>
+      </div>
+      <div class="refresh-row">
+        <button id="refreshButton" class="btn btn-primary" type="button">Atualizar</button>
+      </div>
+    </section>
+
+    <section class="container">
+      <div id="cardsGrid" class="cards-grid">
+        <article class="summary-card amostra" id="articleAmostra">
+          <div class="card-header">
+            <h3 class="card-title">Amostra</h3>
+            <p class="card-subtitle">Lista todas as amostras em aberto, ignorando a data.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaAmostra">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardAmostra"><div class="loading">Carregando...</div></div>
+        </article>
+
+        <article class="summary-card atraso" id="articleAtraso">
+          <div class="card-header">
+            <h3 class="card-title" style="color:#dc3545;">Corte em atraso</h3>
+            <p class="card-subtitle">Tudo o que for menor que o corte da semana e ainda estiver pendente.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaAtraso">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardAtraso"><div class="loading">Carregando...</div></div>
+        </article>
+
+        <article class="summary-card semana" id="articleSemana">
+          <div class="card-header">
+            <h3 class="card-title" id="titleSemana">Corte da semana</h3>
+            <p class="card-subtitle">Cortes que precisam estar fechados até a próxima quarta.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaSemana">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardSemana"><div class="loading">Carregando...</div></div>
+        </article>
+
+        <article class="summary-card proxima" id="articleProxima" style="display:none;">
+          <div class="card-header">
+            <h3 class="card-title" id="titleProxima">Corte para próxima semana</h3>
+            <p class="card-subtitle">Só aparece na terça e quarta para antecipar o próximo fechamento.</p>
+            <div class="card-meta"><span class="meta-chip" id="metaProxima">Carregando...</span></div>
+          </div>
+          <div class="card-body" id="cardProxima"><div class="loading">Carregando...</div></div>
+        </article>
+      </div>
+    </section>
+
+    <div class="footer-note">Pendência de corte: falta de <strong>cabedalData</strong>, <strong>forroData</strong>, <strong>tirasData</strong>, <strong>aviamentoData</strong> ou ausência de <strong>costuraDataInicio</strong>.</div>
+  </div>
+
+  <script type="module">
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+      authDomain: "sistemataloes.firebaseapp.com",
+      projectId: "sistemataloes",
+      storageBucket: "sistemataloes.appspot.com",
+      messagingSenderId: "684534379685",
+      appId: "1:684534379685:web:..."
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, getDocs, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const menuNav = document.getElementById('menuNav');
+    const topNav = document.getElementById('topNav');
+    const toggleMenuButton = document.getElementById('toggleMenuButton');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const userNivelDisplay = document.getElementById('userNivelDisplay');
+    const logoutButton = document.getElementById('logoutButton');
+    const refreshButton = document.getElementById('refreshButton');
+    const setorBadge = document.getElementById('setorBadge');
+    const lastUpdateBadge = document.getElementById('lastUpdateBadge');
+    const fechamentoBadge = document.getElementById('fechamentoBadge');
+
+    const cardAmostra = document.getElementById('cardAmostra');
+    const cardAtraso = document.getElementById('cardAtraso');
+    const cardSemana = document.getElementById('cardSemana');
+    const cardProxima = document.getElementById('cardProxima');
+    const metaAmostra = document.getElementById('metaAmostra');
+    const metaAtraso = document.getElementById('metaAtraso');
+    const metaSemana = document.getElementById('metaSemana');
+    const metaProxima = document.getElementById('metaProxima');
+    const articleProxima = document.getElementById('articleProxima');
+    const titleSemana = document.getElementById('titleSemana');
+    const titleProxima = document.getElementById('titleProxima');
+
+    let currentUserData = null;
+    let taloes = [];
+
+    const nivelNomes = {
+      '01': 'Cadastro','02': 'Corte','03': 'Costura','04': 'Montagem','05': 'Admin','06': 'Consultor','07': 'Super'
+    };
+
+    const pages = [
+      { name: 'Index', href: 'index.html', levels: ['01','02','03','04','05','06','07'] },
+      { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
+      { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01','05','07'] },
+      { name: 'Cadastro Edição', href: 'edicao.html', levels: ['07'] },
+      { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
+      { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
+      { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
+      { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
+      { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
+      { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
+      { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02','04','05','06','07'] },
+      { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
+      { name: 'Programação', href: 'relatorioatt.html', levels: ['01','02','03','04','05','06','07'] },
+      { name: 'Relatório Corte', href: 'relatoriocrt.html', levels: ['02','05','06','07'] },
+      { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
+      { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
+      { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
+      { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
+      { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
+      { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
+    ];
+
+    function generateMenu(userLevel, userName) {
+      menuNav.innerHTML = '';
+      const userNivelText = nivelNomes[userLevel] || `Nível ${userLevel}`;
+      userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
+      userNivelDisplay.textContent = `Setor: ${userNivelText}`;
+      pages.forEach(p => {
+        if (p.levels.includes(String(userLevel))) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = p.href;
+          a.textContent = p.name;
+          li.appendChild(a);
+          menuNav.appendChild(li);
+        }
+      });
+    }
+
+    function hasDate(v) {
+      return v !== undefined && v !== null && String(v).trim() !== '';
+    }
+
+    function toISODateOnly(v) {
+      if (!v) return '';
+      if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+      try {
+        const dt = new Date(v);
+        if (isNaN(dt)) return '';
+        return dt.toISOString().slice(0,10);
+      } catch {
+        return '';
+      }
+    }
+
+    function formatDateShortBR(v) {
+      const iso = toISODateOnly(v);
+      if (!iso) return '';
+      const [y,m,d] = iso.split('-');
+      return `${d}/${m}`;
+    }
+
+    function formatDateTimeNow() {
+      return new Date().toLocaleString('pt-BR');
+    }
+
+    function getTodayLocal() {
+      const now = new Date();
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    function formatLocalISO(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getNextWeekday(targetWeekday) {
+      const today = getTodayLocal();
+      const current = today.getDay();
+      let diff = targetWeekday - current;
+      if (diff <= 0) diff += 7;
+      const result = new Date(today);
+      result.setDate(today.getDate() + diff);
+      return result;
+    }
+
+    function getWednesdayGroup(deadlineWednesday) {
+      const wed = new Date(deadlineWednesday.getFullYear(), deadlineWednesday.getMonth(), deadlineWednesday.getDate());
+      const d1 = new Date(wed); d1.setDate(wed.getDate() - 9);
+      const d2 = new Date(wed); d2.setDate(wed.getDate() - 6);
+      return [formatLocalISO(d1), formatLocalISO(d2)].sort();
+    }
+
+    function normalizeTipoCliente(tipo) {
+      const t = String(tipo || '').trim().toLowerCase();
+      if (['exportacao','exportação','exportacoes','exportações'].includes(t)) return 'Exportacao';
+      if (['cliente especial','especial'].includes(t)) return 'Cliente especial';
+      if (['mercado interno','interno'].includes(t)) return 'Mercado interno';
+      if (['estoque'].includes(t)) return 'Estoque';
+      if (['amostra','amostras'].includes(t)) return 'Amostra';
+      return String(tipo || '').trim() || 'Mercado interno';
+    }
+
+    function getTipoClass(tipoCliente) {
+      const t = normalizeTipoCliente(tipoCliente);
+      if (t === 'Exportacao') return 'tipo-exportacao';
+      if (t === 'Cliente especial') return 'tipo-cliente-especial';
+      if (t === 'Estoque') return 'tipo-estoque';
+      if (t === 'Amostra') return 'tipo-amostra';
+      return 'tipo-mercado-interno';
+    }
+
+    function hasEntradaAtelier(t) {
+      return hasDate(t.costuraDataInicio);
+    }
+
+    function isPendenteCorte(t) {
+      const faltaCabedal = !hasDate(t.cabedalData);
+      const faltaForro = !hasDate(t.forroData);
+      const faltaTiras = !hasDate(t.tirasData);
+      const faltaAviamento = !hasDate(t.aviamentoData);
+      const semEntradaAtelier = !hasEntradaAtelier(t);
+      return faltaCabedal || faltaForro || faltaTiras || faltaAviamento || semEntradaAtelier;
+    }
+
+    function getUniqueSortedCutDates(items) {
+      return Array.from(new Set(items.map(t => toISODateOnly(t.dataCorte)).filter(Boolean))).sort();
+    }
+
+    function joinCutDatesLabel(dateList) {
+      const formatted = dateList.map(formatDateShortBR);
+      if (!formatted.length) return '';
+      if (formatted.length === 1) return formatted[0];
+      if (formatted.length === 2) return `${formatted[0]} e ${formatted[1]}`;
+      return `${formatted.slice(0,-1).join(', ')} e ${formatted[formatted.length - 1]}`;
+    }
+
+    function buildCardHtml(lista) {
+      const filtered = lista.filter(isPendenteCorte);
+      const grouped = new Map();
+      const totalPorModelo = new Map();
+      let totalGeral = 0;
+
+      filtered.forEach(t => {
+        const remessa = String(t.numeroRemessa || '').trim();
+        const linha = String(t.linha || '').trim();
+        const dataCorte = toISODateOnly(t.dataCorte);
+        const dataEntrega = toISODateOnly(t.dataEntrega);
+        const numeroTalao = String(t.numeroTalaoSequencial || t.numeroTalao || '').trim();
+        const modeloNum = String(t.modelo || t.referencia || '').trim();
+        const modelo = `${linha}.${modeloNum || 'S/Modelo'}`;
+        const pares = Number(t.pares) || 0;
+        const atelierNome = String(t.idAtelieResponsavel || t.nomeAtelieResponsavel || '-').trim();
+        const tipoCliente = normalizeTipoCliente(t.tipoCliente);
+
+        if (!remessa || !linha || !numeroTalao) return;
+
+        const remessaKey = `${remessa}__${linha}__${dataCorte}__${dataEntrega}__${tipoCliente}`;
+        if (!grouped.has(remessaKey)) {
+          grouped.set(remessaKey, {
+            remessaKey, remessa, linha, dataCorte, dataEntrega, tipoCliente,
+            itens: []
+          });
+        }
+
+        grouped.get(remessaKey).itens.push({
+          atelierNome,
+          numeroTalao,
+          modelo,
+          pares,
+          cabedalOk: hasDate(t.cabedalData),
+          forroOk: hasDate(t.forroData),
+          tirasOk: hasDate(t.tirasData),
+          aviamentoOk: hasDate(t.aviamentoData),
+          atelierOk: hasEntradaAtelier(t),
+          docId: t.id
+        });
+
+        totalPorModelo.set(modelo, (totalPorModelo.get(modelo) || 0) + pares);
+        totalGeral += pares;
+      });
+
+      const blocks = Array.from(grouped.values()).sort((a,b) => {
+        if (a.dataCorte !== b.dataCorte) return String(a.dataCorte).localeCompare(String(b.dataCorte));
+        if (a.linha !== b.linha) return a.linha.localeCompare(b.linha, undefined, { numeric:true });
+        return a.remessa.localeCompare(b.remessa, undefined, { numeric:true });
+      });
+
+      if (!blocks.length) {
+        return { html: '<div class="empty-state">Nenhum talão pendente neste card.</div>', meta: '0 remessas · 0 talões · 0 pares', totalGeral: 0 };
+      }
+
+      const totalsHtml = Array.from(totalPorModelo.entries())
+        .sort((a,b) => a[0].localeCompare(b[0], undefined, { numeric:true }))
+        .map(([modelo, pares]) => `<div class="totals-line">Mod. ${escapeHtml(modelo)} - Pares ${pares}</div>`)
+        .join('');
+
+      const blockHtml = blocks.map(block => {
+        const itensHtml = block.itens
+          .sort((a,b) => a.numeroTalao.localeCompare(b.numeroTalao, undefined, { numeric:true }))
+          .map(item => `
+            <div class="talhao-row">
+              <div class="atelier-col">${icon(item.atelierOk)} ${escapeHtml(item.atelierNome)}</div>
+              <div class="desc-col"><strong>T - ${escapeHtml(item.numeroTalao)}</strong> <span>- Mod. ${escapeHtml(item.modelo)} - Prs. ${item.pares}</span></div>
+              <div class="status-col ${item.cabedalOk ? 'ok' : 'no'}">${item.cabedalOk ? '✔' : '✘'}</div>
+              <div class="status-col ${item.forroOk ? 'ok' : 'no'}">${item.forroOk ? '✔' : '✘'}</div>
+              <div class="status-col ${item.tirasOk ? 'ok' : 'no'}">${item.tirasOk ? '✔' : '✘'}</div>
+              <div class="status-col ${item.aviamentoOk ? 'ok' : 'no'}">${item.aviamentoOk ? '✔' : '✘'}</div>
+            </div>
+          `).join('');
+
+        const closeBtn = currentUserData && String(currentUserData.nivelAcesso) === '07'
+          ? `<button class="btn-close-cut" data-close-remessa="${escapeHtml(block.remessaKey)}">Fechar corte</button>`
+          : '';
+
+        return `
+          <div class="remessa-block ${getTipoClass(block.tipoCliente)}">
+            <div class="remessa-head">
+              <div>R. ${escapeHtml(block.remessa)} - Crt ${formatDateShortBR(block.dataCorte)} - Entr. ${formatDateShortBR(block.dataEntrega)}</div>
+              <div class="remessa-actions"><div class="remessa-sub">${escapeHtml(block.tipoCliente)}</div>${closeBtn}</div>
+            </div>
+            <div class="remessa-body">
+              <div class="linha-head">
+                <div>Atelier</div>
+                <div>Talão / Modelo / Pares</div>
+                <div>C</div>
+                <div>F</div>
+                <div>T</div>
+                <div>A</div>
+              </div>
+              ${itensHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      return {
+        html: `
+          <div class="totals-box">
+            <div class="totals-title">Total de pares</div>
+            ${totalsHtml}
+            <div class="total-geral">Total ${totalGeral} pares</div>
+          </div>
+          ${blockHtml}
+        `,
+        meta: `${blocks.length} remessas · ${filtered.length} talões · ${totalGeral} pares`,
+        totalGeral
+      };
+    }
+
+    function icon(ok) {
+      return `<span class="${ok ? 'ok' : 'no'}">${ok ? '✔' : '✘'}</span>`;
+    }
+
+
+    function getTodayIso() {
+      return formatLocalISO(getTodayLocal());
+    }
+
+    function attachCloseButtons() {
+      document.querySelectorAll('[data-close-remessa]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const remessaKey = btn.getAttribute('data-close-remessa');
+          await fecharRemessa(remessaKey, btn);
+        });
+      });
+    }
+
+    async function fecharRemessa(remessaKey, btnEl) {
+      if (!currentUserData || String(currentUserData.nivelAcesso) !== '07') return;
+
+      const pendentes = taloes.filter(isPendenteCorte);
+      const grupo = new Map();
+      pendentes.forEach(t => {
+        const remessa = String(t.numeroRemessa || '').trim();
+        const linha = String(t.linha || '').trim();
+        const dataCorte = toISODateOnly(t.dataCorte);
+        const dataEntrega = toISODateOnly(t.dataEntrega);
+        const tipoCliente = normalizeTipoCliente(t.tipoCliente);
+        const key = `${remessa}__${linha}__${dataCorte}__${dataEntrega}__${tipoCliente}`;
+        if (key === remessaKey) grupo.set(t.id, t);
+      });
+
+      if (!grupo.size) {
+        alert('Nenhum talão pendente encontrado nessa remessa.');
+        return;
+      }
+
+      if (!confirm(`Fechar corte de ${grupo.size} talões desta remessa?`)) return;
+
+      const hoje = getTodayIso();
+      const batch = writeBatch(db);
+      grupo.forEach((t, id) => {
+        const payload = { atualizadoEm: serverTimestamp() };
+        if (!hasDate(t.cabedalData)) payload.cabedalData = hoje;
+        if (!hasDate(t.forroData)) payload.forroData = hoje;
+        if (!hasDate(t.tirasData)) payload.tirasData = hoje;
+        if (!hasDate(t.aviamentoData)) payload.aviamentoData = hoje;
+        if (!hasDate(t.costuraDataInicio)) payload.costuraDataInicio = hoje;
+        batch.update(doc(db, 'taloes', id), payload);
+      });
+
+      try {
+        btnEl.disabled = true;
+        btnEl.textContent = 'Fechando...';
+        await batch.commit();
+
+        grupo.forEach((t, id) => {
+          const idx = taloes.findIndex(item => item.id === id);
+          if (idx >= 0) {
+            taloes[idx] = {
+              ...taloes[idx],
+              cabedalData: taloes[idx].cabedalData || hoje,
+              forroData: taloes[idx].forroData || hoje,
+              tirasData: taloes[idx].tirasData || hoje,
+              aviamentoData: taloes[idx].aviamentoData || hoje,
+              costuraDataInicio: taloes[idx].costuraDataInicio || hoje
+            };
+          }
+        });
+
+        btnEl.textContent = '✔';
+        btnEl.classList.add('done');
+        btnEl.title = 'Corte fechado nesta sessão';
+      } catch (error) {
+        console.error('Erro ao fechar remessa:', error);
+        alert('Erro ao fechar corte da remessa.');
+        btnEl.disabled = false;
+        btnEl.textContent = 'Fechar corte';
+      }
+    }
+
+    function escapeHtml(text) {
+      return String(text ?? '')
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#039;');
+    }
+
+    function renderCards() {
+      const today = getTodayLocal();
+      const nextWednesday = getNextWeekday(3);
+      const nextNextWednesday = new Date(nextWednesday);
+      nextNextWednesday.setDate(nextNextWednesday.getDate() + 7);
+      const semanaDates = getWednesdayGroup(nextWednesday);
+      const proximaDates = getWednesdayGroup(nextNextWednesday);
+      const semanaMinDate = semanaDates[0] || '';
+      const day = today.getDay();
+      const showProxima = day === 2 || day === 3;
+
+      const pendentes = taloes.filter(isPendenteCorte);
+      const amostras = pendentes.filter(t => normalizeTipoCliente(t.tipoCliente) === 'Amostra');
+      const atraso = pendentes.filter(t => {
+        const dc = toISODateOnly(t.dataCorte);
+        return dc && semanaMinDate && dc < semanaMinDate && normalizeTipoCliente(t.tipoCliente) !== 'Amostra';
+      });
+      const semana = pendentes.filter(t => {
+        const dc = toISODateOnly(t.dataCorte);
+        return semanaDates.includes(dc) && normalizeTipoCliente(t.tipoCliente) !== 'Amostra';
+      });
+      const proxima = pendentes.filter(t => {
+        const dc = toISODateOnly(t.dataCorte);
+        return proximaDates.includes(dc) && normalizeTipoCliente(t.tipoCliente) !== 'Amostra';
+      });
+
+      titleSemana.textContent = `Corte da semana (${joinCutDatesLabel(semanaDates)}) fecha ${formatDateShortBR(formatLocalISO(nextWednesday))}`;
+      titleProxima.textContent = `Corte para próxima semana (${joinCutDatesLabel(proximaDates)}) fecha ${formatDateShortBR(formatLocalISO(nextNextWednesday))}`;
+      fechamentoBadge.textContent = `${joinCutDatesLabel(semanaDates)} → ${formatDateShortBR(formatLocalISO(nextWednesday))}`;
+
+      const amostraRes = buildCardHtml(amostras);
+      const atrasoRes = buildCardHtml(atraso);
+      const semanaRes = buildCardHtml(semana);
+      const proximaRes = buildCardHtml(proxima);
+
+      cardAmostra.innerHTML = amostraRes.html;
+      cardAtraso.innerHTML = atrasoRes.html;
+      cardSemana.innerHTML = semanaRes.html;
+      cardProxima.innerHTML = proximaRes.html;
+      metaAmostra.textContent = amostraRes.meta;
+      metaAtraso.textContent = atrasoRes.meta;
+      metaSemana.textContent = semanaRes.meta;
+      metaProxima.textContent = proximaRes.meta;
+      articleProxima.style.display = showProxima ? '' : 'none';
+      attachCloseButtons();
+      lastUpdateBadge.textContent = formatDateTimeNow();
+    }
+
+    async function loadRelatorioCorte() {
+      [cardAmostra, cardAtraso, cardSemana, cardProxima].forEach(el => el.innerHTML = '<div class="loading">Carregando...</div>');
+      [metaAmostra, metaAtraso, metaSemana, metaProxima].forEach(el => el.textContent = 'Carregando...');
+
+      try {
+        setorBadge.textContent = 'Corte';
+        const ref = collection(db, 'taloes');
+        const snap = await getDocs(query(ref));
+        taloes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderCards();
+      } catch (error) {
+        console.error('Erro ao carregar relatório do corte:', error);
+        const errorHtml = '<div class="empty-state">Erro ao carregar os dados.</div>';
+        [cardAmostra, cardAtraso, cardSemana, cardProxima].forEach(el => el.innerHTML = errorHtml);
+        [metaAmostra, metaAtraso, metaSemana, metaProxima].forEach(el => el.textContent = 'Erro');
+      }
+    }
+
+    toggleMenuButton.addEventListener('click', () => {
+      topNav.classList.toggle('open');
+    });
+
+    refreshButton.addEventListener('click', () => {
+      loadRelatorioCorte();
+    });
+
+    logoutButton.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch (e) {
+        console.error(e);
+        alert('Erro ao fazer logout. Tente novamente.');
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const snap = await getDoc(doc(db, 'Usuario', user.email));
+      if (!snap.exists()) {
+        alert('Dados do usuário não encontrados. Faça login novamente.');
+        await signOut(auth);
+        window.location.href = 'login.html';
+        return;
+      }
+
+      currentUserData = { email: user.email, ...snap.data() };
+      const { nivelAcesso, Nome } = currentUserData;
+
+      if (!['02','05','06','07'].includes(String(nivelAcesso))) {
+        alert('Você não tem permissão para acessar esta página.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      generateMenu(nivelAcesso, Nome);
+      await loadRelatorioCorte();
+    });
+  </script>
+</body>
+</html>
