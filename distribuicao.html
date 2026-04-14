@@ -289,25 +289,35 @@
         };
 
         const pages = [
-            { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06','07'] },
-            { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
-            { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05','07'] },
-            { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
-            { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
-            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
-            { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
-            { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
-            { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
-            { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05','06','07'] },
-            { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['06','07'] },
-            { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
-            { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
-            { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
-            { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
-            { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
-            { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
-            { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
-        ];
+      //Inicio
+      { name: 'Index', href: 'index.html', levels: ['01','02','03','04','05','06','07'] },
+      //Cadastro
+      { name: 'Cadastro Usuarios', href: 'usuarios.html', levels: ['07'] },
+      { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01','05','07'] },
+      { name: 'Cadastro Manual', href: 'cadastromanual.html', levels: ['01','05','07'] },  
+      { name: 'Cadastro Edição', href: 'edicao.html', levels: ['07'] },
+      //Ferramentas
+      { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
+      { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
+      { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
+      //Corte
+      { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
+      { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
+      { name: 'Programação', href: 'relatoriocrt.html', levels: ['02','04','07'] },
+      //Relatorios
+      { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
+      { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02','04','05','06','07'] },
+      { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
+      { name: 'Programação', href: 'relatorioatt.html', levels: ['01','02','03','05','06','07'] },
+      //Costura
+      { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
+      { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
+      { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
+      //Montagem
+      { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
+      { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
+      { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
+    ];
 
         function generateMenu(userLevel, userName) {
             menuNav.innerHTML = '';
