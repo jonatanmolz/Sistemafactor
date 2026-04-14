@@ -43,6 +43,19 @@
     .toolbar h2{margin:0;font-size:1.8rem}
     .toolbar p{margin:6px 0 0;color:var(--ink-2)}
     .refresh-row{display:flex;justify-content:flex-end;margin-top:14px}
+
+    .filters-panel{margin-top:14px;border:1px solid #e8e8e8;border-radius:12px;padding:14px;background:#fafafa;display:flex;flex-direction:column;gap:12px}
+    .filters-grid{display:grid;grid-template-columns:1.2fr 1.2fr .9fr;gap:12px;align-items:start}
+    .filter-card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px}
+    .filter-title{font-weight:700;margin-bottom:10px}
+    .filter-options{display:grid;grid-template-columns:1fr;gap:8px}
+    .filter-options label{display:flex;align-items:center;gap:8px;font-size:.92em;cursor:pointer;padding:4px 0}
+    .date-range{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:320px}
+    .date-range label{display:flex;flex-direction:column;gap:6px;font-size:.92em;font-weight:700}
+    .date-range input{padding:8px 10px;border:1px solid var(--bd);border-radius:8px;font-size:.9em;height:38px}
+    .filters-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+    .filters-summary{font-size:.92em;color:var(--ink-2)}
+
     .status-line{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
     .status-badge{background:var(--chip);border:1px solid var(--bd);border-radius:999px;padding:8px 12px;font-size:.9em}
 
@@ -103,6 +116,7 @@
 
     @media (max-width:1180px){
       .cards-grid{grid-template-columns:1fr}
+      .filters-grid{grid-template-columns:1fr}
     }
 
     @media (max-width:880px){
@@ -142,6 +156,45 @@
         <div class="status-badge">Última atualização: <strong id="lastUpdateBadge">-</strong></div>
         <div class="status-badge">Fechamento da semana: <strong id="fechamentoBadge">-</strong></div>
       </div>
+
+      <div class="filters-panel">
+        <div class="filters-grid">
+          <div class="filter-card">
+            <div class="filter-title">Tipo de cliente</div>
+            <div class="filter-options">
+              <label><input type="checkbox" class="tipo-filter" value="Exportacao"> Exportação</label>
+              <label><input type="checkbox" class="tipo-filter" value="Cliente especial"> Cliente especial</label>
+              <label><input type="checkbox" class="tipo-filter" value="Mercado interno"> Mercado interno</label>
+              <label><input type="checkbox" class="tipo-filter" value="Estoque"> Estoque</label>
+              <label><input type="checkbox" class="tipo-filter" value="Amostra"> Amostra</label>
+            </div>
+          </div>
+
+          <div class="filter-card">
+            <div class="filter-title">Mostrar somente pendências abertas em</div>
+            <div class="filter-options">
+              <label><input type="checkbox" class="pendencia-filter" value="cabedal"> Cabedal</label>
+              <label><input type="checkbox" class="pendencia-filter" value="forro"> Forro</label>
+              <label><input type="checkbox" class="pendencia-filter" value="tiras"> Tiras</label>
+              <label><input type="checkbox" class="pendencia-filter" value="aviamento"> Aviamentos</label>
+              <label><input type="checkbox" class="pendencia-filter" value="atelier"> Atelier</label>
+            </div>
+          </div>
+
+          <div class="filter-card" style="display:flex;flex-direction:column;justify-content:flex-start;">
+            <div class="filter-title">Data de corte</div>
+            <div class="date-range">
+              <label>De<input type="date" id="filtroDataDe"></label>
+              <label>Até<input type="date" id="filtroDataAte"></label>
+            </div>
+          </div>
+        </div>
+        <div class="filters-actions">
+          <div class="filters-summary" id="filtersSummary">Sem filtros ativos.</div>
+          <button id="clearFiltersButton" class="btn btn-secondary" type="button">Limpar filtros</button>
+        </div>
+      </div>
+
       <div class="refresh-row">
         <button id="refreshButton" class="btn btn-primary" type="button">Atualizar</button>
       </div>
@@ -231,6 +284,14 @@
     const titleSemana = document.getElementById('titleSemana');
     const titleProxima = document.getElementById('titleProxima');
 
+    const filtroDataDe = document.getElementById('filtroDataDe');
+    const filtroDataAte = document.getElementById('filtroDataAte');
+    const clearFiltersButton = document.getElementById('clearFiltersButton');
+    const filtersSummary = document.getElementById('filtersSummary');
+    const tipoFilterInputs = Array.from(document.querySelectorAll('.tipo-filter'));
+    const pendenciaFilterInputs = Array.from(document.querySelectorAll('.pendencia-filter'));
+
+
     let currentUserData = null;
     let taloes = [];
 
@@ -260,6 +321,51 @@
       { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
       { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
     ];
+
+
+    function getActiveFilters() {
+      return {
+        tipos: tipoFilterInputs.filter(i => i.checked).map(i => i.value),
+        pendencias: pendenciaFilterInputs.filter(i => i.checked).map(i => i.value),
+        dataDe: filtroDataDe.value || '',
+        dataAte: filtroDataAte.value || ''
+      };
+    }
+
+    function matchesPendenciaSelecionada(t, pendencias) {
+      if (!pendencias.length) return true;
+      const checks = {
+        cabedal: !hasDate(t.cabedalData),
+        forro: !hasDate(t.forroData),
+        tiras: !hasDate(t.tirasData),
+        aviamento: !hasDate(t.aviamentoData),
+        atelier: !hasEntradaAtelier(t)
+      };
+      return pendencias.some(p => checks[p]);
+    }
+
+    function applyGlobalFilters(lista) {
+      const filtros = getActiveFilters();
+      return lista.filter(t => {
+        const tipo = normalizeTipoCliente(t.tipoCliente);
+        const dataCorte = toISODateOnly(t.dataCorte);
+
+        if (filtros.tipos.length && !filtros.tipos.includes(tipo)) return false;
+        if (filtros.dataDe && (!dataCorte || dataCorte < filtros.dataDe)) return false;
+        if (filtros.dataAte && (!dataCorte || dataCorte > filtros.dataAte)) return false;
+        if (!matchesPendenciaSelecionada(t, filtros.pendencias)) return false;
+        return true;
+      });
+    }
+
+    function updateFiltersSummary() {
+      const filtros = getActiveFilters();
+      const partes = [];
+      if (filtros.tipos.length) partes.push(`Tipo: ${filtros.tipos.join(', ')}`);
+      if (filtros.pendencias.length) partes.push(`Pendências: ${filtros.pendencias.join(', ')}`);
+      if (filtros.dataDe || filtros.dataAte) partes.push(`Corte: ${filtros.dataDe || '...'} até ${filtros.dataAte || '...'}`);
+      filtersSummary.textContent = partes.length ? partes.join(' • ') : 'Sem filtros ativos.';
+    }
 
     function generateMenu(userLevel, userName) {
       menuNav.innerHTML = '';
@@ -512,7 +618,7 @@
     async function fecharRemessa(remessaKey, btnEl) {
       if (!currentUserData || String(currentUserData.nivelAcesso) !== '07') return;
 
-      const pendentes = taloes.filter(isPendenteCorte);
+      const pendentes = applyGlobalFilters(taloes.filter(isPendenteCorte));
       const grupo = new Map();
       pendentes.forEach(t => {
         const remessa = String(t.numeroRemessa || '').trim();
@@ -593,7 +699,7 @@
       const day = today.getDay();
       const showProxima = day === 2 || day === 3;
 
-      const pendentes = taloes.filter(isPendenteCorte);
+      const pendentes = applyGlobalFilters(taloes.filter(isPendenteCorte));
       const amostras = pendentes.filter(t => normalizeTipoCliente(t.tipoCliente) === 'Amostra');
       const atraso = pendentes.filter(t => {
         const dc = toISODateOnly(t.dataCorte);
@@ -639,6 +745,7 @@
         const ref = collection(db, 'taloes');
         const snap = await getDocs(query(ref));
         taloes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        updateFiltersSummary();
         renderCards();
       } catch (error) {
         console.error('Erro ao carregar relatório do corte:', error);
@@ -654,6 +761,29 @@
 
     refreshButton.addEventListener('click', () => {
       loadRelatorioCorte();
+    });
+
+
+    [...tipoFilterInputs, ...pendenciaFilterInputs].forEach(input => {
+      input.addEventListener('change', () => {
+        updateFiltersSummary();
+        renderCards();
+      });
+    });
+
+    [filtroDataDe, filtroDataAte].forEach(input => {
+      input.addEventListener('change', () => {
+        updateFiltersSummary();
+        renderCards();
+      });
+    });
+
+    clearFiltersButton.addEventListener('click', () => {
+      [...tipoFilterInputs, ...pendenciaFilterInputs].forEach(input => input.checked = false);
+      filtroDataDe.value = '';
+      filtroDataAte.value = '';
+      updateFiltersSummary();
+      renderCards();
     });
 
     logoutButton.addEventListener('click', async () => {
