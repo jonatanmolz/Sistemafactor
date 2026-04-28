@@ -45,7 +45,7 @@
     .refresh-row{display:flex;justify-content:flex-end;margin-top:14px}
 
     .filters-panel{margin-top:14px;border:1px solid #e8e8e8;border-radius:12px;padding:14px;background:#fafafa;display:flex;flex-direction:column;gap:12px}
-    .filters-grid{display:grid;grid-template-columns:1.2fr 1.2fr .9fr;gap:12px;align-items:start}
+    .filters-grid{display:grid;grid-template-columns:1.1fr 1.1fr .9fr 1fr;gap:12px;align-items:start}
     .filter-card{background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px}
     .filter-title{font-weight:700;margin-bottom:10px}
     .filter-options{display:grid;grid-template-columns:1fr;gap:8px}
@@ -53,6 +53,8 @@
     .date-range{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:320px}
     .date-range label{display:flex;flex-direction:column;gap:6px;font-size:.92em;font-weight:700}
     .date-range input{padding:8px 10px;border:1px solid var(--bd);border-radius:8px;font-size:.9em;height:38px}
+    .filter-select{width:100%;padding:9px 10px;border:1px solid var(--bd);border-radius:8px;font-size:.92em;background:#fff;margin-bottom:10px}
+    .atelier-actions{display:flex;gap:8px;flex-wrap:wrap}
     .filters-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
     .filters-summary{font-size:.92em;color:var(--ink-2)}
 
@@ -113,6 +115,31 @@
     .empty-state{padding:30px 10px;text-align:center;color:var(--muted)}
     .loading{padding:30px 10px;text-align:center;color:var(--ink-2)}
     .footer-note{font-size:.9em;color:var(--ink-2)}
+
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:18px;z-index:9999}
+    .modal-card{background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.25);width:min(920px,96vw);max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+    .modal-header{padding:14px 18px;border-bottom:1px solid #ececec;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;background:#fafafa}
+    .modal-title{margin:0;font-size:1.2rem}
+    .modal-subtitle{margin:4px 0 0;color:var(--ink-2);font-size:.9em}
+    .modal-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .btn-whatsapp{background:#1f8f4d;color:#fff}
+    .btn-whatsapp:hover{background:#18733d}
+    .btn-whatsapp:disabled{background:#9fcfaf;cursor:not-allowed}
+    .whatsapp-copy-box{border:1px dashed #9fd1b3;background:#f3fff7;border-radius:12px;padding:12px;margin:0 0 14px}
+    .whatsapp-copy-title{font-weight:700;margin-bottom:8px;color:#145f32}
+    .whatsapp-copy-preview{margin:0;white-space:pre-wrap;font-family:Arial,Helvetica,sans-serif;font-size:.95em;line-height:1.45;max-height:280px;overflow:auto}
+    .only-copy-box{margin:0}
+    .only-copy-box .whatsapp-copy-preview{max-height:62vh}
+    .modal-close{border:none;background:#e9ecef;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1.2rem;line-height:1}
+    .modal-close:hover{background:#dde2e6}
+    .modal-body{padding:16px 18px;overflow:auto;display:flex;flex-direction:column;gap:12px}
+    .atelier-modal-summary{background:#f8f9fa;border:1px solid #e1e1e1;border-radius:12px;padding:10px 12px;font-weight:700;color:#333}
+    .atelier-remessa{border:1px solid #e6e6e6;border-radius:14px;overflow:hidden;background:#fff}
+    .atelier-remessa-title{font-weight:700;padding:11px 13px;background:#f3f3f3;border-bottom:1px solid #e6e6e6}
+    .atelier-talhao-list{padding:8px 13px 12px;display:flex;flex-direction:column;gap:6px}
+    .atelier-talhao-line{font-size:.96em;color:#222;line-height:1.35}
+    .modal-overlay[hidden]{display:none}
+    body.modal-open{overflow:hidden}
 
     @media (max-width:1180px){
       .cards-grid{grid-template-columns:1fr}
@@ -188,6 +215,17 @@
               <label>Até<input type="date" id="filtroDataAte"></label>
             </div>
           </div>
+
+          <div class="filter-card" style="display:flex;flex-direction:column;justify-content:flex-start;">
+            <div class="filter-title">Atelier</div>
+            <select id="filtroAtelier" class="filter-select">
+              <option value="">Todos os ateliês</option>
+            </select>
+            <div class="atelier-actions">
+              <button id="openAtelierModalButton" class="btn btn-primary" type="button">Ver em aberto do atelier</button>
+              <button id="copyAtelierDirectButton" class="btn btn-whatsapp" type="button">Copiar WhatsApp</button>
+            </div>
+          </div>
         </div>
         <div class="filters-actions">
           <div class="filters-summary" id="filtersSummary">Sem filtros ativos.</div>
@@ -243,6 +281,23 @@
     <div class="footer-note">Pendência de corte: falta de <strong>cabedalData</strong>, <strong>forroData</strong>, <strong>tirasData</strong>, <strong>aviamentoData</strong> ou ausência de <strong>costuraDataInicio</strong>.</div>
   </div>
 
+  <div id="atelierModal" class="modal-overlay" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="atelierModalTitle">
+      <div class="modal-header">
+        <div>
+          <h3 id="atelierModalTitle" class="modal-title">Atelier</h3>
+          <p id="atelierModalSubtitle" class="modal-subtitle">Corte em atraso e corte da semana</p>
+        </div>
+        <div class="modal-actions">
+          <button id="copyAtelierWhatsAppButton" class="btn btn-whatsapp" type="button">Copiar para WhatsApp</button>
+          <button id="closeAtelierModalButton" class="modal-close" type="button" aria-label="Fechar">×</button>
+        </div>
+      </div>
+      <div id="atelierModalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+
   <script type="module">
     const firebaseConfig = {
       apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
@@ -286,45 +341,47 @@
 
     const filtroDataDe = document.getElementById('filtroDataDe');
     const filtroDataAte = document.getElementById('filtroDataAte');
+    const filtroAtelier = document.getElementById('filtroAtelier');
+    const openAtelierModalButton = document.getElementById('openAtelierModalButton');
+    const copyAtelierDirectButton = document.getElementById('copyAtelierDirectButton');
     const clearFiltersButton = document.getElementById('clearFiltersButton');
     const filtersSummary = document.getElementById('filtersSummary');
     const tipoFilterInputs = Array.from(document.querySelectorAll('.tipo-filter'));
     const pendenciaFilterInputs = Array.from(document.querySelectorAll('.pendencia-filter'));
+    const atelierModal = document.getElementById('atelierModal');
+    const atelierModalTitle = document.getElementById('atelierModalTitle');
+    const atelierModalSubtitle = document.getElementById('atelierModalSubtitle');
+    const atelierModalBody = document.getElementById('atelierModalBody');
+    const closeAtelierModalButton = document.getElementById('closeAtelierModalButton');
+    const copyAtelierWhatsAppButton = document.getElementById('copyAtelierWhatsAppButton');
 
 
     let currentUserData = null;
     let taloes = [];
+    let atelierWhatsAppText = '';
 
     const nivelNomes = {
       '01': 'Cadastro','02': 'Corte','03': 'Costura','04': 'Montagem','05': 'Admin','06': 'Consultor','07': 'Super'
     };
 
     const pages = [
-      //Inicio
       { name: 'Index', href: 'index.html', levels: ['01','02','03','04','05','06','07'] },
-      //Cadastro
-      { name: 'Cadastro Usuarios', href: 'usuarios.html', levels: ['07'] },
+      { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
       { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01','05','07'] },
-      { name: 'Cadastro Manual', href: 'cadastromanual.html', levels: ['01','05','07'] },  
       { name: 'Cadastro Edição', href: 'edicao.html', levels: ['07'] },
-      //Ferramentas
       { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
       { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
       { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
-      //Corte
       { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
       { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
-      { name: 'Programação', href: 'relatoriocrt.html', levels: ['02','04','07'] },
-      //Relatorios
       { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
       { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02','04','05','06','07'] },
       { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
-      { name: 'Programação', href: 'relatorioatt.html', levels: ['01','02','03','05','06','07'] },
-      //Costura
+      { name: 'Programação', href: 'relatorioatt.html', levels: ['01','02','03','04','05','06','07'] },
+      { name: 'Relatório Corte', href: 'relatoriocrt.html', levels: ['02','05','06','07'] },
       { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
       { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
       { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
-      //Montagem
       { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
       { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
       { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
@@ -336,7 +393,8 @@
         tipos: tipoFilterInputs.filter(i => i.checked).map(i => i.value),
         pendencias: pendenciaFilterInputs.filter(i => i.checked).map(i => i.value),
         dataDe: filtroDataDe.value || '',
-        dataAte: filtroDataAte.value || ''
+        dataAte: filtroDataAte.value || '',
+        atelier: filtroAtelier.value || ''
       };
     }
 
@@ -357,10 +415,12 @@
       return lista.filter(t => {
         const tipo = normalizeTipoCliente(t.tipoCliente);
         const dataCorte = toISODateOnly(t.dataCorte);
+        const atelier = getAtelierResponsavel(t);
 
         if (filtros.tipos.length && !filtros.tipos.includes(tipo)) return false;
         if (filtros.dataDe && (!dataCorte || dataCorte < filtros.dataDe)) return false;
         if (filtros.dataAte && (!dataCorte || dataCorte > filtros.dataAte)) return false;
+        if (filtros.atelier && atelier !== filtros.atelier) return false;
         if (!matchesPendenciaSelecionada(t, filtros.pendencias)) return false;
         return true;
       });
@@ -372,7 +432,34 @@
       if (filtros.tipos.length) partes.push(`Tipo: ${filtros.tipos.join(', ')}`);
       if (filtros.pendencias.length) partes.push(`Pendências: ${filtros.pendencias.join(', ')}`);
       if (filtros.dataDe || filtros.dataAte) partes.push(`Corte: ${filtros.dataDe || '...'} até ${filtros.dataAte || '...'}`);
+      if (filtros.atelier) partes.push(`Atelier: ${filtros.atelier}`);
       filtersSummary.textContent = partes.length ? partes.join(' • ') : 'Sem filtros ativos.';
+    }
+
+    function getAtelierResponsavel(t) {
+      return String(t.idAtelieResponsavel || '').trim();
+    }
+
+    function populateAtelierOptions() {
+      const selected = filtroAtelier.value;
+      const ateliers = Array.from(new Set(taloes.filter(isPendenteCorte).map(getAtelierResponsavel).filter(Boolean)))
+        .sort((a,b) => a.localeCompare(b, 'pt-BR', { numeric:true, sensitivity:'base' }));
+
+      filtroAtelier.innerHTML = '';
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Todos os ateliês';
+      filtroAtelier.appendChild(defaultOption);
+
+      ateliers.forEach(nome => {
+        const opt = document.createElement('option');
+        opt.value = nome;
+        opt.textContent = nome;
+        filtroAtelier.appendChild(opt);
+      });
+
+      filtroAtelier.value = ateliers.includes(selected) ? selected : '';
+      openAtelierModalButton.disabled = !ateliers.length;
     }
 
     function generateMenu(userLevel, userName) {
@@ -610,6 +697,174 @@
     }
 
 
+    function displayTipoCliente(tipo) {
+      const normalized = normalizeTipoCliente(tipo);
+      return normalized === 'Exportacao' ? 'Exportação' : normalized;
+    }
+
+    function isCorteAtrasoOuSemana(t) {
+      const nextWednesday = getNextWeekday(3);
+      const semanaDates = getWednesdayGroup(nextWednesday);
+      const semanaMinDate = semanaDates[0] || '';
+      const dataCorte = toISODateOnly(t.dataCorte);
+      const tipo = normalizeTipoCliente(t.tipoCliente);
+
+      if (!dataCorte || tipo === 'Amostra') return false;
+      return (semanaMinDate && dataCorte < semanaMinDate) || semanaDates.includes(dataCorte);
+    }
+
+    function getAtelierOpenData(atelierNome) {
+      const lista = applyGlobalFilters(taloes.filter(isPendenteCorte))
+        .filter(t => getAtelierResponsavel(t) === atelierNome)
+        .filter(isCorteAtrasoOuSemana);
+
+      const grouped = new Map();
+      let totalPares = 0;
+
+      lista.forEach(t => {
+        const remessa = String(t.numeroRemessa || '').trim();
+        const linha = String(t.linha || '').trim();
+        const dataCorte = toISODateOnly(t.dataCorte);
+        const dataEntrega = toISODateOnly(t.dataEntrega);
+        const tipoCliente = displayTipoCliente(t.tipoCliente);
+        const numeroTalao = String(t.numeroTalaoSequencial || t.numeroTalao || '').trim();
+        const modeloNum = String(t.modelo || t.referencia || '').trim();
+        const modelo = `${linha}.${modeloNum || 'S/Modelo'}`;
+        const pares = Number(t.pares) || 0;
+
+        if (!remessa || !numeroTalao) return;
+
+        const key = `${remessa}__${dataCorte}__${dataEntrega}__${tipoCliente}`;
+        if (!grouped.has(key)) {
+          grouped.set(key, { remessa, dataCorte, dataEntrega, tipoCliente, itens: [] });
+        }
+
+        grouped.get(key).itens.push({ numeroTalao, modelo, pares });
+        totalPares += pares;
+      });
+
+      const remessas = Array.from(grouped.values()).sort((a,b) => {
+        if (a.dataCorte !== b.dataCorte) return String(a.dataCorte).localeCompare(String(b.dataCorte));
+        return a.remessa.localeCompare(b.remessa, undefined, { numeric:true });
+      });
+
+      remessas.forEach(r => {
+        r.itens.sort((a,b) => a.numeroTalao.localeCompare(b.numeroTalao, undefined, { numeric:true }));
+      });
+
+      const totalTaloes = remessas.reduce((acc, r) => acc + r.itens.length, 0);
+      return { remessas, totalTaloes, totalPares };
+    }
+
+    function buildAtelierModalHtml(atelierNome) {
+      const { remessas } = getAtelierOpenData(atelierNome);
+
+      if (!remessas.length) {
+        return '<div class="empty-state">Nenhuma remessa em atraso ou da semana para este atelier com os filtros atuais.</div>';
+      }
+
+      const textoWhatsApp = buildAtelierWhatsAppText(atelierNome);
+      return `
+        <div class="whatsapp-copy-box only-copy-box">
+          <div class="whatsapp-copy-title">Talões que falta entrada no atelier</div>
+          <pre class="whatsapp-copy-preview">${escapeHtml(textoWhatsApp)}</pre>
+        </div>
+      `;
+    }
+
+    function buildAtelierWhatsAppText(atelierNome) {
+      const { remessas, totalTaloes, totalPares } = getAtelierOpenData(atelierNome);
+      if (!remessas.length) return '';
+
+      const linhas = [atelierNome, ''];
+
+      remessas.forEach((r, index) => {
+        linhas.push(`R. ${r.remessa} - Crt ${formatDateShortBR(r.dataCorte)} - Entr. ${formatDateShortBR(r.dataEntrega)} - ${r.tipoCliente}`);
+        r.itens.forEach(item => {
+          linhas.push(`❌ T ${item.numeroTalao} - ${item.modelo} - ${item.pares} pares`);
+        });
+        if (index < remessas.length - 1) linhas.push('');
+      });
+
+      linhas.push('');
+      linhas.push(`Total: ${remessas.length} remessas · ${totalTaloes} talões · ${totalPares} pares`);
+
+      return linhas.join('\n');
+    }
+
+    async function copiarTextoWhatsApp() {
+      if (!atelierWhatsAppText.trim()) {
+        alert('Não há texto para copiar.');
+        return;
+      }
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(atelierWhatsAppText);
+        } else {
+          const textarea = document.createElement('textarea');
+          textarea.value = atelierWhatsAppText;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textarea);
+        }
+
+        const originalText = copyAtelierWhatsAppButton.textContent;
+        copyAtelierWhatsAppButton.textContent = 'Copiado ✓';
+        setTimeout(() => {
+          copyAtelierWhatsAppButton.textContent = originalText;
+        }, 1600);
+      } catch (error) {
+        console.error('Erro ao copiar texto:', error);
+        alert('Não consegui copiar automaticamente. Selecione o texto do modal e copie manualmente.');
+      }
+    }
+
+    function openAtelierModal() {
+      const atelierNome = filtroAtelier.value;
+      if (!atelierNome) {
+        alert('Selecione um atelier para ver as remessas em aberto.');
+        return;
+      }
+
+      atelierWhatsAppText = buildAtelierWhatsAppText(atelierNome);
+      copyAtelierWhatsAppButton.disabled = !atelierWhatsAppText.trim();
+      copyAtelierWhatsAppButton.textContent = 'Copiar para WhatsApp';
+
+      atelierModalTitle.textContent = atelierNome;
+      atelierModalSubtitle.textContent = 'Copie somente corte em atraso e corte da semana';
+      atelierModalBody.innerHTML = buildAtelierModalHtml(atelierNome);
+      atelierModal.hidden = false;
+      document.body.classList.add('modal-open');
+    }
+
+    async function copiarAtelierDiretoWhatsApp() {
+      const atelierNome = filtroAtelier.value;
+      if (!atelierNome) {
+        alert('Selecione um atelier para copiar as remessas em aberto.');
+        return;
+      }
+
+      openAtelierModal();
+      await copiarTextoWhatsApp();
+
+      const originalText = copyAtelierDirectButton.textContent;
+      copyAtelierDirectButton.textContent = 'Copiado ✓';
+      setTimeout(() => {
+        copyAtelierDirectButton.textContent = originalText;
+      }, 1600);
+    }
+
+    function closeAtelierModal() {
+      atelierModal.hidden = true;
+      document.body.classList.remove('modal-open');
+    }
+
+
     function getTodayIso() {
       return formatLocalISO(getTodayLocal());
     }
@@ -753,6 +1008,7 @@
         const ref = collection(db, 'taloes');
         const snap = await getDocs(query(ref));
         taloes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        populateAtelierOptions();
         updateFiltersSummary();
         renderCards();
       } catch (error) {
@@ -779,17 +1035,29 @@
       });
     });
 
-    [filtroDataDe, filtroDataAte].forEach(input => {
+    [filtroDataDe, filtroDataAte, filtroAtelier].forEach(input => {
       input.addEventListener('change', () => {
         updateFiltersSummary();
         renderCards();
       });
     });
 
+    openAtelierModalButton.addEventListener('click', openAtelierModal);
+    copyAtelierDirectButton.addEventListener('click', copiarAtelierDiretoWhatsApp);
+    copyAtelierWhatsAppButton.addEventListener('click', copiarTextoWhatsApp);
+    closeAtelierModalButton.addEventListener('click', closeAtelierModal);
+    atelierModal.addEventListener('click', (event) => {
+      if (event.target === atelierModal) closeAtelierModal();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !atelierModal.hidden) closeAtelierModal();
+    });
+
     clearFiltersButton.addEventListener('click', () => {
       [...tipoFilterInputs, ...pendenciaFilterInputs].forEach(input => input.checked = false);
       filtroDataDe.value = '';
       filtroDataAte.value = '';
+      filtroAtelier.value = '';
       updateFiltersSummary();
       renderCards();
     });
