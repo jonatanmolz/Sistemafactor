@@ -1931,6 +1931,153 @@
     }
     .open-stage-table{min-width:1080px !important;}
 
+  
+
+    /* ===== AJUSTE MOBILE: card de remessa mais horizontal e compacto ===== */
+    @media (max-width: 900px){
+      .remessa-line-section{
+        margin:0 0 10px !important;
+      }
+      .remessa-line-title{
+        padding:3px 5px 5px !important;
+        font-size:.98em !important;
+        border-bottom:0 !important;
+      }
+      .remessa-line-title span{
+        padding:3px 8px !important;
+        font-size:.66em !important;
+      }
+      .remessa-line-grid{
+        gap:7px !important;
+      }
+      .remessa-line-grid .remessa-card,
+      .remessa-card{
+        padding:7px 8px !important;
+        border-radius:13px !important;
+        border-left-width:5px !important;
+        box-shadow:0 3px 8px rgba(0,0,0,.10) !important;
+      }
+      .remessa-card-main{
+        display:grid !important;
+        grid-template-columns:minmax(0, 1fr) minmax(118px, auto) !important;
+        grid-template-areas:
+          "ident status"
+          "chips chips" !important;
+        gap:5px 7px !important;
+        align-items:center !important;
+      }
+      .remessa-card-ident{
+        grid-area:ident !important;
+        min-width:0 !important;
+      }
+      .remessa-id-row{
+        flex-direction:row !important;
+        align-items:center !important;
+        justify-content:flex-start !important;
+        gap:6px !important;
+        min-width:0 !important;
+      }
+      .remessa-number-pill{
+        width:auto !important;
+        min-width:118px !important;
+        max-width:132px !important;
+        justify-content:center !important;
+        padding:5px 9px !important;
+        font-size:.98em !important;
+        line-height:1 !important;
+        white-space:nowrap !important;
+      }
+      .remessa-id-row .remessa-card-meta{
+        text-align:left !important;
+        font-size:.78em !important;
+        line-height:1.05 !important;
+        white-space:nowrap !important;
+        flex:0 0 auto !important;
+      }
+      .remessa-id-row .remessa-card-meta strong{
+        font-size:.98em !important;
+        line-height:1.05 !important;
+      }
+      .remessa-subline{
+        text-align:left !important;
+        margin-top:4px !important;
+        font-size:.76em !important;
+        line-height:1.12 !important;
+        font-weight:800 !important;
+      }
+      .remessa-current-stage{
+        grid-area:status !important;
+        width:100% !important;
+        min-width:118px !important;
+        max-width:130px !important;
+        justify-self:end !important;
+        padding:7px 8px !important;
+        font-size:.78em !important;
+        line-height:1.05 !important;
+        white-space:nowrap !important;
+        border-radius:999px !important;
+      }
+      .stage-chip-row{
+        grid-area:chips !important;
+        grid-column:1 / -1 !important;
+        display:grid !important;
+        grid-template-columns:repeat(5, minmax(0, 1fr)) !important;
+        gap:4px !important;
+        overflow:visible !important;
+        padding:0 !important;
+      }
+      .stage-chip{
+        min-width:0 !important;
+        min-height:46px !important;
+        padding:4px 2px !important;
+        border-radius:9px !important;
+        font-size:.56em !important;
+        line-height:1.05 !important;
+      }
+      .stage-chip b{
+        font-size:.78em !important;
+        line-height:1 !important;
+      }
+      .stage-chip span{
+        font-size:.98em !important;
+        line-height:1.05 !important;
+      }
+      .stage-chip small{
+        font-size:.86em !important;
+        line-height:1 !important;
+      }
+    }
+
+    @media (max-width: 380px){
+      .remessa-card-main{
+        grid-template-columns:minmax(0, 1fr) minmax(108px, auto) !important;
+        gap:5px !important;
+      }
+      .remessa-number-pill{
+        min-width:108px !important;
+        max-width:118px !important;
+        font-size:.92em !important;
+        padding:5px 7px !important;
+      }
+      .remessa-id-row .remessa-card-meta{
+        font-size:.72em !important;
+      }
+      .remessa-subline{
+        font-size:.70em !important;
+      }
+      .remessa-current-stage{
+        min-width:108px !important;
+        max-width:116px !important;
+        font-size:.72em !important;
+        padding:7px 5px !important;
+      }
+      .stage-chip{
+        min-height:43px !important;
+        font-size:.51em !important;
+        border-radius:8px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
