@@ -264,6 +264,184 @@
     @media (max-width:768px){header{flex-wrap:wrap}.user-info{text-align:left;order:3;flex-basis:100%}.header-actions{margin-left:auto}nav.menu-open{max-height:520px}}
     @media (max-width:768px){.filters-container{justify-content:stretch}.form-group{flex:1}.modal-content{width:98%;max-width:98%}.modal-body-table{font-size:.74em}}
     .modal-body-table tr:nth-child(even) {background-color: #f2f2f2;}
+
+
+    /* === AJUSTES MOBILE - Cronograma === */
+    @media (max-width: 768px) {
+      html, body { width: 100%; overflow-x: hidden; }
+      body { font-size: 14px; }
+      header { padding: 8px 10px; gap: 6px; }
+      header h1 { font-size: 18px; }
+      .user-info { font-size: 11px; order: 2; flex: 1 1 auto; text-align: left; }
+      .header-actions { order: 3; margin-left: 0; gap: 6px; }
+      .menu-toggle { padding: 6px 8px; font-size: .82em; }
+      #logoutButton { padding: 6px 8px; font-size: .82em; }
+      nav.menu-open { max-height: 70vh; overflow-y: auto; }
+      nav ul { gap: 6px; }
+      nav a { padding: 6px 8px; }
+
+      .main-content { padding: 8px; align-items: stretch; }
+      .filters-container {
+        max-width: 100%;
+        width: 100%;
+        padding: 9px;
+        gap: 8px;
+        justify-content: flex-start;
+        align-items: stretch;
+      }
+      .form-group,
+      .filter-linha,
+      .filter-modelo,
+      .filter-remessa,
+      .date-range-field {
+        min-width: 0 !important;
+        max-width: none !important;
+        flex: 1 1 calc(50% - 8px) !important;
+      }
+      .filters-container label { font-size: .72em; }
+      .filters-container input,
+      .filters-container select,
+      .date-range-button {
+        width: 100%;
+        padding: 7px;
+        font-size: .78em;
+      }
+      .filters-container .btn {
+        flex: 1 1 calc(50% - 8px);
+        justify-content: center;
+        padding: 8px 7px;
+        font-size: .80em;
+        white-space: normal;
+        text-align: center;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        border-radius: 9px;
+      }
+      .report-header { gap: 8px; align-items: flex-start; }
+      .report-header h2 { font-size: 1.1em; width: 100%; }
+      .report-actions { width: 100%; gap: 6px; }
+      .check-action { width: 100%; font-size: .78em; }
+      .check-action input { width: 14px; height: 14px; }
+      .report-actions .btn {
+        flex: 1 1 calc(50% - 6px);
+        justify-content: center;
+        padding: 8px 6px;
+        font-size: .76em;
+      }
+
+      #lineFilterContainer {
+        max-width: 100%;
+        padding: 8px;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      #lineFilterContainer h4 { width: 100%; font-size: .82em; margin-bottom: 2px; }
+      #lineCheckboxes { gap: 6px 10px; font-size: .76em; }
+      #selectRemessasButton {
+        width: 100%;
+        justify-content: center;
+        padding: 8px;
+        font-size: .75em;
+      }
+
+      .summary-info {
+        gap: 6px;
+        padding: 6px;
+        margin-bottom: 8px;
+        font-size: .76em;
+      }
+      .summary-item {
+        min-width: calc(50% - 6px);
+        padding: 7px 5px;
+        border-radius: 8px;
+      }
+      .summary-item strong { font-size: 1.05em; }
+
+      #resumoButtonsContainer {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin: 8px 0;
+        padding: 8px 0;
+        overflow: visible;
+      }
+      #resumoButtonsContainer .btn-resumo,
+      .btn-resumo {
+        min-width: 0 !important;
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        white-space: normal;
+        line-height: 1.15;
+        padding: 9px 6px;
+        font-size: .76em;
+        border-radius: 7px;
+      }
+
+      #columnControlMenu {
+        max-width: 100%;
+        padding: 8px;
+        font-size: .76em;
+        margin-bottom: 8px;
+      }
+      #columnControlMenu h4 { font-size: .86em; }
+      .column-checkboxes { gap: 6px 10px; }
+      .column-checkboxes label { align-items: center; }
+
+      .table-container {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      table { font-size: .68em; }
+      th, td { padding: 4px 5px; }
+
+      .modal { padding: 6px; }
+      .modal-content { width: 100%; max-width: 100%; padding: 10px; }
+      .date-picker-content { max-width: 96vw; }
+      .date-picker-header button { font-size: 24px; padding: 0 8px; }
+      .date-picker-weekdays div { font-size: .75em; padding: 4px 0; }
+      .date-picker-day { min-height: 30px; font-size: .82em; }
+      .date-picker-actions { gap: 8px; }
+      .date-picker-hint { font-size: .75em; }
+      .resumo-cards-wrapper {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        max-height: 72vh;
+        padding-right: 4px;
+      }
+      .atelie-card { padding: 10px; }
+      .atelie-card h4 { font-size: 1em; }
+      .model-list p { font-size: .82em; }
+      .whats-message-box { min-height: 300px; font-size: .82em; }
+      .whats-actions .btn { flex: 1 1 100%; justify-content: center; }
+    }
+
+    @media (max-width: 380px) {
+      .main-content { padding: 6px; }
+      .filters-container { padding: 8px; gap: 7px; }
+      .filters-container label { font-size: .68em; }
+      .filters-container input,
+      .filters-container select,
+      .date-range-button { font-size: .74em; padding: 7px 6px; }
+      .filters-container .btn { font-size: .76em; padding: 8px 5px; }
+      .container { padding: 9px; }
+      .report-actions .btn { font-size: .72em; }
+      #resumoButtonsContainer { gap: 6px; }
+      #resumoButtonsContainer .btn-resumo,
+      .btn-resumo { font-size: .70em; padding: 8px 4px; }
+      .summary-info { font-size: .72em; }
+      .summary-item { padding: 6px 4px; }
+      #lineCheckboxes { font-size: .72em; }
+      #columnControlMenu { font-size: .72em; }
+      table { font-size: .64em; }
+      th, td { padding: 3px 4px; }
+    }
+
   </style>
 </head>
 <body>
