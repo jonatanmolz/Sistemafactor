@@ -442,6 +442,50 @@
       th, td { padding: 3px 4px; }
     }
 
+
+    /* Correção mobile: evita que o checkbox de linhas fique por cima do número */
+    #lineCheckboxes label {
+      gap: 7px;
+      min-width: 58px;
+      padding: 4px 6px;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    #lineCheckboxes input[type="checkbox"] {
+      width: 18px !important;
+      min-width: 18px !important;
+      height: 18px !important;
+      margin: 0 !important;
+      flex: 0 0 18px !important;
+      display: inline-block !important;
+    }
+    @media (max-width: 768px) {
+      #lineCheckboxes {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(70px, 1fr));
+        gap: 8px;
+        width: 100%;
+      }
+      #lineCheckboxes label {
+        min-width: 0;
+        padding: 6px 8px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #fff;
+        font-size: .82em;
+      }
+      #lineCheckboxes input[type="checkbox"] {
+        width: 18px !important;
+        min-width: 18px !important;
+        height: 18px !important;
+      }
+    }
+    @media (max-width: 380px) {
+      #lineCheckboxes {
+        grid-template-columns: repeat(2, minmax(80px, 1fr));
+      }
+    }
+
   </style>
 </head>
 <body>
