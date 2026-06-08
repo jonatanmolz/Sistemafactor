@@ -96,6 +96,8 @@
     { name: "Cronograma Mobile", href: "cronogramamobile.html", levels: ["06", "07"] },
     { name: "Relatório Master", href: "relatorioMaster.html", levels: ["05", "07"] },
     { name: "Costura", href: "costura.html", levels: ["03", "07"] },
+    { name: "Costura", href: "costura_saida.html", levels: ["03", "07"] },
+    { name: "Costura", href: "costura_entrada.html", levels: ["03", "07"] },
     { name: "Relatorio Atelier", href: "relatorioAtelier.html", levels: ["03", "07"] },
     { name: "Atlier Celular", href: "relatoriomobile.html", levels: ["03", "07"] },
     { name: "Distribuição", href: "distribuicao.html", levels: ["04", "07"] },
