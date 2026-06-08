@@ -52,6 +52,12 @@
   const lastScannedExitList = document.getElementById("lastScannedExitList");
   const loadingMessageDiv = document.getElementById("loadingMessage");
 
+  // Destaque visual do campo que está ativo para leitura
+  const scannerActiveStyle = document.createElement("style");
+  scannerActiveStyle.textContent =
+    ".barcode-scanner-container.scanner-active{box-shadow:0 0 0 5px rgba(0,123,255,.18),0 4px 15px rgba(0,0,0,.1);}";
+  document.head.appendChild(scannerActiveStyle);
+
   // Estado
   let currentUserName = "";
   const lastEntries = [];
@@ -65,48 +71,37 @@
   // 🔁 Modo (padrão: entrada)
   let activeMode = "entry"; // "entry" | "exit"
 
-    //Login
-    const nivelNomes = {
-      '01': 'Cadastro',
-      '02': 'Corte',
-      '03': 'Costura',
-      '04': 'Montagem',
-      '05': 'Admin',
-      '06': 'Consultor',
-      '07': 'Super'
-    };
-    //Paginas
-    const pages = [
-      //Inicio
-      { name: 'Index', href: 'index.html', levels: ['01','02','03','04','05','06','07'] },
-      //Cadastro
-      { name: 'Cadastro Usuarios', href: 'usuarios.html', levels: ['07'] },
-      { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01','05','07'] },
-      { name: 'Cadastro Manual', href: 'cadastromanual.html', levels: ['01','05','07'] },  
-      { name: 'Cadastro Edição', href: 'edicao.html', levels: ['07'] },
-      //Ferramentas
-      { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
-      { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
-      { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
-      //Corte
-      { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
-      { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
-      { name: 'Programação', href: 'relatoriocrt.html', levels: ['02','04','07'] },
-      //Relatorios
-      { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
-      { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02','04','05','06','07'] },
-      { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
-      { name: 'Programação', href: 'relatorioatt.html', levels: ['01','02','03','05','06','07'] },
-      //Costura
-      { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
-      { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
-      { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
-      //Montagem
-      { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
-      { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
-      { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
-    ];
+  // Níveis e menu
+  const nivelNomes = {
+    "01": "Cadastro",
+    "02": "Corte",
+    "03": "Costura",
+    "04": "Montagem",
+    "05": "Admin",
+    "06": "Consultor",
+    "07": "Super"
+  };
 
+  const pages = [
+    { name: "Index", href: "index.html", levels: ["01", "02", "03", "04", "05", "06", "07"] },
+    { name: "Cadastro Usuarios", href: "cadastroUsuarios.html", levels: ["07"] },
+    { name: "Cadastro Talões", href: "cadastroTaloes.html", levels: ["01", "05", "07"] },
+    { name: "Romaneio", href: "romaneio.html", levels: ["05", "07"] },
+    { name: "Excluir Dados", href: "excluirDados.html", levels: ["05", "07"] },
+    { name: "Registro em Massa", href: "registroEmMassa.html", levels: ["07"] },
+    { name: "Corte", href: "corte.html", levels: ["02", "07"] },
+    { name: "Relatório Erros", href: "relatorioerros.html", levels: ["02", "04", "07"] },
+    { name: "Resumo", href: "resumo.html", levels: ["04", "06", "07"] },
+    { name: "Cronograma", href: "cronograma.html", levels: ["01", "02", "04", "05", "06", "07"] },
+    { name: "Cronograma Mobile", href: "cronogramamobile.html", levels: ["06", "07"] },
+    { name: "Relatório Master", href: "relatorioMaster.html", levels: ["05", "07"] },
+    { name: "Costura", href: "costura.html", levels: ["03", "07"] },
+    { name: "Relatorio Atelier", href: "relatorioAtelier.html", levels: ["03", "07"] },
+    { name: "Atlier Celular", href: "relatoriomobile.html", levels: ["03", "07"] },
+    { name: "Distribuição", href: "distribuicao.html", levels: ["04", "07"] },
+    { name: "Talonagem", href: "talonagem.html", levels: ["04", "07"] },
+    { name: "Montagem", href: "montagem.html", levels: ["05", "07"] }
+  ];
 
   // UI helpers
   function showLoading(msg) {
@@ -357,22 +352,113 @@
     return false;
   }
 
+  function getActiveInput() {
+    return activeMode === "exit" ? barcodeInputExit : barcodeInputEntry;
+  }
+
+  function getActiveProcessFn() {
+    return activeMode === "exit" ? processSaida : processEntrada;
+  }
+
+  function updateModeVisual() {
+    const entryBox = barcodeInputEntry
+      ? barcodeInputEntry.closest(".barcode-scanner-container")
+      : null;
+    const exitBox = barcodeInputExit
+      ? barcodeInputExit.closest(".barcode-scanner-container")
+      : null;
+
+    if (entryBox) entryBox.classList.toggle("scanner-active", activeMode === "entry");
+    if (exitBox) exitBox.classList.toggle("scanner-active", activeMode === "exit");
+  }
+
+  function setActiveMode(modeName, focusNow) {
+    activeMode = modeName === "exit" ? "exit" : "entry";
+    updateModeVisual();
+
+    if (focusNow) {
+      const input = getActiveInput();
+      setTimeout(() => safeFocus(input), 0);
+      setTimeout(() => safeFocus(input), 50);
+    }
+  }
+
+  // Controle manual: só muda Entrada/Saída quando o usuário clica/toca.
+  // O scanner pode mandar TAB/NEXT/ENTER sem trocar o modo sozinho.
+  let manualModeChangeUntil = 0;
+
+  function allowManualModeChangeForMoment() {
+    manualModeChangeUntil = Date.now() + 900;
+  }
+
+  function isManualModeChange() {
+    return Date.now() <= manualModeChangeUntil;
+  }
+
+  function selectModeByUser(modeName) {
+    allowManualModeChangeForMoment();
+    setActiveMode(modeName, true);
+  }
+
+  function bindManualModeSelector(inputEl, modeName) {
+    if (!inputEl) return;
+
+    const container = inputEl.closest(".barcode-scanner-container");
+    const events = ["pointerdown", "mousedown", "touchstart", "click"];
+
+    events.forEach((eventName) => {
+      inputEl.addEventListener(
+        eventName,
+        () => {
+          selectModeByUser(modeName);
+        },
+        true
+      );
+
+      if (container) {
+        container.addEventListener(
+          eventName,
+          () => {
+            selectModeByUser(modeName);
+          },
+          true
+        );
+      }
+    });
+  }
+
   function attachScannerInput(inputEl, processFn, modeName) {
     if (!inputEl) return;
 
-    // trocar modo quando tocar no campo
-    inputEl.addEventListener("focus", () => {
-      activeMode = modeName;
-    });
+    // IMPORTANTE:
+    // Não trocamos mais o modo no "focus", porque o leitor pode jogar foco na saída
+    // quando envia TAB/NEXT. Agora o focus só corrige foco acidental.
+    inputEl.addEventListener(
+      "focus",
+      () => {
+        const activeInput = getActiveInput();
 
-    // keydown: captura Enter/Tab/Next
+        if (inputEl !== activeInput && !isManualModeChange()) {
+          setTimeout(() => safeFocus(activeInput), 0);
+        }
+      },
+      true
+    );
+
+    // keydown local: fica como segurança caso o evento não seja pego no document
     inputEl.addEventListener(
       "keydown",
       (e) => {
         if (isScannerSubmitKey(e)) {
           e.preventDefault();
           e.stopPropagation();
-          processFn();
+
+          if (inputEl === getActiveInput()) {
+            processFn();
+          } else {
+            setTimeout(() => safeFocus(getActiveInput()), 0);
+          }
+
           return false;
         }
       },
@@ -381,6 +467,26 @@
 
     // se vier \n no valor
     inputEl.addEventListener("input", () => {
+      const activeInput = getActiveInput();
+
+      // Se por algum motivo o scanner digitou no campo errado, não processa como saída/entrada errada.
+      if (inputEl !== activeInput && !isManualModeChange()) {
+        const typed = inputEl.value || "";
+        inputEl.value = "";
+
+        if (typed) {
+          activeInput.value = ((activeInput.value || "") + typed).replace(/[\r\n]+/g, "");
+        }
+
+        setTimeout(() => safeFocus(activeInput), 0);
+
+        if (typed.includes("\n") || typed.includes("\r")) {
+          getActiveProcessFn()();
+        }
+
+        return;
+      }
+
       const v = inputEl.value || "";
       if (v.includes("\n") || v.includes("\r")) {
         inputEl.value = v.replace(/[\r\n]+/g, "");
@@ -388,49 +494,70 @@
       }
     });
 
-    // blur: processa se sobrou valor
+    // blur: processa se sobrou valor, mas não permite que a leitura troque de campo sozinha
     inputEl.addEventListener("blur", () => {
       setTimeout(() => {
         const v = (inputEl.value || "").trim();
-        if (v.length > 0) processFn();
+        if (v.length > 0 && inputEl === getActiveInput()) {
+          processFn();
+        }
+
+        if (!isManualModeChange()) {
+          safeFocus(getActiveInput());
+        }
       }, 30);
     });
   }
+
+  // ✅ A troca de Entrada/Saída agora é manual: clique/toque no campo desejado
+  bindManualModeSelector(barcodeInputEntry, "entry");
+  bindManualModeSelector(barcodeInputExit, "exit");
 
   // ✅ Anexa scanners
   attachScannerInput(barcodeInputEntry, processEntrada, "entry");
   attachScannerInput(barcodeInputExit, processSaida, "exit");
 
-  // ✅ TRAVA GLOBAL: no modo ENTRADA, impedir TAB/NEXT mudar foco
+  // ✅ TRAVA GLOBAL:
+  // Captura ENTER/TAB/NEXT do leitor, processa o campo ativo e mantém o foco nele.
   document.addEventListener(
     "keydown",
     (e) => {
-      if (activeMode !== "entry") return;
+      if (!isScannerSubmitKey(e)) return;
 
-      const key = e.key;
-      const code = e.keyCode || e.which;
-      const isTab = key === "Tab" || code === 9;
-      const isNext = key === "Next";
+      const activeInput = getActiveInput();
+      const target = e.target;
 
-      // Só trava TAB/NEXT se o foco estiver no input de entrada
-      if (document.activeElement === barcodeInputEntry && (isTab || isNext)) {
+      if (target === barcodeInputEntry || target === barcodeInputExit || document.activeElement === activeInput) {
         e.preventDefault();
         e.stopPropagation();
-        // reafirma o foco
-        setTimeout(() => safeFocus(barcodeInputEntry), 0);
+        if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
+
+        if (document.activeElement !== activeInput && !isManualModeChange()) {
+          safeFocus(activeInput);
+          return false;
+        }
+
+        getActiveProcessFn()();
+        setTimeout(() => safeFocus(activeInput), 0);
+        setTimeout(() => safeFocus(activeInput), 60);
+        return false;
       }
     },
     true
   );
 
-  // ✅ “Puxador de foco”: se por qualquer motivo cair na SAÍDA durante modo ENTRADA, volta pra ENTRADA
+  // ✅ Puxador de foco: se cair no campo errado por TAB/NEXT, volta para o modo selecionado
   document.addEventListener(
     "focusin",
     (e) => {
-      if (activeMode !== "entry") return;
-      if (e.target === barcodeInputExit) {
-        // impede o pulo pra saída
-        setTimeout(() => safeFocus(barcodeInputEntry), 0);
+      const activeInput = getActiveInput();
+
+      if (
+        (e.target === barcodeInputEntry || e.target === barcodeInputExit) &&
+        e.target !== activeInput &&
+        !isManualModeChange()
+      ) {
+        setTimeout(() => safeFocus(activeInput), 0);
       }
     },
     true
@@ -438,8 +565,7 @@
 
   // Força modo entrada ao abrir
   function setEntryMode() {
-    activeMode = "entry";
-    safeFocus(barcodeInputEntry);
+    setActiveMode("entry", true);
   }
 
   // Boot/Auth
