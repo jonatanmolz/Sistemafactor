@@ -112,7 +112,7 @@
       //Montagem
       { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
       { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
-      { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
+      { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] },
       { name: 'Controle Produção', href: 'controle.html', levels: ['04','05','06','07'] }
     ];
 
