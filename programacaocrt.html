@@ -23,19 +23,12 @@
     .header-actions{display:flex;align-items:center;gap:10px}
     .user-info{font-size:13px;text-align:right}
     .user-info span{display:block;font-weight:700}
-    nav{background-color:#555;padding:10px 20px;box-shadow:0 2px 5px rgba(0,0,0,.1);font-size:.8em;display:none}
-    nav.open{display:block}
-    nav ul{list-style:none;margin:0;padding:0;display:flex;gap:12px;flex-wrap:wrap}
-    nav a{color:#fff;text-decoration:none;padding:6px 12px;border-radius:6px;display:block}
-    nav a:hover{background:#777}
     .btn{padding:10px 14px;border:none;border-radius:8px;cursor:pointer;font-size:.95em;transition:background .2s,transform .02s;display:inline-flex;gap:.5rem;align-items:center}
     .btn:active{transform:translateY(1px)}
     .btn-primary{background:var(--pri);color:#fff}
     .btn-primary:hover{background:var(--pri-700)}
     .btn-secondary{background:#e9ecef;color:#111}
     .btn-secondary:hover{background:#dde2e6}
-    #logoutButton{background:var(--danger);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
-    #logoutButton:hover{background:var(--danger-700)}
 
     .main-content{flex:1;padding:18px;display:flex;flex-direction:column;align-items:center;gap:16px}
     .toolbar,.container{background:var(--card);padding:16px;border-radius:14px;box-shadow:var(--shadow);width:100%;max-width:1780px;overflow:visible}
@@ -154,23 +147,10 @@
       .status-col{font-size:1.1rem}
     }
   </style>
+  <script src="navegacao.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Sistema Factor</h1>
-    <div class="user-info">
-      <span id="userNameDisplay">Carregando...</span>
-      <span id="userNivelDisplay"></span>
-    </div>
-    <div class="header-actions">
-      <button id="toggleMenuButton" class="btn btn-secondary" type="button">Menu</button>
-      <button id="logoutButton" type="button">Sair</button>
-    </div>
-  </header>
-
-  <nav id="topNav"><ul id="menuNav"></ul></nav>
-
-  <div class="main-content">
+<div class="main-content">
     <section class="toolbar">
       <div class="toolbar-top">
         <div>
@@ -310,18 +290,12 @@
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, getDocs, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, query, getDocs, writeBatch, serverTimestamp, where, limit } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const menuNav = document.getElementById('menuNav');
-    const topNav = document.getElementById('topNav');
-    const toggleMenuButton = document.getElementById('toggleMenuButton');
-    const userNameDisplay = document.getElementById('userNameDisplay');
-    const userNivelDisplay = document.getElementById('userNivelDisplay');
-    const logoutButton = document.getElementById('logoutButton');
     const refreshButton = document.getElementById('refreshButton');
     const setorBadge = document.getElementById('setorBadge');
     const lastUpdateBadge = document.getElementById('lastUpdateBadge');
@@ -359,33 +333,7 @@
     let currentUserData = null;
     let taloes = [];
     let atelierWhatsAppText = '';
-
-    const nivelNomes = {
-      '01': 'Cadastro','02': 'Corte','03': 'Costura','04': 'Montagem','05': 'Admin','06': 'Consultor','07': 'Super'
-    };
-
-    const pages = [
-      { name: 'Index', href: 'index.html', levels: ['01','02','03','04','05','06','07'] },
-      { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
-      { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01','05','07'] },
-      { name: 'Cadastro Edição', href: 'edicao.html', levels: ['07'] },
-      { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
-      { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
-      { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
-      { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
-      { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
-      { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
-      { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02','04','05','06','07'] },
-      { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
-      { name: 'Programação', href: 'relatorioatt.html', levels: ['01','02','03','04','05','06','07'] },
-      { name: 'Relatório Corte', href: 'relatoriocrt.html', levels: ['02','05','06','07'] },
-      { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
-      { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
-      { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
-      { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
-      { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
-      { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
-    ];
+    let lastLoadKey = '';
 
 
     function getActiveFilters() {
@@ -437,7 +385,13 @@
     }
 
     function getAtelierResponsavel(t) {
-      return String(t.idAtelieResponsavel || '').trim();
+      return String(
+        t.idAtelieResponsavel ||
+        t.nomeAtelieResponsavel ||
+        t.atelieResponsavel ||
+        t.atelier ||
+        ''
+      ).trim();
     }
 
     function populateAtelierOptions() {
@@ -462,34 +416,19 @@
       openAtelierModalButton.disabled = !ateliers.length;
     }
 
-    function generateMenu(userLevel, userName) {
-      menuNav.innerHTML = '';
-      const userNivelText = nivelNomes[userLevel] || `Nível ${userLevel}`;
-      userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
-      userNivelDisplay.textContent = `Setor: ${userNivelText}`;
-      pages.forEach(p => {
-        if (p.levels.includes(String(userLevel))) {
-          const li = document.createElement('li');
-          const a = document.createElement('a');
-          a.href = p.href;
-          a.textContent = p.name;
-          li.appendChild(a);
-          menuNav.appendChild(li);
-        }
-      });
-    }
-
     function hasDate(v) {
-      return v !== undefined && v !== null && String(v).trim() !== '';
+      if (v === undefined || v === null) return false;
+      if (v && typeof v.toDate === 'function') return true;
+      return String(v).trim() !== '';
     }
 
     function toISODateOnly(v) {
       if (!v) return '';
       if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
       try {
-        const dt = new Date(v);
+        const dt = v && typeof v.toDate === 'function' ? v.toDate() : new Date(v);
         if (isNaN(dt)) return '';
-        return dt.toISOString().slice(0,10);
+        return formatLocalISO(dt);
       } catch {
         return '';
       }
@@ -555,7 +494,11 @@
     }
 
     function hasEntradaAtelier(t) {
-      return hasDate(t.costuraDataInicio);
+      return hasDate(t.costuraDataInicio) ||
+        hasDate(t.dataEntradaAtelier) ||
+        hasDate(t.dataEntradaCostura) ||
+        hasDate(t.dataEntradaDistribuicao) ||
+        hasDate(t.dataSaidaCostura);
     }
 
     function isPendenteCorte(t) {
@@ -951,6 +894,18 @@
         .replaceAll("'",'&#039;');
     }
 
+    function setCardsMessage(message, metaText = '-') {
+      const html = `<div class="empty-state">${escapeHtml(message)}</div>`;
+      [cardAmostra, cardAtraso, cardSemana, cardProxima].forEach(el => el.innerHTML = html);
+      [metaAmostra, metaAtraso, metaSemana, metaProxima].forEach(el => el.textContent = metaText);
+      lastUpdateBadge.textContent = formatDateTimeNow();
+    }
+
+    function getPaginaAtual() {
+      const path = window.location.pathname || '';
+      return path.split('/').pop() || 'programacaocrt.html';
+    }
+
     function renderCards() {
       const today = getTodayLocal();
       const nextWednesday = getNextWeekday(3);
@@ -999,32 +954,121 @@
       lastUpdateBadge.textContent = formatDateTimeNow();
     }
 
-    async function loadRelatorioCorte() {
-      [cardAmostra, cardAtraso, cardSemana, cardProxima].forEach(el => el.innerHTML = '<div class="loading">Carregando...</div>');
+    function addDaysToISO(iso, days) {
+      const [y, m, d] = String(iso).split('-').map(Number);
+      const dt = new Date(y, (m || 1) - 1, d || 1);
+      dt.setDate(dt.getDate() + days);
+      return formatLocalISO(dt);
+    }
+
+    function diffDaysISO(startIso, endIso) {
+      const [y1, m1, d1] = String(startIso).split('-').map(Number);
+      const [y2, m2, d2] = String(endIso).split('-').map(Number);
+      const a = new Date(y1, (m1 || 1) - 1, d1 || 1);
+      const b = new Date(y2, (m2 || 1) - 1, d2 || 1);
+      return Math.round((b - a) / 86400000);
+    }
+
+    function getBuscaRangeCorte() {
+      const today = getTodayLocal();
+      const nextWednesday = getNextWeekday(3);
+      const nextNextWednesday = new Date(nextWednesday);
+      nextNextWednesday.setDate(nextNextWednesday.getDate() + 7);
+
+      const semanaDates = getWednesdayGroup(nextWednesday);
+      const proximaDates = getWednesdayGroup(nextNextWednesday);
+      const targetDates = [...semanaDates, ...proximaDates].filter(Boolean).sort();
+      const maxTargetDate = targetDates[targetDates.length - 1] || formatLocalISO(today);
+
+      // Padrão: carrega uma janela recente, em vez de carregar a coleção inteira.
+      // Para procurar pendências muito antigas, informe manualmente a data "De".
+      let startIso = filtroDataDe.value || formatLocalISO(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 180));
+      let endIso = filtroDataAte.value || addDaysToISO(maxTargetDate, 14);
+
+      if (startIso > endIso) [startIso, endIso] = [endIso, startIso];
+
+      // Proteção contra busca grande demais, que causava deadline-exceeded.
+      const maxDays = 365;
+      if (diffDaysISO(startIso, endIso) > maxDays) {
+        endIso = addDaysToISO(startIso, maxDays);
+      }
+
+      return { startIso, endIso };
+    }
+
+    function addDocsToMap(map, snap) {
+      snap.forEach(d => {
+        if (!map.has(d.id)) map.set(d.id, { id: d.id, ...d.data() });
+      });
+    }
+
+    async function carregarTaloesPorDataCorte(ref, startIso, endIso) {
+      const docsMap = new Map();
+      lastUpdateBadge.textContent = `Buscando corte ${formatDateShortBR(startIso)} até ${formatDateShortBR(endIso)}...`;
+
+      const qDataCorte = query(
+        ref,
+        where('dataCorte', '>=', startIso),
+        where('dataCorte', '<=', endIso),
+        limit(8000)
+      );
+
+      addDocsToMap(docsMap, await getDocs(qDataCorte));
+      return docsMap;
+    }
+
+    async function carregarAmostras(ref, docsMap) {
+      try {
+        lastUpdateBadge.textContent = 'Buscando amostras...';
+        const qAmostras = query(
+          ref,
+          where('tipoCliente', 'in', ['Amostra', 'amostra', 'Amostras', 'amostras']),
+          limit(3000)
+        );
+        addDocsToMap(docsMap, await getDocs(qAmostras));
+      } catch (error) {
+        console.warn('Não foi possível carregar amostras em consulta separada:', error);
+      }
+    }
+
+    async function loadRelatorioCorte(force = false) {
+      [cardAmostra, cardAtraso, cardSemana, cardProxima].forEach(el => el.innerHTML = '<div class="loading">Carregando dados otimizados...</div>');
       [metaAmostra, metaAtraso, metaSemana, metaProxima].forEach(el => el.textContent = 'Carregando...');
 
       try {
         setorBadge.textContent = 'Corte';
         const ref = collection(db, 'taloes');
-        const snap = await getDocs(query(ref));
-        taloes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const { startIso, endIso } = getBuscaRangeCorte();
+        const loadKey = `${startIso}|${endIso}`;
+
+        if (!force && loadKey === lastLoadKey && taloes.length) {
+          updateFiltersSummary();
+          renderCards();
+          return;
+        }
+
+        const docsMap = await carregarTaloesPorDataCorte(ref, startIso, endIso);
+        await carregarAmostras(ref, docsMap);
+
+        taloes = Array.from(docsMap.values());
+        lastLoadKey = loadKey;
+
         populateAtelierOptions();
         updateFiltersSummary();
         renderCards();
+
+        if (!taloes.length) {
+          setCardsMessage(`Nenhum talão encontrado no período carregado (${formatDateShortBR(startIso)} até ${formatDateShortBR(endIso)}).`, '0 talões');
+        }
       } catch (error) {
         console.error('Erro ao carregar relatório do corte:', error);
-        const errorHtml = '<div class="empty-state">Erro ao carregar os dados.</div>';
-        [cardAmostra, cardAtraso, cardSemana, cardProxima].forEach(el => el.innerHTML = errorHtml);
-        [metaAmostra, metaAtraso, metaSemana, metaProxima].forEach(el => el.textContent = 'Erro');
+        const detalhe = error?.code ? `${error.code} - ${error.message || ''}` : (error?.message || 'Erro desconhecido');
+        setCardsMessage(`Erro ao carregar os dados: ${detalhe}`, 'Erro');
       }
     }
 
-    toggleMenuButton.addEventListener('click', () => {
-      topNav.classList.toggle('open');
-    });
-
     refreshButton.addEventListener('click', () => {
-      loadRelatorioCorte();
+      loadRelatorioCorte(true);
     });
 
 
@@ -1035,11 +1079,16 @@
       });
     });
 
-    [filtroDataDe, filtroDataAte, filtroAtelier].forEach(input => {
+    [filtroDataDe, filtroDataAte].forEach(input => {
       input.addEventListener('change', () => {
         updateFiltersSummary();
-        renderCards();
+        loadRelatorioCorte(true);
       });
+    });
+
+    filtroAtelier.addEventListener('change', () => {
+      updateFiltersSummary();
+      renderCards();
     });
 
     openAtelierModalButton.addEventListener('click', openAtelierModal);
@@ -1058,45 +1107,72 @@
       filtroDataDe.value = '';
       filtroDataAte.value = '';
       filtroAtelier.value = '';
+      lastLoadKey = '';
       updateFiltersSummary();
-      renderCards();
+      loadRelatorioCorte(true);
     });
-
-    logoutButton.addEventListener('click', async () => {
-      try {
-        await signOut(auth);
-        window.location.href = 'login.html';
-      } catch (e) {
-        console.error(e);
-        alert('Erro ao fazer logout. Tente novamente.');
-      }
-    });
-
     onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = 'login.html';
-        return;
+      try {
+        if (!user) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const snap = await getDoc(doc(db, 'Usuario', user.email));
+        if (!snap.exists()) {
+          alert('Dados do usuário não encontrados. Faça login novamente.');
+          await signOut(auth);
+          window.location.href = 'login.html';
+          return;
+        }
+
+        currentUserData = { email: user.email, ...snap.data() };
+        const nivelAcesso = String(currentUserData.nivelAcesso || '').padStart(2, '0');
+        const Nome = currentUserData.Nome || currentUserData.nome || 'Usuário';
+
+        localStorage.setItem('userNivelAcesso', nivelAcesso);
+        localStorage.setItem('userName', Nome);
+
+        const nav = window.SistemaNavegacao;
+        if (nav && typeof nav.init === 'function') {
+          nav.init({
+            userLevel: nivelAcesso,
+            userName: Nome,
+            title: 'Controle de produção FactorShoes',
+            onLogout: async () => {
+              try {
+                await signOut(auth);
+                localStorage.removeItem('userNivelAcesso');
+                localStorage.removeItem('userName');
+                window.location.href = 'login.html';
+              } catch (e) {
+                console.error(e);
+                alert('Erro ao fazer logout. Tente novamente.');
+              }
+            }
+          });
+        } else {
+          console.warn('navegacao.js não carregou ou window.SistemaNavegacao não foi encontrado. A página continuará carregando os dados.');
+        }
+
+        const niveisPermitidosFallback = ['01', '05', '07'];
+        if (nav && typeof nav.podeAcessar === 'function') {
+          const paginaAtual = getPaginaAtual();
+          const liberadoNaNavegacao = nav.podeAcessar(nivelAcesso, paginaAtual) || nav.podeAcessar(nivelAcesso, 'programacaocrt.html');
+          const liberadoFallback = niveisPermitidosFallback.includes(nivelAcesso);
+
+          if (!liberadoNaNavegacao && !liberadoFallback) {
+            setCardsMessage('Usuário sem permissão para acessar esta página.', 'Sem acesso');
+            return;
+          }
+        }
+
+        await loadRelatorioCorte(true);
+      } catch (error) {
+        console.error('Erro na inicialização da página:', error);
+        const detalhe = error?.message || 'Erro desconhecido';
+        setCardsMessage(`Erro na inicialização da página: ${detalhe}`, 'Erro');
       }
-
-      const snap = await getDoc(doc(db, 'Usuario', user.email));
-      if (!snap.exists()) {
-        alert('Dados do usuário não encontrados. Faça login novamente.');
-        await signOut(auth);
-        window.location.href = 'login.html';
-        return;
-      }
-
-      currentUserData = { email: user.email, ...snap.data() };
-      const { nivelAcesso, Nome } = currentUserData;
-
-      if (!['02','05','06','07'].includes(String(nivelAcesso))) {
-        alert('Você não tem permissão para acessar esta página.');
-        window.location.href = 'index.html';
-        return;
-      }
-
-      generateMenu(nivelAcesso, Nome);
-      await loadRelatorioCorte();
     });
   </script>
 </body>
