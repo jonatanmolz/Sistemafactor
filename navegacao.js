@@ -27,7 +27,7 @@
     // Cadastro
     { group: 'Cadastro', name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
     { group: 'Cadastro', name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05', '07'] },
-    { group: 'Cadastro', name: 'Cadastro Manual', href: 'cadastroManual.html', levels: ['05', '07'] },
+    { group: 'Cadastro', name: 'Cadastro Manual', href: 'cadastromanual.html', levels: ['05', '07'] },
 
     // Ferramentas
     { group: 'Ferramentas', name: 'Romaneio', href: 'romaneio.html', levels: ['05', '07'] },
