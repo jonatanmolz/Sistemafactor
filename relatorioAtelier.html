@@ -1,759 +1,1528 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relatório Ateliê - SistemaTaloes</title>
-    <script src="navegacao.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-        .user-info {
-            font-size: 14px;
-            text-align: right;
-        }
-        .user-info span {
-            display: block;
-            font-weight: bold;
-        }
-        nav {
-            background-color: #555;
-            padding: 10px 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            font-size: 0.8em;
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-            display: block;
-        }
-        nav ul li a:hover {
-            background-color: #777;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .filters-container {
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 100%;
-            margin-bottom: 20px;
-        }
-        .filters-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .filters-container label {
-            display: block;
-            margin-bottom: 3px;
-            color: #555;
-            font-size: 0.9em;
-        }
-        .filters-container input,
-        .filters-container select {
-            width: 100%;
-            padding: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 0.9em;
-        }
-        .filters-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .filters-buttons button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1em;
-        }
-        .filters-buttons .btn-primary { background-color: #007bff; color: white; }
-        .filters-buttons .btn-secondary { background-color: #6c757d; color: white; }
-        .filters-buttons .btn-success { background-color: #28a745; color: white; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatório Ateliê - SistemaTaloes</title>
+  <script src="navegacao.js"></script>
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --line: #d7dde7;
+      --primary: #0d6efd;
+      --primary-2: #0b5ed7;
+      --green: #16a34a;
+      --green-2: #15803d;
+      --danger: #ef4444;
+      --yellow-soft: #fff6cc;
+      --green-soft: #e2f3e8;
+      --red-soft: #f6dddd;
+      --blue-soft: #dfeaf7;
+      --gray-soft: #eef2f7;
+      --shadow: 0 6px 18px rgba(15, 23, 42, .08);
+    }
 
-        .total-pares-display {
-            text-align: right;
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #eee;
-        }
+    * { box-sizing: border-box; }
 
-        .table-container {
-            width: 100%;
-            max-width: 100%;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-            display: none;
-        }
-        #noData, #loading {
-            text-align: center;
-            font-style: italic;
-            color: #777;
-            margin-top: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            table-layout: auto;
-        }
-        table th,
-        table td {
-            padding: 4px 6px;
-            border-bottom: 1px solid #ddd;
-            vertical-align: middle;
-            font-size: 0.9em;
-            word-wrap: break-word;
-        }
-        table th {
-            background-color: #f8f8f8;
-            font-weight: bold;
-            color: #333;
-            text-transform: uppercase;
-        }
-        table tbody tr:hover {
-            background-color: #f1f1f1;
-        }
-        
-        .row-azul { background-color: #e0f2f7; }
-        .row-rosa { background-color: #fce4ec; }
-        .row-branco { background-color: #ffffff; }
-        .row-amarelo { background-color: #fffde7; }
-        .row-verde { background-color: #e8f5e9; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
 
-        .status-badge {
-            display: inline-block;
-            padding: 1px 3px;
-            border-radius: 5px;
-            font-size: 1em;
-            font-weight: bold;
-            color: rgb(0, 0, 0);
-            text-align: center;
-            white-space: nowrap;
-        }
-        .status-badge.cortado { background-color: #4caf50; }
-        .status-badge.aguardando-material { background-color: #ffc107; }
-        .status-badge.em-producao { background-color: #2196f3; }
-        .status-badge.finalizado { background-color: #673ab7; }
-        .status-badge.costurando { background-color: #9c27b0; }
-        .status-badge.costurado { background-color: #009688; }
-        
-        button#logoutButton { background-color: #dc3545; margin-left: 20px; }
-        button#logoutButton:hover { background-color: #c82333; }
-        
-        /* Estilos do Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 900px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-        .modal-header h3 {
-            margin: 0;
-            font-size: 1.5em;
-        }
-        .close-button {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .close-button:hover,
-        .close-button:focus {
-            color: #000;
-            text-decoration: none;
-        }
+    .main-content {
+      width: min(1760px, calc(100vw - 24px));
+      margin: 0 auto;
+      padding: 12px 0 28px;
+    }
 
-        .summary-cards-container {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(200px, 1fr));
-            gap: 10px;
-            box-sizing: border-box;
-        }
-        .summary-status-section {
-            border: 1px solid #eee;
-            border-radius: 5px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-        }
-        .summary-status-section h4 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #444;
-            font-size: 1.1em;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-        }
-        .summary-content-sub {
-            flex-grow: 1;
-            padding-left: 5px;
-        }
-        .summary-content-sub h5 {
-            margin-top: 3px;
-            margin-bottom: 3px;
-            color: #666;
-            font-size: 0.9em;
-            text-align: left;
-            padding-left: 5px;
-        }
-        .summary-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 1px 0;
-            border-bottom: 1px dotted #eee;
-            font-size: 0.85em;
-        }
-        .summary-item:last-child {
-            border-bottom: none;
-        }
-        .summary-item .item-label {
-            font-weight: bold;
-            color: #555;
-        }
-        .summary-item .item-value {
-            color: #333;
-        }
-        .summary-total {
-            margin-top: 10px;
-            padding-top: 5px;
-            border-top: 1px solid #eee;
-            text-align: right;
-            font-weight: bold;
-            font-size: 1em;
-            color: #007bff;
-        }
-        .no-summary-data-message {
-            text-align: center;
-            color: #777;
-            font-style: italic;
-            margin-top: 10px;
-            grid-column: 1 / -1;
-        }
-    </style>
+    .filters-container {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      overflow: visible;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 10px;
+      align-items: end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .span-1 { grid-column: span 1; }
+    .span-2 { grid-column: span 2; }
+    .span-3 { grid-column: span 3; }
+
+    label {
+      color: #334155;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    input, select, .date-range-button {
+      width: 100%;
+      border: 1px solid #cfd6e3;
+      border-radius: 10px;
+      padding: 10px 11px;
+      min-height: 44px;
+      background: #fff;
+      color: #111827;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, select:focus, .date-range-button:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, .13);
+    }
+
+    .date-range-button {
+      text-align: left;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-weight: 800;
+    }
+
+    .date-range-button span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .date-range-button::after {
+      content: "▾";
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    .filters-actions {
+      grid-column: 1 / -1;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-start;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 12px;
+      margin-top: 2px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 15px;
+      min-height: 42px;
+      cursor: pointer;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-2); }
+    .btn-secondary { background: #e5e7eb; color: #111827; }
+    .btn-secondary:hover { background: #d1d5db; }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { background: var(--green-2); }
+
+    .status-line {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 8px 4px 12px;
+      min-height: 18px;
+    }
+
+    .overview-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .overview-panel.show { display: block; }
+
+    .overview-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+
+    .overview-head h2 {
+      margin: 0;
+      font-size: 18px;
+      color: #111827;
+    }
+
+    .overview-head p {
+      margin: 3px 0 0;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .mini-cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(170px, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .mini-card {
+      border-radius: 16px;
+      border: 1px solid #d7dde7;
+      padding: 13px 14px;
+      min-height: 92px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .mini-card h3 {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.2;
+      color: #1e3a5f;
+    }
+
+    .mini-card strong {
+      font-size: 18px;
+      color: #475569;
+    }
+
+    .mini-card span {
+      color: #64748b;
+      font-weight: 800;
+      font-size: 12px;
+      margin-left: 3px;
+    }
+
+    .mini-card.total { background: var(--blue-soft); border-color: #b8cbe0; }
+    .mini-card.produced { background: var(--green-soft); border-color: #b8d9c5; }
+    .mini-card.todo { background: var(--yellow-soft); border-color: #eadb94; }
+    .mini-card.models { background: var(--gray-soft); border-color: #cbd5e1; }
+
+    .model-sections-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .model-section {
+      border: 1px solid #d7dde7;
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: #f8fafc;
+    }
+
+    .model-section h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: #0f172a;
+    }
+
+    .model-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 8px;
+    }
+
+    .model-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(255,255,255,.84);
+      border: 1px solid rgba(148, 163, 184, .48);
+      border-radius: 12px;
+      padding: 9px 11px;
+      font-size: 13px;
+    }
+
+    .model-row strong {
+      color: #0f172a;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .model-row span {
+      font-weight: 900;
+      color: #1e3a5f;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+
+    .empty-message {
+      padding: 12px 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.7);
+      color: var(--muted);
+      font-style: italic;
+      font-size: 12px;
+      border: 1px dashed #cbd5e1;
+    }
+
+    #loading, #noData {
+      text-align: center;
+      font-style: italic;
+      color: #64748b;
+      margin: 20px 0;
+    }
+
+    .table-container {
+      width: 100%;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      overflow: auto;
+      display: none;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1120px;
+      border-collapse: collapse;
+      text-align: left;
+      table-layout: auto;
+    }
+
+    table th, table td {
+      padding: 8px 9px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: middle;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    table th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      font-weight: 900;
+      color: #334155;
+      text-transform: uppercase;
+      font-size: 11px;
+      z-index: 1;
+    }
+
+    table tbody tr:hover td { background-color: rgba(241, 245, 249, .72); }
+
+    .row-azul { background-color: #e0f2f7; }
+    .row-rosa { background-color: #fce4ec; }
+    .row-branco { background-color: #ffffff; }
+    .row-amarelo { background-color: #fffde7; }
+    .row-verde { background-color: #e8f5e9; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      color: #111827;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .status-badge.cortado, .status-badge.aguardando-material { background-color: #ffc107; }
+    .status-badge.em-producao { background-color: #93c5fd; }
+    .status-badge.finalizado, .status-badge.costurado { background-color: #c4b5fd; }
+    .status-badge.costurando { background-color: #f0abfc; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      overflow: auto;
+      background-color: rgba(15, 23, 42, .48);
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    .modal-content {
+      background-color: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 18px;
+      width: min(1100px, 96vw);
+      max-height: 90vh;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, .25);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-content.small { width: min(520px, 94vw); }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 14px 18px;
+      background: #f8fafc;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 20px;
+      color: #111827;
+    }
+
+    .close-button {
+      color: #94a3b8;
+      font-size: 28px;
+      font-weight: 900;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-button:hover { color: #111827; }
+
+    .modal-body {
+      padding: 16px 18px;
+      overflow: auto;
+    }
+
+    .quick-options {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    .quick-option {
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #111827;
+      border-radius: 14px;
+      padding: 13px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 900;
+      text-align: left;
+    }
+
+    .quick-option:hover {
+      background: #eaf2ff;
+      border-color: #93c5fd;
+    }
+
+    .date-picker-content {
+      width: min(560px, 94vw) !important;
+      padding: 0;
+    }
+
+    .date-picker-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 4px 0 8px;
+    }
+
+    .date-picker-header button {
+      border: none;
+      background: #fff;
+      font-size: 30px;
+      cursor: pointer;
+      color: #444;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-weight: 800;
+    }
+
+    .date-picker-header button:hover { background: #f1f5f9; }
+
+    .date-picker-month-title {
+      font-size: 18px;
+      font-weight: 900;
+      color: #444;
+    }
+
+    .date-picker-weekdays,
+    .date-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0;
+    }
+
+    .date-picker-weekdays div {
+      text-align: center;
+      font-weight: 900;
+      color: #555;
+      padding: 7px 0;
+      font-size: 13px;
+    }
+
+    .date-picker-day {
+      min-height: 36px;
+      border: 0;
+      background: #fff;
+      cursor: pointer;
+      font-size: 15px;
+      color: #444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .date-picker-day:hover { background: #eef7e9; }
+    .date-picker-day.out-month { color: #a1a1aa; background: #fff; }
+    .date-picker-day.in-range { background: #e6f3df; }
+    .date-picker-day.range-start,
+    .date-picker-day.range-end {
+      background: #35a80d;
+      color: #fff;
+      border-radius: 999px;
+      font-weight: 900;
+    }
+
+    .date-picker-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 12px;
+    }
+
+    .date-picker-hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.25;
+      max-width: 315px;
+    }
+
+    .summary-cards-container {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 12px;
+      box-sizing: border-box;
+    }
+
+    .summary-status-section {
+      border: 1px solid #d7dde7;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      background: #f8fafc;
+      min-height: 250px;
+    }
+
+    .summary-status-section.produced { background: var(--green-soft); border-color: #b8d9c5; }
+    .summary-status-section.todo { background: var(--yellow-soft); border-color: #eadb94; }
+    .summary-status-section.total { background: var(--blue-soft); border-color: #b8cbe0; }
+
+    .summary-status-section h4 {
+      margin: 0 0 10px;
+      color: #31435b;
+      font-size: 16px;
+      text-align: center;
+      border-bottom: 1px solid rgba(148,163,184,.5);
+      padding-bottom: 8px;
+    }
+
+    .summary-content-sub { flex-grow: 1; }
+
+    .summary-content-sub h5 {
+      margin: 4px 0 8px;
+      color: #64748b;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 5px 0;
+      border-bottom: 1px dotted rgba(148,163,184,.6);
+      font-size: 13px;
+    }
+
+    .summary-item .item-label { font-weight: 900; color: #334155; }
+    .summary-item .item-value { color: #1e3a5f; font-weight: 900; }
+
+    .summary-total {
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(148,163,184,.6);
+      text-align: right;
+      font-weight: 900;
+      font-size: 15px;
+      color: #0d6efd;
+    }
+
+    @media (max-width: 1280px) {
+      .span-1, .span-2, .span-3 { grid-column: span 3; }
+      .filters-actions { justify-content: flex-start; }
+      .mini-cards { grid-template-columns: repeat(2, minmax(170px, 1fr)); }
+    }
+
+    @media (max-width: 820px) {
+      .main-content { width: calc(100vw - 16px); }
+      .filters-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .span-1, .span-2, .span-3 { grid-column: span 1; }
+      .filters-actions { grid-column: 1 / -1; }
+      .btn { flex: 1 1 150px; }
+      .mini-cards, .model-sections-grid, .summary-cards-container, .quick-options { grid-template-columns: 1fr; }
+      .date-picker-actions { flex-direction: column; align-items: stretch; }
+      .date-picker-actions > div { justify-content: flex-end; }
+    }
+  </style>
 </head>
 <body>
-
-    <div class="main-content">
-        <div class="filters-container">
-            <div class="filters-row">
-                <div class="form-group">
-                    <label for="filterRemessa">Remessa:</label>
-                    <input type="text" id="filterRemessa" placeholder="Número da Remessa">
-                </div>
-                <div class="form-group">
-                    <label for="filterTalao">Talão:</label>
-                    <input type="text" id="filterTalao" placeholder="Número do Talão">
-                </div>
-                <div class="form-group">
-                    <label for="filterLinha">Linha:</label>
-                    <input type="text" id="filterLinha" placeholder="Número da Linha">
-                </div>
-                <div class="form-group">
-                    <label for="filterModelo">Modelo:</label>
-                    <input type="text" id="filterModelo" placeholder="Modelo">
-                </div>
-                <div class="form-group">
-                    <label for="filterCor">Cor:</label>
-                    <input type="text" id="filterCor" placeholder="Cor do Sapato">
-                </div>
-                <div class="form-group">
-                    <label for="filterTipoCliente">Tipo de Cliente:</label>
-                    <select id="filterTipoCliente">
-                        <option value="">Todos</option>
-                        <option value="Exportacao">Exportação</option>
-                        <option value="Cliente especial">Cliente Especial</option>
-                        <option value="Mercado Interno">Mercado Interno</option>
-                        <option value="Estoque">Estoque</option>
-                        <option value="Amostra">Amostra</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="filters-row">
-                <div class="form-group">
-                    <label for="filterDataCorte">Data de Corte (Início):</label>
-                    <input type="date" id="filterDataCorte">
-                </div>
-                <div class="form-group">
-                    <label for="filterDataCorteFim">Data de Corte (Fim):</label>
-                    <input type="date" id="filterDataCorteFim">
-                </div>
-                <div class="form-group">
-                    <label for="filterDataEntrada">Data de Entrada:</label>
-                    <input type="date" id="filterDataEntrada">
-                </div>
-                <div class="form-group">
-                    <label for="filterDataSaida">Data de Saída (Início):</label>
-                    <input type="date" id="filterDataSaida">
-                </div>
-                <div class="form-group">
-                    <label for="filterDataSaidaFim">Data de Saída (Fim):</label>
-                    <input type="date" id="filterDataSaidaFim">
-                </div>
-                <div class="form-group">
-                    <label for="filterStatusCostura">Status Costura:</label>
-                    <select id="filterStatusCostura">
-                        <option value="">Todos</option>
-                        <option value="Aguardando Material">Aguardando Material</option>
-                        <option value="Em Produção">Em Produção</option>
-                        <option value="Finalizado">Finalizado</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="filters-buttons">
-                <button class="btn btn-primary" id="searchButton">Buscar</button>
-                <button class="btn btn-secondary" id="clearFiltersButton">Limpar Filtro</button>
-                <button class="btn btn-success" id="reportButton">Relatório</button>
-            </div>
-        </div>
-        
-        <p id="loading" style="display: none;">Carregando dados...</p>
-        <p id="noData">Selecione ao menos um filtro e clique em buscar para exibir os dados.</p>
-
-        <div class="total-pares-display" style="display: none;">
-            Total de Pares Filtrados: <span id="totalPares">0</span>
+  <main class="main-content">
+    <section class="filters-container">
+      <div class="filters-grid">
+        <div class="form-group span-1">
+          <label for="filterLinha">Linha:</label>
+          <input type="text" id="filterLinha" placeholder="Ex: 7142" />
         </div>
 
-        <div class="table-container" id="reportContent">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Data Corte</th>
-                        <th>Remessa</th>
-                        <th>Talão</th>
-                        <th>Linha</th>
-                        <th>Modelo</th>
-                        <th>Cor Sapato</th>
-                        <th>Tipo Cliente</th>
-                        <th>Pares</th>
-                        <th>Status Costura</th>
-                        <th>Data Entrada</th>
-                        <th>Data Saída</th>
-                    </tr>
-                </thead>
-                <tbody id="taloesTableBody">
-                    </tbody>
-            </table>
+        <div class="form-group span-1">
+          <label for="filterModelo">Modelo:</label>
+          <input type="text" id="filterModelo" placeholder="Ex: 522" />
         </div>
+
+        <div class="form-group span-1">
+          <label for="filterRemessa">Remessa:</label>
+          <input type="text" id="filterRemessa" placeholder="Ex: 2684982" />
+        </div>
+
+        <div class="form-group span-1">
+          <label for="filterTalao">Talão:</label>
+          <input type="text" id="filterTalao" placeholder="Ex: 001" />
+        </div>
+
+        <div class="form-group span-2">
+          <label>Data de Corte:</label>
+          <button class="date-range-button" id="corteRangeButton" type="button"><span>Selecionar data/período</span></button>
+          <input type="hidden" id="filterDataCorte" />
+          <input type="hidden" id="filterDataCorteFim" />
+        </div>
+
+        <div class="form-group span-2">
+          <label>Data de Saída:</label>
+          <button class="date-range-button" id="saidaRangeButton" type="button"><span>Selecionar data/período</span></button>
+          <input type="hidden" id="filterDataSaida" />
+          <input type="hidden" id="filterDataSaidaFim" />
+        </div>
+
+        <div class="form-group span-1">
+          <label for="filterDataEntrada">Data de Entrada:</label>
+          <input type="date" id="filterDataEntrada" />
+        </div>
+
+        <div class="form-group span-1">
+          <label for="filterTipoCliente">Tipo de Cliente:</label>
+          <select id="filterTipoCliente">
+            <option value="">Todos</option>
+            <option value="Exportacao">Exportação</option>
+            <option value="Cliente especial">Cliente Especial</option>
+            <option value="Mercado Interno">Mercado Interno</option>
+            <option value="Estoque">Estoque</option>
+            <option value="Amostra">Amostra</option>
+          </select>
+        </div>
+
+        <div class="form-group span-1">
+          <label for="filterStatusCostura">Status Costura:</label>
+          <select id="filterStatusCostura">
+            <option value="">Todos</option>
+            <option value="Aguardando Material">Aguardando Material</option>
+            <option value="Em Produção">Em Produção</option>
+            <option value="Finalizado">Finalizado</option>
+          </select>
+        </div>
+
+        <div class="form-group span-2" id="atelieFilterGroup">
+          <label for="filterAtelie">Ateliê Responsável:</label>
+          <select id="filterAtelie">
+            <option value="">Todos</option>
+          </select>
+        </div>
+
+        <div class="filters-actions">
+          <button class="btn btn-primary" id="searchButton" type="button">Gerar Relatório</button>
+          <button class="btn btn-secondary" id="quickFiltersButton" type="button">Filtros rápidos</button>
+          <button class="btn btn-secondary" id="clearFiltersButton" type="button">Limpar</button>
+          <button class="btn btn-success" id="reportButton" type="button">Resumo</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="status-line" id="statusLine">Carregando talões...</div>
+    <p id="loading" style="display:none;">Carregando dados...</p>
+    <p id="noData">Selecione um filtro ou use os filtros rápidos para exibir os dados.</p>
+
+    <section class="overview-panel" id="overviewPanel">
+      <div class="overview-head">
+        <div>
+          <h2>Resumo do Relatório</h2>
+          <p id="overviewSubtitle">Nenhum relatório gerado.</p>
+        </div>
+      </div>
+
+      <div class="mini-cards">
+        <article class="mini-card total">
+          <h3>Total de pares filtrados</h3>
+          <div><strong id="totalPares">0</strong><span>pares</span></div>
+        </article>
+        <article class="mini-card produced">
+          <h3>Pares já produzidos</h3>
+          <div><strong id="producedPares">0</strong><span>pares</span></div>
+        </article>
+        <article class="mini-card todo">
+          <h3>Pares que faltam produzir</h3>
+          <div><strong id="todoPares">0</strong><span>pares</span></div>
+        </article>
+        <article class="mini-card models">
+          <h3>Modelos encontrados</h3>
+          <div><strong id="modelsCount">0</strong><span>modelos</span></div>
+        </article>
+      </div>
+
+      <div class="model-sections-grid">
+        <section class="model-section">
+          <h3>Produção por modelos — já produzido</h3>
+          <div class="model-list" id="producedModelsList"></div>
+        </section>
+        <section class="model-section">
+          <h3>Produção por modelos — falta produzir</h3>
+          <div class="model-list" id="todoModelsList"></div>
+        </section>
+      </div>
+    </section>
+
+    <div class="table-container" id="reportContent">
+      <table>
+        <thead>
+          <tr>
+            <th>Data Corte</th>
+            <th>Data Entrega</th>
+            <th>Remessa</th>
+            <th>Talão</th>
+            <th>Linha</th>
+            <th>Modelo</th>
+            <th>Cor Sapato</th>
+            <th>Tipo Cliente</th>
+            <th>Pares</th>
+            <th>Status Costura</th>
+            <th>Data Entrada</th>
+            <th>Data Saída</th>
+          </tr>
+        </thead>
+        <tbody id="taloesTableBody"></tbody>
+      </table>
     </div>
+  </main>
 
-    <div id="summaryModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Resumo do Ateliê</h3>
-                <span class="close-button" id="closeModalButton">&times;</span>
-            </div>
-            <div id="atelierSummaryCard" class="summary-cards-container">
-                <p class="no-summary-data-message">Nenhum dado disponível para o ateliê.</p>
-            </div>
+  <div id="summaryModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Resumo por Status</h3>
+        <span class="close-button" id="closeModalButton">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div id="atelierSummaryCard" class="summary-cards-container">
+          <p class="empty-message">Nenhum dado disponível para o ateliê.</p>
         </div>
+      </div>
     </div>
-<!-- Lógica da página unificada no próprio HTML. -->
-<script type="module">
-const firebaseConfig = {
-            apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
-            authDomain: "sistemataloes.firebaseapp.com",
-            projectId: "sistemataloes",
-            storageBucket: "sistemataloes.appspot.com",
-            messagingSenderId: "684534379685",
-            appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'
-        };
+  </div>
 
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, collection, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  <div id="quickModal" class="modal-overlay">
+    <div class="modal-content small">
+      <div class="modal-header">
+        <h3>Filtros rápidos</h3>
+        <span class="close-button" id="closeQuickModalButton">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="quick-options">
+          <button class="quick-option" type="button" data-filter="productionToday">Produção hoje</button>
+          <button class="quick-option" type="button" data-filter="productionYesterday">Produção ontem</button>
+          <button class="quick-option" type="button" data-filter="productionWeek">Produção semana</button>
+          <button class="quick-option" type="button" data-filter="exportMonday">Exportação de segunda<br><small>somente não produzidos</small></button>
+          <button class="quick-option" type="button" data-filter="exportThursday">Exportação de quinta<br><small>somente não produzidos</small></button>
+          <button class="quick-option" type="button" data-filter="deliveryWeek">Entregas da semana</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+  <div id="dateModal" class="modal-overlay">
+    <div class="modal-content small date-picker-content">
+      <div class="modal-header">
+        <h3 id="dateModalTitle">Selecionar período</h3>
+        <span class="close-button" id="closeDateModalButton">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="date-picker-header">
+          <button type="button" id="datePickerPrev" aria-label="Mês anterior">‹</button>
+          <div id="datePickerMonthTitle" class="date-picker-month-title"></div>
+          <button type="button" id="datePickerNext" aria-label="Próximo mês">›</button>
+        </div>
+        <div class="date-picker-weekdays">
+          <div>DOM.</div><div>SEG.</div><div>TER.</div><div>QUA.</div><div>QUI.</div><div>SEX.</div><div>SÁB.</div>
+        </div>
+        <div id="datePickerGrid" class="date-picker-grid"></div>
+        <div class="date-picker-actions">
+          <span class="date-picker-hint">Clique em uma data para buscar somente aquele dia, ou clique em duas datas para selecionar um período.</span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-secondary" id="clearDateModalButton" type="button">Limpar</button>
+            <button class="btn btn-primary" id="applyDateModalButton" type="button">Aplicar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        const filterDataCorte = document.getElementById('filterDataCorte');
-        const filterDataCorteFim = document.getElementById('filterDataCorteFim');
-        const filterRemessa = document.getElementById('filterRemessa');
-        const filterTalao = document.getElementById('filterTalao');
-        const filterLinha = document.getElementById('filterLinha');
-        const filterModelo = document.getElementById('filterModelo');
-        const filterCor = document.getElementById('filterCor');
-        const filterTipoCliente = document.getElementById('filterTipoCliente');
-        const filterDataEntrada = document.getElementById('filterDataEntrada');
-        const filterDataSaida = document.getElementById('filterDataSaida');
-        const filterDataSaidaFim = document.getElementById('filterDataSaidaFim');
-        const filterStatusCostura = document.getElementById('filterStatusCostura');
-        
-        const searchButton = document.getElementById('searchButton');
-        const clearFiltersButton = document.getElementById('clearFiltersButton');
-        const reportButton = document.getElementById('reportButton');
+  <script type="module">
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+      authDomain: "sistemataloes.firebaseapp.com",
+      projectId: "sistemataloes",
+      storageBucket: "sistemataloes.appspot.com",
+      messagingSenderId: "684534379685",
+      appId: typeof __app_id !== "undefined" ? __app_id : "default-app-id"
+    };
 
-        const taloesTableBody = document.getElementById('taloesTableBody');
-        const totalParesDisplay = document.getElementById('totalPares');
-        const reportContent = document.getElementById('reportContent');
-        const loading = document.getElementById('loading');
-        const noData = document.getElementById('noData');
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, onSnapshot, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
-        const summaryModal = document.getElementById('summaryModal');
-        const closeModalButton = document.getElementById('closeModalButton');
-        const atelierSummaryCard = document.getElementById('atelierSummaryCard');
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        let allTaloes = [];
-        let filteredTaloes = [];
-        let currentUserEmail = '';
-        let currentUserName = '';
-        function iniciarNavegacaoPadrao(nivelUsuario = localStorage.getItem('userNivelAcesso') || '03', nomeUsuario = localStorage.getItem('userName') || 'Ateliê') {
-            if (!window.SistemaNavegacao) return;
+    const filterLinha = document.getElementById("filterLinha");
+    const filterModelo = document.getElementById("filterModelo");
+    const filterRemessa = document.getElementById("filterRemessa");
+    const filterTalao = document.getElementById("filterTalao");
+    const filterDataCorte = document.getElementById("filterDataCorte");
+    const filterDataCorteFim = document.getElementById("filterDataCorteFim");
+    const filterDataSaida = document.getElementById("filterDataSaida");
+    const filterDataSaidaFim = document.getElementById("filterDataSaidaFim");
+    const filterDataEntrada = document.getElementById("filterDataEntrada");
+    const filterTipoCliente = document.getElementById("filterTipoCliente");
+    const filterStatusCostura = document.getElementById("filterStatusCostura");
+    const filterAtelie = document.getElementById("filterAtelie");
+    const atelieFilterGroup = document.getElementById("atelieFilterGroup");
 
-            window.SistemaNavegacao.init({
-                userLevel: String(nivelUsuario || '03'),
-                userName: nomeUsuario || 'Ateliê',
-                title: 'Controle de produção FactorShoes',
-                onLogout: async () => {
-                    try {
-                        await signOut(auth);
-                    } catch (error) {
-                        console.error('Erro ao fazer logout:', error);
-                    } finally {
-                        localStorage.removeItem('userNivelAcesso');
-                        localStorage.removeItem('userName');
-                        window.location.href = 'login.html';
-                    }
-                }
-            });
+    const corteRangeButton = document.getElementById("corteRangeButton");
+    const saidaRangeButton = document.getElementById("saidaRangeButton");
+    const searchButton = document.getElementById("searchButton");
+    const clearFiltersButton = document.getElementById("clearFiltersButton");
+    const reportButton = document.getElementById("reportButton");
+    const quickFiltersButton = document.getElementById("quickFiltersButton");
+
+    const taloesTableBody = document.getElementById("taloesTableBody");
+    const reportContent = document.getElementById("reportContent");
+    const loading = document.getElementById("loading");
+    const noData = document.getElementById("noData");
+    const statusLine = document.getElementById("statusLine");
+    const overviewPanel = document.getElementById("overviewPanel");
+    const overviewSubtitle = document.getElementById("overviewSubtitle");
+    const totalPares = document.getElementById("totalPares");
+    const producedPares = document.getElementById("producedPares");
+    const todoPares = document.getElementById("todoPares");
+    const modelsCount = document.getElementById("modelsCount");
+    const producedModelsList = document.getElementById("producedModelsList");
+    const todoModelsList = document.getElementById("todoModelsList");
+
+    const summaryModal = document.getElementById("summaryModal");
+    const closeModalButton = document.getElementById("closeModalButton");
+    const atelierSummaryCard = document.getElementById("atelierSummaryCard");
+    const quickModal = document.getElementById("quickModal");
+    const closeQuickModalButton = document.getElementById("closeQuickModalButton");
+    const dateModal = document.getElementById("dateModal");
+    const closeDateModalButton = document.getElementById("closeDateModalButton");
+    const dateModalTitle = document.getElementById("dateModalTitle");
+    const datePickerPrev = document.getElementById("datePickerPrev");
+    const datePickerNext = document.getElementById("datePickerNext");
+    const datePickerMonthTitle = document.getElementById("datePickerMonthTitle");
+    const datePickerGrid = document.getElementById("datePickerGrid");
+    const applyDateModalButton = document.getElementById("applyDateModalButton");
+    const clearDateModalButton = document.getElementById("clearDateModalButton");
+
+    let allTaloes = [];
+    let filteredTaloes = [];
+    let currentUserName = "";
+    let currentUserLevel = "";
+    let unsubscribeTaloes = null;
+    let activeDateField = "corte";
+    let datePickerMonth = new Date();
+    let datePickerStart = null;
+    let datePickerEnd = null;
+    let quickFilterMode = null;
+
+    const corTalaoMapping = {
+      "Exportacao": "row-azul",
+      "Exportação": "row-azul",
+      "Cliente especial": "row-rosa",
+      "Mercado Interno": "row-branco",
+      "Estoque": "row-amarelo",
+      "Amostra": "row-verde"
+    };
+
+    function iniciarNavegacaoPadrao(nivelUsuario = localStorage.getItem("userNivelAcesso") || "03", nomeUsuario = localStorage.getItem("userName") || "Ateliê") {
+      if (!window.SistemaNavegacao) return;
+      window.SistemaNavegacao.init({
+        userLevel: String(nivelUsuario || "03"),
+        userName: nomeUsuario || "Ateliê",
+        title: "Controle de produção FactorShoes",
+        onLogout: async () => {
+          try { await signOut(auth); }
+          catch (error) { console.error("Erro ao fazer logout:", error); }
+          finally {
+            localStorage.removeItem("userNivelAcesso");
+            localStorage.removeItem("userName");
+            window.location.href = "login.html";
+          }
         }
+      });
+    }
 
-        // A barra aparece já na abertura com os dados salvos e depois é atualizada pelo Firebase.
-        iniciarNavegacaoPadrao();
+    iniciarNavegacaoPadrao();
 
-        const corTalaoMapping = {
-            'Exportacao': 'row-azul', 'Cliente especial': 'row-rosa', 'Mercado Interno': 'row-branco', 'Estoque': 'row-amarelo', 'Amostra': 'row-verde'
-        };
+    function todayISO() {
+      const d = new Date();
+      return localDateToISO(d);
+    }
 
-        function generateMenu(userLevel, userName) {
-            menuNav.innerHTML = '';
-            const userNivelText = nivelNomes[userLevel] || `Nível ${userLevel}`;
-            userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
-            userNivelDisplay.textContent = `Setor: ${userNivelText}`;
-            pages.forEach(page => {
-                if (page.levels.includes(userLevel)) {
-                    const listItem = document.createElement('li');
-                    const link = document.createElement('a');
-                    link.href = page.href; 
-                    link.textContent = page.name;
-                    listItem.appendChild(link);
-                    menuNav.appendChild(listItem);
-                }
-            });
-        }
-        let unsubscribeTaloes = null;
+    function localDateToISO(dateObj) {
+      const yyyy = dateObj.getFullYear();
+      const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
+      const dd = String(dateObj.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserEmail = user.email;
-                const userDocRef = doc(db, 'Usuario', user.email);
-                const userDocSnap = await getDoc(userDocRef);
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
-                    const nivelAcesso = String(userData.nivelAcesso || '');
-                    currentUserName = userData.Nome || user.email || 'Usuário';
+    function dateFromISO(iso) {
+      const [y, m, d] = String(iso || "").split("-").map(Number);
+      return new Date(y, (m || 1) - 1, d || 1);
+    }
 
-                    if (window.SistemaNavegacao && !window.SistemaNavegacao.podeAcessar(nivelAcesso, 'relatorioAtelier.html')) {
-                        alert('Você não tem permissão para acessar esta página.');
-                        window.location.href = 'index.html';
-                        return;
-                    }
+    function addDaysISO(iso, days) {
+      const dt = dateFromISO(iso);
+      dt.setDate(dt.getDate() + days);
+      return localDateToISO(dt);
+    }
 
-                    localStorage.setItem('userNivelAcesso', nivelAcesso);
-                    localStorage.setItem('userName', currentUserName);
-                    iniciarNavegacaoPadrao(nivelAcesso, currentUserName);
-                    listenToTaloes();
-                } else {
-                    alert('Dados do usuário não encontrados. Faça login novamente.');
-                    await signOut(auth);
-                    window.location.href = 'login.html';
-                }
-            } else {
-                window.location.href = 'login.html';
-            }
+    function getWeekRange(baseIso = todayISO()) {
+      const base = dateFromISO(baseIso);
+      const day = base.getDay();
+      const diffToMonday = day === 0 ? 6 : day - 1;
+      base.setDate(base.getDate() - diffToMonday);
+      const monday = localDateToISO(base);
+      const friday = addDaysISO(monday, 4);
+      return { start: monday, end: friday };
+    }
+
+    function getUpcomingWeekday(targetDay, baseIso = todayISO()) {
+      const base = dateFromISO(baseIso);
+      const day = base.getDay();
+      let diff = (targetDay - day + 7) % 7;
+      if (diff === 0) diff = 7;
+      const target = new Date(base);
+      target.setDate(base.getDate() + diff);
+      return localDateToISO(target);
+    }
+
+    function formatDate(iso) {
+      const clean = toISODateOnly(iso);
+      if (!clean) return "";
+      const [y, m, d] = clean.split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    function toISODateOnly(value) {
+      if (!value) return "";
+      if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+      if (value && typeof value.toDate === "function") return localDateToISO(value.toDate());
+      try {
+        const dt = new Date(value);
+        if (Number.isNaN(dt.getTime())) return "";
+        return localDateToISO(dt);
+      } catch (error) {
+        return "";
+      }
+    }
+
+    function hasFilledDate(value) {
+      return value !== undefined && value !== null && String(value).trim() !== "";
+    }
+
+    function normalizePares(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function normalizeTipoCliente(tipo) {
+      const value = String(tipo || "").trim().toLowerCase();
+      if (["exportacao", "exportação", "exportacoes", "exportações"].includes(value)) return "Exportacao";
+      return String(tipo || "").trim();
+    }
+
+    function getModelKey(talao) {
+      const linha = talao.linha ? String(talao.linha).trim() : "";
+      const modelo = talao.modelo ? String(talao.modelo).trim() : "";
+      if (modelo && modelo.includes(".")) return modelo;
+      if (linha && modelo) return `${linha}.${modelo}`;
+      if (modelo) return modelo;
+      if (linha) return linha;
+      return "Sem modelo";
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>'"]/g, (char) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+      }[char]));
+    }
+
+    function compareTextNumeric(a, b) {
+      return String(a || "").localeCompare(String(b || ""), "pt-BR", { numeric: true });
+    }
+
+    function sortTaloes(taloes) {
+      return [...taloes].sort((a, b) => {
+        const corteCompare = compareTextNumeric(toISODateOnly(a.dataCorte), toISODateOnly(b.dataCorte));
+        if (corteCompare !== 0) return corteCompare;
+        const modelCompare = compareTextNumeric(getModelKey(a), getModelKey(b));
+        if (modelCompare !== 0) return modelCompare;
+        return compareTextNumeric(a.numeroTalaoSequencial, b.numeroTalaoSequencial);
+      });
+    }
+
+    function sumTotal(taloes) {
+      return taloes.reduce((acc, t) => acc + normalizePares(t.pares), 0);
+    }
+
+    function sumByModel(taloes) {
+      const result = {};
+      taloes.forEach((t) => {
+        const key = getModelKey(t);
+        result[key] = (result[key] || 0) + normalizePares(t.pares);
+      });
+      return result;
+    }
+
+    function renderModelList(container, data) {
+      const entries = Object.entries(data).filter(([, pares]) => pares > 0);
+      entries.sort((a, b) => a[0].localeCompare(b[0], "pt-BR", { numeric: true }));
+      if (!entries.length) {
+        container.innerHTML = '<div class="empty-message">Nenhum modelo encontrado.</div>';
+        return;
+      }
+      container.innerHTML = entries.map(([model, pares]) => `
+        <div class="model-row">
+          <strong>${escapeHTML(model)}</strong>
+          <span>${pares.toLocaleString("pt-BR")} pares</span>
+        </div>
+      `).join("");
+    }
+
+    function getStatusCostura(talao) {
+      return talao.statusCostura || (talao.statusGeral === "Cortado" ? "Aguardando Material" : "N/A");
+    }
+
+    function getStatusClass(status) {
+      if (!status) return "";
+      return String(status).toLowerCase().replace(/\s+/g, "-");
+    }
+
+    async function loadAtelies() {
+      filterAtelie.innerHTML = '<option value="">Todos</option>';
+      if (currentUserLevel === "03") {
+        const opt = document.createElement("option");
+        opt.value = currentUserName;
+        opt.textContent = currentUserName;
+        filterAtelie.appendChild(opt);
+        filterAtelie.value = currentUserName;
+        filterAtelie.disabled = true;
+        return;
+      }
+      filterAtelie.disabled = false;
+      try {
+        const snap = await getDocs(query(collection(db, "Usuario"), where("nivelAcesso", "==", "03")));
+        const names = snap.docs.map((d) => d.data().Nome).filter(Boolean).sort((a, b) => a.localeCompare(b, "pt-BR"));
+        names.forEach((name) => {
+          const opt = document.createElement("option");
+          opt.value = name;
+          opt.textContent = name;
+          filterAtelie.appendChild(opt);
         });
+      } catch (error) {
+        console.error("Erro ao carregar ateliês:", error);
+      }
+    }
 
+    function listenToTaloes() {
+      loading.style.display = "block";
+      statusLine.textContent = "Carregando talões...";
+      if (unsubscribeTaloes) unsubscribeTaloes();
 
-        function listenToTaloes() {
-            loading.style.display = 'block';
-            if (unsubscribeTaloes) unsubscribeTaloes();
-            const q = query(
-                collection(db, 'taloes'),
-                where('idAtelieResponsavel', '==', currentUserName)
-            );
-            unsubscribeTaloes = onSnapshot(q, (snapshot) => {
-                allTaloes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log("Talões carregados para relatório do ateliê:", allTaloes);
-                loading.style.display = 'none';
-            }, (error) => {
-                console.error("Erro ao escutar talões para relatório do ateliê:", error);
-                loading.style.display = 'none';
-                noData.textContent = 'Erro ao carregar talões.';
-            });
-        }
+      let q;
+      if (currentUserLevel === "03") {
+        q = query(collection(db, "taloes"), where("idAtelieResponsavel", "==", currentUserName));
+      } else {
+        q = query(collection(db, "taloes"));
+      }
 
-        searchButton.addEventListener('click', applyFilters);
+      unsubscribeTaloes = onSnapshot(q, (snapshot) => {
+        allTaloes = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+        loading.style.display = "none";
+        statusLine.textContent = `${allTaloes.length.toLocaleString("pt-BR")} talões carregados.`;
+      }, (error) => {
+        console.error("Erro ao carregar talões:", error);
+        loading.style.display = "none";
+        statusLine.textContent = "Erro ao carregar talões.";
+      });
+    }
 
-        clearFiltersButton.addEventListener('click', () => {
-            filterDataCorte.value = '';
-            filterDataCorteFim.value = '';
-            filterRemessa.value = '';
-            filterTalao.value = '';
-            filterLinha.value = '';
-            filterModelo.value = '';
-            filterCor.value = '';
-            filterTipoCliente.value = '';
-            filterDataEntrada.value = '';
-            filterDataSaida.value = '';
-            filterDataSaidaFim.value = '';
-            filterStatusCostura.value = '';
-            
-            taloesTableBody.innerHTML = '';
-            reportContent.style.display = 'none';
-            document.querySelector('.total-pares-display').style.display = 'none';
-            noData.textContent = 'Selecione ao menos um filtro e clique em buscar para exibir os dados.';
-            noData.style.display = 'block';
+    function updateRangeButton(button, startValue, endValue) {
+      const span = button.querySelector("span");
+      if (startValue && endValue && startValue !== endValue) span.textContent = `${formatDate(startValue)} a ${formatDate(endValue)}`;
+      else if (startValue) span.textContent = formatDate(startValue);
+      else span.textContent = "Selecionar data/período";
+    }
+
+    function openDateModal(field) {
+      activeDateField = field;
+      const isCorte = field === "corte";
+      const startValue = isCorte ? filterDataCorte.value : filterDataSaida.value;
+      const endValue = isCorte ? filterDataCorteFim.value : filterDataSaidaFim.value;
+      dateModalTitle.textContent = isCorte ? "Selecionar Data de Corte" : "Selecionar Data de Saída";
+      datePickerStart = startValue || null;
+      datePickerEnd = endValue || null;
+      const base = dateFromISO(datePickerStart || datePickerEnd || todayISO());
+      datePickerMonth = new Date(base.getFullYear(), base.getMonth(), 1);
+      renderDatePicker();
+      dateModal.classList.add("show");
+    }
+
+    function closeDateModal() { dateModal.classList.remove("show"); }
+
+    function renderDatePicker() {
+      const months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+      datePickerMonthTitle.textContent = `${months[datePickerMonth.getMonth()]} ${datePickerMonth.getFullYear()}`;
+      datePickerGrid.innerHTML = "";
+
+      const year = datePickerMonth.getFullYear();
+      const month = datePickerMonth.getMonth();
+      const first = new Date(year, month, 1);
+      const gridStart = new Date(year, month, 1 - first.getDay());
+
+      for (let i = 0; i < 42; i++) {
+        const cellDate = new Date(gridStart);
+        cellDate.setDate(gridStart.getDate() + i);
+        const currentISO = localDateToISO(cellDate);
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "date-picker-day";
+        btn.textContent = String(cellDate.getDate());
+        btn.dataset.date = currentISO;
+
+        if (cellDate.getMonth() !== month) btn.classList.add("out-month");
+
+        const start = datePickerStart;
+        const end = datePickerEnd || datePickerStart;
+        if (start && end && currentISO >= start && currentISO <= end) btn.classList.add("in-range");
+        if (start && currentISO === start) btn.classList.add("range-start");
+        if (end && currentISO === end) btn.classList.add("range-end");
+
+        btn.addEventListener("click", () => selectDateInPicker(currentISO));
+        datePickerGrid.appendChild(btn);
+      }
+    }
+
+    function selectDateInPicker(iso) {
+      if (!datePickerStart || (datePickerStart && datePickerEnd)) {
+        datePickerStart = iso;
+        datePickerEnd = null;
+      } else if (iso < datePickerStart) {
+        datePickerEnd = datePickerStart;
+        datePickerStart = iso;
+      } else {
+        datePickerEnd = iso;
+      }
+      renderDatePicker();
+    }
+
+    function applyDateModal() {
+      quickFilterMode = null;
+      if (datePickerStart && !datePickerEnd) datePickerEnd = datePickerStart;
+
+      if (activeDateField === "corte") {
+        filterDataCorte.value = datePickerStart || "";
+        filterDataCorteFim.value = datePickerEnd || "";
+        updateRangeButton(corteRangeButton, filterDataCorte.value, filterDataCorteFim.value);
+      } else {
+        filterDataSaida.value = datePickerStart || "";
+        filterDataSaidaFim.value = datePickerEnd || "";
+        updateRangeButton(saidaRangeButton, filterDataSaida.value, filterDataSaidaFim.value);
+      }
+      closeDateModal();
+    }
+
+    function clearDateModal() {
+      datePickerStart = null;
+      datePickerEnd = null;
+      if (activeDateField === "corte") {
+        filterDataCorte.value = "";
+        filterDataCorteFim.value = "";
+        updateRangeButton(corteRangeButton, "", "");
+      } else {
+        filterDataSaida.value = "";
+        filterDataSaidaFim.value = "";
+        updateRangeButton(saidaRangeButton, "", "");
+      }
+      quickFilterMode = null;
+      renderDatePicker();
+    }
+
+    function clearFilterValues() {
+      filterLinha.value = "";
+      filterModelo.value = "";
+      filterRemessa.value = "";
+      filterTalao.value = "";
+      filterDataCorte.value = "";
+      filterDataCorteFim.value = "";
+      filterDataSaida.value = "";
+      filterDataSaidaFim.value = "";
+      filterDataEntrada.value = "";
+      filterTipoCliente.value = "";
+      filterStatusCostura.value = "";
+      if (currentUserLevel !== "03") filterAtelie.value = "";
+      updateRangeButton(corteRangeButton, "", "");
+      updateRangeButton(saidaRangeButton, "", "");
+      quickFilterMode = null;
+    }
+
+    function applyQuickFilter(mode) {
+      clearFilterValues();
+      const today = todayISO();
+      quickFilterMode = mode;
+
+      if (mode === "productionToday") {
+        filterDataSaida.value = today;
+        filterDataSaidaFim.value = today;
+        updateRangeButton(saidaRangeButton, today, today);
+      }
+
+      if (mode === "productionYesterday") {
+        const yesterday = addDaysISO(today, -1);
+        filterDataSaida.value = yesterday;
+        filterDataSaidaFim.value = yesterday;
+        updateRangeButton(saidaRangeButton, yesterday, yesterday);
+      }
+
+      if (mode === "productionWeek") {
+        const week = getWeekRange(today);
+        filterDataSaida.value = week.start;
+        filterDataSaidaFim.value = week.end;
+        updateRangeButton(saidaRangeButton, week.start, week.end);
+      }
+
+      if (mode === "exportMonday") {
+        const targetDate = getUpcomingWeekday(1, today);
+        filterTipoCliente.value = "Exportacao";
+        statusLine.textContent = `Filtro rápido: Exportação de segunda ${formatDate(targetDate)} • somente não produzidos.`;
+      }
+
+      if (mode === "exportThursday") {
+        const targetDate = getUpcomingWeekday(4, today);
+        filterTipoCliente.value = "Exportacao";
+        statusLine.textContent = `Filtro rápido: Exportação de quinta ${formatDate(targetDate)} • somente não produzidos.`;
+      }
+
+      if (mode === "deliveryWeek") {
+        const week = getWeekRange(today);
+        statusLine.textContent = `Filtro rápido: Entregas da semana ${formatDate(week.start)} a ${formatDate(week.end)}.`;
+      }
+
+      closeQuickModal();
+      applyFilters();
+    }
+
+    function passesDateRange(value, start, end) {
+      const date = toISODateOnly(value);
+      if (start && end) return date && date >= start && date <= end;
+      if (start) return date === start;
+      return true;
+    }
+
+    function applyFilters() {
+      loading.style.display = "block";
+      noData.style.display = "none";
+      reportContent.style.display = "none";
+      overviewPanel.classList.remove("show");
+
+      const linha = filterLinha.value.trim().toLowerCase();
+      const modelo = filterModelo.value.trim().toLowerCase();
+      const remessa = filterRemessa.value.trim().toLowerCase();
+      const talao = filterTalao.value.trim().toLowerCase();
+      const tipoCliente = filterTipoCliente.value;
+      const statusCostura = filterStatusCostura.value;
+      const selectedAtelie = filterAtelie.value;
+
+      let currentFiltered = [...allTaloes];
+
+      if (quickFilterMode === "exportMonday" || quickFilterMode === "exportThursday") {
+        const targetDay = quickFilterMode === "exportMonday" ? 1 : 4;
+        const targetDate = getUpcomingWeekday(targetDay, todayISO());
+        currentFiltered = currentFiltered.filter((t) =>
+          normalizeTipoCliente(t.tipoCliente) === "Exportacao" &&
+          toISODateOnly(t.dataEntrega) === targetDate &&
+          !hasFilledDate(t.dataSaidaCostura)
+        );
+      }
+
+      if (quickFilterMode === "deliveryWeek") {
+        const week = getWeekRange(todayISO());
+        currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataEntrega, week.start, week.end));
+      }
+
+      if (selectedAtelie) currentFiltered = currentFiltered.filter((t) => String(t.idAtelieResponsavel || "") === selectedAtelie);
+      if (linha) currentFiltered = currentFiltered.filter((t) => String(t.linha || "").toLowerCase().includes(linha));
+      if (modelo) currentFiltered = currentFiltered.filter((t) => String(t.modelo || "").toLowerCase().includes(modelo));
+      if (remessa) currentFiltered = currentFiltered.filter((t) => String(t.numeroRemessa || "").toLowerCase().includes(remessa));
+      if (talao) currentFiltered = currentFiltered.filter((t) => String(t.numeroTalaoSequencial || "").toLowerCase().includes(talao));
+      if (tipoCliente) currentFiltered = currentFiltered.filter((t) => normalizeTipoCliente(t.tipoCliente) === normalizeTipoCliente(tipoCliente));
+      if (statusCostura) {
+        currentFiltered = currentFiltered.filter((t) => {
+          const status = getStatusCostura(t);
+          if (statusCostura === "Aguardando Material") return status === "Aguardando Material" || (!t.statusCostura && t.statusGeral === "Cortado");
+          return status === statusCostura;
         });
+      }
 
-        reportButton.addEventListener('click', () => {
-            updateAtelierSummaryCards();
-            openModal();
-        });
+      currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataCorte, filterDataCorte.value, filterDataCorteFim.value));
+      currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataSaidaCostura, filterDataSaida.value, filterDataSaidaFim.value));
+      if (filterDataEntrada.value) currentFiltered = currentFiltered.filter((t) => toISODateOnly(t.costuraDataInicio) === filterDataEntrada.value);
 
-        function applyFilters() {
-            loading.style.display = 'block';
-            noData.style.display = 'none';
-            reportContent.style.display = 'none';
+      filteredTaloes = sortTaloes(currentFiltered);
+      renderTable(filteredTaloes);
+      renderOverview(filteredTaloes);
 
-            let currentFilteredTaloes = [...allTaloes];
+      loading.style.display = "none";
+      if (filteredTaloes.length > 0) {
+        reportContent.style.display = "block";
+        overviewPanel.classList.add("show");
+        noData.style.display = "none";
+      } else {
+        noData.textContent = "Nenhum dado encontrado com os filtros selecionados.";
+        noData.style.display = "block";
+      }
 
-            const dataCorteInicio = filterDataCorte.value;
-            const dataCorteFim = filterDataCorteFim.value;
-            const remessa = filterRemessa.value.toLowerCase();
-            const talao = filterTalao.value.toLowerCase();
-            const linha = filterLinha.value.toLowerCase();
-            const modelo = filterModelo.value.toLowerCase();
-            const cor = filterCor.value.toLowerCase();
-            const tipoCliente = filterTipoCliente.value;
-            const dataEntrada = filterDataEntrada.value;
-            const dataSaidaInicio = filterDataSaida.value;
-            const dataSaidaFim = filterDataSaidaFim.value;
-            const statusCostura = filterStatusCostura.value;
+      const total = sumTotal(filteredTaloes);
+      const atelieText = selectedAtelie || (currentUserLevel === "03" ? currentUserName : "todos os ateliês");
+      statusLine.textContent = `Relatório gerado: ${filteredTaloes.length.toLocaleString("pt-BR")} talões • ${total.toLocaleString("pt-BR")} pares • Ateliê: ${atelieText}.`;
+    }
 
-            if (dataCorteInicio && dataCorteFim) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.dataCorte >= dataCorteInicio && t.dataCorte <= dataCorteFim); }
-            else if (dataCorteInicio) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.dataCorte === dataCorteInicio); }
-            if (remessa) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.numeroRemessa && String(t.numeroRemessa).toLowerCase().includes(remessa)); }
-            if (talao) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.numeroTalaoSequencial && String(t.numeroTalaoSequencial).toLowerCase().includes(talao)); }
-            if (linha) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.linha && String(t.linha).toLowerCase().includes(linha)); }
-            if (modelo) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.modelo && String(t.modelo).toLowerCase().includes(modelo)); }
-            if (cor) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.corSapato && String(t.corSapato).toLowerCase().includes(cor)); }
-            if (tipoCliente) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.tipoCliente === tipoCliente); }
-            if (dataEntrada) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.costuraDataInicio === dataEntrada); }
-            if (dataSaidaInicio && dataSaidaFim) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.dataSaidaCostura >= dataSaidaInicio && t.dataSaidaCostura <= dataSaidaFim); }
-            else if (dataSaidaInicio) { currentFilteredTaloes = currentFilteredTaloes.filter(t => t.dataSaidaCostura === dataSaidaInicio); }
-            if (statusCostura) {
-                currentFilteredTaloes = currentFilteredTaloes.filter(t => {
-                    if (statusCostura === 'Aguardando Material') { return t.statusCostura === 'Aguardando Material' || (!t.statusCostura && t.statusGeral === 'Cortado'); }
-                    else { return t.statusCostura === statusCostura; }
-                });
-            }
+    function renderOverview(taloes) {
+      const produced = taloes.filter((t) => hasFilledDate(t.dataSaidaCostura));
+      const todo = taloes.filter((t) => !hasFilledDate(t.dataSaidaCostura));
+      const total = sumTotal(taloes);
+      const producedTotal = sumTotal(produced);
+      const todoTotal = sumTotal(todo);
+      const modelSet = new Set(taloes.map(getModelKey));
 
-            filteredTaloes = currentFilteredTaloes;
-            renderTable(filteredTaloes);
-            calculateTotalPares(filteredTaloes);
-            loading.style.display = 'none';
+      overviewSubtitle.textContent = `${taloes.length.toLocaleString("pt-BR")} talões encontrados • ${total.toLocaleString("pt-BR")} pares`;
+      totalPares.textContent = total.toLocaleString("pt-BR");
+      producedPares.textContent = producedTotal.toLocaleString("pt-BR");
+      todoPares.textContent = todoTotal.toLocaleString("pt-BR");
+      modelsCount.textContent = modelSet.size.toLocaleString("pt-BR");
 
-            if (filteredTaloes.length > 0) {
-                reportContent.style.display = 'block';
-                document.querySelector('.total-pares-display').style.display = 'block';
-            } else {
-                noData.textContent = 'Nenhum dado encontrado com os filtros selecionados.';
-                noData.style.display = 'block';
-                document.querySelector('.total-pares-display').style.display = 'none';
-            }
-        }
+      renderModelList(producedModelsList, sumByModel(produced));
+      renderModelList(todoModelsList, sumByModel(todo));
+    }
 
-        function openModal() { summaryModal.style.display = 'flex'; }
-        function closeModal() { summaryModal.style.display = 'none'; }
-        closeModalButton.addEventListener('click', closeModal);
-        window.onclick = (event) => { if (event.target === summaryModal) { closeModal(); } };
+    function renderTable(taloes) {
+      if (!taloes.length) {
+        taloesTableBody.innerHTML = '<tr><td colspan="12" style="text-align:center;">Nenhum talão encontrado com os filtros aplicados.</td></tr>';
+        return;
+      }
 
-        function calculateTotalPares(taloes) {
-            const total = taloes.reduce((sum, talao) => sum + (talao.pares || 0), 0);
-            totalParesDisplay.textContent = total;
-        }
+      taloesTableBody.innerHTML = taloes.map((talao) => {
+        const rowColorClass = corTalaoMapping[talao.tipoCliente] || "";
+        const displayStatusCostura = getStatusCostura(talao);
+        return `
+          <tr class="${rowColorClass}">
+            <td>${formatDate(talao.dataCorte)}</td>
+            <td>${formatDate(talao.dataEntrega)}</td>
+            <td>${escapeHTML(talao.numeroRemessa || "")}</td>
+            <td>${escapeHTML(talao.numeroTalaoSequencial || "")}</td>
+            <td>${escapeHTML(talao.linha || "")}</td>
+            <td>${escapeHTML(talao.modelo || "")}</td>
+            <td>${escapeHTML(talao.corSapato || "")}</td>
+            <td>${escapeHTML(talao.tipoCliente || "")}</td>
+            <td><strong>${normalizePares(talao.pares).toLocaleString("pt-BR")}</strong></td>
+            <td><span class="status-badge ${getStatusClass(displayStatusCostura)}">${escapeHTML(displayStatusCostura)}</span></td>
+            <td>${formatDate(talao.costuraDataInicio)}</td>
+            <td>${formatDate(talao.dataSaidaCostura)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
 
-        function renderTable(taloes) {
-            taloesTableBody.innerHTML = '';
-            if (taloes.length === 0) {
-                taloesTableBody.innerHTML = '<tr><td colspan="11" style="text-align: center;">Nenhum talão encontrado com os filtros aplicados.</td></tr>';
-                return;
-            }
-            const formatDate = (dateString) => {
-                if (!dateString) return '';
-                const [year, month, day] = dateString.split('-');
-                return `${day}/${month}/${year}`;
-            };
-            const getStatusClass = (status) => {
-                if (!status) return '';
-                return status.toLowerCase().replace(/ /g, '-');
-            };
-            taloes.forEach(talao => {
-                const row = document.createElement('tr');
-                const rowColorClass = corTalaoMapping[talao.tipoCliente] || '';
-                row.classList.add(rowColorClass);
-                const displayStatusCostura = talao.statusCostura || (talao.statusGeral === 'Cortado' ? 'Aguardando Material' : 'N/A');
-                row.innerHTML = `
-                    <td>${formatDate(talao.dataCorte)}</td>
-                    <td>${talao.numeroRemessa || ''}</td>
-                    <td>${talao.numeroTalaoSequencial || ''}</td>
-                    <td>${talao.linha || ''}</td>
-                    <td>${talao.modelo || ''}</td>
-                    <td>${talao.corSapato || ''}</td>
-                    <td>${talao.tipoCliente || ''}</td>
-                    <td>${talao.pares || 0}</td>
-                    <td><span class="status-badge ${getStatusClass(displayStatusCostura)}">${displayStatusCostura}</span></td>
-                    <td>${formatDate(talao.costuraDataInicio) || ''}</td>
-                    <td>${formatDate(talao.dataSaidaCostura) || ''}</td>
-                `;
-                taloesTableBody.appendChild(row);
-            });
-        }
+    function updateAtelierSummaryCards() {
+      const taloesForSummary = filteredTaloes.length ? filteredTaloes : [];
+      const produced = taloesForSummary.filter((t) => hasFilledDate(t.dataSaidaCostura));
+      const todo = taloesForSummary.filter((t) => !hasFilledDate(t.dataSaidaCostura));
+      const total = taloesForSummary;
 
-        function updateAtelierSummaryCards() {
-            const taloesForSummary = filteredTaloes;
-            const aggregatedSummaryData = {
-                'Aguardando Material': { byLineModel: {} },
-                'Em Produção': { byLineModel: {} },
-                'Finalizado': { byLineModel: {} }
-            };
-            taloesForSummary.forEach(talao => {
-                const pares = talao.pares || 0;
-                const linhaKey = talao.linha || 'N/A';
-                const lineModelKey = `${linhaKey}.${talao.modelo || 'N/A'}`;
-                const status = talao.statusCostura || (talao.statusGeral === 'Cortado' ? 'Aguardando Material' : 'N/A');
-                if (aggregatedSummaryData[status]) {
-                    aggregatedSummaryData[status].byLineModel[lineModelKey] = (aggregatedSummaryData[status].byLineModel[lineModelKey] || 0) + pares;
-                }
-            });
-            renderAtelierSummaryCard(aggregatedSummaryData);
-        }
+      const cards = [
+        { title: "Pares que faltam produzir", className: "todo", taloes: todo },
+        { title: "Pares já produzidos", className: "produced", taloes: produced },
+        { title: "Total do relatório", className: "total", taloes: total }
+      ];
 
-        function renderAtelierSummaryCard(data) {
-            let summaryHtml = '';
-            let totalGeralAtelier = 0;
-            const displayStatuses = ['Aguardando Material', 'Em Produção', 'Finalizado'];
-            displayStatuses.forEach(status => {
-                const statusData = data[status];
-                let currentStatusTotal = 0;
-                if (statusData && Object.keys(statusData.byLineModel).length > 0) {
-                    currentStatusTotal = Object.values(statusData.byLineModel).reduce((sum, pares) => sum + pares, 0);
-                }
-                let byLineModelContent = '';
-                if (statusData && Object.keys(statusData.byLineModel).length > 0) {
-                    for (const key in statusData.byLineModel) {
-                        byLineModelContent += `<div class="summary-item"><span class="item-label">${key.replace('.', ' - ')}</span><span class="item-value">${statusData.byLineModel[key]} pares</span></div>`;
-                    }
-                } else {
-                    byLineModelContent = '<p class="no-summary-data-message">Nenhum talão por linha - modelo.</p>';
-                }
-                summaryHtml += `<div class="summary-status-section"><h4>Status: ${status}</h4><div class="summary-content-sub"><h5>Por Linha - Modelo</h5>${byLineModelContent}</div><div class="summary-total">Total: ${currentStatusTotal} pares</div></div>`;
-                totalGeralAtelier += currentStatusTotal;
-            });
-            atelierSummaryCard.innerHTML = summaryHtml;
-            if (totalGeralAtelier > 0) {
-                const totalGeralElement = document.createElement('div');
-                totalGeralElement.className = 'summary-total';
-                totalGeralElement.style.gridColumn = '1 / -1';
-                totalGeralElement.textContent = `Total Geral: ${totalGeralAtelier} pares`;
-                atelierSummaryCard.appendChild(totalGeralElement);
-            } else {
-                atelierSummaryCard.innerHTML = '<p class="no-summary-data-message">Nenhum dado disponível para o ateliê logado com os filtros aplicados.</p>';
-            }
-        }
+      atelierSummaryCard.innerHTML = cards.map((card) => {
+        const byModel = sumByModel(card.taloes);
+        const entries = Object.entries(byModel).sort((a, b) => a[0].localeCompare(b[0], "pt-BR", { numeric: true }));
+        const items = entries.length
+          ? entries.map(([model, pares]) => `<div class="summary-item"><span class="item-label">${escapeHTML(model)}</span><span class="item-value">${pares.toLocaleString("pt-BR")} pares</span></div>`).join("")
+          : '<p class="empty-message">Nenhum modelo encontrado.</p>';
+        return `
+          <section class="summary-status-section ${card.className}">
+            <h4>${card.title}</h4>
+            <div class="summary-content-sub">
+              <h5>Por Linha / Modelo</h5>
+              ${items}
+            </div>
+            <div class="summary-total">Total: ${sumTotal(card.taloes).toLocaleString("pt-BR")} pares</div>
+          </section>
+        `;
+      }).join("");
+    }
 
-</script>
+    function openModal() {
+      updateAtelierSummaryCards();
+      summaryModal.classList.add("show");
+    }
+
+    function closeModal() { summaryModal.classList.remove("show"); }
+    function openQuickModal() { quickModal.classList.add("show"); }
+    function closeQuickModal() { quickModal.classList.remove("show"); }
+
+    searchButton.addEventListener("click", () => {
+      quickFilterMode = null;
+      applyFilters();
+    });
+
+    clearFiltersButton.addEventListener("click", () => {
+      clearFilterValues();
+      filteredTaloes = [];
+      taloesTableBody.innerHTML = "";
+      reportContent.style.display = "none";
+      overviewPanel.classList.remove("show");
+      noData.textContent = "Selecione um filtro ou use os filtros rápidos para exibir os dados.";
+      noData.style.display = "block";
+      statusLine.textContent = `${allTaloes.length.toLocaleString("pt-BR")} talões carregados.`;
+    });
+
+    reportButton.addEventListener("click", openModal);
+    quickFiltersButton.addEventListener("click", openQuickModal);
+    closeModalButton.addEventListener("click", closeModal);
+    closeQuickModalButton.addEventListener("click", closeQuickModal);
+    closeDateModalButton.addEventListener("click", closeDateModal);
+    corteRangeButton.addEventListener("click", () => openDateModal("corte"));
+    saidaRangeButton.addEventListener("click", () => openDateModal("saida"));
+    applyDateModalButton.addEventListener("click", applyDateModal);
+    clearDateModalButton.addEventListener("click", clearDateModal);
+    datePickerPrev.addEventListener("click", () => {
+      datePickerMonth = new Date(datePickerMonth.getFullYear(), datePickerMonth.getMonth() - 1, 1);
+      renderDatePicker();
+    });
+    datePickerNext.addEventListener("click", () => {
+      datePickerMonth = new Date(datePickerMonth.getFullYear(), datePickerMonth.getMonth() + 1, 1);
+      renderDatePicker();
+    });
+
+    quickModal.querySelectorAll(".quick-option").forEach((button) => {
+      button.addEventListener("click", () => applyQuickFilter(button.dataset.filter));
+    });
+
+    [summaryModal, quickModal, dateModal].forEach((modal) => {
+      modal.addEventListener("click", (event) => {
+        if (event.target === modal) modal.classList.remove("show");
+      });
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const userDocRef = doc(db, "Usuario", user.email);
+      const userDocSnap = await getDoc(userDocRef);
+      if (!userDocSnap.exists()) {
+        alert("Dados do usuário não encontrados. Faça login novamente.");
+        await signOut(auth);
+        window.location.href = "login.html";
+        return;
+      }
+
+      const userData = userDocSnap.data();
+      currentUserLevel = String(userData.nivelAcesso || "");
+      currentUserName = userData.Nome || user.email || "Usuário";
+
+      if (window.SistemaNavegacao && !window.SistemaNavegacao.podeAcessar(currentUserLevel, "relatorioAtelier.html")) {
+        alert("Você não tem permissão para acessar esta página.");
+        window.location.href = "index.html";
+        return;
+      }
+
+      localStorage.setItem("userNivelAcesso", currentUserLevel);
+      localStorage.setItem("userName", currentUserName);
+      iniciarNavegacaoPadrao(currentUserLevel, currentUserName);
+
+      await loadAtelies();
+      listenToTaloes();
+    });
+
+    window.addEventListener("beforeunload", () => {
+      if (unsubscribeTaloes) unsubscribeTaloes();
+    });
+  </script>
 </body>
 </html>
