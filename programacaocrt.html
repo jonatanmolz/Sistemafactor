@@ -23,12 +23,19 @@
     .header-actions{display:flex;align-items:center;gap:10px}
     .user-info{font-size:13px;text-align:right}
     .user-info span{display:block;font-weight:700}
+    nav{background-color:#555;padding:10px 20px;box-shadow:0 2px 5px rgba(0,0,0,.1);font-size:.8em;display:none}
+    nav.open{display:block}
+    nav ul{list-style:none;margin:0;padding:0;display:flex;gap:12px;flex-wrap:wrap}
+    nav a{color:#fff;text-decoration:none;padding:6px 12px;border-radius:6px;display:block}
+    nav a:hover{background:#777}
     .btn{padding:10px 14px;border:none;border-radius:8px;cursor:pointer;font-size:.95em;transition:background .2s,transform .02s;display:inline-flex;gap:.5rem;align-items:center}
     .btn:active{transform:translateY(1px)}
     .btn-primary{background:var(--pri);color:#fff}
     .btn-primary:hover{background:var(--pri-700)}
     .btn-secondary{background:#e9ecef;color:#111}
     .btn-secondary:hover{background:#dde2e6}
+    #logoutButton{background:var(--danger);color:#fff;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+    #logoutButton:hover{background:var(--danger-700)}
 
     .main-content{flex:1;padding:18px;display:flex;flex-direction:column;align-items:center;gap:16px}
     .toolbar,.container{background:var(--card);padding:16px;border-radius:14px;box-shadow:var(--shadow);width:100%;max-width:1780px;overflow:visible}
@@ -147,10 +154,23 @@
       .status-col{font-size:1.1rem}
     }
   </style>
-  <script src="navegacao.js"></script>
 </head>
 <body>
-<div class="main-content">
+  <header>
+    <h1>Sistema Factor</h1>
+    <div class="user-info">
+      <span id="userNameDisplay">Carregando...</span>
+      <span id="userNivelDisplay"></span>
+    </div>
+    <div class="header-actions">
+      <button id="toggleMenuButton" class="btn btn-secondary" type="button">Menu</button>
+      <button id="logoutButton" type="button">Sair</button>
+    </div>
+  </header>
+
+  <nav id="topNav"><ul id="menuNav"></ul></nav>
+
+  <div class="main-content">
     <section class="toolbar">
       <div class="toolbar-top">
         <div>
@@ -296,6 +316,12 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const menuNav = document.getElementById('menuNav');
+    const topNav = document.getElementById('topNav');
+    const toggleMenuButton = document.getElementById('toggleMenuButton');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    const userNivelDisplay = document.getElementById('userNivelDisplay');
+    const logoutButton = document.getElementById('logoutButton');
     const refreshButton = document.getElementById('refreshButton');
     const setorBadge = document.getElementById('setorBadge');
     const lastUpdateBadge = document.getElementById('lastUpdateBadge');
@@ -333,6 +359,33 @@
     let currentUserData = null;
     let taloes = [];
     let atelierWhatsAppText = '';
+
+    const nivelNomes = {
+      '01': 'Cadastro','02': 'Corte','03': 'Costura','04': 'Montagem','05': 'Admin','06': 'Consultor','07': 'Super'
+    };
+
+    const pages = [
+      { name: 'Index', href: 'index.html', levels: ['01','02','03','04','05','06','07'] },
+      { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
+      { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01','05','07'] },
+      { name: 'Cadastro Edição', href: 'edicao.html', levels: ['07'] },
+      { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
+      { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
+      { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
+      { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
+      { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
+      { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
+      { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02','04','05','06','07'] },
+      { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
+      { name: 'Programação', href: 'relatorioatt.html', levels: ['01','02','03','04','05','06','07'] },
+      { name: 'Relatório Corte', href: 'relatoriocrt.html', levels: ['02','05','06','07'] },
+      { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
+      { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
+      { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
+      { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
+      { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
+      { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
+    ];
 
 
     function getActiveFilters() {
@@ -407,6 +460,23 @@
 
       filtroAtelier.value = ateliers.includes(selected) ? selected : '';
       openAtelierModalButton.disabled = !ateliers.length;
+    }
+
+    function generateMenu(userLevel, userName) {
+      menuNav.innerHTML = '';
+      const userNivelText = nivelNomes[userLevel] || `Nível ${userLevel}`;
+      userNameDisplay.textContent = `Olá, ${userName || 'Usuário'}!`;
+      userNivelDisplay.textContent = `Setor: ${userNivelText}`;
+      pages.forEach(p => {
+        if (p.levels.includes(String(userLevel))) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = p.href;
+          a.textContent = p.name;
+          li.appendChild(a);
+          menuNav.appendChild(li);
+        }
+      });
     }
 
     function hasDate(v) {
@@ -949,6 +1019,10 @@
       }
     }
 
+    toggleMenuButton.addEventListener('click', () => {
+      topNav.classList.toggle('open');
+    });
+
     refreshButton.addEventListener('click', () => {
       loadRelatorioCorte();
     });
@@ -987,6 +1061,17 @@
       updateFiltersSummary();
       renderCards();
     });
+
+    logoutButton.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch (e) {
+        console.error(e);
+        alert('Erro ao fazer logout. Tente novamente.');
+      }
+    });
+
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = 'login.html';
@@ -1002,33 +1087,15 @@
       }
 
       currentUserData = { email: user.email, ...snap.data() };
-      const nivelAcesso = String(currentUserData.nivelAcesso || '');
-      const Nome = currentUserData.Nome || 'Usuário';
+      const { nivelAcesso, Nome } = currentUserData;
 
-      localStorage.setItem('userNivelAcesso', nivelAcesso);
-      localStorage.setItem('userName', Nome);
-
-      window.SistemaNavegacao.init({
-        userLevel: nivelAcesso,
-        userName: Nome,
-        title: 'Controle de produção FactorShoes',
-        onLogout: async () => {
-          try {
-            await signOut(auth);
-            localStorage.removeItem('userNivelAcesso');
-            localStorage.removeItem('userName');
-            window.location.href = 'login.html';
-          } catch (e) {
-            console.error(e);
-            alert('Erro ao fazer logout. Tente novamente.');
-          }
-        }
-      });
-
-      if (!window.SistemaNavegacao.podeAcessar(nivelAcesso, 'programacaocrt.html')) {
+      if (!['02','05','06','07'].includes(String(nivelAcesso))) {
+        alert('Você não tem permissão para acessar esta página.');
+        window.location.href = 'index.html';
         return;
       }
 
+      generateMenu(nivelAcesso, Nome);
       await loadRelatorioCorte();
     });
   </script>
