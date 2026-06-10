@@ -33,6 +33,23 @@
     .barcode-input-group label { font-weight:bold; font-size:1.1em; color:#333; }
     .barcode-input-group input { padding:16px; border:2px solid #007bff; border-radius:8px; font-size:1.35em; box-shadow:0 2px 5px rgba(0,0,0,0.1); transition:border-color 0.3s ease, box-shadow 0.3s ease; }
     .barcode-input-group input:focus { outline:none; border-color:#0056b3; box-shadow:0 0 0 4px rgba(0,123,255,0.25); }
+    .keyboard-button {
+      padding:14px 16px;
+      border:none;
+      border-radius:8px;
+      background:#007bff;
+      color:white;
+      font-size:1.05em;
+      font-weight:bold;
+      cursor:pointer;
+      box-shadow:0 2px 5px rgba(0,0,0,0.15);
+    }
+    .keyboard-button:hover { background:#0056b3; }
+    .keyboard-button:disabled {
+      background:#adb5bd;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
     .scanner-message { margin-top:10px; font-size:1em; min-height:22px; padding:10px 15px; border-radius:6px; text-align:center; font-weight:bold; }
     .scanner-message.success { background-color:#d4edda; color:#155724; border:1px solid #c3e6cb; }
     .scanner-message.error { background-color:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
@@ -94,7 +111,8 @@
         
 
         <div class="barcode-input-group">
-          <input type="text" id="barcodeInput" placeholder="Leia o código de entrada aqui" autofocus disabled autocomplete="off" inputmode="none" />
+          <input type="text" id="barcodeInput" placeholder="Leia o código de entrada aqui" autofocus disabled autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="numeric" enterkeyhint="done" />
+          <button type="button" id="openKeyboardButton" class="keyboard-button" disabled>⌨️ Abrir teclado para digitar</button>
           <div id="scannerMessage" class="scanner-message"></div>
         </div>
 
@@ -170,6 +188,7 @@ const menuNav = document.getElementById("menuNav");
       const userNivelDisplay = document.getElementById("userNivelDisplay");
       const logoutButton = document.getElementById("logoutButton");
       const barcodeInput = document.getElementById("barcodeInput");
+      const openKeyboardButton = document.getElementById("openKeyboardButton");
       const scannerMessageDiv = document.getElementById("scannerMessage");
       const lastScannedList = document.getElementById("lastScannedList");
       const loadingMessageDiv = document.getElementById("loadingMessage");
@@ -270,6 +289,18 @@ const menuNav = document.getElementById("menuNav");
       function safeFocus() {
         try {
           if (!barcodeInput || barcodeInput.disabled) return;
+          barcodeInput.focus();
+          const v = barcodeInput.value || "";
+          if (typeof barcodeInput.setSelectionRange === "function") {
+            barcodeInput.setSelectionRange(v.length, v.length);
+          }
+        } catch (e) {}
+      }
+
+      function abrirTecladoCelular() {
+        try {
+          if (!barcodeInput || barcodeInput.disabled) return;
+          barcodeInput.removeAttribute("readonly");
           barcodeInput.focus();
           const v = barcodeInput.value || "";
           if (typeof barcodeInput.setSelectionRange === "function") {
@@ -466,6 +497,21 @@ const menuNav = document.getElementById("menuNav");
       function attachScannerInput() {
         if (!barcodeInput) return;
 
+        // No celular, o teclado só abre de forma confiável quando existe toque do usuário.
+        // O botão abaixo força o foco no campo sem atrapalhar o leitor de código de barras.
+        if (openKeyboardButton) {
+          openKeyboardButton.addEventListener("click", abrirTecladoCelular);
+          openKeyboardButton.addEventListener("touchend", (e) => {
+            e.preventDefault();
+            abrirTecladoCelular();
+          }, { passive: false });
+        }
+
+        barcodeInput.addEventListener("click", abrirTecladoCelular);
+        barcodeInput.addEventListener("touchend", () => {
+          abrirTecladoCelular();
+        }, { passive: true });
+
         barcodeInput.addEventListener("keydown", (e) => {
           if (isScannerSubmitKey(e)) {
             e.preventDefault();
@@ -533,6 +579,7 @@ const menuNav = document.getElementById("menuNav");
           hideLoading();
 
           if (barcodeInput) barcodeInput.disabled = false;
+          if (openKeyboardButton) openKeyboardButton.disabled = false;
           safeFocus();
         } catch (err) {
           console.error("Erro no login/carregamento:", err);
