@@ -28,7 +28,9 @@
     { group: 'Cadastro', name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
     { group: 'Cadastro', name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05', '07'] },
     { group: 'Cadastro', name: 'Cadastro Manual', href: 'cadastromanual.html', levels: ['05', '07'] },
-
+    { group: 'Cadastro', name: 'Backup', href: 'migracaotaloes.html', levels: ['07'] },
+    { group: 'Cadastro', name: 'Excluir (backup)', href: 'excluirbackups.html', levels: ['07'] },
+     
     // Ferramentas
     { group: 'Ferramentas', name: 'Romaneio', href: 'romaneio.html', levels: ['05', '07'] },
     { group: 'Ferramentas', name: 'Fechamento de Remessas', href: 'encerramento.html', levels: ['05', '07'] },
@@ -52,8 +54,14 @@
     // Fábrica
     { group: 'Fábrica', name: 'Distribuição', href: 'distribuicao.html', levels: ['04', '07'] },
     { group: 'Fábrica', name: 'Talonagem', href: 'talonagem.html', levels: ['04', '07'] },
-    { group: 'Fábrica', name: 'Montagem', href: 'montagem.html', levels: ['05', '07'] }
+    { group: 'Fábrica', name: 'Montagem', href: 'montagem.html', levels: ['05', '07'] },
 
+    //Backup
+    { group: 'Backup', name: 'Backup', href: 'migracaotaloes.html', levels: ['07'] },
+    { group: 'Backup', name: 'Excluir (backup)', href: 'excluirbackups.html', levels: ['07'] },
+    { group: 'Backup', name: 'Cronograma Antigos', href: 'cronogramaBackup.html', levels: ['01', '02', '04', '05', '06', '07'] },
+    { group: 'Backup', name: 'Relatorio Geral Antigos', href: 'relatoriogeralBackup.html', levels: ['01', '02', '04', '05', '06', '07'] }, 
+    { group: 'Backup', name: 'Romaneios Antigos', href: 'romaneioBackup.html', levels: [ '05', '07'] }
   ];
 
   function normalizarHref(valor) {
