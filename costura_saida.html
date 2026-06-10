@@ -94,7 +94,7 @@
 
         <div class="barcode-input-group">
           <label for="barcodeInput">Leia o código de barras de SAÍDA aqui:</label>
-          <input type="text" id="barcodeInput" placeholder="Leia o código de saída aqui" autofocus disabled autocomplete="off" inputmode="none" />
+          <input type="text" id="barcodeInput" placeholder="Leia o código de saída aqui" autofocus disabled autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="numeric" enterkeyhint="done" />
           <div id="scannerMessage" class="scanner-message"></div>
         </div>
 
@@ -226,7 +226,7 @@ const firebaseConfig = {
         window.SistemaNavegacao.init({
           userLevel: String(userLevel || ""),
           userName: userName || "Usuário",
-          title: "Controle de produção FactorShoes",
+          title: "Controle FactorShoes",
           onLogout: async () => {
             try {
               await auth.signOut();
@@ -261,6 +261,18 @@ const firebaseConfig = {
       function safeFocus() {
         try {
           if (!barcodeInput || barcodeInput.disabled) return;
+          barcodeInput.focus();
+          const v = barcodeInput.value || "";
+          if (typeof barcodeInput.setSelectionRange === "function") {
+            barcodeInput.setSelectionRange(v.length, v.length);
+          }
+        } catch (e) {}
+      }
+
+      function abrirTecladoCelular() {
+        try {
+          if (!barcodeInput || barcodeInput.disabled) return;
+          barcodeInput.removeAttribute("readonly");
           barcodeInput.focus();
           const v = barcodeInput.value || "";
           if (typeof barcodeInput.setSelectionRange === "function") {
@@ -456,6 +468,11 @@ const firebaseConfig = {
 
       function attachScannerInput() {
         if (!barcodeInput) return;
+
+        barcodeInput.addEventListener("click", abrirTecladoCelular);
+        barcodeInput.addEventListener("touchstart", () => {
+          abrirTecladoCelular();
+        }, { passive: true });
 
         barcodeInput.addEventListener("keydown", (e) => {
           if (isScannerSubmitKey(e)) {
