@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exclusão de Talões Migrados - SistemaTaloes</title>
+  <style>
+    :root{
+      --bg:#f4f6f8;
+      --card:#fff;
+      --ink:#222;
+      --muted:#666;
+      --bd:#d9dde3;
+      --pri:#0d6efd;
+      --pri-700:#084298;
+      --ok:#198754;
+      --warn:#ffc107;
+      --danger:#dc3545;
+      --danger-700:#b02a37;
+      --soft:#eef3ff;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      min-height:100vh;
+    }
+
+    .page{
+      width:100%;
+      max-width:1200px;
+      margin:0 auto;
+      padding:18px;
+    }
+
+    .top-card{
+      background:#333;
+      color:#fff;
+      padding:14px 16px;
+      border-radius:12px;
+      margin-bottom:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      box-shadow:0 3px 12px rgba(0,0,0,.12);
+    }
+
+    .top-card h1{
+      font-size:22px;
+      margin:0;
+    }
+
+    .user-box{
+      font-size:13px;
+      text-align:right;
+      color:#f1f1f1;
+    }
+
+    .user-box strong{display:block;color:#fff}
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:14px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--bd);
+      border-radius:12px;
+      padding:16px;
+      box-shadow:0 3px 12px rgba(0,0,0,.06);
+    }
+
+    .card.danger-zone{
+      border:1px dashed var(--danger);
+      background:#fff6f6;
+    }
+
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:18px;
+    }
+
+    .card h3{
+      margin:14px 0 8px 0;
+      font-size:15px;
+      color:#333;
+    }
+
+    .hint{
+      margin:6px 0 12px 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:flex-end;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      min-width:220px;
+      flex:1;
+    }
+
+    label{
+      font-size:12px;
+      font-weight:700;
+      color:#444;
+    }
+
+    input, select{
+      width:100%;
+      border:1px solid #cfd4da;
+      border-radius:8px;
+      padding:9px 10px;
+      font-size:14px;
+      background:#fff;
+    }
+
+    input[type="checkbox"]{
+      width:auto;
+    }
+
+    .btn{
+      border:none;
+      border-radius:8px;
+      padding:10px 14px;
+      cursor:pointer;
+      font-weight:700;
+      font-size:14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:38px;
+    }
+
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .btn-primary{background:var(--pri); color:#fff}
+    .btn-primary:hover:not(:disabled){background:var(--pri-700)}
+    .btn-secondary{background:#e9ecef; color:#111}
+    .btn-secondary:hover:not(:disabled){background:#dde2e6}
+    .btn-success{background:var(--ok); color:#fff}
+    .btn-danger{background:var(--danger); color:#fff}
+    .btn-danger:hover:not(:disabled){background:var(--danger-700)}
+
+    .status{
+      border-radius:10px;
+      padding:12px;
+      background:#f8f9fa;
+      border:1px solid var(--bd);
+      font-size:13px;
+      line-height:1.45;
+      white-space:pre-wrap;
+      max-height:280px;
+      overflow:auto;
+      margin-top:10px;
+    }
+
+    .status.ok{background:#eefaf2;border-color:#b7e4c7}
+    .status.warn{background:#fff9e6;border-color:#ffe08a}
+    .status.err{background:#fff0f0;border-color:#ffb3b3}
+
+    .summary{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(140px,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .summary-item{
+      border:1px solid var(--bd);
+      background:var(--soft);
+      border-radius:10px;
+      padding:10px;
+      text-align:center;
+    }
+
+    .summary-item span{
+      display:block;
+      font-size:12px;
+      color:#555;
+      margin-bottom:4px;
+    }
+
+    .summary-item strong{
+      font-size:18px;
+      color:#111;
+      word-break:break-word;
+    }
+
+    .table-wrap{
+      width:100%;
+      overflow:auto;
+      margin-top:10px;
+      border:1px solid var(--bd);
+      border-radius:10px;
+      background:#fff;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      min-width:900px;
+    }
+
+    th, td{
+      border-bottom:1px solid var(--bd);
+      padding:9px 8px;
+      text-align:left;
+      white-space:nowrap;
+    }
+
+    th{
+      background:#f1f3f5;
+      font-weight:700;
+    }
+
+    tbody tr:hover{background:#f8fbff}
+    tbody tr.selected{background:#eaf3ff}
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:3px 8px;
+      background:#eee;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .badge.ok{background:#d1e7dd;color:#0f5132}
+    .badge.warn{background:#fff3cd;color:#664d03}
+    .badge.err{background:#f8d7da;color:#842029}
+
+    .hidden{display:none !important}
+
+    .progress{
+      width:100%;
+      height:12px;
+      background:#e9ecef;
+      border-radius:999px;
+      overflow:hidden;
+      margin:10px 0;
+    }
+
+    .progress-bar{
+      height:100%;
+      width:0%;
+      background:var(--danger);
+      transition:width .2s ease;
+    }
+
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+
+    .confirm-box{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      border:1px solid #ffd1d1;
+      border-radius:10px;
+      background:#fff;
+      padding:12px;
+      margin-top:10px;
+    }
+
+    .confirm-check{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+      font-size:13px;
+      color:#333;
+      line-height:1.35;
+    }
+
+    @media(max-width:760px){
+      .page{padding:10px}
+      .top-card{align-items:flex-start;flex-direction:column}
+      .user-box{text-align:left}
+      .summary{grid-template-columns:repeat(2, minmax(120px,1fr))}
+      .field{min-width:100%;flex-basis:100%}
+      .btn{width:100%}
+    }
+  </style>
+
+  <script src="navegacao.js"></script>
+</head>
+<body>
+  <div class="page">
+    <div class="top-card">
+      <h1>Exclusão de Talões Migrados</h1>
+      <div class="user-box">
+        <strong id="userNameLabel">Carregando...</strong>
+        <span id="userLevelLabel">Verificando acesso...</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>1. Selecionar registro de backup</h2>
+        <p class="hint">
+          Esta página não busca por data de corte. Ela usa a lista exata de IDs salva na coleção
+          <strong>registroBackup</strong>, evitando apagar talões errados.
+        </p>
+
+        <div class="row">
+          <div class="field">
+            <label for="backupSelect">Registro de backup</label>
+            <select id="backupSelect" disabled>
+              <option value="">Carregando registros...</option>
+            </select>
+          </div>
+
+          <button class="btn btn-secondary" id="recarregarBackupsBtn" disabled>Recarregar registros</button>
+          <button class="btn btn-primary" id="carregarDetalhesBtn" disabled>Carregar detalhes</button>
+        </div>
+
+        <div class="status" id="listaStatus">Aguardando autenticação...</div>
+
+        <div class="table-wrap hidden" id="backupsTableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Backup</th>
+                <th>Período</th>
+                <th>Destino</th>
+                <th>Talões</th>
+                <th>Pares</th>
+                <th>Status</th>
+                <th>Origem apagada?</th>
+              </tr>
+            </thead>
+            <tbody id="backupsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2. Conferência do backup selecionado</h2>
+        <p class="hint">
+          Antes de excluir, confira se os talões existem no banco de backup e se ainda existem no banco atual.
+        </p>
+
+        <div class="summary">
+          <div class="summary-item">
+            <span>IDs no registro</span>
+            <strong id="detIds">0</strong>
+          </div>
+          <div class="summary-item">
+            <span>Talões na origem</span>
+            <strong id="detOrigem">0</strong>
+          </div>
+          <div class="summary-item">
+            <span>Talões no backup</span>
+            <strong id="detDestino">0</strong>
+          </div>
+          <div class="summary-item">
+            <span>Total pares backup</span>
+            <strong id="detParesDestino">0</strong>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <button class="btn btn-secondary" id="validarBackupBtn" disabled>Validar origem x backup</button>
+        </div>
+
+        <div class="status" id="detalhesStatus">Nenhum registro carregado.</div>
+      </section>
+
+      <section class="card danger-zone">
+        <h2>3. Excluir talões do banco atual</h2>
+        <p class="hint">
+          A exclusão será feita somente na coleção <strong>taloes</strong> do banco atual <strong>sistemataloes</strong>.
+          As coleções <strong>Usuario</strong>, <strong>metas</strong> e <strong>quinzenas</strong> serão mantidas.
+        </p>
+
+        <div class="confirm-box">
+          <label class="confirm-check">
+            <input type="checkbox" id="confirmTesteBackup" />
+            <span>Confirmo que já testei a página do backup e que os dados copiados estão corretos.</span>
+          </label>
+
+          <div class="field">
+            <label for="confirmText">Digite EXCLUIR para liberar o botão</label>
+            <input type="text" id="confirmText" placeholder="EXCLUIR" autocomplete="off" />
+          </div>
+
+          <button class="btn btn-danger" id="excluirBtn" disabled>Excluir talões da origem</button>
+
+          <div class="progress hidden" id="deleteProgressBox">
+            <div class="progress-bar" id="deleteProgressBar"></div>
+          </div>
+
+          <div class="status warn" id="deleteStatus">
+            Exclusão bloqueada. Carregue um registro, valide o backup, marque a confirmação e digite EXCLUIR.
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      getDocs,
+      query,
+      where,
+      writeBatch,
+      setDoc,
+      updateDoc,
+      serverTimestamp,
+      documentId
+    } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+    // Banco atual: onde os talões serão excluídos.
+    const firebaseConfigOrigem = {
+      apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+      authDomain: "sistemataloes.firebaseapp.com",
+      projectId: "sistemataloes",
+      storageBucket: "sistemataloes.appspot.com",
+      messagingSenderId: "684534379685",
+      appId: "1:684534379685:web:ac0f831c26991ac059094c"
+    };
+
+    // Banco backup: onde os talões migrados devem existir.
+    const firebaseConfigDestino = {
+      apiKey: "AIzaSyCYyhnT47bn51ALsWriILWK_iya-KIjAjQ",
+      authDomain: "factor-c67cf.firebaseapp.com",
+      projectId: "factor-c67cf",
+      storageBucket: "factor-c67cf.firebasestorage.app",
+      messagingSenderId: "658452710795",
+      appId: "1:658452710795:web:8c657ce689fcba1c629b8e"
+    };
+
+    const NIVEL_PERMITIDO = "07";
+    const BATCH_LIMIT = 400;
+
+    const appOrigem = initializeApp(firebaseConfigOrigem);
+    const authOrigem = getAuth(appOrigem);
+    const dbOrigem = getFirestore(appOrigem);
+
+    const appDestinoExistente = getApps().find((app) => app.name === "backup_factor_c67cf");
+    const appDestino = appDestinoExistente || initializeApp(firebaseConfigDestino, "backup_factor_c67cf");
+    const dbDestino = getFirestore(appDestino);
+
+    const userNameLabel = document.getElementById("userNameLabel");
+    const userLevelLabel = document.getElementById("userLevelLabel");
+
+    const backupSelect = document.getElementById("backupSelect");
+    const recarregarBackupsBtn = document.getElementById("recarregarBackupsBtn");
+    const carregarDetalhesBtn = document.getElementById("carregarDetalhesBtn");
+    const validarBackupBtn = document.getElementById("validarBackupBtn");
+    const excluirBtn = document.getElementById("excluirBtn");
+
+    const listaStatus = document.getElementById("listaStatus");
+    const detalhesStatus = document.getElementById("detalhesStatus");
+    const deleteStatus = document.getElementById("deleteStatus");
+
+    const backupsTableWrap = document.getElementById("backupsTableWrap");
+    const backupsTableBody = document.getElementById("backupsTableBody");
+
+    const detIds = document.getElementById("detIds");
+    const detOrigem = document.getElementById("detOrigem");
+    const detDestino = document.getElementById("detDestino");
+    const detParesDestino = document.getElementById("detParesDestino");
+
+    const confirmTesteBackup = document.getElementById("confirmTesteBackup");
+    const confirmText = document.getElementById("confirmText");
+
+    const deleteProgressBox = document.getElementById("deleteProgressBox");
+    const deleteProgressBar = document.getElementById("deleteProgressBar");
+
+    let usuarioAtual = null;
+    let dadosUsuarioAtual = null;
+    let backups = [];
+    let backupAtual = null;
+    let lotesAtuais = [];
+    let idsAtuais = [];
+    let validacaoAtual = null;
+
+    function setStatus(el, text, type = "") {
+      el.className = "status" + (type ? " " + type : "");
+      el.textContent = text;
+    }
+
+    function formatNumber(n) {
+      return Number(n || 0).toLocaleString("pt-BR");
+    }
+
+    function chunkArray(arr, size) {
+      const chunks = [];
+      for (let i = 0; i < arr.length; i += size) chunks.push(arr.slice(i, i + size));
+      return chunks;
+    }
+
+    function setProgress(current, total) {
+      deleteProgressBox.classList.remove("hidden");
+      const pct = total ? Math.round((current / total) * 100) : 0;
+      deleteProgressBar.style.width = Math.min(100, pct) + "%";
+    }
+
+    function hideProgress() {
+      deleteProgressBar.style.width = "0%";
+      deleteProgressBox.classList.add("hidden");
+    }
+
+    function getTimestampMillis(value) {
+      if (!value) return 0;
+      if (typeof value.toMillis === "function") return value.toMillis();
+      if (value.seconds) return value.seconds * 1000;
+      return 0;
+    }
+
+    function periodoTexto(data) {
+      const inicio = data?.dataCorteInicio || "-";
+      const fim = data?.dataCorteFim || "-";
+      return `${inicio} até ${fim}`;
+    }
+
+    function getTotalTaloesBackup(data) {
+      return Number(data?.taloes?.totalDocumentos || data?.totalTaloes || 0);
+    }
+
+    function getTotalParesBackup(data) {
+      return Number(data?.taloes?.totalPares || data?.totalPares || 0);
+    }
+
+    function badgeStatus(status) {
+      const s = String(status || "");
+      if (s.includes("VALIDADO")) return `<span class="badge ok">${s}</span>`;
+      if (s.includes("ERRO")) return `<span class="badge err">${s}</span>`;
+      return `<span class="badge warn">${s || "SEM STATUS"}</span>`;
+    }
+
+    function resetDetalhes() {
+      backupAtual = null;
+      lotesAtuais = [];
+      idsAtuais = [];
+      validacaoAtual = null;
+      detIds.textContent = "0";
+      detOrigem.textContent = "0";
+      detDestino.textContent = "0";
+      detParesDestino.textContent = "0";
+      validarBackupBtn.disabled = true;
+      atualizarEstadoExclusao();
+      setStatus(detalhesStatus, "Nenhum registro carregado.");
+    }
+
+    function atualizarEstadoExclusao() {
+      const digitouExcluir = confirmText.value.trim().toUpperCase() === "EXCLUIR";
+      const confirmouTeste = confirmTesteBackup.checked;
+      const validacaoOk = Boolean(validacaoAtual?.podeExcluir);
+      const jaApagado = Boolean(backupAtual?.data?.apagadoOrigem);
+
+      excluirBtn.disabled = !(digitouExcluir && confirmouTeste && validacaoOk && !jaApagado);
+
+      if (jaApagado) {
+        setStatus(deleteStatus, "Este backup já está marcado como apagado na origem. O botão de exclusão ficará bloqueado.", "warn");
+      } else if (!backupAtual) {
+        setStatus(deleteStatus, "Exclusão bloqueada. Carregue um registro de backup.", "warn");
+      } else if (!validacaoOk) {
+        setStatus(deleteStatus, "Exclusão bloqueada. Valide o backup antes de excluir.", "warn");
+      } else if (!confirmouTeste || !digitouExcluir) {
+        setStatus(deleteStatus, "Validação OK. Para liberar a exclusão, marque a confirmação e digite EXCLUIR.", "warn");
+      } else {
+        setStatus(deleteStatus, "Tudo conferido. O botão de exclusão está liberado.", "ok");
+      }
+    }
+
+    confirmTesteBackup.addEventListener("change", atualizarEstadoExclusao);
+    confirmText.addEventListener("input", atualizarEstadoExclusao);
+
+    onAuthStateChanged(authOrigem, async (user) => {
+      try {
+        if (!user) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        usuarioAtual = user;
+
+        const userSnap = await getDoc(doc(dbOrigem, "Usuario", user.email));
+        if (!userSnap.exists()) {
+          alert("Dados do usuário não encontrados. Faça login novamente.");
+          await signOut(authOrigem);
+          window.location.href = "login.html";
+          return;
+        }
+
+        dadosUsuarioAtual = userSnap.data();
+        const nivel = String(dadosUsuarioAtual.nivelAcesso || "");
+        const nome = dadosUsuarioAtual.Nome || dadosUsuarioAtual.nome || user.email;
+
+        localStorage.setItem("userNivelAcesso", nivel);
+        localStorage.setItem("userName", nome);
+
+        userNameLabel.textContent = nome;
+        userLevelLabel.textContent = "Nível: " + nivel;
+
+        if (window.SistemaNavegacao && typeof window.SistemaNavegacao.init === "function") {
+          window.SistemaNavegacao.init({
+            userLevel: nivel,
+            userName: nome,
+            title: "Controle de produção FactorShoes",
+            onLogout: async () => {
+              await signOut(authOrigem);
+              localStorage.removeItem("userNivelAcesso");
+              localStorage.removeItem("userName");
+              window.location.href = "login.html";
+            }
+          });
+        }
+
+        if (nivel !== NIVEL_PERMITIDO) {
+          alert("Você não tem permissão para acessar esta página.");
+          window.location.href = "index.html";
+          return;
+        }
+
+        recarregarBackupsBtn.disabled = false;
+        carregarDetalhesBtn.disabled = false;
+        await carregarListaBackups();
+
+      } catch (err) {
+        console.error(err);
+        setStatus(listaStatus, "Erro na autenticação ou carregamento inicial:\n" + err.message, "err");
+      }
+    });
+
+    recarregarBackupsBtn.addEventListener("click", carregarListaBackups);
+
+    backupSelect.addEventListener("change", () => {
+      resetDetalhes();
+      carregarDetalhesBtn.disabled = !backupSelect.value;
+    });
+
+    async function carregarListaBackups() {
+      try {
+        resetDetalhes();
+
+        backupSelect.disabled = true;
+        carregarDetalhesBtn.disabled = true;
+        recarregarBackupsBtn.disabled = true;
+        backupsTableWrap.classList.add("hidden");
+
+        setStatus(listaStatus, "Carregando registros de backup da origem...");
+
+        const snap = await getDocs(collection(dbOrigem, "registroBackup"));
+
+        backups = snap.docs
+          .map((docSnap) => ({ id: docSnap.id, data: docSnap.data() }))
+          .filter((item) => String(item.data.tipoRegistro || "") === "MIGRACAO_TALOES" || item.id.startsWith("backup_"))
+          .sort((a, b) => getTimestampMillis(b.data.criadoEm) - getTimestampMillis(a.data.criadoEm));
+
+        backupSelect.innerHTML = "";
+
+        if (!backups.length) {
+          const opt = document.createElement("option");
+          opt.value = "";
+          opt.textContent = "Nenhum registroBackup encontrado";
+          backupSelect.appendChild(opt);
+          setStatus(listaStatus, "Nenhum registro de backup encontrado.", "warn");
+          backupsTableBody.innerHTML = "";
+          return;
+        }
+
+        backups.forEach((item) => {
+          const opt = document.createElement("option");
+          opt.value = item.id;
+          opt.textContent = `${periodoTexto(item.data)} | ${formatNumber(getTotalTaloesBackup(item.data))} talões | ${item.data.status || "sem status"} | ${item.data.apagadoOrigem ? "já apagado" : "não apagado"}`;
+          backupSelect.appendChild(opt);
+        });
+
+        renderTabelaBackups();
+
+        backupSelect.disabled = false;
+        carregarDetalhesBtn.disabled = false;
+        setStatus(listaStatus, `${formatNumber(backups.length)} registro(s) de backup encontrado(s). Selecione um e carregue os detalhes.`, "ok");
+      } catch (err) {
+        console.error(err);
+        setStatus(listaStatus, "Erro ao carregar registroBackup:\n" + err.message, "err");
+      } finally {
+        recarregarBackupsBtn.disabled = false;
+      }
+    }
+
+    function renderTabelaBackups() {
+      backupsTableBody.innerHTML = "";
+
+      backups.forEach((item) => {
+        const tr = document.createElement("tr");
+        tr.dataset.backupId = item.id;
+
+        const apagado = item.data.apagadoOrigem
+          ? `<span class="badge err">SIM</span>`
+          : `<span class="badge ok">NÃO</span>`;
+
+        tr.innerHTML = `
+          <td>${item.id}</td>
+          <td>${periodoTexto(item.data)}</td>
+          <td>${item.data.destinoLabel || item.data.destinoProjeto || "-"}</td>
+          <td>${formatNumber(getTotalTaloesBackup(item.data))}</td>
+          <td>${formatNumber(getTotalParesBackup(item.data))}</td>
+          <td>${badgeStatus(item.data.status)}</td>
+          <td>${apagado}</td>
+        `;
+
+        tr.addEventListener("click", () => {
+          backupSelect.value = item.id;
+          document.querySelectorAll("#backupsTableBody tr").forEach((row) => row.classList.remove("selected"));
+          tr.classList.add("selected");
+          resetDetalhes();
+        });
+
+        backupsTableBody.appendChild(tr);
+      });
+
+      backupsTableWrap.classList.remove("hidden");
+    }
+
+    carregarDetalhesBtn.addEventListener("click", carregarDetalhesBackup);
+
+    async function carregarDetalhesBackup() {
+      try {
+        resetDetalhes();
+
+        const backupId = backupSelect.value;
+        if (!backupId) {
+          alert("Selecione um registro de backup.");
+          return;
+        }
+
+        setStatus(detalhesStatus, "Carregando detalhes e lotes do backup...");
+
+        const origemRef = doc(dbOrigem, "registroBackup", backupId);
+        const destinoRef = doc(dbDestino, "registroBackup", backupId);
+
+        const [origemSnap, destinoSnap, lotesSnap] = await Promise.all([
+          getDoc(origemRef),
+          getDoc(destinoRef),
+          getDocs(collection(dbOrigem, "registroBackup", backupId, "lotesTaloes"))
+        ]);
+
+        if (!origemSnap.exists()) {
+          setStatus(detalhesStatus, "Registro não encontrado na origem.", "err");
+          return;
+        }
+
+        backupAtual = {
+          id: backupId,
+          data: origemSnap.data(),
+          existeNoDestino: destinoSnap.exists(),
+          destinoData: destinoSnap.exists() ? destinoSnap.data() : null
+        };
+
+        lotesAtuais = lotesSnap.docs
+          .map((docSnap) => ({ id: docSnap.id, data: docSnap.data() }))
+          .sort((a, b) => String(a.id).localeCompare(String(b.id), "pt-BR", { numeric: true }));
+
+        const ids = [];
+        lotesAtuais.forEach((lote) => {
+          const taloesIds = Array.isArray(lote.data.taloesIds) ? lote.data.taloesIds : [];
+          taloesIds.forEach((id) => {
+            if (id) ids.push(String(id));
+          });
+        });
+
+        idsAtuais = Array.from(new Set(ids));
+
+        detIds.textContent = formatNumber(idsAtuais.length);
+        detOrigem.textContent = "A validar";
+        detDestino.textContent = "A validar";
+        detParesDestino.textContent = "A validar";
+
+        validarBackupBtn.disabled = !idsAtuais.length;
+
+        let texto =
+          `Backup: ${backupId}\n` +
+          `Período: ${periodoTexto(backupAtual.data)}\n` +
+          `Destino registrado: ${backupAtual.data.destinoProjeto || "-"}\n` +
+          `Existe registroBackup no destino: ${backupAtual.existeNoDestino ? "SIM" : "NÃO"}\n` +
+          `Lotes encontrados: ${formatNumber(lotesAtuais.length)}\n` +
+          `IDs únicos salvos nos lotes: ${formatNumber(idsAtuais.length)}\n` +
+          `Origem já apagada: ${backupAtual.data.apagadoOrigem ? "SIM" : "NÃO"}\n\n`;
+
+        if (backupAtual.data.apagadoOrigem) {
+          texto += "Este backup já está marcado como apagado. A exclusão ficará bloqueada.";
+          setStatus(detalhesStatus, texto, "warn");
+        } else if (!backupAtual.existeNoDestino) {
+          texto += "Atenção: não encontrei o mesmo registroBackup no banco de backup. Valide antes de qualquer exclusão.";
+          setStatus(detalhesStatus, texto, "warn");
+        } else {
+          texto += "Agora clique em “Validar origem x backup”.";
+          setStatus(detalhesStatus, texto, "ok");
+        }
+
+        atualizarEstadoExclusao();
+      } catch (err) {
+        console.error(err);
+        setStatus(detalhesStatus, "Erro ao carregar detalhes:\n" + err.message, "err");
+      }
+    }
+
+    validarBackupBtn.addEventListener("click", validarBackup);
+
+    async function contarDocsPorIds(db, ids, colecao) {
+      const chunks = chunkArray(ids, 30);
+      let encontrados = 0;
+      let totalPares = 0;
+
+      for (const idsChunk of chunks) {
+        if (!idsChunk.length) continue;
+
+        const q = query(collection(db, colecao), where(documentId(), "in", idsChunk));
+        const snap = await getDocs(q);
+
+        snap.forEach((docSnap) => {
+          encontrados++;
+          totalPares += Number(docSnap.data().pares || 0);
+        });
+      }
+
+      return { encontrados, totalPares };
+    }
+
+    async function validarBackup() {
+      try {
+        if (!backupAtual || !idsAtuais.length) {
+          alert("Carregue um registro de backup primeiro.");
+          return;
+        }
+
+        validarBackupBtn.disabled = true;
+        excluirBtn.disabled = true;
+        validacaoAtual = null;
+
+        detOrigem.textContent = "Validando...";
+        detDestino.textContent = "Validando...";
+        detParesDestino.textContent = "Validando...";
+
+        setStatus(detalhesStatus, "Validando se os IDs existem na origem e no banco de backup...");
+
+        const [origem, destino] = await Promise.all([
+          contarDocsPorIds(dbOrigem, idsAtuais, "taloes"),
+          contarDocsPorIds(dbDestino, idsAtuais, "taloes")
+        ]);
+
+        detOrigem.textContent = formatNumber(origem.encontrados);
+        detDestino.textContent = formatNumber(destino.encontrados);
+        detParesDestino.textContent = formatNumber(destino.totalPares);
+
+        const esperado = idsAtuais.length;
+        const destinoOk = destino.encontrados === esperado;
+        const origemOk = origem.encontrados === esperado;
+        const naoApagado = !backupAtual.data.apagadoOrigem;
+        const existeRegistroDestino = backupAtual.existeNoDestino;
+
+        const podeExcluir = destinoOk && origemOk && naoApagado && existeRegistroDestino;
+
+        validacaoAtual = {
+          origem,
+          destino,
+          esperado,
+          destinoOk,
+          origemOk,
+          existeRegistroDestino,
+          podeExcluir
+        };
+
+        let texto =
+          `Validação concluída.\n\n` +
+          `IDs esperados pelo registroBackup: ${formatNumber(esperado)}\n` +
+          `Talões encontrados na origem: ${formatNumber(origem.encontrados)}\n` +
+          `Talões encontrados no backup: ${formatNumber(destino.encontrados)}\n` +
+          `Pares no backup: ${formatNumber(destino.totalPares)}\n\n`;
+
+        if (podeExcluir) {
+          texto += "Validação OK. A exclusão pode ser liberada após a confirmação manual.";
+          setStatus(detalhesStatus, texto, "ok");
+        } else {
+          texto += "Exclusão bloqueada pelos seguintes motivos:\n";
+          if (!existeRegistroDestino) texto += "- O registroBackup não existe no banco de backup.\n";
+          if (!destinoOk) texto += "- Nem todos os IDs estão presentes no banco de backup.\n";
+          if (!origemOk) texto += "- Nem todos os IDs ainda existem no banco atual.\n";
+          if (!naoApagado) texto += "- Este backup já está marcado como apagado na origem.\n";
+          setStatus(detalhesStatus, texto, "err");
+        }
+
+        atualizarEstadoExclusao();
+      } catch (err) {
+        console.error(err);
+        setStatus(detalhesStatus, "Erro ao validar backup:\n" + err.message, "err");
+      } finally {
+        validarBackupBtn.disabled = false;
+      }
+    }
+
+    excluirBtn.addEventListener("click", excluirTaloesOrigem);
+
+    async function salvarLogExclusao(backupId, loteNumero, loteIds, apagadosAcumulado) {
+      const payload = {
+        loteNumero,
+        taloesIds: loteIds,
+        totalTaloes: loteIds.length,
+        apagadosAcumulado,
+        apagadoEm: serverTimestamp(),
+        apagadoPorEmail: usuarioAtual?.email || "",
+        apagadoPorNome: dadosUsuarioAtual?.Nome || dadosUsuarioAtual?.nome || ""
+      };
+
+      const loteId = `lote_${String(loteNumero).padStart(3, "0")}`;
+
+      await Promise.all([
+        setDoc(doc(dbOrigem, "registroBackup", backupId, "lotesExclusao", loteId), payload),
+        setDoc(doc(dbDestino, "registroBackup", backupId, "lotesExclusao", loteId), payload)
+      ]);
+    }
+
+    async function atualizarRegistroFinal(backupId, totalApagado) {
+      const payload = {
+        apagadoOrigem: true,
+        apagadoEm: serverTimestamp(),
+        apagadoPorEmail: usuarioAtual?.email || "",
+        apagadoPorNome: dadosUsuarioAtual?.Nome || dadosUsuarioAtual?.nome || "",
+        totalTaloesApagadosOrigem: totalApagado,
+        statusExclusao: "ORIGEM_APAGADA",
+        atualizadoEm: serverTimestamp()
+      };
+
+      await Promise.all([
+        updateDoc(doc(dbOrigem, "registroBackup", backupId), payload),
+        updateDoc(doc(dbDestino, "registroBackup", backupId), payload)
+      ]);
+    }
+
+    async function excluirTaloesOrigem() {
+      try {
+        if (!backupAtual || !validacaoAtual?.podeExcluir || !idsAtuais.length) {
+          alert("Exclusão bloqueada. Valide o backup antes.");
+          return;
+        }
+
+        if (confirmText.value.trim().toUpperCase() !== "EXCLUIR" || !confirmTesteBackup.checked) {
+          alert("Confirmação incompleta.");
+          return;
+        }
+
+        const total = idsAtuais.length;
+
+        const msg =
+          `ATENÇÃO: esta ação vai excluir ${formatNumber(total)} talões da coleção taloes do banco atual.\n\n` +
+          `Backup: ${backupAtual.id}\n` +
+          `Período: ${periodoTexto(backupAtual.data)}\n\n` +
+          `As coleções Usuario, metas e quinzenas NÃO serão apagadas.\n\n` +
+          `Deseja continuar?`;
+
+        if (!confirm(msg)) return;
+
+        excluirBtn.disabled = true;
+        validarBackupBtn.disabled = true;
+        carregarDetalhesBtn.disabled = true;
+        recarregarBackupsBtn.disabled = true;
+
+        const chunks = chunkArray(idsAtuais, BATCH_LIMIT);
+        let apagados = 0;
+
+        setProgress(0, total);
+        setStatus(deleteStatus, "Iniciando exclusão dos talões da origem...");
+
+        for (let i = 0; i < chunks.length; i++) {
+          const idsLote = chunks[i];
+          const batch = writeBatch(dbOrigem);
+
+          idsLote.forEach((id) => {
+            batch.delete(doc(dbOrigem, "taloes", id));
+          });
+
+          await batch.commit();
+
+          apagados += idsLote.length;
+          await salvarLogExclusao(backupAtual.id, i + 1, idsLote, apagados);
+
+          setProgress(apagados, total);
+          setStatus(
+            deleteStatus,
+            `Excluindo talões da origem...\nLote ${i + 1}/${chunks.length}\n${formatNumber(apagados)}/${formatNumber(total)} talões excluídos.`
+          );
+        }
+
+        await atualizarRegistroFinal(backupAtual.id, apagados);
+
+        hideProgress();
+
+        setStatus(
+          deleteStatus,
+          `Exclusão concluída com sucesso.\n\nTalões apagados da origem: ${formatNumber(apagados)}\nBackup: ${backupAtual.id}\nStatus: ORIGEM_APAGADA`,
+          "ok"
+        );
+
+        setStatus(
+          detalhesStatus,
+          "Exclusão finalizada. Este registro agora está marcado como apagado na origem.",
+          "ok"
+        );
+
+        await carregarListaBackups();
+      } catch (err) {
+        console.error(err);
+        hideProgress();
+        setStatus(
+          deleteStatus,
+          "Erro durante a exclusão:\n" + err.message + "\n\nNão tente novamente sem validar o registro, pois parte dos talões pode ter sido apagada.",
+          "err"
+        );
+      } finally {
+        validarBackupBtn.disabled = false;
+        carregarDetalhesBtn.disabled = false;
+        recarregarBackupsBtn.disabled = false;
+        atualizarEstadoExclusao();
+      }
+    }
+  </script>
+</body>
+</html>
