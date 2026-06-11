@@ -290,7 +290,7 @@
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, getDocs, writeBatch, serverTimestamp, where, limit } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, query, getDocs, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -333,7 +333,6 @@
     let currentUserData = null;
     let taloes = [];
     let atelierWhatsAppText = '';
-    let lastLoadKey = '';
 
 
     function getActiveFilters() {
@@ -385,13 +384,7 @@
     }
 
     function getAtelierResponsavel(t) {
-      return String(
-        t.idAtelieResponsavel ||
-        t.nomeAtelieResponsavel ||
-        t.atelieResponsavel ||
-        t.atelier ||
-        ''
-      ).trim();
+      return String(t.idAtelieResponsavel || '').trim();
     }
 
     function populateAtelierOptions() {
@@ -417,18 +410,16 @@
     }
 
     function hasDate(v) {
-      if (v === undefined || v === null) return false;
-      if (v && typeof v.toDate === 'function') return true;
-      return String(v).trim() !== '';
+      return v !== undefined && v !== null && String(v).trim() !== '';
     }
 
     function toISODateOnly(v) {
       if (!v) return '';
       if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
       try {
-        const dt = v && typeof v.toDate === 'function' ? v.toDate() : new Date(v);
+        const dt = new Date(v);
         if (isNaN(dt)) return '';
-        return formatLocalISO(dt);
+        return dt.toISOString().slice(0,10);
       } catch {
         return '';
       }
@@ -494,11 +485,7 @@
     }
 
     function hasEntradaAtelier(t) {
-      return hasDate(t.costuraDataInicio) ||
-        hasDate(t.dataEntradaAtelier) ||
-        hasDate(t.dataEntradaCostura) ||
-        hasDate(t.dataEntradaDistribuicao) ||
-        hasDate(t.dataSaidaCostura);
+      return hasDate(t.costuraDataInicio);
     }
 
     function isPendenteCorte(t) {
@@ -954,121 +941,28 @@
       lastUpdateBadge.textContent = formatDateTimeNow();
     }
 
-    function addDaysToISO(iso, days) {
-      const [y, m, d] = String(iso).split('-').map(Number);
-      const dt = new Date(y, (m || 1) - 1, d || 1);
-      dt.setDate(dt.getDate() + days);
-      return formatLocalISO(dt);
-    }
-
-    function diffDaysISO(startIso, endIso) {
-      const [y1, m1, d1] = String(startIso).split('-').map(Number);
-      const [y2, m2, d2] = String(endIso).split('-').map(Number);
-      const a = new Date(y1, (m1 || 1) - 1, d1 || 1);
-      const b = new Date(y2, (m2 || 1) - 1, d2 || 1);
-      return Math.round((b - a) / 86400000);
-    }
-
-    function getBuscaRangeCorte() {
-      const today = getTodayLocal();
-      const nextWednesday = getNextWeekday(3);
-      const nextNextWednesday = new Date(nextWednesday);
-      nextNextWednesday.setDate(nextNextWednesday.getDate() + 7);
-
-      const semanaDates = getWednesdayGroup(nextWednesday);
-      const proximaDates = getWednesdayGroup(nextNextWednesday);
-      const targetDates = [...semanaDates, ...proximaDates].filter(Boolean).sort();
-      const maxTargetDate = targetDates[targetDates.length - 1] || formatLocalISO(today);
-
-      // Padrão: carrega uma janela recente, em vez de carregar a coleção inteira.
-      // Para procurar pendências muito antigas, informe manualmente a data "De".
-      let startIso = filtroDataDe.value || formatLocalISO(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 180));
-      let endIso = filtroDataAte.value || addDaysToISO(maxTargetDate, 14);
-
-      if (startIso > endIso) [startIso, endIso] = [endIso, startIso];
-
-      // Proteção contra busca grande demais, que causava deadline-exceeded.
-      const maxDays = 365;
-      if (diffDaysISO(startIso, endIso) > maxDays) {
-        endIso = addDaysToISO(startIso, maxDays);
-      }
-
-      return { startIso, endIso };
-    }
-
-    function addDocsToMap(map, snap) {
-      snap.forEach(d => {
-        if (!map.has(d.id)) map.set(d.id, { id: d.id, ...d.data() });
-      });
-    }
-
-    async function carregarTaloesPorDataCorte(ref, startIso, endIso) {
-      const docsMap = new Map();
-      lastUpdateBadge.textContent = `Buscando corte ${formatDateShortBR(startIso)} até ${formatDateShortBR(endIso)}...`;
-
-      const qDataCorte = query(
-        ref,
-        where('dataCorte', '>=', startIso),
-        where('dataCorte', '<=', endIso),
-        limit(8000)
-      );
-
-      addDocsToMap(docsMap, await getDocs(qDataCorte));
-      return docsMap;
-    }
-
-    async function carregarAmostras(ref, docsMap) {
-      try {
-        lastUpdateBadge.textContent = 'Buscando amostras...';
-        const qAmostras = query(
-          ref,
-          where('tipoCliente', 'in', ['Amostra', 'amostra', 'Amostras', 'amostras']),
-          limit(3000)
-        );
-        addDocsToMap(docsMap, await getDocs(qAmostras));
-      } catch (error) {
-        console.warn('Não foi possível carregar amostras em consulta separada:', error);
-      }
-    }
-
-    async function loadRelatorioCorte(force = false) {
-      [cardAmostra, cardAtraso, cardSemana, cardProxima].forEach(el => el.innerHTML = '<div class="loading">Carregando dados otimizados...</div>');
+    async function loadRelatorioCorte() {
+      [cardAmostra, cardAtraso, cardSemana, cardProxima].forEach(el => el.innerHTML = '<div class="loading">Carregando...</div>');
       [metaAmostra, metaAtraso, metaSemana, metaProxima].forEach(el => el.textContent = 'Carregando...');
 
       try {
         setorBadge.textContent = 'Corte';
         const ref = collection(db, 'taloes');
-        const { startIso, endIso } = getBuscaRangeCorte();
-        const loadKey = `${startIso}|${endIso}`;
-
-        if (!force && loadKey === lastLoadKey && taloes.length) {
-          updateFiltersSummary();
-          renderCards();
-          return;
-        }
-
-        const docsMap = await carregarTaloesPorDataCorte(ref, startIso, endIso);
-        await carregarAmostras(ref, docsMap);
-
-        taloes = Array.from(docsMap.values());
-        lastLoadKey = loadKey;
-
+        const snap = await getDocs(query(ref));
+        taloes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         populateAtelierOptions();
         updateFiltersSummary();
         renderCards();
-
-        if (!taloes.length) {
-          setCardsMessage(`Nenhum talão encontrado no período carregado (${formatDateShortBR(startIso)} até ${formatDateShortBR(endIso)}).`, '0 talões');
-        }
       } catch (error) {
         console.error('Erro ao carregar relatório do corte:', error);
-        const detalhe = error?.code ? `${error.code} - ${error.message || ''}` : (error?.message || 'Erro desconhecido');
-        setCardsMessage(`Erro ao carregar os dados: ${detalhe}`, 'Erro');
+        const errorHtml = '<div class="empty-state">Erro ao carregar os dados.</div>';
+        [cardAmostra, cardAtraso, cardSemana, cardProxima].forEach(el => el.innerHTML = errorHtml);
+        [metaAmostra, metaAtraso, metaSemana, metaProxima].forEach(el => el.textContent = 'Erro');
       }
     }
 
     refreshButton.addEventListener('click', () => {
-      loadRelatorioCorte(true);
+      loadRelatorioCorte();
     });
 
 
@@ -1079,16 +973,11 @@
       });
     });
 
-    [filtroDataDe, filtroDataAte].forEach(input => {
+    [filtroDataDe, filtroDataAte, filtroAtelier].forEach(input => {
       input.addEventListener('change', () => {
         updateFiltersSummary();
-        loadRelatorioCorte(true);
+        renderCards();
       });
-    });
-
-    filtroAtelier.addEventListener('change', () => {
-      updateFiltersSummary();
-      renderCards();
     });
 
     openAtelierModalButton.addEventListener('click', openAtelierModal);
@@ -1107,9 +996,8 @@
       filtroDataDe.value = '';
       filtroDataAte.value = '';
       filtroAtelier.value = '';
-      lastLoadKey = '';
       updateFiltersSummary();
-      loadRelatorioCorte(true);
+      renderCards();
     });
     onAuthStateChanged(auth, async (user) => {
       try {
@@ -1129,6 +1017,8 @@
         currentUserData = { email: user.email, ...snap.data() };
         const nivelAcesso = String(currentUserData.nivelAcesso || '').padStart(2, '0');
         const Nome = currentUserData.Nome || currentUserData.nome || 'Usuário';
+        currentUserData.nivelAcesso = nivelAcesso;
+        currentUserData.Nome = Nome;
 
         localStorage.setItem('userNivelAcesso', nivelAcesso);
         localStorage.setItem('userName', Nome);
@@ -1155,10 +1045,10 @@
           console.warn('navegacao.js não carregou ou window.SistemaNavegacao não foi encontrado. A página continuará carregando os dados.');
         }
 
-        const niveisPermitidosFallback = ['01', '05', '07'];
+        const niveisPermitidosFallback = ['02', '05', '06', '07'];
         if (nav && typeof nav.podeAcessar === 'function') {
           const paginaAtual = getPaginaAtual();
-          const liberadoNaNavegacao = nav.podeAcessar(nivelAcesso, paginaAtual) || nav.podeAcessar(nivelAcesso, 'programacaocrt.html');
+          const liberadoNaNavegacao = nav.podeAcessar(nivelAcesso, paginaAtual) || nav.podeAcessar(nivelAcesso, 'relatoriocrt.html') || nav.podeAcessar(nivelAcesso, 'programacaocrt.html');
           const liberadoFallback = niveisPermitidosFallback.includes(nivelAcesso);
 
           if (!liberadoNaNavegacao && !liberadoFallback) {
@@ -1167,7 +1057,7 @@
           }
         }
 
-        await loadRelatorioCorte(true);
+        await loadRelatorioCorte();
       } catch (error) {
         console.error('Erro na inicialização da página:', error);
         const detalhe = error?.message || 'Erro desconhecido';
