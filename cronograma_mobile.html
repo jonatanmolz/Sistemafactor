@@ -3,24 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cronograma de Talões - Cards por Remessa</title>
+  <title>Cronograma de Talões</title>
   <style>
     :root { --bg:#f4f4f4; --ink:#333; --ink-2:#555; --card:#fff; --muted:#777;
       --pri:#007bff; --pri-700:#0056b3; --danger:#dc3545; --danger-700:#c82333; --ok:#345fec; --bd:#ddd; --chip:#f0f0f0; }
     *{box-sizing:border-box}
     body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;min-height:100vh;display:flex;flex-direction:column}
-    header{background:#333;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 5px rgba(0,0,0,.2);gap:12px}
-    header h1{margin:0;font-size:22px}
-    .user-info{font-size:13px;text-align:right;flex:1}
-    .user-info span{display:block;font-weight:700}
-    .header-actions{display:flex;gap:10px;align-items:center}
-    .menu-toggle{background:#e9ecef;color:#111;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-    .menu-toggle:hover{background:#dde2e6}
-    nav {background-color:#555; padding:0 20px; box-shadow:0 2px 5px rgba(0,0,0,0.1); font-size:0.8em; max-height:0; overflow:hidden; transition:max-height .25s ease, padding .2s ease}
-    nav.menu-open{max-height:260px; padding:10px 20px}
-    nav ul{list-style:none;margin:0;padding:0;display:flex;gap:12px;flex-wrap:wrap}
-    nav a{color:#fff;text-decoration:none;padding:6px 12px;border-radius:6px;display:block}
-    nav a:hover{background:#777}
     .main-content{flex:1;padding:16px;display:flex;flex-direction:column;align-items:center}
     /* Aumento o gap e centralizo para acomodar os novos botões */
     .filters-container{background:var(--card);padding:10px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08);width:100%;max-width:95%;margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:flex-end}
@@ -58,8 +46,8 @@
     }
 
 
-    #logoutButton{background:var(--danger);color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer}
-    #logoutButton:hover{background:var(--danger-700)}
+    
+    
     .container{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.08);width:100%;max-width:1200px}
     .summary-info{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;background:var(--chip);padding:8px;border-radius:8px;margin-bottom:12px;font-size:.9em}
     .summary-item{
@@ -261,24 +249,24 @@
 
 
 
-    @media (max-width:768px){header{flex-wrap:wrap}.user-info{text-align:left;order:3;flex-basis:100%}.header-actions{margin-left:auto}nav.menu-open{max-height:520px}}
+    
     @media (max-width:768px){.filters-container{justify-content:stretch}.form-group{flex:1}.modal-content{width:98%;max-width:98%}.modal-body-table{font-size:.74em}}
     .modal-body-table tr:nth-child(even) {background-color: #f2f2f2;}
 
 
     /* === AJUSTES MOBILE - Cronograma === */
-    @media (max-width: 768px) {
+    @media (max-width: 768px){
       html, body { width: 100%; overflow-x: hidden; }
       body { font-size: 14px; }
-      header { padding: 8px 10px; gap: 6px; }
-      header h1 { font-size: 18px; }
-      .user-info { font-size: 11px; order: 2; flex: 1 1 auto; text-align: left; }
-      .header-actions { order: 3; margin-left: 0; gap: 6px; }
-      .menu-toggle { padding: 6px 8px; font-size: .82em; }
-      #logoutButton { padding: 6px 8px; font-size: .82em; }
-      nav.menu-open { max-height: 70vh; overflow-y: auto; }
-      nav ul { gap: 6px; }
-      nav a { padding: 6px 8px; }
+      
+      
+      
+      
+      
+      
+      
+      
+      
 
       .main-content { padding: 8px; align-items: stretch; }
       .filters-container {
@@ -421,7 +409,7 @@
       .whats-actions .btn { flex: 1 1 100%; justify-content: center; }
     }
 
-    @media (max-width: 380px) {
+    @media (max-width: 380px){
       .main-content { padding: 6px; }
       .filters-container { padding: 8px; gap: 7px; }
       .filters-container label { font-size: .68em; }
@@ -459,7 +447,7 @@
       flex: 0 0 18px !important;
       display: inline-block !important;
     }
-    @media (max-width: 768px) {
+    @media (max-width: 768px){
       #lineCheckboxes {
         display: grid;
         grid-template-columns: repeat(3, minmax(70px, 1fr));
@@ -480,7 +468,7 @@
         height: 18px !important;
       }
     }
-    @media (max-width: 380px) {
+    @media (max-width: 380px){
       #lineCheckboxes {
         grid-template-columns: repeat(2, minmax(80px, 1fr));
       }
@@ -514,50 +502,18 @@
         linear-gradient(180deg,#f6faf8 0%,#edf3f0 100%);
       color:var(--ink);
     }
-    header{
-      background:linear-gradient(135deg,#173a2e 0%,#0e5e3d 100%);
-      color:#fff;
-      padding:14px 18px;
-      border-bottom:1px solid rgba(255,255,255,.12);
-      box-shadow:0 8px 24px rgba(0,0,0,.18);
-    }
-    header h1{
-      font-size:24px;
-      letter-spacing:-.4px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    header h1::before{
-      content:"";
-      width:12px;height:28px;border-radius:999px;
-      background:#72d69c;
-      display:inline-block;
-      box-shadow:0 0 0 5px rgba(114,214,156,.14);
-    }
-    .user-info{color:#e7fff2;}
-    .menu-toggle{
-      background:rgba(255,255,255,.12);
-      color:#fff;
-      border:1px solid rgba(255,255,255,.22);
-      backdrop-filter:blur(6px);
-    }
-    .menu-toggle:hover{background:rgba(255,255,255,.18)}
-    #logoutButton{
-      background:#ffedf0;color:#b6232a;font-weight:700;
-    }
-    #logoutButton:hover{background:#ffdfe4;color:#8f1b21}
-    nav{
-      background:#163b2f;
-      border-bottom:1px solid rgba(255,255,255,.1);
-    }
-    nav.menu-open{box-shadow:0 10px 18px rgba(0,0,0,.14)}
-    nav a{
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      color:#f4fff9;
-    }
-    nav a:hover{background:rgba(255,255,255,.16)}
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     .main-content{
       max-width:1480px;
@@ -1104,9 +1060,9 @@
     }
 
     @media (max-width: 768px){
-      header{position:sticky;top:0;z-index:5;}
-      header h1{font-size:17px;}
-      header h1::before{width:8px;height:22px;box-shadow:none;}
+      
+      
+      
       .main-content{padding:8px;gap:10px;}
       .main-content > .filters-container:first-child{
         grid-template-columns:repeat(2,minmax(0,1fr));
@@ -1199,8 +1155,8 @@
       background:#f3f4f5 !important;
       color:var(--ink);
     }
-    header{background:#333 !important;}
-    nav{background:#555 !important;}
+    
+    
     .main-content > .filters-container:first-child,
     .report-header,
     #lineFilterContainer,
@@ -2078,21 +2034,148 @@
       }
     }
 
-  </style>
+  
+
+    /* ===== AJUSTES: modal de talões em aberto com rolagem + totais por setor ===== */
+    #detailsModal{
+      overflow-y:auto !important;
+      -webkit-overflow-scrolling:touch !important;
+    }
+    #detailsModal .modal-content{
+      max-height:calc(100vh - 24px) !important;
+      overflow:hidden !important;
+      display:flex !important;
+      flex-direction:column !important;
+    }
+    #detailsModal .modal-head{
+      flex:0 0 auto !important;
+      padding-right:34px !important;
+    }
+    #modalBodyContent{
+      flex:1 1 auto !important;
+      min-height:0 !important;
+      overflow:auto !important;
+      padding:0 2px 2px 0 !important;
+      -webkit-overflow-scrolling:touch !important;
+    }
+    .open-stage-modal{
+      min-height:0 !important;
+    }
+    .open-stage-card-head{
+      width:100% !important;
+      align-items:flex-start !important;
+    }
+    .open-stage-head-info{
+      padding-top:7px !important;
+    }
+    .open-stage-head-totals{
+      display:flex !important;
+      flex-wrap:wrap !important;
+      gap:6px !important;
+      align-items:center !important;
+      margin-left:auto !important;
+      max-width:100% !important;
+    }
+    .stage-total-chip,
+    .line-remessas-total{
+      display:inline-flex !important;
+      align-items:center !important;
+      gap:4px !important;
+      border:1px solid #d5d5d5 !important;
+      border-radius:999px !important;
+      padding:5px 8px !important;
+      font-size:.72em !important;
+      font-weight:900 !important;
+      line-height:1 !important;
+      white-space:nowrap !important;
+      background:#eeeeee !important;
+      color:#333 !important;
+    }
+    .stage-total-chip small{
+      font-size:.92em !important;
+      font-weight:800 !important;
+      color:inherit !important;
+    }
+    .stage-total-chip.is-open{
+      background:#fff6df !important;
+      border-color:#efcf72 !important;
+      color:#5b4300 !important;
+    }
+    .stage-total-chip.is-ok{
+      background:#e4f8ed !important;
+      border-color:#95d8b2 !important;
+      color:#075f3a !important;
+    }
+    .line-title-left{
+      display:inline-flex !important;
+      align-items:center !important;
+      white-space:nowrap !important;
+      font-weight:900 !important;
+      color:#111 !important;
+    }
+    .line-title-totals{
+      display:flex !important;
+      align-items:center !important;
+      justify-content:flex-end !important;
+      flex-wrap:wrap !important;
+      gap:6px !important;
+      margin-left:auto !important;
+    }
+    .remessa-line-title{
+      align-items:center !important;
+      flex-wrap:wrap !important;
+    }
+    .remessa-line-title .line-title-totals span{
+      font-size:.72em !important;
+      padding:5px 8px !important;
+      border-radius:999px !important;
+      white-space:nowrap !important;
+    }
+    .open-stage-table-wrap{
+      width:100% !important;
+      max-height:calc(100vh - 215px) !important;
+      overflow:auto !important;
+      -webkit-overflow-scrolling:touch !important;
+    }
+    .open-stage-table{
+      min-width:980px !important;
+      width:100% !important;
+    }
+    .open-stage-table th{
+      position:sticky !important;
+      top:0 !important;
+      z-index:2 !important;
+    }
+    .open-stage-table th,
+    .open-stage-table td{
+      padding:6px 7px !important;
+    }
+    .open-stage-table th:nth-child(1),
+    .open-stage-table td:nth-child(1){width:58px !important;}
+    .open-stage-table th:nth-child(2),
+    .open-stage-table td:nth-child(2){width:96px !important;}
+    .open-stage-table th:nth-child(3),
+    .open-stage-table td:nth-child(3){width:72px !important;}
+    .open-stage-table td:nth-child(5){text-align:left !important;}
+    @media (max-width:900px){
+      #detailsModal .modal-content{max-height:calc(100vh - 12px) !important;}
+      .open-stage-head-totals{margin-left:0 !important; width:100% !important; justify-content:flex-start !important;}
+      .line-title-left{width:100% !important; justify-content:flex-start !important;}
+      .line-title-totals{width:100% !important; justify-content:flex-start !important; margin-left:0 !important; overflow-x:auto !important; flex-wrap:nowrap !important; padding-bottom:2px !important;}
+      .open-stage-table-wrap{max-height:calc(100vh - 285px) !important;}
+      .open-stage-table{min-width:840px !important; font-size:.72em !important;}
+      .stage-total-chip,
+      .line-remessas-total{font-size:.66em !important; padding:4px 7px !important;}
+    }
+
+  
+
+    /* Navegação padrão externa (navegacao.js): a página não cria mais header/nav próprios. */
+    body{margin:0;}
+</style>
+    <script src="navegacao.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Cronograma de Talões</h1>
-    <div class="user-info">
-      <span id="userNameDisplay">Carregando...</span>
-      <span id="userNivelDisplay"></span>
-    </div>
-    <div class="header-actions">
-      <button id="menuToggleButton" class="menu-toggle" type="button" aria-expanded="false" aria-controls="mainNav">☰ Menu</button>
-      <button id="logoutButton">Sair</button>
-    </div>
-  </header>
-  <nav id="mainNav"><ul id="menuNav"></ul></nav>
   <div class="main-content">
     <div class="filters-container">
       <div class="form-group filter-linha"><label for="filterLinha">Linha:</label><input type="text" id="filterLinha" placeholder="Ex: 7142" maxlength="5" /></div>
@@ -2300,7 +2383,6 @@
     const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
 
     // === DOM ===
-    const menuNav=document.getElementById('menuNav'), userNameDisplay=document.getElementById('userNameDisplay'), userNivelDisplay=document.getElementById('userNivelDisplay'), logoutButton=document.getElementById('logoutButton'), menuToggleButton=document.getElementById('menuToggleButton'), mainNav=document.getElementById('mainNav');
     const filterLinha=document.getElementById('filterLinha'), filterModelo=document.getElementById('filterModelo'), filterRemessa=document.getElementById('filterRemessa'), filterDataCorteInicio=document.getElementById('filterDataCorteInicio'), filterDataCorteFim=document.getElementById('filterDataCorteFim'), filterTipoCliente=document.getElementById('filterTipoCliente'), filterAtelie=document.getElementById('filterAtelie'), filterDataEntregaInicio=document.getElementById('filterDataEntregaInicio'), filterDataEntregaFim=document.getElementById('filterDataEntregaFim');
     const corteRangeLabel=document.getElementById('corteRangeLabel'), entregaRangeLabel=document.getElementById('entregaRangeLabel');
     const searchButton=document.getElementById('searchButton'), quickFiltersButton=document.getElementById('quickFiltersButton'), clearFiltersButton=document.getElementById('clearFiltersButton');
@@ -2347,44 +2429,70 @@
     let selectedRemessas = new Set();  // Set<remessaNumber>
 
 
-    // Tipos de Usuarios e niveis
-        const nivelNomes = {
-            '01': 'Cadastro', '02': 'Corte', '03': 'Costura', '04': 'Montagem',
-            '05': 'Admin', '06': 'Consultor', '07':'Super'
-        };
+    // Permissão desta página
+    const cronogramaAllowedLevels = ['01', '02', '04', '05', '06', '07'];
 
-        // Definição das páginas e seus níveis de acesso 
-        const pages = [
-            { name: 'Index', href: 'index.html', levels: ['01','02','03', '04','05', '06','07'] },
-            { name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
-            { name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05','07'] },
-            { name: 'Romaneio', href: 'romaneio.html', levels: ['05','07'] },
-            { name: 'Excluir Dados', href: 'excluirDados.html', levels: ['05','07'] },
-            { name: 'Registro em Massa', href: 'registroEmMassa.html', levels: ['07'] },
-            { name: 'Corte', href: 'corte.html', levels: ['02','07'] },
-            { name: 'Relatório Erros', href: 'relatorioerros.html', levels: ['02','04','07'] },
-            { name: 'Resumo', href: 'resumo.html', levels: ['04','06','07'] },
-            { name: 'Cronograma', href: 'cronograma.html', levels: ['01','02', '04','05','06','07'] },
-            { name: 'Cronograma Mobile', href: 'cronogramamobile.html', levels: ['06','07'] },
-            { name: 'Relatório Master', href: 'relatorioMaster.html', levels: ['05','07'] },
-            { name: 'Costura', href: 'costura.html', levels: ['03','07'] },
-            { name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03','07'] },
-            { name: 'Atlier Celular', href: 'relatoriomobile.html', levels: ['03','07'] },
-            { name: 'Distribuição', href: 'distribuicao.html', levels: ['04','07'] },
-            { name: 'Talonagem', href: 'talonagem.html', levels: ['04','07'] },
-            { name: 'Montagem', href: 'montagem.html', levels: ['05','07'] }
-        ];
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
 
-    //Funçoes
+      try {
+        const userDocRef = doc(db, 'Usuario', user.email);
+        const userDocSnap = await getDoc(userDocRef);
 
-    function generateMenu(userLevel,userName){menuNav.innerHTML='';const userNivelText=nivelNomes[userLevel]||`Nível ${userLevel}`;userNameDisplay.textContent=`Olá, ${userName||'Usuário'}!`;userNivelDisplay.textContent=`Setor: ${userNivelText}`;pages.forEach(p=>{if(p.levels.includes(userLevel)){const li=document.createElement('li');const a=document.createElement('a');a.href=p.href;a.textContent=p.name;li.appendChild(a);menuNav.appendChild(li);}});}
-    onAuthStateChanged(auth, async (user)=>{ if(!user){window.location.href='login.html';return;} const snap=await getDoc(doc(db,'Usuario',user.email)); if(!snap.exists()){alert('Dados do usuário não encontrados. Faça login novamente.'); await signOut(auth); window.location.href='login.html'; return;} const {nivelAcesso,Nome}=snap.data(); if(!pages.find(p=>p.href==='cronograma.html'&&p.levels.includes(nivelAcesso))){alert('Você não tem permissão para acessar esta página.'); window.location.href='index.html'; return;} generateMenu(nivelAcesso,Nome); loadAtelies(); setupColumnControl();}); 
-    logoutButton.addEventListener('click', async()=>{ try{ await signOut(auth); window.location.href='login.html'; }catch(e){ console.error(e); alert('Erro ao fazer logout. Tente novamente.'); }});
-    menuToggleButton.addEventListener('click',()=>{
-      const isOpen = mainNav.classList.toggle('menu-open');
-      menuToggleButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      menuToggleButton.textContent = isOpen ? '✕ Fechar menu' : '☰ Menu';
+        if (!userDocSnap.exists()) {
+          alert('Dados do usuário não encontrados. Faça login novamente.');
+          await signOut(auth);
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const userData = userDocSnap.data();
+        const nivelAcesso = String(userData.nivelAcesso || '');
+        const userName = userData.Nome || 'Usuário';
+
+        localStorage.setItem('userNivelAcesso', nivelAcesso);
+        localStorage.setItem('userName', userName);
+
+        if (!cronogramaAllowedLevels.includes(nivelAcesso)) {
+          alert('Você não tem permissão para acessar esta página.');
+          window.location.href = 'index.html';
+          return;
+        }
+
+        if (window.SistemaNavegacao && typeof window.SistemaNavegacao.init === 'function') {
+          window.SistemaNavegacao.init({
+            userLevel: nivelAcesso,
+            userName,
+            title: 'Cronograma de Talões',
+            onLogout: async () => {
+              try {
+                await signOut(auth);
+                localStorage.removeItem('userNivelAcesso');
+                localStorage.removeItem('userName');
+                window.location.href = 'login.html';
+              } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                alert('Erro ao fazer logout. Tente novamente.');
+              }
+            }
+          });
+        } else {
+          console.warn('navegacao.js não foi carregado. Verifique se o arquivo navegacao.js está na mesma pasta do cronograma.html.');
+        }
+
+        loadAtelies();
+        setupColumnControl();
+      } catch (error) {
+        console.error('Erro ao carregar usuário:', error);
+        alert('Erro ao carregar dados do usuário. Faça login novamente.');
+        await signOut(auth);
+        window.location.href = 'login.html';
+      }
     });
+
     async function loadAtelies(){ try{ const qSnap=await getDocs(query(collection(db,'Usuario'), where('nivelAcesso','==','03'))); const names=qSnap.docs.map(d=>d.data().Nome).filter(Boolean).sort((a,b)=>a.localeCompare(b)); names.forEach(n=>{const opt=document.createElement('option'); opt.value=n; opt.textContent=n; filterAtelie.appendChild(opt);}); }catch(err){ console.error('Erro ao carregar ateliês:',err);} }
     
     // MODIFICADO: Limpa também os filtros de linha e remessa
@@ -2953,10 +3061,26 @@
         if(remessa){ qRef=query(qRef, where('numeroRemessa','==',remessa)); hasFilters=true; }
         if(tipoCliente){ qRef=query(qRef, where('tipoCliente','==',tipoCliente)); hasFilters=true; }
         if(atelieResponsavel){ qRef=query(qRef, where('idAtelieResponsavel','==',atelieResponsavel)); hasFilters=true; }
+        const temFiltroDataCorte = Boolean(dataCorteInicio || dataCorteFim);
+        const temFiltroDataEntrega = Boolean(dataEntregaInicio || dataEntregaFim);
+
         if(dataCorteInicio && dataCorteFim){ qRef=query(qRef, where('dataCorte','>=',dataCorteInicio), where('dataCorte','<=',dataCorteFim)); hasFilters=true; }
         else if(dataCorteInicio){ qRef=query(qRef, where('dataCorte','>=',dataCorteInicio)); hasFilters=true; }
         else if(dataCorteFim){ qRef=query(qRef, where('dataCorte','<=',dataCorteFim)); hasFilters=true; }
-        if(dataEntregaInicio || dataEntregaFim){ hasFilters=true; }
+
+        // IMPORTANTE:
+        // Quando o filtro rápido usa somente Data de Entrega, a versão anterior marcava
+        // hasFilters=true, mas buscava a coleção inteira e filtrava depois no navegador.
+        // Em alguns computadores isso parecia que a busca travava. Agora, se não houver
+        // filtro de Data de Corte junto, a Data de Entrega entra direto na consulta do Firestore.
+        if(temFiltroDataEntrega){
+          hasFilters=true;
+          if(!temFiltroDataCorte){
+            if(dataEntregaInicio && dataEntregaFim){ qRef=query(qRef, where('dataEntrega','>=',dataEntregaInicio), where('dataEntrega','<=',dataEntregaFim)); }
+            else if(dataEntregaInicio){ qRef=query(qRef, where('dataEntrega','>=',dataEntregaInicio)); }
+            else if(dataEntregaFim){ qRef=query(qRef, where('dataEntrega','<=',dataEntregaFim)); }
+          }
+        }
         
         currentStageFilter = null;
         if(!hasFilters){ loading.style.display='none'; noData.textContent='Por favor, selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; return; }
@@ -3111,6 +3235,35 @@
       return `<button type="button" class="stage-chip stage-open js-open-stage" ${baseAttrs} title="Ver talões faltando"><b>${label}</b><span>${(etapa.paresFaltando||0).toLocaleString()}p</span><small>${(etapa.taloesFaltando||0).toLocaleString()} tal.</small></button>`;
     }
 
+
+
+    function buildStageTotalsFromGroups(keys, data){
+      const labelsShort = { corte:'Corte', costura:'Costura', distribuicao:'Dist.', talonagem:'Talon.', montagem:'Mont.' };
+      const stages = ['corte','costura','distribuicao','talonagem','montagem'];
+      return stages.map(stage => {
+        let pares = 0;
+        let taloes = 0;
+        (keys || []).forEach(k => {
+          const etapa = data[k] && data[k][stage] ? data[k][stage] : {};
+          pares += Number(etapa.paresFaltando) || 0;
+          taloes += Number(etapa.taloesFaltando) || 0;
+        });
+        const statusClass = pares === 0 ? 'is-ok' : 'is-open';
+        return `<span class="stage-total-chip ${statusClass}"><b>${labelsShort[stage]}</b> ${pares.toLocaleString()}p <small>${taloes.toLocaleString()} tal.</small></span>`;
+      }).join('');
+    }
+
+    function buildStageTotalsFromTaloes(taloesList){
+      const labelsShort = { corte:'Corte', costura:'Costura', distribuicao:'Dist.', talonagem:'Talon.', montagem:'Mont.' };
+      const stages = ['corte','costura','distribuicao','talonagem','montagem'];
+      return stages.map(stage => {
+        const faltando = (taloesList || []).filter(t => stageMissingForTalao(t, stage));
+        const pares = faltando.reduce((sum,t)=>sum+(Number(t.pares)||0),0);
+        const statusClass = pares === 0 ? 'is-ok' : 'is-open';
+        return `<span class="stage-total-chip ${statusClass}"><b>${labelsShort[stage]}</b> ${pares.toLocaleString()}p <small>${faltando.length.toLocaleString()} tal.</small></span>`;
+      }).join('');
+    }
+
     function renderRemessaCards(data, filteredKeys){
       const cardList = document.getElementById('remessaCardList');
       if(!cardList) return;
@@ -3150,7 +3303,8 @@
           return remessaNumber(a.remessa) - remessaNumber(b.remessa);
         });
 
-        html += `<section class="remessa-line-section"><div class="remessa-line-title">Linha ${linha}<span>${lineKeys.length.toLocaleString()} remessas</span></div><div class="remessa-line-grid">`;
+        const lineTotalsHtml = buildStageTotalsFromGroups(lineKeys, data);
+        html += `<section class="remessa-line-section"><div class="remessa-line-title"><div class="line-title-left">Linha ${linha}</div><div class="line-title-totals"><span class="line-remessas-total">${lineKeys.length.toLocaleString()} remessas</span>${lineTotalsHtml}</div></div><div class="remessa-line-grid">`;
 
         lineKeys.forEach(k => {
           const grp = data[k];
@@ -3235,11 +3389,13 @@
 
     function showOpenStageModal(stage, remessa, linha, dataCorte, dataEntrega){
       const stageLabels = { corte:'Corte', costura:'Costura', distribuicao:'Distribuição', talonagem:'Talonagem', montagem:'Montagem' };
-      const taloes = getCurrentFilteredTaloes()
+      const baseTaloes = getCurrentFilteredTaloes()
         .filter(t => String(t.numeroRemessa || '') === String(remessa || ''))
         .filter(t => String(t.linha || '') === String(linha || ''))
         .filter(t => String(t.dataCorte || '') === String(dataCorte || ''))
-        .filter(t => String(t.dataEntrega || '') === String(dataEntrega || ''))
+        .filter(t => String(t.dataEntrega || '') === String(dataEntrega || ''));
+
+      const taloes = baseTaloes
         .filter(t => stageMissingForTalao(t, stage))
         .sort((a,b)=> (parseInt(a.numeroTalaoSequencial,10)||0) - (parseInt(b.numeroTalaoSequencial,10)||0));
 
@@ -3251,12 +3407,14 @@
         return;
       }
 
-      let totalPares = taloes.reduce((sum,t)=>sum+(Number(t.pares)||0),0);
+      const totalPares = taloes.reduce((sum,t)=>sum+(Number(t.pares)||0),0);
+      const totaisSetoresHtml = buildStageTotalsFromTaloes(baseTaloes);
       let html = `
         <div class="open-stage-modal">
           <div class="open-stage-card-head">
             <span class="open-stage-remessa-pill">R. ${remessa}</span>
             <span class="open-stage-head-info">Linha ${linha} • Corte ${formatDateAbreviado(dataCorte)} • Entrega ${formatDateAbreviado(dataEntrega)}</span>
+            <div class="open-stage-head-totals">${totaisSetoresHtml}</div>
           </div>
           <div class="open-stage-summary-line">
             <span>Etapa: ${stageLabels[stage] || 'Etapa'} em aberto</span>
@@ -3266,15 +3424,13 @@
             <table class="open-stage-table">
               <thead>
                 <tr>
-                  <th>Talão</th>
-                  <th>Linha</th>
-                  <th>Modelo</th>
-                  <th>Pares</th>
+                  <th>T</th>
+                  <th>L.M</th>
+                  <th>P.</th>
                   <th>Cor</th>
                   <th>Ateliê</th>
                   <th>Corte</th>
-                  <th>Entrada Ateliê</th>
-                  <th>Saída Costura</th>
+                  <th>Costura</th>
                   <th>Distribuição</th>
                   <th>Talonagem</th>
                   <th>Montagem</th>
@@ -3285,24 +3441,21 @@
 
       taloes.forEach(t => {
         const talao = t.numeroTalaoSequencial || '';
-        const modelo = String(t.modelo || '').trim();
         const pares = Number(t.pares) || 0;
         const atelie = t.idAtelieResponsavel || '';
         html += `
                 <tr>
                   <td>${talao}</td>
-                  <td>${t.linha || ''}</td>
-                  <td>${modelo}</td>
+                  <td>${formatModeloCompleto(t)}</td>
                   <td>${pares.toLocaleString()}</td>
                   <td>${t.corSapato || ''}</td>
                   <td>${atelie}</td>
                   <td>${statusDataCell(etapaConcluidaData(t,'corte'))}</td>
-                  <td>${statusDataCell(etapaConcluidaData(t,'entradaAtelie'))}</td>
                   <td>${statusDataCell(etapaConcluidaData(t,'costura'))}</td>
                   <td>${statusDataCell(etapaConcluidaData(t,'distribuicao'))}</td>
                   <td>${statusDataCell(etapaConcluidaData(t,'talonagem'))}</td>
                   <td>${statusDataCell(etapaConcluidaData(t,'montagem'))}</td>
-                  <td>${t.trilhoProduzido || ''}</td>
+                  <td>${t.trilhoProduzido || t.trilho || ''}</td>
                 </tr>`;
       });
 
@@ -3314,55 +3467,56 @@
       modalBodyContent.innerHTML = html;
       detailsModal.style.display = 'block';
     }
+    
 
-    function renderTable(data){ 
+    function renderTable(data){
       cronogramaTableBody.innerHTML='';
       const remessaCardList = document.getElementById('remessaCardList');
-      if(remessaCardList) remessaCardList.innerHTML = ''; 
-      const keys=Object.keys(data).sort((a,b)=>{ 
-        const da=data[a].dataCorte||'9999-12-31', db=data[b].dataCorte||'9999-12-31'; 
-        if(da!==db) return da.localeCompare(db); 
-        const la=parseInt(String(data[a].linha).replace(/\\D/g,''))||0; 
-        const lb=parseInt(String(data[b].linha).replace(/\\D/g,''))||0; 
-        if(la!==lb) return la-lb; 
-        const ra=parseInt(String(data[a].remessa).replace(/\\D/g,''))||0; 
-        const rb=parseInt(String(data[b].remessa).replace(/\\D/g,''))||0; 
-        return ra-rb; 
-      }); 
+      if(remessaCardList) remessaCardList.innerHTML = '';
 
-      if(keys.length===0){ noData.style.display='block'; return; }
+      const keys=Object.keys(data).sort((a,b)=>{
+        const da=data[a].dataCorte||'9999-12-31', db=data[b].dataCorte||'9999-12-31';
+        if(da!==db) return da.localeCompare(db);
+        const la=parseInt(String(data[a].linha).replace(/\D/g,''))||0;
+        const lb=parseInt(String(data[b].linha).replace(/\D/g,''))||0;
+        if(la!==lb) return la-lb;
+        const ra=parseInt(String(data[a].remessa).replace(/\D/g,''))||0;
+        const rb=parseInt(String(data[b].remessa).replace(/\D/g,''))||0;
+        return ra-rb;
+      });
+
+      if(keys.length===0){
+        noData.style.display='block';
+        return;
+      }
 
       const filteredKeys = [];
-
       keys.forEach(k => {
         const grp = data[k];
         let showRow = true;
 
         if (currentStageFilter) {
-            // Se houver um filtro de etapa ativo, só mostra a linha se houver talões faltando naquela etapa
-            if (grp[currentStageFilter].taloesFaltando === 0) {
-                showRow = false; 
-            }
+          if (!grp[currentStageFilter] || grp[currentStageFilter].taloesFaltando === 0) {
+            showRow = false;
+          }
         }
-        
-        if (showRow) {
-            filteredKeys.push(k);
-        }
+
+        if (showRow) filteredKeys.push(k);
       });
-      
+
       if (filteredKeys.length === 0 && currentStageFilter) {
-          cronogramaTableBody.innerHTML = `<tr><td colspan="16" style="text-align:center;">Nenhuma remessa encontrada com a etapa de **${currentStageFilter.toUpperCase()}** em aberto.</td></tr>`;
-          return;
+        cronogramaTableBody.innerHTML = `<tr><td colspan="16" style="text-align:center;">Nenhuma remessa encontrada com a etapa de <strong>${currentStageFilter.toUpperCase()}</strong> em aberto.</td></tr>`;
+        return;
       }
 
       renderRemessaCards(data, filteredKeys);
 
-      filteredKeys.forEach(k=>{ 
-        const grp=data[k]; 
-        const tr=document.createElement('tr'); 
-        tr.className=getTipoClienteClass(grp.tipoCliente); 
-        
-        const remessaCell=`<td class="col-remessa"><a href="#" class="remessa-link" data-remessa="${grp.remessa}">${grp.remessa}</a></td>`; 
+      filteredKeys.forEach(k=>{
+        const grp=data[k];
+        const tr=document.createElement('tr');
+        tr.className=getTipoClienteClass(grp.tipoCliente);
+
+        const remessaCell=`<td class="col-remessa"><a href="#" class="remessa-link" data-remessa="${grp.remessa}">${grp.remessa}</a></td>`;
         let html=`
           <td class="col-linha">${grp.linha}</td>
           ${remessaCell}
@@ -3371,21 +3525,22 @@
           <td class="col-data-corte">${formatDateAbreviado(grp.dataCorte)}</td>
           <td class="col-data-entrega">${formatDateAbreviado(grp.dataEntrega)}</td>
         `;
-        
-        html += etapaCell(grp.corte,true, 'corte'); 
-        html += etapaCell(grp.costura,true, 'costura'); 
-        html += etapaCell(grp.distribuicao,true, 'distribuicao'); 
+
+        html += etapaCell(grp.corte,true, 'corte');
+        html += etapaCell(grp.costura,true, 'costura');
+        html += etapaCell(grp.distribuicao,true, 'distribuicao');
         html += etapaCell(grp.talonagem,true, 'talonagem');
-        
-        if(grp.montagem.paresFaltando===0 && grp.montagem.allDone && grp.montagem.maxDate){ 
-          html += `<td colspan="2" class="col-montagem"><span class="status-check">✔ ${formatDateAbreviado(grp.montagem.maxDate)}</span></td>`; 
-        } else { 
-          html += `<td class="col-montagem">${grp.montagem.paresFaltando}</td><td class="col-montagem">${grp.montagem.taloesFaltando}</td>`; 
+
+        if(grp.montagem.paresFaltando===0 && grp.montagem.allDone && grp.montagem.maxDate){
+          html += `<td colspan="2" class="col-montagem"><span class="status-check">✔ ${formatDateAbreviado(grp.montagem.maxDate)}</span></td>`;
+        } else {
+          html += `<td class="col-montagem">${grp.montagem.paresFaltando}</td><td class="col-montagem">${grp.montagem.taloesFaltando}</td>`;
         }
-        tr.innerHTML=html; cronogramaTableBody.appendChild(tr);
-      }); 
+        tr.innerHTML=html;
+        cronogramaTableBody.appendChild(tr);
+      });
     }
-    
+
     // === FUNÇÕES DO MODAL DE DETALHES DA REMESSA (TABELA) ===
     
     // Define a estrutura HTML padrão para a tabela de detalhes
