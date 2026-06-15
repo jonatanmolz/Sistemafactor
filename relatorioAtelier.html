@@ -418,6 +418,69 @@
       overflow: auto;
     }
 
+    .type-breakdown-panel {
+      border: 1px solid #d7dde7;
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      margin-bottom: 12px;
+    }
+
+    .type-breakdown-panel h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: #0f172a;
+    }
+
+    .type-breakdown-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 8px;
+    }
+
+    .type-chip {
+      border: 1px solid rgba(148, 163, 184, .6);
+      border-radius: 13px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.82);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .type-chip strong {
+      font-size: 13px;
+      color: #334155;
+    }
+
+    .type-chip span {
+      font-size: 15px;
+      font-weight: 900;
+      color: #1e3a5f;
+    }
+
+    .quick-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .quick-group {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      background: #f8fafc;
+      padding: 12px;
+    }
+
+    .quick-group-title {
+      font-size: 12px;
+      font-weight: 900;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin: 0 0 9px;
+    }
+
     .quick-options {
       display: grid;
       grid-template-columns: repeat(2, minmax(170px, 1fr));
@@ -426,14 +489,27 @@
 
     .quick-option {
       border: 1px solid #cbd5e1;
-      background: #f8fafc;
+      background: #fff;
       color: #111827;
       border-radius: 14px;
-      padding: 13px 14px;
+      padding: 12px 14px;
       cursor: pointer;
       font-size: 14px;
       font-weight: 900;
       text-align: left;
+      min-height: 66px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .quick-option small {
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.25;
     }
 
     .quick-option:hover {
@@ -602,7 +678,7 @@
       .span-1, .span-2, .span-3 { grid-column: span 1; }
       .filters-actions { grid-column: 1 / -1; }
       .btn { flex: 1 1 150px; }
-      .mini-cards, .model-sections-grid, .summary-cards-container, .quick-options { grid-template-columns: 1fr; }
+      .mini-cards, .model-sections-grid, .summary-cards-container, .quick-options, .type-breakdown-list { grid-template-columns: 1fr; }
       .date-picker-actions { flex-direction: column; align-items: stretch; }
       .date-picker-actions > div { justify-content: flex-end; }
     }
@@ -720,6 +796,11 @@
         </article>
       </div>
 
+      <section class="type-breakdown-panel">
+        <h3>Resumo por tipo de cliente</h3>
+        <div class="type-breakdown-list" id="typeBreakdownList"></div>
+      </section>
+
       <div class="model-sections-grid">
         <section class="model-section">
           <h3>Produção por modelos — já produzido</h3>
@@ -776,13 +857,58 @@
         <span class="close-button" id="closeQuickModalButton">&times;</span>
       </div>
       <div class="modal-body">
-        <div class="quick-options">
-          <button class="quick-option" type="button" data-filter="productionToday">Produção hoje</button>
-          <button class="quick-option" type="button" data-filter="productionYesterday">Produção ontem</button>
-          <button class="quick-option" type="button" data-filter="productionWeek">Produção semana</button>
-          <button class="quick-option" type="button" data-filter="exportMonday">Exportação de segunda<br><small>somente não produzidos</small></button>
-          <button class="quick-option" type="button" data-filter="exportThursday">Exportação de quinta<br><small>somente não produzidos</small></button>
-          <button class="quick-option" type="button" data-filter="deliveryWeek">Entregas da semana</button>
+        <div class="quick-groups">
+          <section class="quick-group">
+            <div class="quick-group-title">Produção</div>
+            <div class="quick-options">
+              <button class="quick-option" type="button" data-filter="productionToday">
+                <span>Produção hoje</span>
+                <small data-quick-detail="productionToday"></small>
+              </button>
+              <button class="quick-option" type="button" data-filter="productionYesterday">
+                <span>Produção ontem</span>
+                <small data-quick-detail="productionYesterday"></small>
+              </button>
+              <button class="quick-option" type="button" data-filter="productionWeek">
+                <span>Produção semana</span>
+                <small data-quick-detail="productionWeek"></small>
+              </button>
+            </div>
+          </section>
+
+          <section class="quick-group">
+            <div class="quick-group-title">Entregas e atrasos</div>
+            <div class="quick-options">
+              <button class="quick-option" type="button" data-filter="exportMonday">
+                <span>Exportação Segunda</span>
+                <small data-quick-detail="exportMonday"></small>
+              </button>
+              <button class="quick-option" type="button" data-filter="exportThursday">
+                <span>Exportação Quinta</span>
+                <small data-quick-detail="exportThursday"></small>
+              </button>
+              <button class="quick-option" type="button" data-filter="exportDelayed">
+                <span>Exportação em atraso</span>
+                <small data-quick-detail="exportDelayed"></small>
+              </button>
+              <button class="quick-option" type="button" data-filter="deliveryWeek">
+                <span>Entregas da semana</span>
+                <small data-quick-detail="deliveryWeek"></small>
+              </button>
+              <button class="quick-option" type="button" data-filter="weekDelayed">
+                <span>Atraso da semana</span>
+                <small data-quick-detail="weekDelayed"></small>
+              </button>
+              <button class="quick-option" type="button" data-filter="cutDelivery">
+                <span>Entrega por corte</span>
+                <small data-quick-detail="cutDelivery"></small>
+              </button>
+              <button class="quick-option" type="button" data-filter="cutDelayed">
+                <span>Corte em atraso</span>
+                <small data-quick-detail="cutDelayed"></small>
+              </button>
+            </div>
+          </section>
         </div>
       </div>
     </div>
@@ -867,6 +993,7 @@
     const modelsCount = document.getElementById("modelsCount");
     const producedModelsList = document.getElementById("producedModelsList");
     const todoModelsList = document.getElementById("todoModelsList");
+    const typeBreakdownList = document.getElementById("typeBreakdownList");
 
     const summaryModal = document.getElementById("summaryModal");
     const closeModalButton = document.getElementById("closeModalButton");
@@ -966,6 +1093,31 @@
       return localDateToISO(target);
     }
 
+    function getCurrentOrUpcomingWeekday(targetDay, baseIso = todayISO()) {
+      const base = dateFromISO(baseIso);
+      const day = base.getDay();
+      const diff = (targetDay - day + 7) % 7;
+      const target = new Date(base);
+      target.setDate(base.getDate() + diff);
+      return localDateToISO(target);
+    }
+
+    function getCutDeliveryRange(baseIso = todayISO()) {
+      const targetTuesday = getCurrentOrUpcomingWeekday(2, baseIso);
+      return {
+        targetTuesday,
+        start: addDaysISO(targetTuesday, -15),
+        end: addDaysISO(targetTuesday, -12)
+      };
+    }
+
+    function formatDateShort(iso) {
+      const clean = toISODateOnly(iso);
+      if (!clean) return "";
+      const [, m, d] = clean.split("-");
+      return `${d}-${m}`;
+    }
+
     function formatDate(iso) {
       const clean = toISODateOnly(iso);
       if (!clean) return "";
@@ -999,6 +1151,25 @@
       const value = String(tipo || "").trim().toLowerCase();
       if (["exportacao", "exportação", "exportacoes", "exportações"].includes(value)) return "Exportacao";
       return String(tipo || "").trim();
+    }
+
+    function isTrackedTipoCliente(tipo) {
+      const normalized = normalizeTipoCliente(tipo);
+      return ["Exportacao", "Cliente especial", "Mercado Interno", "Estoque"].includes(normalized);
+    }
+
+    function getTipoClienteLabel(tipo) {
+      const normalized = normalizeTipoCliente(tipo);
+      if (normalized === "Exportacao") return "Exportação";
+      if (normalized === "Cliente especial") return "Cliente Especial";
+      if (normalized === "Mercado Interno") return "Mercado Interno";
+      if (normalized === "Estoque") return "Estoque";
+      if (normalized === "Amostra") return "Amostra";
+      return normalized || "Sem tipo";
+    }
+
+    function isNotProduced(talao) {
+      return !hasFilledDate(talao.dataSaidaCostura);
     }
 
     function getModelKey(talao) {
@@ -1057,6 +1228,73 @@
           <span>${pares.toLocaleString("pt-BR")} pares</span>
         </div>
       `).join("");
+    }
+
+    function getTypeBreakdown(taloes) {
+      const base = {
+        "Exportação": { taloes: 0, pares: 0 },
+        "Cliente Especial": { taloes: 0, pares: 0 },
+        "Mercado Interno": { taloes: 0, pares: 0 },
+        "Estoque": { taloes: 0, pares: 0 }
+      };
+
+      taloes.forEach((t) => {
+        const label = getTipoClienteLabel(t.tipoCliente);
+        if (!base[label]) return;
+        base[label].taloes += 1;
+        base[label].pares += normalizePares(t.pares);
+      });
+
+      return base;
+    }
+
+    function renderTypeBreakdown(taloes) {
+      const data = getTypeBreakdown(taloes);
+      typeBreakdownList.innerHTML = Object.entries(data).map(([label, totals]) => `
+        <div class="type-chip">
+          <strong>${escapeHTML(label)}</strong>
+          <span>${totals.pares.toLocaleString("pt-BR")} pares</span>
+          <small>${totals.taloes.toLocaleString("pt-BR")} talões</small>
+        </div>
+      `).join("");
+    }
+
+    function getTypeBreakdownText(taloes) {
+      const data = getTypeBreakdown(taloes);
+      return Object.entries(data)
+        .map(([label, totals]) => `${label}: ${totals.pares.toLocaleString("pt-BR")} pares`)
+        .join(" • ");
+    }
+
+    function getQuickFilterInfo(mode, baseIso = todayISO()) {
+      const today = baseIso;
+      const week = getWeekRange(today);
+      const cutRange = getCutDeliveryRange(today);
+      const tomorrow = addDaysISO(today, 1);
+      const infos = {
+        productionToday: { label: "Produção hoje", detail: formatDateShort(today) },
+        productionYesterday: { label: "Produção ontem", detail: formatDateShort(addDaysISO(today, -1)) },
+        productionWeek: { label: "Produção semana", detail: `${formatDateShort(week.start)} a ${formatDateShort(week.end)}` },
+        exportMonday: { label: "Exportação Segunda", detail: formatDateShort(getUpcomingWeekday(1, today)) },
+        exportThursday: { label: "Exportação Quinta", detail: formatDateShort(getUpcomingWeekday(4, today)) },
+        exportDelayed: { label: "Exportação em atraso", detail: `entrega menor que ${formatDateShort(tomorrow)}` },
+        deliveryWeek: { label: "Entregas da semana", detail: `${formatDateShort(week.start)} a ${formatDateShort(week.end)}` },
+        weekDelayed: { label: "Atraso da semana", detail: `entrega menor que ${formatDateShort(week.start)}` },
+        cutDelivery: { label: "Entrega por corte", detail: `${formatDateShort(cutRange.start)} a ${formatDateShort(cutRange.end)}` },
+        cutDelayed: { label: "Corte em atraso", detail: `corte menor que ${formatDateShort(cutRange.start)}` }
+      };
+      return infos[mode] || null;
+    }
+
+    function updateQuickFilterLabels() {
+      quickModal.querySelectorAll("[data-quick-detail]").forEach((element) => {
+        const info = getQuickFilterInfo(element.dataset.quickDetail);
+        element.textContent = info ? info.detail : "";
+      });
+    }
+
+    function functionNeedsBreakdown(mode) {
+      return ["exportDelayed", "weekDelayed", "cutDelivery", "cutDelayed"].includes(mode);
     }
 
     function getStatusCostura(talao) {
@@ -1239,6 +1477,7 @@
     function applyQuickFilter(mode) {
       clearFilterValues();
       const today = todayISO();
+      const info = getQuickFilterInfo(mode, today);
       quickFilterMode = mode;
 
       if (mode === "productionToday") {
@@ -1261,23 +1500,11 @@
         updateRangeButton(saidaRangeButton, week.start, week.end);
       }
 
-      if (mode === "exportMonday") {
-        const targetDate = getUpcomingWeekday(1, today);
+      if (mode === "exportMonday" || mode === "exportThursday" || mode === "exportDelayed") {
         filterTipoCliente.value = "Exportacao";
-        statusLine.textContent = `Filtro rápido: Exportação de segunda ${formatDate(targetDate)} • somente não produzidos.`;
       }
 
-      if (mode === "exportThursday") {
-        const targetDate = getUpcomingWeekday(4, today);
-        filterTipoCliente.value = "Exportacao";
-        statusLine.textContent = `Filtro rápido: Exportação de quinta ${formatDate(targetDate)} • somente não produzidos.`;
-      }
-
-      if (mode === "deliveryWeek") {
-        const week = getWeekRange(today);
-        statusLine.textContent = `Filtro rápido: Entregas da semana ${formatDate(week.start)} a ${formatDate(week.end)}.`;
-      }
-
+      statusLine.textContent = info ? `Filtro rápido: ${info.label} (${info.detail}).` : "Filtro rápido aplicado.";
       closeQuickModal();
       applyFilters();
     }
@@ -1311,13 +1538,44 @@
         currentFiltered = currentFiltered.filter((t) =>
           normalizeTipoCliente(t.tipoCliente) === "Exportacao" &&
           toISODateOnly(t.dataEntrega) === targetDate &&
-          !hasFilledDate(t.dataSaidaCostura)
+          isNotProduced(t)
         );
+      }
+
+      if (quickFilterMode === "exportDelayed") {
+        const tomorrow = addDaysISO(todayISO(), 1);
+        currentFiltered = currentFiltered.filter((t) => {
+          const entrega = toISODateOnly(t.dataEntrega);
+          return normalizeTipoCliente(t.tipoCliente) === "Exportacao" && entrega && entrega < tomorrow && isNotProduced(t);
+        });
       }
 
       if (quickFilterMode === "deliveryWeek") {
         const week = getWeekRange(todayISO());
         currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataEntrega, week.start, week.end));
+      }
+
+      if (quickFilterMode === "weekDelayed") {
+        const week = getWeekRange(todayISO());
+        currentFiltered = currentFiltered.filter((t) => {
+          const entrega = toISODateOnly(t.dataEntrega);
+          return entrega && entrega < week.start && isNotProduced(t) && isTrackedTipoCliente(t.tipoCliente);
+        });
+      }
+
+      if (quickFilterMode === "cutDelivery") {
+        const cutRange = getCutDeliveryRange(todayISO());
+        currentFiltered = currentFiltered.filter((t) =>
+          passesDateRange(t.dataCorte, cutRange.start, cutRange.end) && isNotProduced(t) && isTrackedTipoCliente(t.tipoCliente)
+        );
+      }
+
+      if (quickFilterMode === "cutDelayed") {
+        const cutRange = getCutDeliveryRange(todayISO());
+        currentFiltered = currentFiltered.filter((t) => {
+          const corte = toISODateOnly(t.dataCorte);
+          return corte && corte < cutRange.start && isNotProduced(t) && isTrackedTipoCliente(t.tipoCliente);
+        });
       }
 
       if (selectedAtelie) currentFiltered = currentFiltered.filter((t) => String(t.idAtelieResponsavel || "") === selectedAtelie);
@@ -1354,7 +1612,10 @@
 
       const total = sumTotal(filteredTaloes);
       const atelieText = selectedAtelie || (currentUserLevel === "03" ? currentUserName : "todos os ateliês");
-      statusLine.textContent = `Relatório gerado: ${filteredTaloes.length.toLocaleString("pt-BR")} talões • ${total.toLocaleString("pt-BR")} pares • Ateliê: ${atelieText}.`;
+      const quickInfo = quickFilterMode ? getQuickFilterInfo(quickFilterMode) : null;
+      const quickText = quickInfo ? `Filtro rápido: ${quickInfo.label} (${quickInfo.detail}) • ` : "";
+      const breakdownText = quickFilterMode && functionNeedsBreakdown(quickFilterMode) ? ` • ${getTypeBreakdownText(filteredTaloes)}` : "";
+      statusLine.textContent = `${quickText}Relatório gerado: ${filteredTaloes.length.toLocaleString("pt-BR")} talões • ${total.toLocaleString("pt-BR")} pares • Ateliê: ${atelieText}${breakdownText}.`;
     }
 
     function renderOverview(taloes) {
@@ -1371,6 +1632,7 @@
       todoPares.textContent = todoTotal.toLocaleString("pt-BR");
       modelsCount.textContent = modelSet.size.toLocaleString("pt-BR");
 
+      renderTypeBreakdown(taloes);
       renderModelList(producedModelsList, sumByModel(produced));
       renderModelList(todoModelsList, sumByModel(todo));
     }
@@ -1440,7 +1702,10 @@
     }
 
     function closeModal() { summaryModal.classList.remove("show"); }
-    function openQuickModal() { quickModal.classList.add("show"); }
+    function openQuickModal() {
+      updateQuickFilterLabels();
+      quickModal.classList.add("show");
+    }
     function closeQuickModal() { quickModal.classList.remove("show"); }
 
     searchButton.addEventListener("click", () => {
