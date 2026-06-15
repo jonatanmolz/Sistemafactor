@@ -2172,6 +2172,112 @@
 
     /* Navegação padrão externa (navegacao.js): a página não cria mais header/nav próprios. */
     body{margin:0;}
+
+
+    /* ===== AJUSTE FINAL: calendário acima do menu + totais da linha sem rolagem lateral ===== */
+    .modal,
+    #dateRangePickerModal,
+    #detailsModal,
+    #quickFiltersModal,
+    #remessaFilterModal,
+    #whatsMessageModal{
+      z-index:999999 !important;
+    }
+    #dateRangePickerModal{
+      overflow-y:auto !important;
+      -webkit-overflow-scrolling:touch !important;
+      padding:calc(env(safe-area-inset-top, 0px) + 14px) 10px 24px !important;
+    }
+    #dateRangePickerModal .date-picker-content{
+      margin:0 auto 24px !important;
+      max-height:calc(100dvh - 38px) !important;
+      overflow:auto !important;
+    }
+
+    .remessa-line-title{
+      display:flex !important;
+      align-items:center !important;
+      justify-content:space-between !important;
+      gap:8px !important;
+      width:100% !important;
+      overflow:visible !important;
+    }
+    .line-title-left{
+      flex:0 0 auto !important;
+      width:auto !important;
+      min-width:max-content !important;
+      white-space:nowrap !important;
+    }
+    .line-title-totals{
+      flex:1 1 auto !important;
+      min-width:0 !important;
+      width:auto !important;
+      margin-left:8px !important;
+      display:grid !important;
+      grid-template-columns:repeat(3, minmax(72px, 1fr)) !important;
+      gap:7px !important;
+      overflow:visible !important;
+      flex-wrap:unset !important;
+      justify-content:stretch !important;
+      padding-bottom:0 !important;
+    }
+    .line-title-totals .line-remessas-total{
+      display:none !important;
+    }
+    .line-title-totals .stage-total-chip{
+      width:100% !important;
+      min-width:0 !important;
+      justify-content:center !important;
+      text-align:center !important;
+      white-space:normal !important;
+      line-height:1.05 !important;
+      gap:3px !important;
+      padding:6px 6px !important;
+      font-size:.70em !important;
+    }
+    .line-title-totals .stage-total-chip b,
+    .line-title-totals .stage-total-chip small{
+      white-space:nowrap !important;
+    }
+
+    @media (max-width:900px){
+      .remessa-line-title{
+        display:grid !important;
+        grid-template-columns:auto minmax(0, 1fr) !important;
+        align-items:center !important;
+        gap:7px !important;
+        padding:4px 2px 6px !important;
+      }
+      .line-title-left{
+        width:auto !important;
+        min-width:max-content !important;
+        font-size:.95em !important;
+      }
+      .line-title-totals{
+        width:100% !important;
+        margin-left:0 !important;
+        grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+        gap:5px !important;
+        overflow:visible !important;
+      }
+      .line-title-totals .stage-total-chip{
+        font-size:.60em !important;
+        padding:5px 3px !important;
+        border-radius:999px !important;
+      }
+      .line-title-totals .stage-total-chip small{
+        font-size:.9em !important;
+      }
+    }
+    @media (max-width:390px){
+      .line-title-left{font-size:.88em !important;}
+      .line-title-totals{gap:4px !important;}
+      .line-title-totals .stage-total-chip{
+        font-size:.55em !important;
+        padding:5px 2px !important;
+      }
+    }
+
 </style>
     <script src="navegacao.js"></script>
 </head>
@@ -3238,8 +3344,9 @@
 
 
     function buildStageTotalsFromGroups(keys, data){
-      const labelsShort = { corte:'Corte', costura:'Costura', distribuicao:'Dist.', talonagem:'Talon.', montagem:'Mont.' };
-      const stages = ['corte','costura','distribuicao','talonagem','montagem'];
+      // Totais exibidos ao lado da linha: somente o que falta cortar, costurar e montar.
+      const labelsShort = { corte:'Corte', costura:'Costura', montagem:'Mont.' };
+      const stages = ['corte','costura','montagem'];
       return stages.map(stage => {
         let pares = 0;
         let taloes = 0;
@@ -3304,7 +3411,7 @@
         });
 
         const lineTotalsHtml = buildStageTotalsFromGroups(lineKeys, data);
-        html += `<section class="remessa-line-section"><div class="remessa-line-title"><div class="line-title-left">Linha ${linha}</div><div class="line-title-totals"><span class="line-remessas-total">${lineKeys.length.toLocaleString()} remessas</span>${lineTotalsHtml}</div></div><div class="remessa-line-grid">`;
+        html += `<section class="remessa-line-section"><div class="remessa-line-title"><div class="line-title-left">Linha ${linha}</div><div class="line-title-totals">${lineTotalsHtml}</div></div><div class="remessa-line-grid">`;
 
         lineKeys.forEach(k => {
           const grp = data[k];
