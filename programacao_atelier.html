@@ -68,8 +68,8 @@
 
     <div class="page-head">
       <div>
-        <h1>Programação por Ateliê</h1>
-        <p id="pageSubtitle">Mostrando 4 semanas com duas datas de corte por semana.</p>
+        <h1>Programação do Atelier</h1>
+        
       </div>
     </div>
 
@@ -338,12 +338,12 @@
                   <h2>${formatShort(week.cutDates[0])} e ${formatShort(week.cutDates[1])}</h2>
                   <span>${week.isCurrent ? "Semana 3" : `Semana ${week.index}`}</span>
                 </div>
-                <div class="week-subtitle">${formatShort(week.weekStart)} a ${formatShort(week.weekEnd)} • ${escapeHTML(atelierText)}</div>
+                
               </header>
               <div class="totals">
                 <div class="total-box" data-card-action="programado" data-week-index="${week.index}"><span>Total programado</span><strong>${totalProgramado.toLocaleString("pt-BR")}</strong></div>
                 <div class="total-box produced" data-card-action="produzido" data-week-index="${week.index}"><span>Total produzido</span><strong>${totalProduzido.toLocaleString("pt-BR")}</strong></div>
-                <div class="total-box todo" data-card-action="todo" data-week-index="${week.index}"><span>Total a produzir</span><strong>${totalTodo.toLocaleString("pt-BR")}</strong></div>
+                <div class="total-box todo" data-card-action="todo" data-week-index="${week.index}"><span>Falta produzir</span><strong>${totalTodo.toLocaleString("pt-BR")}</strong></div>
               </div>
               <div class="week-body">
                 ${renderWeekTable(weekDocs)}
@@ -368,8 +368,8 @@
         });
 
         const allVisible = baseDocs.filter(t=>weeks.some(w=>w.cutDates.includes(toISODateOnly(t.dataCorte))));
-        pageSubtitle.textContent = `Programação de ${formatDate(weeks[0].weekStart)} até ${formatDate(weeks[3].weekEnd)} • ${atelierText}`;
-        statusLine.textContent = `${allVisible.length.toLocaleString("pt-BR")} talões encontrados • ${sumTotal(allVisible).toLocaleString("pt-BR")} pares programados.`;
+
+        
       }
 
       async function loadProgramacao(){
@@ -378,7 +378,7 @@
         const start = weeks[0].cutDates[0];
         const end = weeks[3].cutDates[1];
         cardsGrid.innerHTML = '<div class="empty-message">Carregando programação...</div>';
-        statusLine.textContent = "Buscando talões programados...";
+        statusLine.textContent = "";
         try{
           const cutDates = weeks.flatMap(w => w.cutDates);
           const snap = await db.collection("taloes").where("dataCorte", "in", cutDates).get();
