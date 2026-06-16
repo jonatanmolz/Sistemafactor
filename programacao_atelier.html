@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css">
+  <title>Programação Ateliê - SistemaTaloes</title>
+  <style>
+    :root {
+      --bg:#f3f4f6; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#d7dde7;
+      --primary:#2563eb; --primary-2:#1d4ed8; --danger:#ef4444; --green:#16a34a;
+      --yellow-soft:#fff6cc; --blue-soft:#dfeaf7; --green-soft:#e2f3e8; --shadow:0 6px 18px rgba(15,23,42,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+    .main-content{width:min(1760px,calc(100vw - 24px));margin:0 auto;padding:12px 0 28px}
+    .filters-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);margin-bottom:10px;display:flex;flex-wrap:wrap;align-items:end;gap:10px}
+    .form-group{display:flex;flex-direction:column;gap:5px;min-width:180px}.form-group.small{min-width:145px}
+    label{color:#334155;font-size:12px;font-weight:900} input,select{border:1px solid #cfd6e3;border-radius:10px;padding:10px 12px;font-size:14px;background:#fff;min-height:42px}
+    .btn{border:0;border-radius:10px;padding:11px 16px;min-height:42px;cursor:pointer;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+    .btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-2)}.btn-secondary{background:#e5e7eb;color:#111827}.btn-secondary:hover{background:#d1d5db}
+    .status-line{color:var(--muted);font-size:13px;margin:6px 4px 12px;min-height:18px}
+    .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:8px 0 12px}.page-head h1{font-size:24px;margin:0;color:#111827}.page-head p{margin:4px 0 0;color:#64748b;font-weight:800;font-size:13px}
+    .cards-grid{display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:12px;align-items:start}
+    .week-card{background:#fff;border:1px solid #cad4df;border-radius:16px;box-shadow:var(--shadow);overflow:hidden;min-height:520px;display:flex;flex-direction:column}
+    .week-card.current{border-color:#9fbbe4;box-shadow:0 8px 24px rgba(37,99,235,.13)}
+    .week-head{background:var(--blue-soft);border-bottom:1px solid #cbd5e1;padding:12px 14px}.week-card.current .week-head{background:#dbeafe}
+    .week-title{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.week-title h2{margin:0;font-size:18px;color:#0f172a;line-height:1.1}.week-title span{font-size:12px;color:#475569;font-weight:900;white-space:nowrap;background:#fff;border:1px solid #cbd5e1;border-radius:999px;padding:5px 9px}
+    .week-subtitle{margin:6px 0 0;font-size:13px;color:#475569;font-weight:800}.totals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 14px;border-bottom:1px solid #e5e7eb;background:#f8fafc}
+    .total-box{border:1px solid #d7dde7;border-radius:12px;padding:8px 9px;background:#fff;cursor:pointer;transition:.15s}.total-box:hover{transform:translateY(-1px);box-shadow:0 4px 10px rgba(15,23,42,.10)}.total-box strong{display:block;font-size:18px;color:#0f172a}.total-box span{font-size:10px;color:#64748b;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+    .total-box.produced{background:var(--green-soft);border-color:#b8d9c5}.total-box.todo{background:var(--yellow-soft);border-color:#eadb94}
+    .week-body{padding:12px 12px 14px;overflow:auto;flex:1}.cut-block{border:1px solid #d7dde7;border-radius:13px;overflow:hidden;margin-bottom:12px;background:#fff}.cut-block:last-child{margin-bottom:0}
+    .cut-title{background:#f1f5f9;padding:9px 10px;border-bottom:1px solid #d7dde7;font-size:14px;font-weight:900;color:#1e3a5f;display:flex;justify-content:space-between;gap:8px}.cut-title small{font-size:12px;color:#64748b;font-weight:900}
+    table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px solid #e5e7eb;padding:7px 6px;text-align:left;white-space:nowrap}th{background:#e5e7eb;color:#1e293b;text-transform:uppercase;font-size:10px;font-weight:900}td strong{color:#0f172a}.num{text-align:right}.empty-message{padding:12px 10px;border-radius:12px;background:rgba(255,255,255,.75);color:var(--muted);font-style:italic;font-size:12px;border:1px dashed #cbd5e1}
+    .hide{display:none!important}.badge{font-size:11px;font-weight:900;border-radius:999px;padding:4px 8px;background:#fff;color:#1e3a5f;border:1px solid #cbd5e1}
+
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.48);z-index:80;padding:18px;align-items:center;justify-content:center}
+    .modal-overlay.show{display:flex}.modal-content{width:min(1180px,96vw);max-height:88vh;background:#fff;border-radius:16px;box-shadow:0 18px 45px rgba(15,23,42,.25);overflow:hidden;display:flex;flex-direction:column;border:1px solid #cbd5e1}.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid #e5e7eb;background:#f8fafc}.modal-head h3{margin:0;font-size:17px;color:#111827}.modal-close{border:0;background:#e5e7eb;color:#111827;border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer}.modal-summary{padding:10px 16px;color:#475569;font-size:13px;border-bottom:1px solid #eef2f7}.modal-options{padding:10px 16px;border-bottom:1px solid #eef2f7;background:#fff;display:flex;gap:26px;align-items:center;flex-wrap:wrap}.modal-checkbox{display:inline-flex;align-items:center;gap:8px;color:#334155;font-size:13px;font-weight:900;cursor:pointer;user-select:none}.modal-checkbox input{width:16px;height:16px;min-height:0;padding:0;cursor:pointer}.modal-table-wrap{overflow:auto}.modal-table{width:100%;min-width:1080px;border-collapse:collapse;font-size:13px}.modal-table th,.modal-table td{border-bottom:1px solid #e5e7eb;padding:9px 10px;text-align:left;white-space:nowrap}.modal-table th{position:sticky;top:0;background:#f8fafc;color:#334155;z-index:1;text-transform:uppercase;font-size:11px}.modal-table tr:hover td{background:#f8fafc}.missing-x{color:#dc2626;font-weight:900;font-size:18px;line-height:1}.status-pill{display:inline-block;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:900;background:#e5e7eb;color:#111827}
+
+    /* Cores dos 4 cards principais da esquerda para direita */
+    .cards-grid .week-card:nth-child(1){border-color:#e5b8b8;background:#fffafa}
+    .cards-grid .week-card:nth-child(1) .week-head{background:#f6dddd;border-bottom-color:#e5b8b8}
+
+    .cards-grid .week-card:nth-child(2){border-color:#eadb94;background:#fffdf2}
+    .cards-grid .week-card:nth-child(2) .week-head{background:#fff6cc;border-bottom-color:#eadb94}
+
+    .cards-grid .week-card:nth-child(3){border-color:#b8d9c5;background:#fbfffc}
+    .cards-grid .week-card:nth-child(3) .week-head{background:#e2f3e8;border-bottom-color:#b8d9c5}
+
+    .cards-grid .week-card:nth-child(4){border-color:#b8cbe0;background:#fbfdff}
+    .cards-grid .week-card:nth-child(4) .week-head{background:#dfeaf7;border-bottom-color:#b8cbe0}
+
+    .cards-grid .week-card.current{box-shadow:0 8px 24px rgba(37,99,235,.13)}
+
+    @media(max-width:1450px){.cards-grid{grid-template-columns:repeat(2,minmax(280px,1fr))}}@media(max-width:760px){.main-content{width:calc(100vw - 16px);padding:8px 0 18px}.cards-grid{grid-template-columns:1fr}.page-head{flex-direction:column}.filters-card{padding:10px}.form-group{flex:1 1 160px}.btn{flex:1 1 150px}.week-card{min-height:auto}}
+  </style>
+</head>
+<body>
+  <main class="main-content">
+    <section class="filters-card hide" id="filtersCard">
+      <div class="form-group" id="atelieFilterGroup">
+        <label for="filterAtelie">Ateliê:</label>
+        <select id="filterAtelie"><option value="">Todos os ateliês</option></select>
+      </div>
+    </section>
+
+    <div class="status-line" id="statusLine">Carregando programação...</div>
+
+    <div class="page-head">
+      <div>
+        <h1>Programação por Ateliê</h1>
+        <p id="pageSubtitle">Mostrando 4 semanas com duas datas de corte por semana.</p>
+      </div>
+    </div>
+
+    <section class="cards-grid" id="cardsGrid"></section>
+  </main>
+
+
+
+  <div class="modal-overlay" id="listModal">
+    <div class="modal-content">
+      <div class="modal-head">
+        <h3 id="listModalTitle">Listagem</h3>
+        <button class="modal-close" id="closeListModalButton" type="button">Fechar</button>
+      </div>
+      <div class="modal-summary" id="listModalSummary">Carregando...</div>
+      <div class="modal-options">
+        <label class="modal-checkbox" for="removeProducedCheckbox">
+          <input type="checkbox" id="removeProducedCheckbox" />
+          Remover talões já produzidos
+        </label>
+        <label class="modal-checkbox" for="onlyNoEntryCheckbox">
+          <input type="checkbox" id="onlyNoEntryCheckbox" />
+          Listar somente sem entrada
+        </label>
+      </div>
+      <div class="modal-table-wrap">
+        <table class="modal-table">
+          <thead>
+            <tr>
+              <th>Remessa</th>
+              <th>Talão</th>
+              <th>Data de corte</th>
+              <th>Linha/Modelo</th>
+              <th>Cor</th>
+              <th>Pares</th>
+              <th>Ateliê</th>
+              <th>Entrada Costura</th>
+              <th>Saída Costura</th>
+              <th>Entrada Fábrica</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="listModalBody"><tr><td colspan="11">Nenhum talão encontrado.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="navegacao.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    (function(){
+      const firebaseConfig = {
+        apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+        authDomain: "sistemataloes.firebaseapp.com",
+        projectId: "sistemataloes",
+        storageBucket: "sistemataloes.appspot.com",
+        messagingSenderId: "684534379685",
+        appId: "default-app-id"
+      };
+      try { if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); } catch(e){ console.error(e); }
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+
+      const filtersCard = document.getElementById("filtersCard");
+      const filterAtelie = document.getElementById("filterAtelie");
+      const atelieFilterGroup = document.getElementById("atelieFilterGroup");
+      const statusLine = document.getElementById("statusLine");
+      const cardsGrid = document.getElementById("cardsGrid");
+      const pageSubtitle = document.getElementById("pageSubtitle");
+      const listModal = document.getElementById("listModal");
+      const listModalTitle = document.getElementById("listModalTitle");
+      const listModalSummary = document.getElementById("listModalSummary");
+      const listModalBody = document.getElementById("listModalBody");
+      const removeProducedCheckbox = document.getElementById("removeProducedCheckbox");
+      const onlyNoEntryCheckbox = document.getElementById("onlyNoEntryCheckbox");
+      const closeListModalButton = document.getElementById("closeListModalButton");
+
+      let currentUserName = "";
+      let currentUserLevel = "";
+      let allDocs = [];
+
+      function localDateToISO(dateObj){ const y=dateObj.getFullYear(); const m=String(dateObj.getMonth()+1).padStart(2,"0"); const d=String(dateObj.getDate()).padStart(2,"0"); return `${y}-${m}-${d}`; }
+      function todayISO(){ return localDateToISO(new Date()); }
+      function dateFromISO(iso){ const [y,m,d]=String(iso||"").split("-").map(Number); return new Date(y,(m||1)-1,d||1); }
+      function addDaysISO(iso,days){ const dt=dateFromISO(iso); dt.setDate(dt.getDate()+days); return localDateToISO(dt); }
+      function toISODateOnly(value){ if(!value) return ""; if(typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value; if(value && typeof value.toDate === "function") return localDateToISO(value.toDate()); const dt=new Date(value); return Number.isNaN(dt.getTime()) ? "" : localDateToISO(dt); }
+      function formatDate(iso){ const clean=toISODateOnly(iso); if(!clean) return ""; const [y,m,d]=clean.split("-"); return `${d}/${m}/${y}`; }
+      function formatShort(iso){ const clean=toISODateOnly(iso); if(!clean) return ""; const [,m,d]=clean.split("-"); return `${d}-${m}`; }
+      function escapeHTML(value){ return String(value ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
+      function normalizePares(value){ const n=Number(value); return Number.isFinite(n) ? n : 0; }
+      function hasFilledDate(value){ return value !== undefined && value !== null && String(value).trim() !== ""; }
+      function normalizeTipoCliente(tipo){ const v=String(tipo||"").trim().toLowerCase(); if(["amostra","amostras"].includes(v)) return "Amostra"; return String(tipo||"").trim(); }
+      function isAmostra(t){ return normalizeTipoCliente(t.tipoCliente) === "Amostra"; }
+      function getModelKey(t){ const linha=String(t.linha||"").trim(); const modelo=String(t.modelo||"").trim(); if(modelo && modelo.includes(".")) return modelo; if(linha && modelo) return `${linha}.${modelo}`; return modelo || linha || "Sem modelo"; }
+      function getColorKey(t){ return String(t.corSapato || t.cor || "").trim(); }
+      function sumTotal(taloes){ return taloes.reduce((acc,t)=>acc+normalizePares(t.pares),0); }
+      function compareTextNumeric(a,b){ return String(a||"").localeCompare(String(b||""),"pt-BR",{numeric:true}); }
+
+      function getMonday(iso){ const d=dateFromISO(iso); const day=d.getDay(); const diff=day===0 ? 6 : day-1; d.setDate(d.getDate()-diff); return localDateToISO(d); }
+      function getWeeks(baseIso){
+        const monday = getMonday(baseIso);
+        const firstMonday = addDaysISO(monday, -14);
+        return [0,1,2,3].map((i)=>{
+          const weekStart = addDaysISO(firstMonday, i*7);
+          const weekEnd = addDaysISO(weekStart, 4);
+          const corte1 = weekStart;
+          const corte2 = addDaysISO(weekStart, 3);
+          return { index:i+1, weekStart, weekEnd, cutDates:[corte1,corte2], isCurrent: weekStart === monday };
+        });
+      }
+
+      function getSelectedAtelie(){
+        if (["05","07","01"].includes(String(currentUserLevel))) return filterAtelie.value || "";
+        return currentUserName;
+      }
+
+      async function loadAtelies(){
+        filterAtelie.innerHTML = '<option value="">Todos os ateliês</option>';
+        if (!["05","07","01"].includes(String(currentUserLevel))) {
+          filtersCard.classList.add("hide");
+          atelieFilterGroup.classList.add("hide");
+          return;
+        }
+        filtersCard.classList.remove("hide");
+        atelieFilterGroup.classList.remove("hide");
+        try{
+          const snap = await db.collection("Usuario").where("nivelAcesso","==","03").get();
+          const names = snap.docs.map(d=>d.data().Nome).filter(Boolean).sort((a,b)=>a.localeCompare(b,"pt-BR"));
+          names.forEach(name=>{ const opt=document.createElement("option"); opt.value=name; opt.textContent=name; filterAtelie.appendChild(opt); });
+        }catch(error){ console.error("Erro ao carregar ateliês:", error); }
+      }
+
+      function groupByModel(taloes){
+        const map = new Map();
+        taloes.forEach((t)=>{
+          const model = getModelKey(t);
+          if(!map.has(model)) map.set(model, { model, programado:0, produzido:0, falta:0 });
+          const item = map.get(model);
+          const pares = normalizePares(t.pares);
+          item.programado += pares;
+          if (hasFilledDate(t.dataSaidaCostura)) item.produzido += pares;
+          else item.falta += pares;
+        });
+        return Array.from(map.values()).sort((a,b)=>compareTextNumeric(a.model,b.model));
+      }
+
+      function getStatusText(talao){
+        if (!hasFilledDate(talao.costuraDataInicio)) return "Sem entrada no ateliê";
+        if (hasFilledDate(talao.dataEntradaDistribuicao)) return "Entregue na fábrica";
+        if (hasFilledDate(talao.dataSaidaCostura)) return "Produzido sem bipar fábrica";
+        return "Em aberto";
+      }
+
+      function renderEntradaCostura(talao){
+        return hasFilledDate(talao.costuraDataInicio) ? formatDate(talao.costuraDataInicio) : '<span class="missing-x">X</span>';
+      }
+
+      function sortTaloes(taloes){
+        return [...taloes].sort((a,b)=>{
+          const corteCompare = compareTextNumeric(toISODateOnly(a.dataCorte), toISODateOnly(b.dataCorte));
+          if(corteCompare !== 0) return corteCompare;
+          const modelCompare = compareTextNumeric(getModelKey(a), getModelKey(b));
+          if(modelCompare !== 0) return modelCompare;
+          const remessaCompare = compareTextNumeric(a.numeroRemessa, b.numeroRemessa);
+          if(remessaCompare !== 0) return remessaCompare;
+          return compareTextNumeric(a.numeroTalaoSequencial, b.numeroTalaoSequencial);
+        });
+      }
+
+      let currentModalTitle = "";
+      let currentModalTaloes = [];
+
+      function getModalVisibleTaloes(){
+        let list = Array.isArray(currentModalTaloes) ? [...currentModalTaloes] : [];
+        if (removeProducedCheckbox && removeProducedCheckbox.checked) {
+          list = list.filter((talao) => !hasFilledDate(talao.dataSaidaCostura));
+        }
+        if (onlyNoEntryCheckbox && onlyNoEntryCheckbox.checked) {
+          list = list.filter((talao) => !hasFilledDate(talao.costuraDataInicio));
+        }
+        return sortTaloes(list);
+      }
+
+      function renderListModalContent(){
+        const list = getModalVisibleTaloes();
+        const removedCount = currentModalTaloes.length - list.length;
+        listModalTitle.textContent = currentModalTitle || "Listagem";
+        listModalSummary.textContent = `${list.length.toLocaleString("pt-BR")} talões exibidos • ${sumTotal(list).toLocaleString("pt-BR")} pares${removedCount > 0 ? ` • ${removedCount.toLocaleString("pt-BR")} talões ocultados pelos filtros` : ""}`;
+        if(!list.length){
+          listModalBody.innerHTML = '<tr><td colspan="11">Nenhum talão encontrado.</td></tr>';
+        } else {
+          listModalBody.innerHTML = list.map((talao)=>`
+            <tr>
+              <td>${escapeHTML(talao.numeroRemessa || "")}</td>
+              <td>${escapeHTML(talao.numeroTalaoSequencial || "")}</td>
+              <td>${formatDate(talao.dataCorte)}</td>
+              <td><strong>${escapeHTML(getModelKey(talao))}</strong></td>
+              <td>${escapeHTML(getColorKey(talao))}</td>
+              <td><strong>${normalizePares(talao.pares).toLocaleString("pt-BR")}</strong></td>
+              <td>${escapeHTML(talao.idAtelieResponsavel || "")}</td>
+              <td>${renderEntradaCostura(talao)}</td>
+              <td>${formatDate(talao.dataSaidaCostura)}</td>
+              <td>${formatDate(talao.dataEntradaDistribuicao)}</td>
+              <td><span class="status-pill">${escapeHTML(getStatusText(talao))}</span></td>
+            </tr>
+          `).join("");
+        }
+      }
+
+      function openListModal(title, taloes){
+        currentModalTitle = title || "Listagem";
+        currentModalTaloes = Array.isArray(taloes) ? [...taloes] : [];
+        if (removeProducedCheckbox) removeProducedCheckbox.checked = false;
+        if (onlyNoEntryCheckbox) onlyNoEntryCheckbox.checked = false;
+        renderListModalContent();
+        listModal.classList.add("show");
+      }
+
+      function closeListModal(){ listModal.classList.remove("show"); }
+
+      function renderWeekTable(docs){
+        const rows = groupByModel(docs);
+        if (!rows.length) {
+          return `<div style="padding:10px"><div class="empty-message">Nenhum talão programado.</div></div>`;
+        }
+        const bodyRows = rows.map((r)=>`
+          <tr>
+            <td><strong>${escapeHTML(r.model)}</strong></td>
+            <td class="num">${r.programado.toLocaleString("pt-BR")}</td>
+            <td class="num">${r.produzido.toLocaleString("pt-BR")}</td>
+            <td class="num">${r.falta.toLocaleString("pt-BR")}</td>
+          </tr>
+        `).join("");
+        return `
+          <section class="cut-block">
+            <table>
+              <thead><tr><th>Modelo</th><th class="num">Programado</th><th class="num">Produzido</th><th class="num">Falta produzir</th></tr></thead>
+              <tbody>${bodyRows}</tbody>
+            </table>
+          </section>
+        `;
+      }
+
+      function renderCards(){
+        const baseIso = todayISO();
+        const weeks = getWeeks(baseIso);
+        const selectedAtelie = getSelectedAtelie();
+        const baseDocs = allDocs.filter(t=>!isAmostra(t)).filter(t => !selectedAtelie || String(t.idAtelieResponsavel || "") === selectedAtelie);
+        const atelierText = selectedAtelie || "Todos os ateliês";
+
+        cardsGrid.innerHTML = weeks.map((week)=>{
+          const weekDocs = baseDocs.filter(t=>week.cutDates.includes(toISODateOnly(t.dataCorte)));
+          const producedDocs = weekDocs.filter(t=>hasFilledDate(t.dataSaidaCostura));
+          const todoDocs = weekDocs.filter(t=>!hasFilledDate(t.dataSaidaCostura));
+          const totalProgramado = sumTotal(weekDocs);
+          const totalProduzido = sumTotal(producedDocs);
+          const totalTodo = sumTotal(todoDocs);
+          return `
+            <article class="week-card ${week.isCurrent ? "current" : ""}">
+              <header class="week-head">
+                <div class="week-title">
+                  <h2>${formatShort(week.cutDates[0])} e ${formatShort(week.cutDates[1])}</h2>
+                  <span>${week.isCurrent ? "Semana 3" : `Semana ${week.index}`}</span>
+                </div>
+                <div class="week-subtitle">${formatShort(week.weekStart)} a ${formatShort(week.weekEnd)} • ${escapeHTML(atelierText)}</div>
+              </header>
+              <div class="totals">
+                <div class="total-box" data-card-action="programado" data-week-index="${week.index}"><span>Total programado</span><strong>${totalProgramado.toLocaleString("pt-BR")}</strong></div>
+                <div class="total-box produced" data-card-action="produzido" data-week-index="${week.index}"><span>Total produzido</span><strong>${totalProduzido.toLocaleString("pt-BR")}</strong></div>
+                <div class="total-box todo" data-card-action="todo" data-week-index="${week.index}"><span>Total a produzir</span><strong>${totalTodo.toLocaleString("pt-BR")}</strong></div>
+              </div>
+              <div class="week-body">
+                ${renderWeekTable(weekDocs)}
+              </div>
+            </article>
+          `;
+        }).join("");
+
+        cardsGrid.querySelectorAll("[data-card-action]").forEach((el)=>{
+          el.addEventListener("click", ()=>{
+            const weekIndex = Number(el.dataset.weekIndex);
+            const action = el.dataset.cardAction;
+            const week = weeks.find(w=>w.index === weekIndex);
+            if(!week) return;
+            const weekDocs = baseDocs.filter(t=>week.cutDates.includes(toISODateOnly(t.dataCorte)));
+            let list = weekDocs;
+            let label = "Total programado";
+            if(action === "produzido") { list = weekDocs.filter(t=>hasFilledDate(t.dataSaidaCostura)); label = "Total produzido"; }
+            if(action === "todo") { list = weekDocs.filter(t=>!hasFilledDate(t.dataSaidaCostura)); label = "Total a produzir"; }
+            openListModal(`${label} - Cortes ${formatShort(week.cutDates[0])} e ${formatShort(week.cutDates[1])}`, list);
+          });
+        });
+
+        const allVisible = baseDocs.filter(t=>weeks.some(w=>w.cutDates.includes(toISODateOnly(t.dataCorte))));
+        pageSubtitle.textContent = `Programação de ${formatDate(weeks[0].weekStart)} até ${formatDate(weeks[3].weekEnd)} • ${atelierText}`;
+        statusLine.textContent = `${allVisible.length.toLocaleString("pt-BR")} talões encontrados • ${sumTotal(allVisible).toLocaleString("pt-BR")} pares programados.`;
+      }
+
+      async function loadProgramacao(){
+        const baseIso = todayISO();
+        const weeks = getWeeks(baseIso);
+        const start = weeks[0].cutDates[0];
+        const end = weeks[3].cutDates[1];
+        cardsGrid.innerHTML = '<div class="empty-message">Carregando programação...</div>';
+        statusLine.textContent = "Buscando talões programados...";
+        try{
+          const cutDates = weeks.flatMap(w => w.cutDates);
+          const snap = await db.collection("taloes").where("dataCorte", "in", cutDates).get();
+          allDocs = snap.docs.map(doc=>({ id:doc.id, ...doc.data() }));
+          renderCards();
+        }catch(error){
+          console.error("Erro ao carregar programação:", error);
+          statusLine.textContent = "Erro ao carregar programação. Verifique o console e os índices do Firebase.";
+          cardsGrid.innerHTML = '<div class="empty-message">Erro ao carregar programação.</div>';
+        }
+      }
+
+      filterAtelie.addEventListener("change", renderCards);
+      if (removeProducedCheckbox) removeProducedCheckbox.addEventListener("change", renderListModalContent);
+      if (onlyNoEntryCheckbox) onlyNoEntryCheckbox.addEventListener("change", renderListModalContent);
+      closeListModalButton.addEventListener("click", closeListModal);
+      listModal.addEventListener("click", (event)=>{ if(event.target === listModal) closeListModal(); });
+
+      auth.onAuthStateChanged(async (user)=>{
+        try{
+          if(!user){ window.location.href="login.html"; return; }
+          const email = user.email || "";
+          const userSnap = await db.collection("Usuario").doc(email).get();
+          if(!userSnap.exists){ alert("Dados do usuário não encontrados. Faça login novamente."); await auth.signOut(); window.location.href="login.html"; return; }
+          const userData = userSnap.data() || {};
+          currentUserName = userData.Nome || "";
+          currentUserLevel = userData.nivelAcesso || "";
+          const niveisPermitidos = ["01","03","05","07"];
+          if(!niveisPermitidos.includes(String(currentUserLevel))){ alert("Você não tem permissão para acessar esta página."); window.location.href="index.html"; return; }
+          localStorage.setItem("userNivelAcesso", currentUserLevel);
+          localStorage.setItem("userName", currentUserName);
+          if(window.SistemaNavegacao){
+            window.SistemaNavegacao.init({
+              userLevel: currentUserLevel,
+              userName: currentUserName,
+              title: "Programação Ateliê",
+              onLogout: async()=>{ try{ await auth.signOut(); } finally { localStorage.removeItem("userNivelAcesso"); localStorage.removeItem("userName"); window.location.href="login.html"; } }
+            });
+          }
+          await loadAtelies();
+          await loadProgramacao();
+        }catch(error){ console.error("Erro ao iniciar página:", error); statusLine.textContent="Erro ao iniciar página."; }
+      });
+    })();
+  </script>
+</body>
+</html>
