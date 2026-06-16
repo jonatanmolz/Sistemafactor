@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Relatório Ateliê - SistemaTaloes</title>
+  
+  <link rel="stylesheet" href="styles.css">
+<title>Relatório Ateliê - SistemaTaloes</title>
   <script src="navegacao.js"></script>
   <style>
     :root {
@@ -206,6 +208,19 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+
+    .mini-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .11);
+      border-color: #93c5fd;
+    }
+
+    .mini-card:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, .18), 0 10px 24px rgba(15, 23, 42, .11);
     }
 
     .mini-card h3 {
@@ -230,7 +245,7 @@
     .mini-card.total { background: var(--blue-soft); border-color: #b8cbe0; }
     .mini-card.produced { background: var(--green-soft); border-color: #b8d9c5; }
     .mini-card.todo { background: var(--yellow-soft); border-color: #eadb94; }
-    .mini-card.models { background: var(--gray-soft); border-color: #cbd5e1; }
+    .mini-card.models, .mini-card.unbipped { background: var(--gray-soft); border-color: #cbd5e1; }
 
     .model-sections-grid {
       display: grid;
@@ -416,6 +431,50 @@
     .modal-body {
       padding: 16px 18px;
       overflow: auto;
+    }
+
+    .modal-subtitle {
+      margin: 4px 0 0;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .detail-modal-content {
+      width: min(1280px, 98vw);
+    }
+
+    .detail-summary-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .detail-summary-pill {
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      background: #f8fafc;
+      padding: 8px 12px;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .detail-table-wrap {
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      overflow: auto;
+      max-height: 62vh;
+    }
+
+    .detail-table {
+      min-width: 1240px;
+    }
+
+    .detail-table th, .detail-table td {
+      font-size: 12px;
+      padding: 8px;
     }
 
     .type-breakdown-panel {
@@ -778,21 +837,21 @@
       </div>
 
       <div class="mini-cards">
-        <article class="mini-card total">
+        <article class="mini-card total" data-detail="total" role="button" tabindex="0" title="Clique para ver a lista de talões">
           <h3>Total de pares filtrados</h3>
           <div><strong id="totalPares">0</strong><span>pares</span></div>
         </article>
-        <article class="mini-card produced">
+        <article class="mini-card produced" data-detail="produced" role="button" tabindex="0" title="Clique para ver a lista de talões">
           <h3>Pares já produzidos</h3>
           <div><strong id="producedPares">0</strong><span>pares</span></div>
         </article>
-        <article class="mini-card todo">
+        <article class="mini-card todo" data-detail="todo" role="button" tabindex="0" title="Clique para ver a lista de talões">
           <h3>Pares que faltam produzir</h3>
           <div><strong id="todoPares">0</strong><span>pares</span></div>
         </article>
-        <article class="mini-card models">
-          <h3>Modelos encontrados</h3>
-          <div><strong id="modelsCount">0</strong><span>modelos</span></div>
+        <article class="mini-card unbipped" data-detail="unbipped" role="button" tabindex="0" title="Clique para ver a lista de talões">
+          <h3>Pares não bipados na fábrica</h3>
+          <div><strong id="unbippedPares">0</strong><span>pares</span></div>
         </article>
       </div>
 
@@ -845,6 +904,42 @@
       <div class="modal-body">
         <div id="atelierSummaryCard" class="summary-cards-container">
           <p class="empty-message">Nenhum dado disponível para o ateliê.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cardDetailModal" class="modal-overlay">
+    <div class="modal-content detail-modal-content">
+      <div class="modal-header">
+        <div>
+          <h3 id="cardDetailTitle">Lista de talões</h3>
+          <p id="cardDetailSubtitle" class="modal-subtitle"></p>
+        </div>
+        <span class="close-button" id="closeCardDetailModalButton">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div id="cardDetailTotals" class="detail-summary-bar"></div>
+        <div class="detail-table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>Data Corte</th>
+                <th>Data Entrega</th>
+                <th>Remessa</th>
+                <th>Talão</th>
+                <th>Linha</th>
+                <th>Modelo</th>
+                <th>Cor Sapato</th>
+                <th>Tipo Cliente</th>
+                <th>Pares</th>
+                <th>Status Costura</th>
+                <th>Saída Costura</th>
+                <th>Entrada Distribuição</th>
+              </tr>
+            </thead>
+            <tbody id="cardDetailTableBody"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -990,7 +1085,7 @@
     const totalPares = document.getElementById("totalPares");
     const producedPares = document.getElementById("producedPares");
     const todoPares = document.getElementById("todoPares");
-    const modelsCount = document.getElementById("modelsCount");
+    const unbippedPares = document.getElementById("unbippedPares");
     const producedModelsList = document.getElementById("producedModelsList");
     const todoModelsList = document.getElementById("todoModelsList");
     const typeBreakdownList = document.getElementById("typeBreakdownList");
@@ -998,6 +1093,12 @@
     const summaryModal = document.getElementById("summaryModal");
     const closeModalButton = document.getElementById("closeModalButton");
     const atelierSummaryCard = document.getElementById("atelierSummaryCard");
+    const cardDetailModal = document.getElementById("cardDetailModal");
+    const closeCardDetailModalButton = document.getElementById("closeCardDetailModalButton");
+    const cardDetailTitle = document.getElementById("cardDetailTitle");
+    const cardDetailSubtitle = document.getElementById("cardDetailSubtitle");
+    const cardDetailTotals = document.getElementById("cardDetailTotals");
+    const cardDetailTableBody = document.getElementById("cardDetailTableBody");
     const quickModal = document.getElementById("quickModal");
     const closeQuickModalButton = document.getElementById("closeQuickModalButton");
     const dateModal = document.getElementById("dateModal");
@@ -1172,6 +1273,16 @@
       return !hasFilledDate(talao.dataSaidaCostura);
     }
 
+    function getDataEntradaDistribuicao(talao) {
+      return talao.dataEntradaDistribuicao || talao.entradaDistribuicao || talao.dataEntradaFabrica || "";
+    }
+
+    function isNotBippedInFactory(talao) {
+      // Considera como "não bipado na fábrica" o talão que já saiu da costura,
+      // mas ainda não possui data de entrada na distribuição/fábrica.
+      return hasFilledDate(talao.dataSaidaCostura) && !hasFilledDate(getDataEntradaDistribuicao(talao));
+    }
+
     function getModelKey(talao) {
       const linha = talao.linha ? String(talao.linha).trim() : "";
       const modelo = talao.modelo ? String(talao.modelo).trim() : "";
@@ -1333,26 +1444,73 @@
     }
 
     function listenToTaloes() {
-      loading.style.display = "block";
-      statusLine.textContent = "Carregando talões...";
-      if (unsubscribeTaloes) unsubscribeTaloes();
+      // Carga otimizada: não escuta mais todos os talões do banco na abertura.
+      // A busca é feita sob demanda a partir dos filtros selecionados.
+      allTaloes = [];
+      loading.style.display = "none";
+      statusLine.textContent = "Selecione um filtro rápido, data, remessa, talão ou ateliê para gerar o relatório.";
+    }
 
-      let q;
+    function buildQueryFromCurrentFilters() {
+      const selectedAtelie = filterAtelie.value;
+      const remessa = filterRemessa.value.trim();
+      const talao = filterTalao.value.trim();
+
+      let conditions = [];
+
       if (currentUserLevel === "03") {
-        q = query(collection(db, "taloes"), where("idAtelieResponsavel", "==", currentUserName));
-      } else {
-        q = query(collection(db, "taloes"));
+        conditions.push(where("idAtelieResponsavel", "==", currentUserName));
+        return query(collection(db, "taloes"), ...conditions);
       }
 
-      unsubscribeTaloes = onSnapshot(q, (snapshot) => {
-        allTaloes = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
-        loading.style.display = "none";
-        statusLine.textContent = `${allTaloes.length.toLocaleString("pt-BR")} talões carregados.`;
-      }, (error) => {
-        console.error("Erro ao carregar talões:", error);
-        loading.style.display = "none";
-        statusLine.textContent = "Erro ao carregar talões.";
-      });
+      if (quickFilterMode === "exportMonday" || quickFilterMode === "exportThursday") {
+        const targetDay = quickFilterMode === "exportMonday" ? 1 : 4;
+        conditions.push(where("dataEntrega", "==", getUpcomingWeekday(targetDay, todayISO())));
+      } else if (quickFilterMode === "deliveryWeek") {
+        const week = getWeekRange(todayISO());
+        conditions.push(where("dataEntrega", ">=", week.start), where("dataEntrega", "<=", week.end));
+      } else if (quickFilterMode === "weekDelayed" || quickFilterMode === "exportDelayed") {
+        const week = getWeekRange(todayISO());
+        conditions.push(where("dataEntrega", "<", quickFilterMode === "exportDelayed" ? addDaysISO(todayISO(), 1) : week.start));
+      } else if (quickFilterMode === "cutDelivery") {
+        const cutRange = getCutDeliveryRange(todayISO());
+        conditions.push(where("dataCorte", ">=", cutRange.start), where("dataCorte", "<=", cutRange.end));
+      } else if (quickFilterMode === "cutDelayed") {
+        const cutRange = getCutDeliveryRange(todayISO());
+        conditions.push(where("dataCorte", "<", cutRange.start));
+      } else if (filterDataCorte.value || filterDataCorteFim.value) {
+        const start = filterDataCorte.value || filterDataCorteFim.value;
+        const end = filterDataCorteFim.value || filterDataCorte.value;
+        conditions.push(where("dataCorte", ">=", start), where("dataCorte", "<=", end));
+      } else if (filterDataSaida.value || filterDataSaidaFim.value) {
+        const start = filterDataSaida.value || filterDataSaidaFim.value;
+        const end = filterDataSaidaFim.value || filterDataSaida.value;
+        conditions.push(where("dataSaidaCostura", ">=", start), where("dataSaidaCostura", "<=", end));
+      } else if (filterDataEntrada.value) {
+        conditions.push(where("costuraDataInicio", "==", filterDataEntrada.value));
+      } else if (remessa) {
+        conditions.push(where("numeroRemessa", "==", remessa));
+      } else if (talao) {
+        conditions.push(where("numeroTalaoSequencial", "==", talao));
+      } else if (selectedAtelie) {
+        conditions.push(where("idAtelieResponsavel", "==", selectedAtelie));
+      } else if (filterTipoCliente.value) {
+        conditions.push(where("tipoCliente", "==", filterTipoCliente.value));
+      }
+
+      if (!conditions.length) return null;
+      return query(collection(db, "taloes"), ...conditions);
+    }
+
+    async function loadTaloesForCurrentFilters() {
+      const qRef = buildQueryFromCurrentFilters();
+      if (!qRef) {
+        allTaloes = [];
+        return [];
+      }
+      const snapshot = await getDocs(qRef);
+      allTaloes = snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
+      return [...allTaloes];
     }
 
     function updateRangeButton(button, startValue, endValue) {
@@ -1516,7 +1674,7 @@
       return true;
     }
 
-    function applyFilters() {
+    async function applyFilters() {
       loading.style.display = "block";
       noData.style.display = "none";
       reportContent.style.display = "none";
@@ -1530,7 +1688,25 @@
       const statusCostura = filterStatusCostura.value;
       const selectedAtelie = filterAtelie.value;
 
-      let currentFiltered = [...allTaloes];
+      let currentFiltered;
+      try {
+        currentFiltered = await loadTaloesForCurrentFilters();
+      } catch (error) {
+        console.error("Erro ao buscar talões:", error);
+        loading.style.display = "none";
+        noData.textContent = "Erro ao buscar talões. Verifique os filtros e índices do Firebase.";
+        noData.style.display = "block";
+        statusLine.textContent = "Erro ao buscar talões.";
+        return;
+      }
+
+      if (!currentFiltered.length && !buildQueryFromCurrentFilters()) {
+        loading.style.display = "none";
+        noData.textContent = "Escolha um filtro rápido, data, remessa, talão, tipo ou ateliê para iniciar a busca.";
+        noData.style.display = "block";
+        statusLine.textContent = "Aguardando filtros para evitar carregar todos os talões.";
+        return;
+      }
 
       if (quickFilterMode === "exportMonday" || quickFilterMode === "exportThursday") {
         const targetDay = quickFilterMode === "exportMonday" ? 1 : 4;
@@ -1621,16 +1797,17 @@
     function renderOverview(taloes) {
       const produced = taloes.filter((t) => hasFilledDate(t.dataSaidaCostura));
       const todo = taloes.filter((t) => !hasFilledDate(t.dataSaidaCostura));
+      const unbipped = taloes.filter(isNotBippedInFactory);
       const total = sumTotal(taloes);
       const producedTotal = sumTotal(produced);
       const todoTotal = sumTotal(todo);
-      const modelSet = new Set(taloes.map(getModelKey));
+      const unbippedTotal = sumTotal(unbipped);
 
       overviewSubtitle.textContent = `${taloes.length.toLocaleString("pt-BR")} talões encontrados • ${total.toLocaleString("pt-BR")} pares`;
       totalPares.textContent = total.toLocaleString("pt-BR");
       producedPares.textContent = producedTotal.toLocaleString("pt-BR");
       todoPares.textContent = todoTotal.toLocaleString("pt-BR");
-      modelsCount.textContent = modelSet.size.toLocaleString("pt-BR");
+      unbippedPares.textContent = unbippedTotal.toLocaleString("pt-BR");
 
       renderTypeBreakdown(taloes);
       renderModelList(producedModelsList, sumByModel(produced));
@@ -1663,6 +1840,83 @@
           </tr>
         `;
       }).join("");
+    }
+
+    function getSummaryCardData(type) {
+      const source = filteredTaloes || [];
+      const config = {
+        total: {
+          title: "Total de pares filtrados",
+          description: "Todos os talões do relatório atual",
+          taloes: source
+        },
+        produced: {
+          title: "Pares já produzidos",
+          description: "Talões com data de saída da costura preenchida",
+          taloes: source.filter((t) => hasFilledDate(t.dataSaidaCostura))
+        },
+        todo: {
+          title: "Pares que faltam produzir",
+          description: "Talões sem data de saída da costura",
+          taloes: source.filter((t) => !hasFilledDate(t.dataSaidaCostura))
+        },
+        unbipped: {
+          title: "Pares não bipados na fábrica",
+          description: "Talões já produzidos, mas sem entrada na distribuição/fábrica",
+          taloes: source.filter(isNotBippedInFactory)
+        }
+      };
+      return config[type] || config.total;
+    }
+
+    function renderCardDetailTable(taloes) {
+      if (!taloes.length) {
+        cardDetailTableBody.innerHTML = '<tr><td colspan="12" style="text-align:center;">Nenhum talão encontrado para este card.</td></tr>';
+        return;
+      }
+
+      cardDetailTableBody.innerHTML = sortTaloes(taloes).map((talao) => {
+        const rowColorClass = corTalaoMapping[talao.tipoCliente] || "";
+        const displayStatusCostura = getStatusCostura(talao);
+        return `
+          <tr class="${rowColorClass}">
+            <td>${formatDate(talao.dataCorte)}</td>
+            <td>${formatDate(talao.dataEntrega)}</td>
+            <td>${escapeHTML(talao.numeroRemessa || "")}</td>
+            <td>${escapeHTML(talao.numeroTalaoSequencial || "")}</td>
+            <td>${escapeHTML(talao.linha || "")}</td>
+            <td>${escapeHTML(talao.modelo || "")}</td>
+            <td>${escapeHTML(talao.corSapato || "")}</td>
+            <td>${escapeHTML(talao.tipoCliente || "")}</td>
+            <td><strong>${normalizePares(talao.pares).toLocaleString("pt-BR")}</strong></td>
+            <td><span class="status-badge ${getStatusClass(displayStatusCostura)}">${escapeHTML(displayStatusCostura)}</span></td>
+            <td>${formatDate(talao.dataSaidaCostura)}</td>
+            <td>${formatDate(getDataEntradaDistribuicao(talao))}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function openCardDetailModal(type) {
+      if (!filteredTaloes.length) return;
+      const cardData = getSummaryCardData(type);
+      const totalTaloes = cardData.taloes.length;
+      const totalPares = sumTotal(cardData.taloes);
+      const totalModelos = new Set(cardData.taloes.map(getModelKey)).size;
+
+      cardDetailTitle.textContent = cardData.title;
+      cardDetailSubtitle.textContent = cardData.description;
+      cardDetailTotals.innerHTML = `
+        <span class="detail-summary-pill">${totalTaloes.toLocaleString("pt-BR")} talões</span>
+        <span class="detail-summary-pill">${totalPares.toLocaleString("pt-BR")} pares</span>
+        <span class="detail-summary-pill">${totalModelos.toLocaleString("pt-BR")} modelos</span>
+      `;
+      renderCardDetailTable(cardData.taloes);
+      cardDetailModal.classList.add("show");
+    }
+
+    function closeCardDetailModal() {
+      cardDetailModal.classList.remove("show");
     }
 
     function updateAtelierSummaryCards() {
@@ -1727,6 +1981,7 @@
     reportButton.addEventListener("click", openModal);
     quickFiltersButton.addEventListener("click", openQuickModal);
     closeModalButton.addEventListener("click", closeModal);
+    closeCardDetailModalButton.addEventListener("click", closeCardDetailModal);
     closeQuickModalButton.addEventListener("click", closeQuickModal);
     closeDateModalButton.addEventListener("click", closeDateModal);
     corteRangeButton.addEventListener("click", () => openDateModal("corte"));
@@ -1746,7 +2001,17 @@
       button.addEventListener("click", () => applyQuickFilter(button.dataset.filter));
     });
 
-    [summaryModal, quickModal, dateModal].forEach((modal) => {
+    document.querySelectorAll(".mini-card[data-detail]").forEach((card) => {
+      card.addEventListener("click", () => openCardDetailModal(card.dataset.detail));
+      card.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openCardDetailModal(card.dataset.detail);
+        }
+      });
+    });
+
+    [summaryModal, cardDetailModal, quickModal, dateModal].forEach((modal) => {
       modal.addEventListener("click", (event) => {
         if (event.target === modal) modal.classList.remove("show");
       });
