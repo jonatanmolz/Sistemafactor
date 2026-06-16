@@ -1283,6 +1283,13 @@
       return hasFilledDate(talao.dataSaidaCostura) && !hasFilledDate(getDataEntradaDistribuicao(talao));
     }
 
+    function isPendingAtelierOrFactory(talao) {
+      // Para filtros de entregas/atrasos, ainda precisa aparecer quando:
+      // 1) falta produzir no ateliê; OU
+      // 2) já foi produzido, mas ainda não foi bipado na fábrica/distribuição.
+      return isNotProduced(talao) || isNotBippedInFactory(talao);
+    }
+
     function getModelKey(talao) {
       const linha = talao.linha ? String(talao.linha).trim() : "";
       const modelo = talao.modelo ? String(talao.modelo).trim() : "";
@@ -1714,7 +1721,7 @@
         currentFiltered = currentFiltered.filter((t) =>
           normalizeTipoCliente(t.tipoCliente) === "Exportacao" &&
           toISODateOnly(t.dataEntrega) === targetDate &&
-          isNotProduced(t)
+          isPendingAtelierOrFactory(t)
         );
       }
 
@@ -1722,27 +1729,27 @@
         const tomorrow = addDaysISO(todayISO(), 1);
         currentFiltered = currentFiltered.filter((t) => {
           const entrega = toISODateOnly(t.dataEntrega);
-          return normalizeTipoCliente(t.tipoCliente) === "Exportacao" && entrega && entrega < tomorrow && isNotProduced(t);
+          return normalizeTipoCliente(t.tipoCliente) === "Exportacao" && entrega && entrega < tomorrow && isPendingAtelierOrFactory(t);
         });
       }
 
       if (quickFilterMode === "deliveryWeek") {
         const week = getWeekRange(todayISO());
-        currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataEntrega, week.start, week.end));
+        currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataEntrega, week.start, week.end) && isPendingAtelierOrFactory(t));
       }
 
       if (quickFilterMode === "weekDelayed") {
         const week = getWeekRange(todayISO());
         currentFiltered = currentFiltered.filter((t) => {
           const entrega = toISODateOnly(t.dataEntrega);
-          return entrega && entrega < week.start && isNotProduced(t) && isTrackedTipoCliente(t.tipoCliente);
+          return entrega && entrega < week.start && isPendingAtelierOrFactory(t) && isTrackedTipoCliente(t.tipoCliente);
         });
       }
 
       if (quickFilterMode === "cutDelivery") {
         const cutRange = getCutDeliveryRange(todayISO());
         currentFiltered = currentFiltered.filter((t) =>
-          passesDateRange(t.dataCorte, cutRange.start, cutRange.end) && isNotProduced(t) && isTrackedTipoCliente(t.tipoCliente)
+          passesDateRange(t.dataCorte, cutRange.start, cutRange.end) && isPendingAtelierOrFactory(t) && isTrackedTipoCliente(t.tipoCliente)
         );
       }
 
@@ -1750,7 +1757,7 @@
         const cutRange = getCutDeliveryRange(todayISO());
         currentFiltered = currentFiltered.filter((t) => {
           const corte = toISODateOnly(t.dataCorte);
-          return corte && corte < cutRange.start && isNotProduced(t) && isTrackedTipoCliente(t.tipoCliente);
+          return corte && corte < cutRange.start && isPendingAtelierOrFactory(t) && isTrackedTipoCliente(t.tipoCliente);
         });
       }
 
