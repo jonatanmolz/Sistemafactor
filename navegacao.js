@@ -51,6 +51,7 @@
     // Costura
     { group: 'Costura', name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03', '07'] },
     { group: 'Costura', name: 'Controle', href: 'programacaoatt.html', levels: ['03', '07'] },
+    { group: 'Costura', name: 'Programação', href: 'programacao_atelier.html', levels: ['03', '07'] },
     { group: 'Costura', name: 'Entrada atelier', href: 'costura_entrada.html', levels: ['03', '07'] },
     { group: 'Costura', name: 'Saida atelier', href: 'costura_saida.html', levels: ['03', '07'] },
 
