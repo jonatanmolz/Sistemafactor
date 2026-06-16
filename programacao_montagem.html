@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Programação por Linha - SistemaTaloes</title>
+  <script src="navegacao.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root{
+      --bg:#f4f4f4; --card:#fff; --ink:#111; --ink-2:#555; --muted:#777; --bd:#d7d7d7;
+      --pri:#007bff; --pri-700:#0056b3; --ok:#28a745; --ok-700:#1e7e34; --danger:#dc3545; --danger-700:#bd2130;
+      --soft:#e9ecef; --head:#d9d9d9; --exp:#eaf4ff; --normal:#fff; --warn:#fff6d8; --bad:#ffe4e4; --good:#e9f8ee;
+    }
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;color:var(--ink);min-height:100vh}
+    .main-content{padding:16px;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .panel{background:var(--card);width:100%;max-width:1380px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:14px}
+    .panel-title{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+    h1,h2,h3{margin:0} h1{font-size:23px} h2{font-size:18px}
+    .hint{font-size:13px;color:var(--muted);line-height:1.35;margin-top:3px;max-width:1120px}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+    .btn{border:none;border-radius:8px;padding:9px 13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:.15s;background:var(--soft);color:#111;text-decoration:none;white-space:nowrap;font-size:14px}
+    .btn:hover{filter:brightness(.97)} .btn-primary{background:var(--pri);color:#fff}.btn-primary:hover{background:var(--pri-700)}
+    .btn-ok{background:var(--ok);color:#fff}.btn-ok:hover{background:var(--ok-700)} .btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:var(--danger-700)}
+    .btn-mini{padding:4px 7px;font-size:12px;border-radius:6px}
+    .file-picker-hidden{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+    .selected-files{font-size:13px;color:var(--ink-2);margin:8px 0 6px;line-height:1.35}
+    .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:6px}
+    .form-group{display:flex;flex-direction:column;gap:4px;min-width:130px}
+    label{font-size:12px;font-weight:700;color:var(--ink-2)}
+    input,select,textarea{font-family:Arial,Helvetica,sans-serif;border:1px solid #cfcfcf;border-radius:8px;padding:8px;font-size:14px;background:#fff}
+    .date-small{width:150px}
+    .status{font-size:13px;color:var(--ink-2);margin-top:8px;line-height:1.45}.status strong{color:#000}
+    .summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .summary-card{border:1px solid var(--bd);border-radius:10px;background:#fafafa;padding:8px 10px;min-width:132px;text-align:center}
+    .summary-card span{display:block;color:var(--muted);font-size:12px}.summary-card strong{font-size:18px}
+    .summary-card.good{background:var(--good)} .summary-card.warn{background:var(--warn)} .summary-card.bad{background:var(--bad)}
+    .preview-wrap{width:100%;overflow:auto;border:1px solid var(--bd);border-radius:10px;background:#fff;max-height:68vh}
+    table.preview{width:100%;border-collapse:collapse;font-size:12px;min-width:1200px}
+    .preview th,.preview td{border:1px solid var(--bd);padding:5px;text-align:center;vertical-align:middle}
+    .preview th{position:sticky;top:0;background:#d9d9d9;z-index:1;font-weight:800}
+    .preview tr.exportacao{background:var(--exp)} .preview tr.normal{background:var(--normal)}
+    .preview tr.divergente{box-shadow:inset 4px 0 0 #ff9800}
+    .preview tr.nao-encontrada{box-shadow:inset 4px 0 0 #dc3545}
+    .preview input,.preview select{width:100%;padding:5px;border-radius:5px;font-size:12px}
+    .preview .col-tipo{width:130px}.preview .col-linha{width:60px}.preview .col-modelo{width:75px}.preview .col-remessa{width:90px}.preview .col-pares{width:75px}.preview .col-data{width:90px}.preview .col-fab{width:65px}.preview .col-cliente{width:180px}.preview .col-norm{width:300px}.preview .col-taloes{width:70px}.preview .col-conf{width:175px}.preview .col-act{width:70px}
+    .conf-ok{font-weight:700;color:#167a31}.conf-warn{font-weight:700;color:#9a6500}.conf-bad{font-weight:700;color:#b00020}
+    .empty{padding:22px;text-align:center;color:var(--muted);font-size:14px}
+    .line-chip{display:inline-flex;border:1px solid var(--bd);background:#fff;border-radius:999px;padding:5px 10px;margin:4px;font-size:12px;gap:5px;align-items:center}
+    .line-chip strong{font-size:13px}
+    #printArea{display:none}
+
+    @media(max-width:760px){.main-content{padding:8px}.panel{padding:10px}.btn{flex:1 1 auto}.filters .form-group{min-width:calc(50% - 8px);flex:1}h1{font-size:19px}.summary-card{flex:1 1 calc(50% - 8px)}}
+
+    @media print{
+      body.printing > *:not(#printArea){display:none!important}
+      body.printing #printArea{display:block!important}
+      @page{size:A4 landscape;margin:8mm}
+      .print-page{page-break-after:always;font-family:Arial,Helvetica,sans-serif;color:#000}
+      .print-page:last-child{page-break-after:auto}
+      .print-title{text-align:center;font-size:15px;font-weight:700;margin:0 0 8px}
+      .print-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;font-size:10px}
+      .print-head h2{font-size:14px;margin:0 0 4px}
+      .print-summary{display:flex;gap:10px;justify-content:center;margin:6px 0 8px;font-size:10px}
+      .print-summary div{border:1px solid #000;background:#d9d9d9;padding:5px 12px;font-weight:700}
+      .print-total-box{border-collapse:collapse;margin:4px auto 8px;font-size:8px;width:95mm}
+      .print-total-box td{border:1px solid #000;background:#d9d9d9;padding:3px 6px;font-weight:700}
+      .print-total-box td:last-child{text-align:right}
+      .print-table{width:100%;border-collapse:collapse;font-size:8.5px;table-layout:fixed}
+      .print-table th,.print-table td{border:1px solid #000;padding:4px 3px;vertical-align:middle;word-break:break-word}
+      .print-table th{background:#d9d9d9;text-align:center;font-weight:700}
+      .print-table .section{background:#d9d9d9;font-weight:700;text-align:center}
+      .print-table .tipo{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-weight:700;background:#f2f2f2;width:6.8mm;min-width:6.8mm;max-width:6.8mm;overflow:hidden;padding:0!important;font-size:5.2px;line-height:1}
+      .print-table .total-row td{background:#d9d9d9;font-weight:700}
+      .text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}
+    }
+
+    /* Correção para o menu padrão do navegacao.js */
+    #sistemaMenuDrawer .sistema-menu-lista{max-height:none!important;height:calc(100vh - 54px)!important;overflow-y:auto!important;overflow-x:hidden!important;display:block!important;padding:8px 8px 16px!important;background:transparent!important;box-shadow:none!important;font-size:inherit!important;transition:none!important}
+    #sistemaMenuDrawer .sistema-menu-grupo{display:block!important}
+    #sistemaMenuDrawer .sistema-menu-link{display:flex!important;align-items:center!important;min-height:34px!important;padding:0 12px 0 20px!important;border-radius:8px!important;color:#f4f7fb!important;text-decoration:none!important;font-size:13px!important;font-weight:500!important;margin:1px 0!important;position:relative!important;white-space:normal!important}
+  </style>
+</head>
+<body>
+  <div class="main-content">
+    <div class="panel">
+      <div class="panel-title">
+        <div>
+          <h1>Programação por Linha</h1>
+          <div class="hint">Escolha o <strong>PDF Factor Geral</strong>. A página lê cliente e normativas do cronograma, confere as remessas com o banco pela <strong>data de corte</strong>, quantidade de remessas e pares por remessa, e gera um <strong>PDF</strong> com uma página por linha.</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <input type="file" id="pdfFile" class="file-picker-hidden" accept=".pdf,application/pdf" />
+        <label class="btn btn-primary" for="pdfFile">Escolher PDF</label>
+        <button class="btn btn-primary" id="loadFilesButton" type="button">Carregar arquivo</button>
+        <button class="btn btn-ok" id="generatePdfButton" type="button">Gerar PDF</button>
+        <button class="btn btn-ok" id="saveBancoButton" type="button">Lançar cliente e normativas no banco</button>
+        <button class="btn" id="clearButton" type="button">Limpar</button>
+      </div>
+      <div id="selectedFilesLabel" class="selected-files">Nenhum PDF selecionado.</div>
+      <div class="filters">
+        <div class="form-group date-small">
+          <label for="dataCorteInput">Data de Corte</label>
+          <input type="text" id="dataCorteInput" placeholder="Ex: 11/06 ou 11/jun" />
+        </div>
+      </div>
+      <div id="status" class="status">Aguardando login e seleção do PDF.</div>
+      <div class="summary" id="summaryCards"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">
+        <div>
+          <h2>Prévia editável</h2>
+          <div class="hint">As exportações ficam primeiro no PDF. A entrega usa a primeira data da normativa quando for Exportação, Cliente Especial ou embarque estratégico. Se não houver data na normativa, usa a coluna <strong>Entr</strong> do cronograma.</div>
+        </div>
+      </div>
+      <div id="lineSummary"></div>
+      <div class="preview-wrap" id="previewWrap">
+        <div class="empty">Nenhuma programação carregada.</div>
+      </div>
+    </div>
+  </div>
+  <div id="printArea"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
+      authDomain: "sistemataloes.firebaseapp.com",
+      projectId: "sistemataloes",
+      storageBucket: "sistemataloes.appspot.com",
+      messagingSenderId: "684534379685",
+      appId: "1:684534379685:web:..."
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const state = {
+      selectedPdfFile: null,
+      records: [],
+      allPdfRecords: [],
+      reportYear: new Date().getFullYear(),
+      bancoResumo: new Map(),
+      bancoSomente: [],
+      authReady: false,
+      currentUser: null,
+      lineOrder: []
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const MONTHS = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+
+    function setStatus(message){ $('status').innerHTML = message; }
+    function escapeHtml(value){ return String(value ?? '').replace(/[&<>\"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[s] || s)); }
+    function normalizeText(value){ return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().replace(/\s+/g,' ').trim(); }
+    function parseNumberBR(value){
+      if(value == null) return 0;
+      let s = String(value).trim().replace(/\s/g,'');
+      if(!s) return 0;
+      s = s.replace(/\./g,'').replace(/,/g,'');
+      const n = parseInt(s,10);
+      return Number.isFinite(n) ? n : 0;
+    }
+    function formatNumberBR(n){ return parseNumberBR(n).toLocaleString('pt-BR'); }
+    function pad2(n){ return String(n).padStart(2,'0'); }
+    function uniqueValues(arr){ return [...new Set(arr.map(v => String(v || '').trim()).filter(Boolean))]; }
+    function sortNumericText(a,b){
+      const na = parseInt(String(a).replace(/\D/g,''),10);
+      const nb = parseInt(String(b).replace(/\D/g,''),10);
+      if(Number.isFinite(na) && Number.isFinite(nb) && na !== nb) return na - nb;
+      return String(a).localeCompare(String(b), 'pt-BR', {numeric:true});
+    }
+    function dmToDisplay(dm){
+      const m = String(dm || '').match(/^(\d{1,2})\/(\d{1,2})$/);
+      if(!m) return dm || '';
+      return `${pad2(m[1])}/${pad2(m[2])}/${state.reportYear}`;
+    }
+
+    function parseDateInput(value){
+      let s = String(value || '').trim().toLowerCase();
+      if(!s) return null;
+      s = s.replace(/-/g,'/').replace(/\s+/g,'');
+      let m = s.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);
+      if(m){
+        let y = m[3] ? parseInt(m[3],10) : state.reportYear;
+        if(y < 100) y += 2000;
+        const day = parseInt(m[1],10), month = parseInt(m[2],10);
+        if(day < 1 || day > 31 || month < 1 || month > 12) return null;
+        return { day, month, year:y, dm:`${pad2(day)}/${pad2(month)}`, iso:`${y}-${pad2(month)}-${pad2(day)}` };
+      }
+      m = s.match(/^(\d{1,2})\/?([a-zç]{3})(?:\/(\d{2,4}))?$/i);
+      if(m){
+        const monToken = m[2].normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        const mo = MONTHS.findIndex(mm => mm === monToken);
+        if(mo >= 0){
+          let y = m[3] ? parseInt(m[3],10) : state.reportYear;
+          if(y < 100) y += 2000;
+          const day = parseInt(m[1],10), month = mo+1;
+          return { day, month, year:y, dm:`${pad2(day)}/${pad2(month)}`, iso:`${y}-${pad2(month)}-${pad2(day)}` };
+        }
+      }
+      return null;
+    }
+
+    function inferDateFromFileName(name){
+      const m = String(name || '').match(/(\d{1,2})[-_\/](\d{1,2})(?:[-_\/](\d{2,4}))?/);
+      if(!m) return '';
+      let y = m[3] ? parseInt(m[3],10) : state.reportYear;
+      if(y < 100) y += 2000;
+      state.reportYear = y;
+      return `${pad2(m[1])}/${pad2(m[2])}`;
+    }
+
+    function handlePdfFile(){
+      const file = $('pdfFile').files?.[0] || null;
+      state.selectedPdfFile = file && (/\.pdf$/i.test(file.name) || file.type === 'application/pdf') ? file : null;
+      $('selectedFilesLabel').innerHTML = state.selectedPdfFile ? `PDF: ${escapeHtml(state.selectedPdfFile.name)}` : 'Nenhum PDF válido selecionado.';
+      const guessed = inferDateFromFileName(state.selectedPdfFile?.name || '');
+      if(guessed && !$('dataCorteInput').value) $('dataCorteInput').value = guessed;
+      if(state.selectedPdfFile) setStatus('PDF selecionado. Clique em <strong>Carregar arquivo</strong>.');
+      else setStatus('Selecione o PDF Factor Geral.');
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if(!user){
+        setStatus('Usuário não autenticado. Faça login no sistema antes de consultar o banco.');
+        try{ window.location.href = 'login.html'; }catch(e){}
+        return;
+      }
+      state.authReady = true;
+      state.currentUser = user;
+      try{
+        const snap = await getDoc(doc(db, 'Usuario', user.email));
+        const userData = snap.exists() ? snap.data() : {};
+        const nivelAcesso = String(userData.nivelAcesso || '');
+        const Nome = userData.Nome || 'Usuário';
+        localStorage.setItem('userNivelAcesso', nivelAcesso);
+        localStorage.setItem('userName', Nome);
+        if(window.SistemaNavegacao && typeof window.SistemaNavegacao.init === 'function'){
+          window.SistemaNavegacao.init({
+            userLevel:nivelAcesso,
+            userName:Nome,
+            title:'Programação por Linha',
+            onLogout: async () => {
+              await signOut(auth);
+              localStorage.removeItem('userNivelAcesso');
+              localStorage.removeItem('userName');
+              window.location.href = 'login.html';
+            }
+          });
+        }
+      }catch(err){ console.warn('Não foi possível carregar dados do usuário.', err); }
+      setStatus('Login confirmado. Selecione o PDF Factor Geral.');
+    });
+
+    async function parseFactorGeralPdf(file){
+      if(!window.pdfjsLib) throw new Error('Biblioteca PDF.js não carregou. Verifique a internet/CDN.');
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const data = await file.arrayBuffer();
+      const pdf = await window.pdfjsLib.getDocument({data}).promise;
+      const records = [];
+      let current = null;
+
+      for(let pageNum=1; pageNum<=pdf.numPages; pageNum++){
+        const page = await pdf.getPage(pageNum);
+        const content = await page.getTextContent();
+        const items = content.items.map(item => {
+          const str = String(item.str || '').trim();
+          const tx = item.transform || [1,0,0,1,0,0];
+          return { text:str, x:tx[4], y:tx[5], page:pageNum };
+        }).filter(i => i.text);
+
+        const anosDaPagina = items
+          .filter(i => /^\d{2}\/\d{2}\/\d{4}$/.test(i.text))
+          .map(i => parseInt(i.text.split('/')[2],10))
+          .filter(y => Number.isFinite(y) && y >= 2020);
+        if(anosDaPagina.length) state.reportYear = Math.max(state.reportYear, ...anosDaPagina);
+
+        const headerClient = items.find(i => normalizeText(i.text) === 'CLIENTE');
+        const headerObs = items.find(i => normalizeText(i.text).startsWith('OBSERVACAO'));
+        const pageHeaders = { clientX: headerClient ? headerClient.x : 520, obsX: headerObs ? headerObs.x : 650 };
+        const lines = groupPdfLines(items).map(line => ({...line, headers:pageHeaders, page:pageNum}));
+
+        for(const line of lines){
+          const parsedStart = parseRecordStart(line);
+          if(parsedStart){
+            if(current) records.push(finalizePdfRecord(current));
+            current = parsedStart;
+            appendLineDetails(current, line);
+          }else if(current){
+            appendLineDetails(current, line);
+          }
+        }
+      }
+      if(current) records.push(finalizePdfRecord(current));
+      return records.filter(r => r.remessa && r.linha && r.pares && r.corte);
+    }
+
+    function groupPdfLines(items){
+      const sorted = items.slice().sort((a,b) => (b.y - a.y) || (a.x - b.x));
+      const lines = [];
+      sorted.forEach(item => {
+        let line = lines.find(l => Math.abs(l.y - item.y) <= 2.2);
+        if(!line){ line = { y:item.y, items:[] }; lines.push(line); }
+        line.items.push(item);
+      });
+      lines.forEach(line => {
+        line.items.sort((a,b)=>a.x-b.x);
+        line.text = line.items.map(i=>i.text).join(' ').replace(/\s+/g,' ').trim();
+      });
+      return lines.sort((a,b)=>b.y-a.y);
+    }
+
+    function parseRecordStart(line){
+      const tokens = line.items.map(i => i.text).filter(Boolean);
+      if(tokens.length < 5) return null;
+      const linhaModelo = tokens[0];
+      const lote = tokens[1];
+      if(!/^\d{4}(?:\.\d{1,4})?$/.test(linhaModelo)) return null;
+      if(!/^\d{5,8}[A-Z]{0,3}$/i.test(lote)) return null;
+
+      let idx = 2;
+      let remessa = '';
+      if(/^\d{7,8}$/.test(tokens[idx] || '')){ remessa = tokens[idx]; idx++; }
+      const paresToken = tokens[idx];
+      const pares = parseNumberBR(paresToken);
+      if(!pares) return null;
+      idx++;
+
+      const dates = [];
+      let lastDateIndex = idx;
+      for(let i=idx; i<tokens.length; i++){
+        if(/^\d{2}\/\d{2}$/.test(tokens[i])){
+          dates.push(tokens[i]);
+          lastDateIndex = i;
+          if(dates.length === 7) break;
+        }
+      }
+      if(dates.length < 7) return null;
+
+      let fabrica = '';
+      for(let i=lastDateIndex+1; i<tokens.length; i++){
+        if(/^[1-9]$/.test(tokens[i])){ fabrica = tokens[i]; break; }
+      }
+      const [linha, modeloParte] = linhaModelo.split('.');
+      return {
+        linhaOriginal: linhaModelo, linha, modelo: modeloParte || 'VARIOS', lote, remessa, pares,
+        comp:dates[0], alm:dates[1], corte:dates[2], costura:dates[3], montagem:dates[4], exp:dates[5], entregaCronograma:dates[6],
+        fabrica, clienteParts:[], normativaParts:[], headers:line.headers, page:line.page
+      };
+    }
+
+    function appendLineDetails(record, line){
+      const rawText = String(line.text || '');
+      const normLine = normalizeText(rawText);
+      if(normLine.includes('LEGENDA:') || normLine.includes('USUARIO:') || normLine.includes('FAB0801') || normLine.includes('PROGRAMADOR:') || normLine.includes('EMPRESA:') || normLine.includes('FILIAL:') || normLine.includes('PERIODO:') || normLine.includes('PARAMETRO:') || normLine.includes('PAGINA ')) return;
+      const tokens = line.items.map(i=>i.text).filter(Boolean);
+      if(!record.remessa){
+        const remIdx = tokens.findIndex(t => /^\d{7,8}$/.test(t));
+        if(remIdx >= 0){
+          record.remessa = tokens[remIdx];
+          for(let i=remIdx+1; i<Math.min(tokens.length, remIdx+8); i++){
+            if(!record.fabrica && /^[1-9]$/.test(tokens[i])){ record.fabrica = tokens[i]; break; }
+          }
+        }
+      }else if(!record.fabrica){
+        const remIdx = tokens.findIndex(t => t === record.remessa);
+        const from = remIdx >= 0 ? remIdx + 1 : 0;
+        for(let i=from; i<Math.min(tokens.length, from+8); i++){
+          if(/^[1-9]$/.test(tokens[i])){ record.fabrica = tokens[i]; break; }
+        }
+      }
+
+      const clientX = record.headers?.clientX || line.headers?.clientX || 520;
+      const obsX = record.headers?.obsX || line.headers?.obsX || 650;
+      const client = line.items.filter(i => i.x >= clientX - 8 && i.x < obsX - 6).map(i=>i.text).join(' ').replace(/\s+/g,' ').trim();
+      const obs = line.items.filter(i => i.x >= obsX - 8).map(i=>i.text).join(' ').replace(/\s+/g,' ').trim();
+      if(client && !/^Cliente$/i.test(client)) record.clienteParts.push(client);
+      if(obs && !/^Observa/i.test(obs)) record.normativaParts.push(obs);
+    }
+
+    function finalizePdfRecord(record){
+      const cliente = cleanCliente(record.clienteParts.join(' '));
+      const normativa = cleanNormativa(record.normativaParts.join(' '));
+      const entregaNormativa = extractFirstDateDM(normativa);
+      return {
+        tipoCliente: '', tipoOrigem:'', linha: record.linha || '', modelo: record.modelo || 'VARIOS', remessa: record.remessa || '', pares: parseNumberBR(record.pares), taloes:'',
+        corte: record.corte || '', entregaCronograma: record.entregaCronograma || '', entregaNormativa, entrega: record.entregaCronograma || '', fabrica: record.fabrica || '',
+        cliente, normativa, conferencia: { status:'Sem banco', detalhe:'Aguardando conferência' }, page:record.page || 0
+      };
+    }
+
+    function cleanCliente(value){
+      let s = String(value || '').replace(/\s+/g,' ').trim();
+      if(/^0+$/.test(s)) return '';
+      s = s.replace(/^0\s+/, '').trim();
+      s = s.replace(/\bEmpenho\b.*$/i, '').trim();
+      s = s.replace(/\bUsu[aá]rio\b.*$/i, '').trim();
+      s = s.replace(/\bP[aá]gina\b.*$/i, '').trim();
+      const u = normalizeText(s);
+      const mappings = [
+        ['INDUSTRIAS VERSATO', 'VERSATO'], ['VERSATO', 'VERSATO'], ['MARISA LOJAS', 'MARISA'], ['KALLAN CALCADOS', 'KALLAN'],
+        ['PONTAL CENTER', 'PONTAL'], ['IMPACTTO SHOES', 'IMPACTO SHOES'], ['IMPACTO SHOES', 'IMPACTO SHOES'],
+        ['ESPOSENDE', 'ESPOSENDE'], ['CARREFOUR', 'CARREFOUR'], ['RIACHUELO', 'RIACHUELO'],
+        ['LEME C DE M', 'LEME C'], ['PADYL PRONTA', 'PADYL PRONTA ENTREGA'], ['NOVA MODA', 'NOVA MODA SRL'],
+        ['NOV MODA', 'NOVA MODA SRL'], ['FEET COLOMBIA', 'FEET COLOMBIA'], ['CALZATODO', 'CALZATODO'],
+        ['PALMERO INTERNATIONAL', 'PALMERO INTERNATIONAL'], ['LEADER SHOES', 'LEADER SHOES'], ['ONE WORLD SHOES', 'ONE WORLD SHOES'],
+        ['LIMARCA', 'LIMARCA'], ['RIVERSIDE', 'RIVERSIDE'], ['GS TIENDAS', 'GS TIENDAS O DEPARTAMENTALES SA DE CV']
+      ];
+      const found = mappings.find(([key]) => u.includes(key));
+      return found ? found[1] : s;
+    }
+
+    function cleanNormativa(value){
+      let s = String(value || '').replace(/\s+/g,' ').trim();
+      s = s.replace(/\bNORM\s*\.:?/gi, 'NORM');
+      s = s.replace(/\bFAT\s*:/gi, 'FAT');
+      s = s.replace(/\s*[-–]\s*/g, ' ');
+      s = s.replace(/(\d{1,2})\/(\d{1,2})/g, (_,d,m) => `${pad2(d)}/${pad2(m)}`);
+      const cortesRodape = [
+        /\s+\*?\s*Pr[eé] n[aã]o enviado.*$/i,
+        /\s+N[aã]o processado.*$/i,
+        /\s+Etqtg\s*=.*$/i,
+        /\s+Usu[aá]rio\s*:.*$/i,
+        /\s+P[aá]gina\s+\d+.*$/i,
+        /\s+Legenda\s*:.*$/i,
+        /\s+Empenho\s+à.*$/i
+      ];
+      cortesRodape.forEach(rx => { s = s.replace(rx, ''); });
+      s = s.replace(/\s+/g,' ').trim();
+      return s;
+    }
+
+    function extractFirstDateDM(text){
+      const m = String(text || '').match(/\b(\d{1,2})\/(\d{1,2})\b/);
+      if(!m) return '';
+      const d = parseInt(m[1],10), mo = parseInt(m[2],10);
+      if(d < 1 || d > 31 || mo < 1 || mo > 12) return '';
+      return `${pad2(d)}/${pad2(mo)}`;
+    }
+
+    function tipoLabel(tipo){
+      const n = normalizeText(tipo);
+      if(n === 'EXPORTACAO' || n === 'EXPORTAÇÃO') return 'Exportação';
+      if(n === 'CLIENTE ESPECIAL') return 'Cliente Especial';
+      if(n === 'MERCADO INTERNO') return 'Mercado Interno';
+      if(n === 'ESTOQUE') return 'Estoque';
+      if(n === 'AMOSTRA') return 'Amostra';
+      return tipo || 'Sem tipo';
+    }
+
+    function isExportacao(tipo){
+      const n = normalizeText(tipo);
+      return n === 'EXPORTACAO' || n === 'EXPORTAÇÃO';
+    }
+    function isClienteEspecial(tipo){ return normalizeText(tipo) === 'CLIENTE ESPECIAL'; }
+
+    function typePriority(tipo){
+      if(isExportacao(tipo)) return 0;
+      if(isClienteEspecial(tipo)) return 1;
+      const n = normalizeText(tipo);
+      if(n === 'MERCADO INTERNO') return 2;
+      if(n === 'ESTOQUE') return 3;
+      if(n === 'AMOSTRA') return 4;
+      return 5;
+    }
+
+    function needsNormativaEntrega(tipo, normativa){
+      const nNorm = normalizeText(normativa);
+      return isExportacao(tipo) || isClienteEspecial(tipo) || nNorm.includes('EMBARQUE ESTRATEGICO') || nNorm.includes('EMBARQUE ESTRAT');
+    }
+
+    function applyEntregaRule(record){
+      if(needsNormativaEntrega(record.tipoCliente, record.normativa) && record.entregaNormativa){
+        record.entrega = record.entregaNormativa;
+      }else{
+        record.entrega = record.entregaCronograma || record.entrega || '';
+      }
+    }
+
+    async function fetchBancoResumo(dataCorteParsed){
+      const qRef = query(collection(db,'taloes'), where('dataCorte','==', dataCorteParsed.iso));
+      const snap = await getDocs(qRef);
+      const map = new Map();
+      snap.docs.forEach(docSnap => {
+        const t = docSnap.data();
+        const rem = String(t.numeroRemessa || '').trim();
+        if(!rem) return;
+        if(!map.has(rem)){
+          map.set(rem, { remessa:rem, pares:0, taloes:0, tipos:new Set(), linhas:new Set(), modelos:new Set(), docs:[] });
+        }
+        const item = map.get(rem);
+        item.pares += Number(t.pares || 0);
+        item.taloes += 1;
+        item.tipos.add(t.tipoCliente || '');
+        item.linhas.add(t.linha || '');
+        item.modelos.add(t.modelo || '');
+        item.docs.push({ id:docSnap.id, ref:docSnap.ref, data:t });
+      });
+      state.bancoResumo = map;
+      return map;
+    }
+
+    function mergeBancoInfo(records, bancoMap){
+      const pdfRemessas = new Set(records.map(r => r.remessa));
+      state.bancoSomente = [...bancoMap.keys()].filter(rem => !pdfRemessas.has(rem)).sort((a,b)=>Number(a)-Number(b));
+
+      records.forEach(record => {
+        const b = bancoMap.get(record.remessa);
+        if(!b){
+          const fallbackTipo = /\bFAT\b/i.test(record.normativa) ? 'Exportacao' : '';
+          record.tipoCliente = fallbackTipo;
+          record.tipoOrigem = fallbackTipo ? 'normativa' : '';
+          record.taloes = '';
+          record.conferencia = { status:'Não encontrada', detalhe:'Remessa não encontrada no banco nesta data de corte.' };
+          applyEntregaRule(record);
+          return;
+        }
+        const tipos = uniqueValues([...b.tipos]);
+        const modelosBanco = uniqueValues([...b.modelos]).sort(sortNumericText);
+        const linhasBanco = uniqueValues([...b.linhas]).sort(sortNumericText);
+        record.tipoCliente = tipos[0] || (/\bFAT\b/i.test(record.normativa) ? 'Exportacao' : '');
+        record.tipoOrigem = tipos[0] ? 'banco' : (record.tipoCliente ? 'normativa' : '');
+        record.bancoPares = b.pares;
+        record.bancoTaloes = b.taloes;
+        record.taloes = b.taloes || '';
+        record.bancoTipos = tipos;
+        if(modelosBanco.length){ record.modelo = modelosBanco.join(' '); }
+        if(linhasBanco.length && !linhasBanco.includes(record.linha)){ record.linha = linhasBanco[0] || record.linha; }
+        if(parseNumberBR(record.pares) !== parseNumberBR(b.pares)){
+          record.conferencia = { status:'Divergente', detalhe:`PDF ${formatNumberBR(record.pares)} x Banco ${formatNumberBR(b.pares)} pares. Talões: ${b.taloes}.` };
+        }else{
+          record.conferencia = { status:'OK', detalhe:`Banco OK: ${formatNumberBR(b.pares)} pares em ${b.taloes} talão(ões).` };
+        }
+        applyEntregaRule(record);
+      });
+    }
+
+    async function loadFiles(){
+      const pdfFile = state.selectedPdfFile;
+      if(!pdfFile){ setStatus('Selecione o PDF Factor Geral.'); return; }
+      if(!$('dataCorteInput').value){
+        const guessed = inferDateFromFileName(pdfFile.name);
+        if(guessed) $('dataCorteInput').value = guessed;
+      }
+      const target = parseDateInput($('dataCorteInput').value);
+      if(!target){ setStatus('Informe a Data de Corte. Exemplo: <strong>11/06</strong> ou <strong>11/jun</strong>.'); return; }
+      try{
+        setStatus('Lendo PDF Factor Geral...');
+        const all = await parseFactorGeralPdf(pdfFile);
+        state.allPdfRecords = all;
+        const filtered = all.filter(r => r.corte === target.dm).map((r, idx) => ({...r, id:`r${Date.now()}_${idx}`, originalOrder:idx}));
+        state.lineOrder = [...new Set(filtered.map(r=>r.linha).filter(Boolean))];
+        filtered.sort(sortRecordsForPreview);
+
+        let bancoMap = new Map();
+        if(state.authReady){
+          setStatus('PDF lido. Conferindo remessas com o banco de dados...');
+          try{
+            bancoMap = await fetchBancoResumo(target);
+            mergeBancoInfo(filtered, bancoMap);
+          }catch(dbErr){
+            console.error(dbErr);
+            filtered.forEach(r => {
+              r.tipoCliente = /\bFAT\b/i.test(r.normativa) ? 'Exportacao' : '';
+              r.tipoOrigem = r.tipoCliente ? 'normativa' : '';
+              r.conferencia = {status:'Sem banco', detalhe:'Não foi possível conferir com o banco.'};
+              applyEntregaRule(r);
+            });
+            setStatus('PDF carregado, mas não foi possível conferir com o banco: ' + escapeHtml(dbErr.message || String(dbErr)) + '<br>Verifique se você está logado e se abriu a página pelo sistema.');
+          }
+        }else{
+          filtered.forEach(r => {
+            r.tipoCliente = /\bFAT\b/i.test(r.normativa) ? 'Exportacao' : '';
+            r.tipoOrigem = r.tipoCliente ? 'normativa' : '';
+            r.conferencia = {status:'Sem banco', detalhe:'Usuário ainda não autenticado.'};
+            applyEntregaRule(r);
+          });
+        }
+
+        state.records = filtered.sort(sortRecordsForPreview);
+        renderPreview();
+        updateSummary();
+        renderLineSummary();
+        if(!filtered.length){
+          setStatus(`Nenhuma remessa encontrada no PDF para a Data de Corte <strong>${escapeHtml(target.dm)}</strong>. O PDF foi lido com ${all.length} remessa(s); confira se a data está correta.`);
+        }else{
+          const qtdPdf = new Set(filtered.map(r=>r.remessa)).size;
+          const qtdBanco = bancoMap.size;
+          const divergentes = filtered.filter(r=>r.conferencia.status === 'Divergente').length;
+          const naoEncontradas = filtered.filter(r=>r.conferencia.status === 'Não encontrada').length;
+          const soBanco = state.bancoSomente.length;
+          const totalPdfPares = state.records.reduce((sum,r)=>sum+parseNumberBR(r.pares),0);
+      const totalBancoPares = bancoMap ? [...bancoMap.values()].reduce((sum,b)=>sum+parseNumberBR(b.pares),0) : 0;
+      let msg = `Programação carregada para <strong>${escapeHtml(target.dm)}</strong>. PDF: <strong>${qtdPdf}</strong> remessa(s), <strong>${formatNumberBR(totalPdfPares)}</strong> pares. Banco: <strong>${qtdBanco || 0}</strong> remessa(s), <strong>${formatNumberBR(totalBancoPares)}</strong> pares.`;
+          if(divergentes || naoEncontradas || soBanco){
+            msg += ` Conferência: <strong>${divergentes}</strong> divergente(s), <strong>${naoEncontradas}</strong> não encontrada(s), <strong>${soBanco}</strong> só no banco.`;
+            if(soBanco) msg += ` Só no banco: ${escapeHtml(state.bancoSomente.slice(0,12).join(', '))}${soBanco>12?'...':''}.`;
+          }else if(bancoMap.size){
+            msg += ' Conferência com o banco: <strong>OK</strong>.';
+          }
+          setStatus(msg);
+        }
+      }catch(err){
+        console.error(err);
+        setStatus('Erro ao carregar PDF: ' + escapeHtml(err.message || String(err)));
+      }
+    }
+
+    function lineOrderIndex(linha){
+      const idx = state.lineOrder.indexOf(String(linha));
+      return idx >= 0 ? idx : 9999;
+    }
+
+    function sortRecordsForPreview(a,b){
+      const l = lineOrderIndex(a.linha) - lineOrderIndex(b.linha);
+      if(l) return l;
+      const t = typePriority(a.tipoCliente) - typePriority(b.tipoCliente);
+      if(t) return t;
+      return Number(a.remessa || 0) - Number(b.remessa || 0);
+    }
+
+    function sortRecordsForPdf(a,b){
+      const t = typePriority(a.tipoCliente) - typePriority(b.tipoCliente);
+      if(t) return t;
+      return Number(a.remessa || 0) - Number(b.remessa || 0);
+    }
+
+    function tipoOptions(selected){
+      const opts = [
+        ['Exportacao','Exportação'], ['Cliente especial','Cliente Especial'], ['Mercado Interno','Mercado Interno'], ['Estoque','Estoque'], ['Amostra','Amostra'], ['','Sem tipo']
+      ];
+      const normSel = normalizeText(selected);
+      return opts.map(([value,label]) => {
+        const sel = normalizeText(value) === normSel || normalizeText(label) === normSel ? 'selected' : '';
+        return `<option value="${escapeHtml(value)}" ${sel}>${escapeHtml(label)}</option>`;
+      }).join('');
+    }
+
+    function confClass(status){
+      if(status === 'OK') return 'conf-ok';
+      if(status === 'Divergente' || status === 'Sem banco') return 'conf-warn';
+      return 'conf-bad';
+    }
+
+    function rowClass(record){
+      const classes = [isExportacao(record.tipoCliente) ? 'exportacao' : 'normal'];
+      if(record.conferencia?.status === 'Divergente') classes.push('divergente');
+      if(record.conferencia?.status === 'Não encontrada') classes.push('nao-encontrada');
+      return classes.join(' ');
+    }
+
+    function renderPreview(){
+      const wrap = $('previewWrap');
+      if(!state.records.length){
+        wrap.innerHTML = '<div class="empty">Nenhuma programação carregada.</div>';
+        return;
+      }
+      const rows = state.records.map((r, idx) => `
+        <tr class="${rowClass(r)}" data-index="${idx}">
+          <td class="col-tipo"><select data-field="tipoCliente">${tipoOptions(r.tipoCliente)}</select><small>${r.tipoOrigem === 'banco' ? 'Banco' : r.tipoOrigem === 'normativa' ? 'Normativa' : ''}</small></td>
+          <td class="col-linha"><input data-field="linha" value="${escapeHtml(r.linha)}"></td>
+          <td class="col-modelo"><input data-field="modelo" value="${escapeHtml(r.modelo)}" title="${escapeHtml(r.modelo)}"></td>
+          <td class="col-remessa"><input data-field="remessa" value="${escapeHtml(r.remessa)}"></td>
+          <td class="col-pares"><input data-field="pares" value="${escapeHtml(formatNumberBR(r.pares))}"></td>
+          <td class="col-data"><input data-field="corte" value="${escapeHtml(r.corte)}"></td>
+          <td class="col-data"><input data-field="entrega" value="${escapeHtml(r.entrega)}" title="Entr: ${escapeHtml(r.entregaCronograma)} | Normativa: ${escapeHtml(r.entregaNormativa || '-')}"></td>
+          <td class="col-fab"><input data-field="fabrica" value="${escapeHtml(r.fabrica)}"></td>
+          <td class="col-cliente"><input data-field="cliente" value="${escapeHtml(r.cliente)}"></td>
+          <td class="col-norm"><input data-field="normativa" value="${escapeHtml(r.normativa)}"></td>
+          <td class="col-taloes"><input data-field="taloes" value="${escapeHtml(r.taloes || '')}" title="Total de talões no banco para esta remessa"></td>
+          <td class="col-conf"><span class="${confClass(r.conferencia?.status)}">${escapeHtml(r.conferencia?.status || '')}</span><br><small>${escapeHtml(r.conferencia?.detalhe || '')}</small></td>
+          <td class="col-act"><button class="btn btn-danger btn-mini" type="button" data-action="delete">Excluir</button></td>
+        </tr>`).join('');
+      wrap.innerHTML = `<table class="preview"><thead><tr><th class="col-tipo">Tipo Cliente</th><th>Linha</th><th>Modelo(s)</th><th>Remessa</th><th>Pares</th><th>Corte</th><th>Entrega</th><th>Fábrica</th><th>Cliente</th><th>Normativas</th><th>Talões</th><th>Conferência</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table>`;
+      wrap.querySelectorAll('input,select').forEach(el => el.addEventListener('input', updateRecordFromElement));
+      wrap.querySelectorAll('[data-action="delete"]').forEach(btn => btn.addEventListener('click', deletePreviewRow));
+    }
+
+    function updateRecordFromElement(event){
+      const tr = event.target.closest('tr');
+      const idx = Number(tr.dataset.index);
+      const field = event.target.dataset.field;
+      if(!state.records[idx] || !field) return;
+      let value = event.target.value;
+      if(field === 'pares') value = parseNumberBR(value);
+      state.records[idx][field] = value;
+      if(field === 'tipoCliente') state.records[idx].tipoOrigem = 'manual';
+      if(field === 'tipoCliente' || field === 'normativa'){
+        state.records[idx].entregaNormativa = extractFirstDateDM(state.records[idx].normativa);
+        applyEntregaRule(state.records[idx]);
+        const entregaInput = tr.querySelector('[data-field="entrega"]');
+        if(entregaInput) entregaInput.value = state.records[idx].entrega;
+      }
+      tr.className = rowClass(state.records[idx]);
+      updateSummary();
+      renderLineSummary();
+    }
+
+    function deletePreviewRow(event){
+      const tr = event.target.closest('tr');
+      const idx = Number(tr.dataset.index);
+      state.records.splice(idx,1);
+      renderPreview();
+      updateSummary();
+      renderLineSummary();
+    }
+
+    function updateStateFromPreview(){
+      document.querySelectorAll('#previewWrap tbody tr').forEach(tr => {
+        const idx = Number(tr.dataset.index);
+        if(!state.records[idx]) return;
+        tr.querySelectorAll('input,select').forEach(el => {
+          const field = el.dataset.field;
+          if(!field) return;
+          state.records[idx][field] = field === 'pares' ? parseNumberBR(el.value) : el.value.trim();
+        });
+        state.records[idx].entregaNormativa = extractFirstDateDM(state.records[idx].normativa);
+      });
+      state.records.sort(sortRecordsForPreview);
+    }
+
+    function getTotals(){
+      const exp = state.records.filter(r => isExportacao(r.tipoCliente));
+      const normal = state.records.filter(r => !isExportacao(r.tipoCliente));
+      const totalExp = exp.reduce((s,r)=>s+parseNumberBR(r.pares),0);
+      const totalNormal = normal.reduce((s,r)=>s+parseNumberBR(r.pares),0);
+      const totalBanco = [...state.bancoResumo.values()].reduce((s,b)=>s+parseNumberBR(b.pares),0);
+      const totalTaloes = state.records.reduce((s,r)=>s+parseNumberBR(r.taloes),0);
+      const totalClienteEspecial = state.records.filter(r => normalizeText(r.tipoCliente) === 'CLIENTE ESPECIAL').reduce((s,r)=>s+parseNumberBR(r.pares),0);
+      const totalMercadoInterno = state.records.filter(r => normalizeText(r.tipoCliente) === 'MERCADO INTERNO').reduce((s,r)=>s+parseNumberBR(r.pares),0);
+      const totalEstoque = state.records.filter(r => normalizeText(r.tipoCliente) === 'ESTOQUE').reduce((s,r)=>s+parseNumberBR(r.pares),0);
+      return { totalExp, totalNormal, total: totalExp + totalNormal, totalBanco, totalTaloes, totalClienteEspecial, totalMercadoInterno, totalEstoque, qtdExp: new Set(exp.map(r=>r.remessa)).size, qtdRemessas:new Set(state.records.map(r=>r.remessa)).size };
+    }
+
+    function updateSummary(){
+      const totals = getTotals();
+      const ok = state.records.filter(r=>r.conferencia?.status === 'OK').length;
+      const diverg = state.records.filter(r=>r.conferencia?.status === 'Divergente').length;
+      const faltando = state.records.filter(r=>r.conferencia?.status === 'Não encontrada').length;
+      const bancoOk = state.bancoResumo.size && totals.totalBanco === totals.total;
+      $('summaryCards').innerHTML = `
+        <div class="summary-card"><span>Remessas PDF</span><strong>${totals.qtdRemessas}</strong></div>
+        <div class="summary-card"><span>Remessas Banco</span><strong>${state.bancoResumo.size || 0}</strong></div>
+        <div class="summary-card good"><span>OK Banco</span><strong>${ok}</strong></div>
+        <div class="summary-card ${diverg ? 'warn' : ''}"><span>Divergentes</span><strong>${diverg}</strong></div>
+        <div class="summary-card ${faltando ? 'bad' : ''}"><span>Não encontradas</span><strong>${faltando}</strong></div>
+        <div class="summary-card"><span>Pares PDF</span><strong>${formatNumberBR(totals.total)}</strong></div>
+        <div class="summary-card ${state.bancoResumo.size ? (bancoOk ? 'good' : 'warn') : ''}"><span>Pares Banco</span><strong>${state.bancoResumo.size ? formatNumberBR(totals.totalBanco) : '-'}</strong></div>
+        <div class="summary-card"><span>Total exportação</span><strong>${formatNumberBR(totals.totalExp)}</strong></div>
+        <div class="summary-card"><span>Total talões</span><strong>${formatNumberBR(totals.totalTaloes)}</strong></div>
+        <div class="summary-card"><span>Páginas estimadas</span><strong>${paginateRecords(15).length || 0}</strong></div>`;
+    }
+
+    function groupByLinha(){
+      const map = new Map();
+      state.records.forEach(r => {
+        const linha = String(r.linha || 'Sem linha');
+        if(!map.has(linha)) map.set(linha, []);
+        map.get(linha).push(r);
+      });
+      const ordered = [...map.entries()].sort((a,b)=>lineOrderIndex(a[0]) - lineOrderIndex(b[0]));
+      ordered.forEach(([, rows]) => rows.sort(sortRecordsForPdf));
+      return ordered;
+    }
+
+    function renderLineSummary(){
+      const wrap = $('lineSummary');
+      if(!state.records.length){ wrap.innerHTML = ''; return; }
+      const html = groupByLinha().map(([linha, rows]) => {
+        const total = rows.reduce((s,r)=>s+parseNumberBR(r.pares),0);
+        const exp = rows.filter(r=>isExportacao(r.tipoCliente)).reduce((s,r)=>s+parseNumberBR(r.pares),0);
+        return `<span class="line-chip"><strong>Linha ${escapeHtml(linha)}</strong> ${rows.length} rem. | ${formatNumberBR(total)} pares | Exp. ${formatNumberBR(exp)}</span>`;
+      }).join('');
+      wrap.innerHTML = html;
+    }
+
+    function rowsByType(rows, exportacao){
+      return rows.filter(r => exportacao ? isExportacao(r.tipoCliente) : !isExportacao(r.tipoCliente));
+    }
+
+    function paginateRecords(limit=15){
+      const lineGroups = groupByLinha().map(([linha, rows]) => {
+        const sorted = rows.slice().sort(sortRecordsForPdf);
+        const parts = [];
+        for(let i=0; i<sorted.length; i+=limit){
+          parts.push({linha, rows:sorted.slice(i, i+limit), parte: sorted.length > limit ? Math.floor(i/limit) + 1 : ''});
+        }
+        return parts;
+      }).flat();
+
+      const pages = [];
+      let current = [];
+      let count = 0;
+      lineGroups.forEach(group => {
+        const qtd = group.rows.length;
+        if(qtd > limit){
+          if(current.length){ pages.push(current); current = []; count = 0; }
+          pages.push([group]);
+          return;
+        }
+        if(current.length && count + qtd > limit){
+          pages.push(current);
+          current = [];
+          count = 0;
+        }
+        current.push(group);
+        count += qtd;
+      });
+      if(current.length) pages.push(current);
+      return pages;
+    }
+
+    function summarizePageLines(pageGroups){
+      const labels = pageGroups.map(g => `Linha ${g.linha}${g.parte ? ' parte ' + g.parte : ''}`);
+      if(labels.length === 1) return labels[0];
+      return labels.join(' / ');
+    }
+
+    function pageHeaderText(index, total){
+      return `Pagina ${index + 1} de ${total}`;
+    }
+
+    function groupLabelForRow(index, totalRows, label){
+      if(!totalRows) return '';
+      const middle = Math.floor((totalRows - 1) / 2);
+      return index === middle ? label : '';
+    }
+
+    function buildAutoTableBody(pageGroups, includeEmptyExportBlock=true){
+      const body = [];
+      const header = ['', 'LINHA', 'MODELO', 'REMESSA', 'PARES', 'CORTE', 'ENTREGA', 'Fabrica', 'CLIENTE', 'NORMATIVAS', 'TALÕES', 'COSTURA', 'PALMILHA', 'SOLA', 'EMBARQUE'];
+
+      function addLineHeader(group){
+        const totalLinha = group.rows.reduce((s,r)=>s+parseNumberBR(r.pares),0);
+        const expLinha = rowsByType(group.rows,true).reduce((s,r)=>s+parseNumberBR(r.pares),0);
+        body.push([{content:`LINHA ${group.linha}${group.parte ? ' - PARTE ' + group.parte : ''}  |  TOTAL ${formatNumberBR(totalLinha)} pares  |  EXP. ${formatNumberBR(expLinha)} pares`, colSpan:15, styles:{halign:'left', fontStyle:'bold', fillColor:[235,235,235], minCellHeight:5.4}}]);
+      }
+
+      function addColumnHeader(){
+        body.push(header.map(txt => ({content:txt, styles:{fillColor:[217,217,217], textColor:[0,0,0], fontStyle:'bold', halign:'center', valign:'middle', minCellHeight:6.2}})));
+      }
+
+      function addGroup(label, list, forceEmpty){
+        const total = list.reduce((s,r)=>s+parseNumberBR(r.pares),0);
+        if(list.length){
+          list.forEach((r, idx) => {
+            const tipoCell = idx === 0
+              ? {content:label, rowSpan:list.length, styles:{halign:'center', valign:'middle', fillColor:[242,242,242], fontStyle:'bold', cellPadding:0}}
+              : null;
+            const row = [
+              r.linha || '',
+              r.modelo || 'VARIOS',
+              r.remessa || '',
+              formatNumberBR(r.pares),
+              dmToDisplay(r.corte),
+              dmToDisplay(r.entrega),
+              r.fabrica || '',
+              cleanCliente(r.cliente || ''),
+              r.normativa || '',
+              r.taloes || '',
+              '', '', '', ''
+            ];
+            body.push(tipoCell ? [tipoCell, ...row] : row);
+          });
+        }else if(forceEmpty){
+          body.push([{content:label, styles:{halign:'center', valign:'middle', fillColor:[242,242,242], fontStyle:'bold', cellPadding:0, minCellHeight:13}},'','','','','','','','','','','','','','']);
+        }
+        body.push(['','','','TOTAL',formatNumberBR(total),'','','','','','','','','','']);
+      }
+
+      function addSpacer(){
+        body.push([{content:'', colSpan:15, styles:{fillColor:[255,255,255], lineColor:[255,255,255], textColor:[255,255,255], minCellHeight:5.5, cellPadding:0}}]);
+      }
+
+      pageGroups.forEach((group, groupIndex) => {
+        if(pageGroups.length > 1) addLineHeader(group);
+        addColumnHeader();
+        addGroup('EXP', rowsByType(group.rows,true), includeEmptyExportBlock);
+        addGroup('NOR', rowsByType(group.rows,false), false);
+        if(pageGroups.length > 1 && groupIndex < pageGroups.length - 1) addSpacer();
+      });
+      return body;
+    }
+
+    function generatePdf(){
+      updateStateFromPreview();
+      if(!state.records.length){ setStatus('Não há dados para gerar PDF. Clique em Carregar arquivo primeiro.'); return; }
+      const target = parseDateInput($('dataCorteInput').value);
+      if(!target){ setStatus('Informe a Data de Corte antes de gerar o PDF.'); return; }
+      const totals = getTotals();
+      const divergentes = state.records.filter(r=>r.conferencia?.status === 'Divergente').length;
+      const naoEncontradas = state.records.filter(r=>r.conferencia?.status === 'Não encontrada').length;
+      if(state.bancoResumo.size && (totals.totalBanco !== totals.total || divergentes || naoEncontradas)){
+        const ok = confirm(`Atenção: os dados não estão 100% iguais ao banco.\n\nPares PDF: ${formatNumberBR(totals.total)}\nPares banco: ${formatNumberBR(totals.totalBanco)}\nDivergentes: ${divergentes}\nNão encontradas: ${naoEncontradas}\n\nDeseja gerar o PDF mesmo assim?`);
+        if(!ok) return;
+      }
+      if(window.jspdf && window.jspdf.jsPDF && typeof window.jspdf.jsPDF.API.autoTable !== 'undefined'){
+        generatePdfWithJsPdf(target);
+      }else{
+        generatePrintablePdf(target);
+      }
+    }
+
+    function generatePdfWithJsPdf(target){
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+      const pages = paginateRecords(15);
+      const totals = getTotals();
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margin = 8;
+      const corteTitulo = `Corte ${target.day}/${target.month}`;
+
+      function drawResumoCardsAtBottom(){
+        const cards = [
+          ['Talões', formatNumberBR(totals.totalTaloes)],
+          ['Pares PDF', formatNumberBR(totals.total)],
+          ['Remessas', formatNumberBR(totals.qtdRemessas)],
+          ['Exportação', formatNumberBR(totals.totalExp)],
+          ['Cliente especial', formatNumberBR(totals.totalClienteEspecial)],
+          ['Mercado interno', formatNumberBR(totals.totalMercadoInterno)],
+          ['Estoque', formatNumberBR(totals.totalEstoque)]
+        ];
+        const gap = 2;
+        const left = margin;
+        const totalW = pageW - margin*2;
+        const cardW = (totalW - gap * (cards.length - 1)) / cards.length;
+        const cardH = 13;
+        const y = pageH - cardH - 8;
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(8);
+        doc.text('Dados encontrados', left, y - 2.2);
+        cards.forEach(([label, value], i) => {
+          const x = left + i * (cardW + gap);
+          doc.setDrawColor(180,180,180);
+          doc.setFillColor(248,248,248);
+          doc.roundedRect(x, y, cardW, cardH, 1.8, 1.8, 'FD');
+          doc.setFont('helvetica','bold');
+          doc.setFontSize(7.2);
+          doc.text(label, x + cardW/2, y + 4.3, {align:'center'});
+          doc.setFontSize(10.5);
+          doc.text(value, x + cardW/2, y + 10.3, {align:'center'});
+        });
+      }
+
+      pages.forEach((pageGroups, index) => {
+        if(index > 0) doc.addPage();
+        const pageRows = pageGroups.flatMap(g => g.rows);
+        const totalPagina = pageRows.reduce((s,r)=>s+parseNumberBR(r.pares),0);
+        const expPagina = pageRows.filter(r=>isExportacao(r.tipoCliente)).reduce((s,r)=>s+parseNumberBR(r.pares),0);
+        const remessasPagina = new Set(pageRows.map(r=>r.remessa)).size;
+
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(12);
+        doc.text('Planejamento FactorShoes', pageW/2, 9, {align:'center'});
+        doc.setFontSize(8);
+        doc.text(`${summarizePageLines(pageGroups)} - ${corteTitulo}`, margin, 16);
+        doc.setFont('helvetica','normal');
+        doc.text(pageHeaderText(index, pages.length), pageW - margin, 16, {align:'right'});
+        doc.setFont('helvetica','bold');
+        doc.text(`Total da página: ${formatNumberBR(totalPagina)} pares | Exportação da página: ${formatNumberBR(expPagina)} pares | Remessas: ${remessasPagina}`, margin, 20);
+
+        doc.autoTable({
+          startY: 23,
+          margin:{left:margin,right:margin,bottom:index===0?28:7},
+          tableWidth: pageW - margin * 2,
+          body: buildAutoTableBody(pageGroups, true),
+          theme:'grid',
+          styles:{font:'helvetica',fontSize:6.1,cellPadding:1.0,valign:'middle',textColor:[0,0,0],lineColor:[0,0,0],lineWidth:0.1,overflow:'linebreak',minCellHeight:8.6},
+          headStyles:{fillColor:[217,217,217],textColor:[0,0,0],fontStyle:'bold',halign:'center',valign:'middle',fontSize:6.0,minCellHeight:7},
+          columnStyles:{
+            0:{cellWidth:6.8,halign:'center',valign:'middle',cellPadding:0},
+            1:{cellWidth:9,halign:'center'},
+            2:{cellWidth:14,halign:'center',fontSize:3.8,cellPadding:0.25},
+            3:{cellWidth:16,halign:'center'},
+            4:{cellWidth:12,halign:'right'},
+            5:{cellWidth:16,halign:'center'},
+            6:{cellWidth:16,halign:'center'},
+            7:{cellWidth:8,halign:'center'},
+            8:{cellWidth:46,halign:'left'},
+            9:{cellWidth:59,halign:'left'},
+            10:{cellWidth:12,halign:'center'},
+            11:{cellWidth:16,halign:'center'},
+            12:{cellWidth:16,halign:'center'},
+            13:{cellWidth:15,halign:'center'},
+            14:{cellWidth:16,halign:'center'}
+          },
+          didParseCell:function(data){
+            if(data.section !== 'body') return;
+            const raw = data.row.raw || [];
+            const getRaw = (idx) => typeof raw[idx] === 'object' ? raw[idx].content : raw[idx];
+            const first = getRaw(0);
+            const isColumnHeader = getRaw(1) === 'LINHA' && getRaw(2) === 'MODELO' && getRaw(3) === 'REMESSA';
+            const isTotal = getRaw(3) === 'TOTAL';
+            const isLineHeader = typeof first === 'string' && first.startsWith('LINHA ');
+            if(isColumnHeader){
+              data.cell.styles.fillColor = [217,217,217];
+              data.cell.styles.textColor = [0,0,0];
+              data.cell.styles.fontStyle = 'bold';
+              data.cell.styles.halign = 'center';
+              data.cell.styles.valign = 'middle';
+              data.cell.styles.fontSize = 5.9;
+              data.cell.styles.minCellHeight = 6.2;
+            }
+            if(isTotal){
+              data.cell.styles.fillColor = [217,217,217];
+              data.cell.styles.fontStyle = 'bold';
+              data.cell.styles.minCellHeight = 5.8;
+            }
+            if(isLineHeader){
+              data.cell.styles.fillColor = [235,235,235];
+              data.cell.styles.fontStyle = 'bold';
+              data.cell.styles.minCellHeight = 5.8;
+            }
+            const cellRaw = typeof data.cell.raw === 'object' ? data.cell.raw.content : data.cell.raw;
+            if(data.column.index === 0 && (cellRaw === 'EXPORTAÇÃO' || cellRaw === 'NORMAL')){
+              data.cell.text = [''];
+              data.cell.styles.fillColor = [242,242,242];
+              data.cell.styles.fontStyle = 'bold';
+              data.cell.styles.cellPadding = 0;
+              data.cell.styles.lineWidth = 0.12;
+              data.cell.styles.halign = 'center';
+              data.cell.styles.valign = 'middle';
+            }
+            if(data.column.index === 2 && !isTotal && !isLineHeader && !isColumnHeader){
+              data.cell.styles.fontSize = 3.8;
+              data.cell.styles.cellPadding = 0.25;
+            }
+          },
+          didDrawCell:function(data){
+            if(data.section !== 'body' || data.column.index !== 0) return;
+            const rawValue = typeof data.cell.raw === 'object' ? data.cell.raw.content : data.cell.raw;
+            if(rawValue !== 'EXPORTAÇÃO' && rawValue !== 'NORMAL') return;
+
+            doc.setFont('helvetica','bold');
+            doc.setTextColor(0,0,0);
+
+            const chars = String(rawValue).split();
+            const cx = data.cell.x + (data.cell.width / 2);
+            const availableH = Math.max(6, data.cell.height - 2.4);
+            const availableW = Math.max(2.5, data.cell.width - 1.2);
+
+            const stepMm = Math.max(2.0, Math.min(availableH / chars.length, 3.2));
+            const fontMm = Math.min(availableW * 0.72, stepMm * 0.72);
+            const fontPt = Math.max(4.0, Math.min(8.0, fontMm / 0.352778));
+            doc.setFontSize(fontPt);
+
+            const topY = data.cell.y + ((data.cell.height - (stepMm * chars.length)) / 2) + (stepMm * 0.74);
+            chars.forEach((ch, i) => {
+              doc.text(ch, cx, topY + (i * stepMm), {align:'center', baseline:'middle'});
+            });
+          }
+        });
+        if(index === 0) drawResumoCardsAtBottom();
+      });
+
+      const fileDate = target.dm.replace('/','-');
+      doc.save(`programacao_${fileDate}.pdf`);
+      setStatus(`PDF gerado com sucesso. Pares PDF: <strong>${formatNumberBR(totals.total)}</strong>. Pares banco: <strong>${state.bancoResumo.size ? formatNumberBR(totals.totalBanco) : '-'}</strong>. Total de exportação: <strong>${formatNumberBR(totals.totalExp)}</strong>.`);
+    }
+
+    function printableColumnHeader(){
+      return `<tr><th></th><th>LINHA</th><th>MODELO</th><th>REMESSA</th><th>PARES</th><th>CORTE</th><th>ENTREGA</th><th>Fabrica</th><th>CLIENTE</th><th>NORMATIVAS</th><th>TALÕES</th><th>COSTURA</th><th>PALMILHA</th><th>SOLA</th><th>EMBARQUE</th></tr>`;
+    }
+
+    function printableGroupRows(label, rows, forceEmpty){
+      const total = rows.reduce((s,r)=>s+parseNumberBR(r.pares),0);
+      let html = '';
+      if(rows.length){
+        const labelIndex = Math.floor((rows.length - 1) / 2);
+        rows.forEach((r, idx) => {
+          html += `<tr><td class="tipo">${idx === labelIndex ? escapeHtml(label) : ''}</td>
+            <td class="text-center">${escapeHtml(r.linha)}</td>
+            <td class="text-center modelo-print">${escapeHtml(r.modelo || 'VARIOS')}</td>
+            <td class="text-center">${escapeHtml(r.remessa)}</td>
+            <td class="text-right">${formatNumberBR(r.pares)}</td>
+            <td class="text-center">${dmToDisplay(r.corte)}</td>
+            <td class="text-center">${dmToDisplay(r.entrega)}</td>
+            <td class="text-center">${escapeHtml(r.fabrica)}</td>
+            <td class="text-left">${escapeHtml(r.cliente)}</td>
+            <td class="text-left">${escapeHtml(r.normativa)}</td>
+            <td class="text-center">${escapeHtml(r.taloes || '')}</td><td></td><td></td><td></td><td></td>
+          </tr>`;
+        });
+      }else if(forceEmpty){
+        html += `<tr><td class="tipo">${escapeHtml(label)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+      }
+      html += `<tr class="total-row"><td></td><td></td><td></td><td class="text-center">TOTAL</td><td class="text-right">${formatNumberBR(total)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+      return html;
+    }
+
+    function generatePrintablePdf(target){
+      const pages = paginateRecords(15);
+      const totals = getTotals();
+      const corteTitulo = `Corte ${target.day}/${target.month}`;
+      const html = pages.map((pageGroups,index) => {
+        const pageRows = pageGroups.flatMap(g => g.rows);
+        const totalPagina = pageRows.reduce((s,r)=>s+parseNumberBR(r.pares),0);
+        const expPagina = pageRows.filter(r=>isExportacao(r.tipoCliente)).reduce((s,r)=>s+parseNumberBR(r.pares),0);
+        const summary = index === 0 ? `<table class="print-total-box"><tr><td>TOTAL DE EXPORTAÇÃO</td><td>${formatNumberBR(totals.totalExp)}</td></tr><tr><td>TOTAL DE NORMAL</td><td>${formatNumberBR(totals.totalNormal)}</td></tr><tr><td>TOTAL DE PARES</td><td>${formatNumberBR(totals.total)}</td></tr></table>` : '';
+        const groupsHtml = pageGroups.map((group, groupIndex) => `${pageGroups.length > 1 ? `<tr class="line-title"><td colspan="15">LINHA ${escapeHtml(group.linha)}${group.parte ? ' - PARTE ' + group.parte : ''}</td></tr>` : ''}${printableColumnHeader()}${printableGroupRows('EXPORTAÇÃO', rowsByType(group.rows,true), true)}${printableGroupRows('NORMAL', rowsByType(group.rows,false), false)}${pageGroups.length > 1 && groupIndex < pageGroups.length - 1 ? '<tr class="line-spacer"><td colspan="15"></td></tr>' : ''}`).join('');
+        return `<section class="print-page">
+          <div class="print-title">Planejamento FactorShoes</div>
+          <div class="print-head"><div><h2>${escapeHtml(summarizePageLines(pageGroups))} - ${escapeHtml(corteTitulo)}</h2><strong>Total da página:</strong> ${formatNumberBR(totalPagina)} pares &nbsp; | &nbsp; <strong>Exportação da página:</strong> ${formatNumberBR(expPagina)} pares</div><div>${pageHeaderText(index, pages.length)}</div></div>
+          <table class="print-table"><tbody>${groupsHtml}</tbody></table>
+          ${summary}
+        </section>`;
+      }).join('');
+      $('printArea').innerHTML = html;
+      document.body.classList.add('printing');
+      setTimeout(() => { window.print(); setTimeout(() => document.body.classList.remove('printing'), 600); }, 80);
+    }
+
+    function chunkArray(arr, size){
+      const chunks = [];
+      for(let i=0; i<arr.length; i+=size) chunks.push(arr.slice(i,i+size));
+      return chunks;
+    }
+
+    async function saveClienteNormativaBanco(){
+      updateStateFromPreview();
+      if(!state.records.length){ setStatus('Não há remessas carregadas para lançar no banco.'); return; }
+      const porRemessa = new Map();
+      state.records.forEach(r => {
+        const rem = String(r.remessa || '').trim();
+        if(!rem) return;
+        porRemessa.set(rem, { cliente:r.cliente || '', normativa:r.normativa || '', fabrica:r.fabrica || '' });
+      });
+      const remessas = [...porRemessa.keys()];
+      if(!remessas.length){ setStatus('Nenhuma remessa válida para atualizar.'); return; }
+      const ok = window.confirm(`Lançar cliente, normativa e fábrica no banco para ${remessas.length} remessa(s)? Isso atualizará todos os talões dessas remessas.`);
+      if(!ok) return;
+      try{
+        setStatus('Buscando talões das remessas para atualizar cliente, normativa e fábrica...');
+        let docsParaAtualizar = [];
+        for(const grupo of chunkArray(remessas, 10)){
+          const qRef = query(collection(db,'taloes'), where('numeroRemessa','in', grupo));
+          const snap = await getDocs(qRef);
+          snap.docs.forEach(docSnap => {
+            const data = docSnap.data();
+            const rem = String(data.numeroRemessa || '').trim();
+            const info = porRemessa.get(rem);
+            if(info) docsParaAtualizar.push({ref:docSnap.ref, remessa:rem, info});
+          });
+        }
+        if(!docsParaAtualizar.length){
+          setStatus('Nenhum talão encontrado no banco para as remessas carregadas.');
+          return;
+        }
+        let atualizados = 0;
+        for(const lote of chunkArray(docsParaAtualizar, 450)){
+          const batch = writeBatch(db);
+          lote.forEach(item => {
+            batch.update(item.ref, {
+              cliente: item.info.cliente,
+              normativa: item.info.normativa,
+              fabrica: item.info.fabrica
+            });
+          });
+          await batch.commit();
+          atualizados += lote.length;
+        }
+        setStatus(`Cliente, normativa e fábrica lançados no banco com sucesso. Atualizados <strong>${atualizados}</strong> talão(ões) em <strong>${remessas.length}</strong> remessa(s).`);
+      }catch(err){
+        console.error(err);
+        setStatus('Erro ao lançar no banco: ' + escapeHtml(err.message || String(err)) + '<br>Confira se você está logado e se seu nível de acesso permite editar os talões.');
+      }
+    }
+
+    function clearAll(){
+      state.selectedPdfFile = null;
+      state.records = [];
+      state.allPdfRecords = [];
+      state.bancoResumo = new Map();
+      state.bancoSomente = [];
+      state.lineOrder = [];
+      $('pdfFile').value = '';
+      $('selectedFilesLabel').textContent = 'Nenhum PDF selecionado.';
+      $('dataCorteInput').value = '';
+      $('summaryCards').innerHTML = '';
+      $('lineSummary').innerHTML = '';
+      renderPreview();
+      setStatus(state.authReady ? 'Login confirmado. Selecione o PDF Factor Geral.' : 'Aguardando login e seleção do PDF.');
+    }
+
+    $('pdfFile').addEventListener('change', handlePdfFile);
+    $('loadFilesButton').addEventListener('click', loadFiles);
+    $('generatePdfButton').addEventListener('click', generatePdf);
+    $('saveBancoButton').addEventListener('click', saveClienteNormativaBanco);
+    $('clearButton').addEventListener('click', clearAll);
+  </script>
+</body>
+</html>
