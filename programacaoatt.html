@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <link rel="stylesheet" href="styles.css">
+
 <title>Controle Ateliê - SistemaTaloes</title>
 
   <style>
@@ -1565,13 +1565,61 @@
         renderRightCard(weekTotal, weekModels, weekDocs);
         renderRightCard(cutTotal, cutModels, cutDocs);
 
-        urgentSubtitle.textContent = `Em atraso Urgente`;
+        urgentSubtitle.textContent = `Em atraso urgente • janela de 14 dias para trás`;
         exportMondayTitle.textContent = "Exportação Segunda";
         exportMondaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportTargets.mondayIso)}`;
         exportThursdayTitle.textContent = "Exportação Quinta";
         exportThursdaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportTargets.thursdayIso)}`;
         weekSubtitle.textContent = `Data de entrega da montagem de ${formatDateShort(mondayIso)} a ${formatDateShort(fridayIso)}`;
         cutSubtitle.textContent = `Data de Fechamento ${formatDate(cutClosing.closingTuesdayIso)} • Cortes ${formatDateShort(cutClosing.cutDates[0])} e ${formatDateShort(cutClosing.cutDates[1])}`;
+      }
+
+      function uniqueDates(values) {
+        return Array.from(new Set(values.filter(Boolean))).sort();
+      }
+
+      function getDateRangeList(startIso, endIso) {
+        const dates = [];
+        if (!startIso || !endIso || startIso > endIso) return dates;
+
+        let cursor = dateFromISO(startIso);
+        const endDate = dateFromISO(endIso);
+
+        while (cursor <= endDate) {
+          dates.push(localDateToISO(cursor));
+          cursor.setDate(cursor.getDate() + 1);
+        }
+
+        return dates;
+      }
+
+      async function getDocsByFieldIn(fieldName, values) {
+        const cleanValues = uniqueDates(values);
+        if (!cleanValues.length) return [];
+
+        const chunks = [];
+        for (let i = 0; i < cleanValues.length; i += 10) {
+          chunks.push(cleanValues.slice(i, i + 10));
+        }
+
+        const snapshots = await Promise.all(
+          chunks.map((chunk) => db.collection("taloes").where(fieldName, "in", chunk).get())
+        );
+
+        return snapshots.flatMap((snapshot) =>
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        );
+      }
+
+      async function getDocsByFieldRange(fieldName, startIso, endIso) {
+        if (!startIso || !endIso || startIso > endIso) return [];
+
+        const snapshot = await db.collection("taloes")
+          .where(fieldName, ">=", startIso)
+          .where(fieldName, "<=", endIso)
+          .get();
+
+        return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       }
 
       async function loadRightReport() {
@@ -1582,33 +1630,52 @@
           exportThursdayModels.innerHTML = '<div class="empty-message">Carregando...</div>';
           weekModels.innerHTML = '<div class="empty-message">Carregando...</div>';
           cutModels.innerHTML = '<div class="empty-message">Carregando...</div>';
+          setStatus("Buscando somente datas necessárias...");
 
-          // Busca otimizada: antes trazia todos os talões do banco para montar os cards.
-          // Agora carrega apenas janelas úteis para os fechamentos e pendências recentes.
           const selectedDate = filterData.value || todayISO();
           const { mondayIso, fridayIso } = getCycleDeliveryRange(selectedDate);
           const exportTargets = getExportTargetDates(selectedDate);
           const cutClosing = getCutClosingRange(selectedDate);
-          const endEntrega = [fridayIso, exportTargets.mondayIso, exportTargets.thursdayIso].sort().pop();
-          const startLimit = addDaysISO(selectedDate, -365);
-          const hoje = todayISO();
 
-          const queries = [
-            db.collection("taloes").where("dataEntrega", ">=", startLimit).where("dataEntrega", "<=", endEntrega).get(),
-            db.collection("taloes").where("dataCorte", "in", cutClosing.cutDates).get(),
-            db.collection("taloes").where("dataSaidaCostura", ">=", startLimit).where("dataSaidaCostura", "<=", hoje).get()
-          ];
+          // Janela máxima solicitada: 14 dias para trás e 25 dias para frente
+          // a partir da data base. Nada fora dessa janela entra nas buscas.
+          const windowStartIso = addDaysISO(selectedDate, -14);
+          const windowEndIso = addDaysISO(selectedDate, 25);
 
-          const snaps = await Promise.all(queries);
+          const withinWindow = (iso) => iso && iso >= windowStartIso && iso <= windowEndIso;
+
+          const weekDeliveryDates = getDateRangeList(mondayIso, fridayIso).filter(withinWindow);
+          const deliveryDates = uniqueDates([
+            ...weekDeliveryDates,
+            exportTargets.mondayIso,
+            exportTargets.thursdayIso
+          ].filter(withinWindow));
+
+          const cutDates = cutClosing.cutDates.filter(withinWindow);
+
+          const urgentStartIso = windowStartIso;
+          const urgentEndIso = addDaysISO(selectedDate, -1);
+
+          const [deliveryDocs, cutDocs, urgentDocs] = await Promise.all([
+            getDocsByFieldIn("dataEntrega", deliveryDates),
+            getDocsByFieldIn("dataCorte", cutDates),
+            getDocsByFieldRange("dataEntrega", urgentStartIso, urgentEndIso)
+          ]);
+
           if (loadToken !== rightReportLoadToken) return;
+
           const map = new Map();
-          snaps.forEach((snapshot) => {
-            snapshot.docs.forEach((doc) => map.set(doc.id, { id: doc.id, ...doc.data() }));
+          [...deliveryDocs, ...cutDocs, ...urgentDocs].forEach((doc) => {
+            map.set(doc.id, doc);
           });
 
           allRightDocs = Array.from(map.values());
+
           renderRightReport();
           renderReport();
+
+          const atelieText = getSelectedAtelie() || "todos os ateliês";
+          setStatus(`Relatório atualizado: ${formatDate(selectedDate)} • Ateliê: ${atelieText} • Busca limitada a 14 dias para trás e 25 dias para frente`);
         } catch (error) {
           console.error("Erro ao carregar fechamentos:", error);
           urgentModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
@@ -1616,6 +1683,7 @@
           exportThursdayModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
           weekModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
           cutModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
+          setStatus("Erro ao carregar. Veja o console para detalhes.");
         }
       }
 
