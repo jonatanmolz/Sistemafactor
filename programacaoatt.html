@@ -549,7 +549,7 @@
 
     .modal-table {
       width: 100%;
-      min-width: 1130px;
+      min-width: 1240px;
       border-collapse: collapse;
       font-size: 13px;
     }
@@ -572,7 +572,27 @@
       font-size: 11px;
     }
 
-    .modal-table tr:hover td { background: #f8fafc; }
+    .modal-table tr:hover td { filter: brightness(.98); }
+
+    .modal-table tr.tipo-exportacao td { background: #e7f0ff; }
+    .modal-table tr.tipo-cliente-especial td { background: #ffe8f3; }
+    .modal-table tr.tipo-estoque td { background: #fff7cc; }
+    .modal-table tr.tipo-amostra td { background: #e6f7ea; }
+    .modal-table tr.tipo-mercado-interno td { background: #ffffff; }
+
+    .tipo-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 92px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      border: 1px solid rgba(15, 23, 42, .12);
+      background: rgba(255,255,255,.65);
+      color: #1f2937;
+    }
 
     .missing-date {
       color: #dc2626;
@@ -865,6 +885,7 @@
               <th>Data de corte</th>
               <th>Linha/Modelo</th>
               <th>Cor</th>
+              <th>Tipo cliente</th>
               <th>Pares</th>
               <th>Ateliê</th>
               <th>Entrega</th>
@@ -875,7 +896,7 @@
             </tr>
           </thead>
           <tbody id="listModalBody">
-            <tr><td colspan="12">Nenhum talão encontrado.</td></tr>
+            <tr><td colspan="13">Nenhum talão encontrado.</td></tr>
           </tbody>
         </table>
       </div>
@@ -1081,6 +1102,25 @@
         return String(tipo || "").trim();
       }
 
+      function getTipoClienteLabel(talao) {
+        const tipo = normalizeTipoCliente(talao.tipoCliente);
+        if (tipo === "Exportacao") return "Exportação";
+        if (tipo === "Cliente especial") return "Cliente especial";
+        if (tipo === "Mercado Interno") return "Mercado interno";
+        if (tipo === "Estoque") return "Estoque";
+        if (tipo === "Amostra") return "Amostra";
+        return tipo || "Sem tipo";
+      }
+
+      function getTipoClienteRowClass(talao) {
+        const tipo = normalizeTipoCliente(talao.tipoCliente);
+        if (tipo === "Exportacao") return "tipo-exportacao";
+        if (tipo === "Cliente especial") return "tipo-cliente-especial";
+        if (tipo === "Estoque") return "tipo-estoque";
+        if (tipo === "Amostra") return "tipo-amostra";
+        return "tipo-mercado-interno";
+      }
+
       function isAmostra(talao) {
         return normalizeTipoCliente(talao.tipoCliente) === "Amostra";
       }
@@ -1249,6 +1289,7 @@
             <td>${escapeHTML(talao.numeroTalaoSequencial || "")}</td>
             <td>${escapeHTML(getModelKey(talao))}</td>
             <td>${escapeHTML(talao.corSapato || "")}</td>
+            <td><span class="tipo-badge">${escapeHTML(getTipoClienteLabel(talao))}</span></td>
             <td><strong>${normalizePares(talao.pares).toLocaleString("pt-BR")}</strong></td>
             <td>${escapeHTML(talao.idAtelieResponsavel || "")}</td>
             <td>${formatDate(talao.dataSaidaCostura)}</td>
@@ -1375,19 +1416,20 @@
         listModalSummary.textContent = `${visibleTaloes.length.toLocaleString("pt-BR")} talões exibidos • ${totalPares.toLocaleString("pt-BR")} pares${extraText}`;
 
         if (!visibleTaloes.length) {
-          listModalBody.innerHTML = '<tr><td colspan="12">Nenhum talão encontrado.</td></tr>';
+          listModalBody.innerHTML = '<tr><td colspan="13">Nenhum talão encontrado.</td></tr>';
           return;
         }
 
         const sorted = sortTaloesForList(visibleTaloes, currentModalSortMode);
 
         listModalBody.innerHTML = sorted.map((talao) => `
-          <tr>
+          <tr class="${getTipoClienteRowClass(talao)}">
             <td>${escapeHTML(talao.numeroRemessa || "")}</td>
             <td>${escapeHTML(talao.numeroTalaoSequencial || "")}</td>
             <td>${formatDate(toISODateOnly(talao.dataCorte))}</td>
             <td>${escapeHTML(getModelKey(talao))}</td>
             <td>${escapeHTML(talao.corSapato || "")}</td>
+            <td><span class="tipo-badge">${escapeHTML(getTipoClienteLabel(talao))}</span></td>
             <td><strong>${normalizePares(talao.pares).toLocaleString("pt-BR")}</strong></td>
             <td>${escapeHTML(talao.idAtelieResponsavel || "")}</td>
             <td>${formatDate(toISODateOnly(talao.dataEntrega))}</td>
