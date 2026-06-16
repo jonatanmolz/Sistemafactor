@@ -340,31 +340,39 @@
     }
 
     .right-metrics {
-      min-width: 112px;
+      flex: 0 1 166px;
+      width: 166px;
+      min-width: 0;
+      max-width: 166px;
       text-align: left;
-      font-size: 11px !important;
+      font-size: 10.5px !important;
       line-height: 1.22;
       padding-top: 0;
+      overflow: hidden;
     }
 
     .right-metrics .metric-line {
       display: grid;
-      grid-template-columns: auto auto;
-      gap: 7px;
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 4px;
       align-items: baseline;
       margin-bottom: 2px;
+      width: 100%;
     }
 
     .right-metrics .metric-label,
     .right-metrics .metric-number {
-      font-size: 11px !important;
+      font-size: 10.5px !important;
       color: #111827;
       font-weight: 900;
       white-space: nowrap;
     }
 
     .right-metrics .metric-number {
-      text-align: right;
+      text-align: left;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: clip;
     }
 
     .right-metrics .metric-line.total-line {
@@ -644,7 +652,7 @@
     }
 
     .right-cards-grid {
-      grid-template-columns: repeat(4, minmax(250px, 1fr)) !important;
+      grid-template-columns: repeat(5, minmax(245px, 1fr)) !important;
       gap: 12px !important;
     }
 
@@ -653,7 +661,7 @@
     }
 
     .right-cards-grid .summary-title {
-      max-width: 160px;
+      max-width: 128px;
     }
 
     @media (max-width: 1450px) {
@@ -774,14 +782,27 @@
           <article class="summary-card export">
             <div class="summary-top">
               <div class="summary-title-wrap">
-                <div class="summary-title" id="exportTitle">Exportação</div>
-                <button class="list-button" id="exportListButton" type="button">Talões</button>
+                <div class="summary-title" id="exportMondayTitle">Exportação Segunda</div>
+                <button class="list-button" id="exportMondayListButton" type="button">Talões</button>
               </div>
-              <div class="summary-value right-metrics" id="exportTotal"></div>
+              <div class="summary-value right-metrics" id="exportMondayTotal"></div>
             </div>
-            <div class="right-card-subtitle" id="exportSubtitle">Próxima exportação</div>
+            <div class="right-card-subtitle" id="exportMondaySubtitle">Próxima segunda</div>
             <div class="model-title">Modelos</div>
-            <div class="model-list" id="exportModels"></div>
+            <div class="model-list" id="exportMondayModels"></div>
+          </article>
+
+          <article class="summary-card export">
+            <div class="summary-top">
+              <div class="summary-title-wrap">
+                <div class="summary-title" id="exportThursdayTitle">Exportação Quinta</div>
+                <button class="list-button" id="exportThursdayListButton" type="button">Talões</button>
+              </div>
+              <div class="summary-value right-metrics" id="exportThursdayTotal"></div>
+            </div>
+            <div class="right-card-subtitle" id="exportThursdaySubtitle">Próxima quinta</div>
+            <div class="model-title">Modelos</div>
+            <div class="model-list" id="exportThursdayModels"></div>
           </article>
 
           <article class="summary-card week">
@@ -829,6 +850,10 @@
         <label class="modal-checkbox" for="onlyNoEntryCheckbox">
           <input type="checkbox" id="onlyNoEntryCheckbox" />
           Talões sem entrada
+        </label>
+        <label class="modal-checkbox" for="onlyNotBippedFactoryCheckbox">
+          <input type="checkbox" id="onlyNotBippedFactoryCheckbox" />
+          Bipados na costura e não na fábrica
         </label>
       </div>
       <div class="modal-table-wrap">
@@ -908,22 +933,28 @@
       const listModalBody = document.getElementById("listModalBody");
       const removeProducedCheckbox = document.getElementById("removeProducedCheckbox");
       const onlyNoEntryCheckbox = document.getElementById("onlyNoEntryCheckbox");
+      const onlyNotBippedFactoryCheckbox = document.getElementById("onlyNotBippedFactoryCheckbox");
       const closeListModalButton = document.getElementById("closeListModalButton");
       const urgentListButton = document.getElementById("urgentListButton");
-      const exportListButton = document.getElementById("exportListButton");
+      const exportMondayListButton = document.getElementById("exportMondayListButton");
+      const exportThursdayListButton = document.getElementById("exportThursdayListButton");
       const weekListButton = document.getElementById("weekListButton");
       const cutListButton = document.getElementById("cutListButton");
       const urgentTotal = document.getElementById("urgentTotal");
-      const exportTotal = document.getElementById("exportTotal");
+      const exportMondayTotal = document.getElementById("exportMondayTotal");
+      const exportThursdayTotal = document.getElementById("exportThursdayTotal");
       const weekTotal = document.getElementById("weekTotal");
       const cutTotal = document.getElementById("cutTotal");
       const urgentModels = document.getElementById("urgentModels");
-      const exportModels = document.getElementById("exportModels");
+      const exportMondayModels = document.getElementById("exportMondayModels");
+      const exportThursdayModels = document.getElementById("exportThursdayModels");
       const weekModels = document.getElementById("weekModels");
       const cutModels = document.getElementById("cutModels");
       const urgentSubtitle = document.getElementById("urgentSubtitle");
-      const exportTitle = document.getElementById("exportTitle");
-      const exportSubtitle = document.getElementById("exportSubtitle");
+      const exportMondayTitle = document.getElementById("exportMondayTitle");
+      const exportMondaySubtitle = document.getElementById("exportMondaySubtitle");
+      const exportThursdayTitle = document.getElementById("exportThursdayTitle");
+      const exportThursdaySubtitle = document.getElementById("exportThursdaySubtitle");
       const weekSubtitle = document.getElementById("weekSubtitle");
       const cutSubtitle = document.getElementById("cutSubtitle");
 
@@ -936,12 +967,14 @@
       let modalPendingDocs = [];
       let allRightDocs = [];
       let modalUrgentDocs = [];
-      let modalExportDocs = [];
+      let modalExportMondayDocs = [];
+      let modalExportThursdayDocs = [];
       let modalWeekDocs = [];
       let modalCutDocs = [];
       let currentModalTitle = "";
       let currentModalTaloes = [];
       let currentModalSortMode = "";
+      let rightReportLoadToken = 0;
 
       function todayISO() {
         const d = new Date();
@@ -1023,17 +1056,22 @@
         return { closingTuesdayIso, cutDates: [firstCutIso, secondCutIso] };
       }
 
-      function getExportTargetDate(baseIso) {
+      function getNextWeekdayDate(baseIso, targetWeekday) {
         const base = dateFromISO(baseIso);
         const day = base.getDay();
-        const targetWeekday = (day >= 4 || day === 0) ? 1 : 4;
-        const targetName = targetWeekday === 1 ? "Segunda" : "Quinta";
         let diff = targetWeekday - day;
         if (diff < 0) diff += 7;
         if (diff === 0) diff = 7;
         const target = new Date(base);
         target.setDate(base.getDate() + diff);
-        return { iso: localDateToISO(target), targetName };
+        return localDateToISO(target);
+      }
+
+      function getExportTargetDates(baseIso) {
+        return {
+          mondayIso: getNextWeekdayDate(baseIso, 1),
+          thursdayIso: getNextWeekdayDate(baseIso, 4)
+        };
       }
 
       function normalizeTipoCliente(tipo) {
@@ -1308,6 +1346,17 @@
           if (hidden > 0) summaryExtras.push(`${hidden.toLocaleString("pt-BR")} com entrada ocultados`);
         }
 
+        if (onlyNotBippedFactoryCheckbox && onlyNotBippedFactoryCheckbox.checked) {
+          const before = visibleTaloes.length;
+          // Mostra somente os talões que JÁ foram bipados na costura
+          // e que AINDA NÃO foram bipados na fábrica/distribuição.
+          visibleTaloes = visibleTaloes.filter((talao) =>
+            hasFilledDate(talao.dataSaidaCostura) && !hasFilledDate(talao.dataEntradaDistribuicao)
+          );
+          const hidden = before - visibleTaloes.length;
+          if (hidden > 0) summaryExtras.push(`${hidden.toLocaleString("pt-BR")} fora do critério ocultados`);
+        }
+
         return { visibleTaloes, summaryExtras };
       }
 
@@ -1361,6 +1410,9 @@
         if (onlyNoEntryCheckbox) {
           onlyNoEntryCheckbox.checked = false;
         }
+        if (onlyNotBippedFactoryCheckbox) {
+          onlyNotBippedFactoryCheckbox.checked = false;
+        }
 
         renderListModalContent();
         listModal.classList.add("show");
@@ -1386,8 +1438,12 @@
         openListModal("Listagem - Atraso Urgente", modalUrgentDocs, "urgent");
       });
 
-      exportListButton.addEventListener("click", () => {
-        openListModal("Listagem - Exportação", modalExportDocs, "export");
+      exportMondayListButton.addEventListener("click", () => {
+        openListModal("Listagem - Exportação Segunda", modalExportMondayDocs, "export");
+      });
+
+      exportThursdayListButton.addEventListener("click", () => {
+        openListModal("Listagem - Exportação Quinta", modalExportThursdayDocs, "export");
       });
 
       weekListButton.addEventListener("click", () => {
@@ -1404,6 +1460,9 @@
       if (onlyNoEntryCheckbox) {
         onlyNoEntryCheckbox.addEventListener("change", renderListModalContent);
       }
+      if (onlyNotBippedFactoryCheckbox) {
+        onlyNotBippedFactoryCheckbox.addEventListener("change", renderListModalContent);
+      }
 
       closeListModalButton.addEventListener("click", closeListModal);
       listModal.addEventListener("click", (event) => {
@@ -1413,7 +1472,7 @@
       function renderRightReport() {
         const selectedDate = filterData.value || todayISO();
         const { mondayIso, fridayIso } = getCycleDeliveryRange(selectedDate);
-        const exportTarget = getExportTargetDate(selectedDate);
+        const exportTargets = getExportTargetDates(selectedDate);
 
         const selectedAtelie = getSelectedAtelie();
         const baseDocsComAmostraIgnorada = allRightDocs.filter((t) => !isAmostra(t));
@@ -1432,14 +1491,17 @@
         pendentesDistribuicao.forEach((t) => {
           const entrega = toISODateOnly(t.dataEntrega);
           const isExport = normalizeTipoCliente(t.tipoCliente) === "Exportacao";
-          const exportAtrasada = isExport && entrega && entrega < exportTarget.iso;
+          const exportAtrasada = isExport && entrega && entrega < exportTargets.mondayIso && entrega < exportTargets.thursdayIso;
           const semanaAtrasada = entrega && entrega < mondayIso;
           if (exportAtrasada || semanaAtrasada) urgentMap.set(t.id || `${t.numeroRemessa}-${t.numeroTalaoSequencial}`, t);
         });
 
         const urgentDocs = Array.from(urgentMap.values());
-        const exportDocs = pendentesDistribuicao.filter((t) =>
-          normalizeTipoCliente(t.tipoCliente) === "Exportacao" && toISODateOnly(t.dataEntrega) === exportTarget.iso
+        const exportMondayDocs = pendentesDistribuicao.filter((t) =>
+          normalizeTipoCliente(t.tipoCliente) === "Exportacao" && toISODateOnly(t.dataEntrega) === exportTargets.mondayIso
+        );
+        const exportThursdayDocs = pendentesDistribuicao.filter((t) =>
+          normalizeTipoCliente(t.tipoCliente) === "Exportacao" && toISODateOnly(t.dataEntrega) === exportTargets.thursdayIso
         );
         const weekDocs = pendentesDistribuicao.filter((t) => {
           const entrega = toISODateOnly(t.dataEntrega);
@@ -1450,26 +1512,32 @@
         const cutDocs = pendentesDistribuicao.filter((t) => cutDateSet.has(toISODateOnly(t.dataCorte)));
 
         modalUrgentDocs = urgentDocs;
-        modalExportDocs = exportDocs;
+        modalExportMondayDocs = exportMondayDocs;
+        modalExportThursdayDocs = exportThursdayDocs;
         modalWeekDocs = weekDocs;
         modalCutDocs = cutDocs;
 
         renderRightCard(urgentTotal, urgentModels, urgentDocs);
-        renderRightCard(exportTotal, exportModels, exportDocs);
+        renderRightCard(exportMondayTotal, exportMondayModels, exportMondayDocs);
+        renderRightCard(exportThursdayTotal, exportThursdayModels, exportThursdayDocs);
         renderRightCard(weekTotal, weekModels, weekDocs);
         renderRightCard(cutTotal, cutModels, cutDocs);
 
         urgentSubtitle.textContent = `Em atraso Urgente`;
-        exportTitle.textContent = `Exportação ${exportTarget.targetName}`;
-        exportSubtitle.textContent = `Data de entrega da montagem ${formatDate(exportTarget.iso)}`;
+        exportMondayTitle.textContent = "Exportação Segunda";
+        exportMondaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportTargets.mondayIso)}`;
+        exportThursdayTitle.textContent = "Exportação Quinta";
+        exportThursdaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportTargets.thursdayIso)}`;
         weekSubtitle.textContent = `Data de entrega da montagem de ${formatDateShort(mondayIso)} a ${formatDateShort(fridayIso)}`;
         cutSubtitle.textContent = `Data de Fechamento ${formatDate(cutClosing.closingTuesdayIso)} • Cortes ${formatDateShort(cutClosing.cutDates[0])} e ${formatDateShort(cutClosing.cutDates[1])}`;
       }
 
       async function loadRightReport() {
+        const loadToken = ++rightReportLoadToken;
         try {
           urgentModels.innerHTML = '<div class="empty-message">Carregando...</div>';
-          exportModels.innerHTML = '<div class="empty-message">Carregando...</div>';
+          exportMondayModels.innerHTML = '<div class="empty-message">Carregando...</div>';
+          exportThursdayModels.innerHTML = '<div class="empty-message">Carregando...</div>';
           weekModels.innerHTML = '<div class="empty-message">Carregando...</div>';
           cutModels.innerHTML = '<div class="empty-message">Carregando...</div>';
 
@@ -1477,9 +1545,9 @@
           // Agora carrega apenas janelas úteis para os fechamentos e pendências recentes.
           const selectedDate = filterData.value || todayISO();
           const { mondayIso, fridayIso } = getCycleDeliveryRange(selectedDate);
-          const exportTarget = getExportTargetDate(selectedDate);
+          const exportTargets = getExportTargetDates(selectedDate);
           const cutClosing = getCutClosingRange(selectedDate);
-          const endEntrega = [fridayIso, exportTarget.iso].sort().pop();
+          const endEntrega = [fridayIso, exportTargets.mondayIso, exportTargets.thursdayIso].sort().pop();
           const startLimit = addDaysISO(selectedDate, -365);
           const hoje = todayISO();
 
@@ -1490,6 +1558,7 @@
           ];
 
           const snaps = await Promise.all(queries);
+          if (loadToken !== rightReportLoadToken) return;
           const map = new Map();
           snaps.forEach((snapshot) => {
             snapshot.docs.forEach((doc) => map.set(doc.id, { id: doc.id, ...doc.data() }));
@@ -1501,7 +1570,8 @@
         } catch (error) {
           console.error("Erro ao carregar fechamentos:", error);
           urgentModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
-          exportModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
+          exportMondayModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
+          exportThursdayModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
           weekModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
           cutModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
         }
@@ -1578,8 +1648,8 @@
       });
 
       filterAtelie.addEventListener("change", () => {
+        renderRightReport();
         renderReport();
-        loadRightReport();
       });
 
       filterData.addEventListener("change", () => {
