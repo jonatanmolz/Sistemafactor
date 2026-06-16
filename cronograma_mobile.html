@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cronograma de Talões</title>
+  
+  <link rel="stylesheet" href="styles.css">
+<title>Cronograma de Talões</title>
   <style>
     :root { --bg:#f4f4f4; --ink:#333; --ink-2:#555; --card:#fff; --muted:#777;
       --pri:#007bff; --pri-700:#0056b3; --danger:#dc3545; --danger-700:#c82333; --ok:#345fec; --bd:#ddd; --chip:#f0f0f0; }
@@ -1431,6 +1433,66 @@
       font-size:.82em !important;
       line-height:1.22 !important;
     }
+    .remessa-extra-info{
+      margin-top:6px !important;
+      padding:7px 9px !important;
+      border-radius:10px !important;
+      background:rgba(255,255,255,.72) !important;
+      border:1px solid rgba(0,0,0,.08) !important;
+      color:#333 !important;
+      font-size:.76em !important;
+      line-height:1.25 !important;
+      font-weight:700 !important;
+      display:flex !important;
+      flex-direction:column !important;
+      gap:2px !important;
+    }
+    .remessa-extra-info span{
+      display:block !important;
+      min-width:0 !important;
+      overflow:hidden !important;
+      text-overflow:ellipsis !important;
+      white-space:nowrap !important;
+    }
+    .remessa-extra-info b{
+      color:#111 !important;
+      font-weight:900 !important;
+      margin-right:4px !important;
+    }
+    .remessa-extra-info .js-extra-full{
+      cursor:pointer !important;
+      border-radius:7px !important;
+      padding:2px 3px !important;
+      margin:-2px -3px !important;
+      transition:background .15s, transform .12s !important;
+    }
+    .remessa-extra-info .js-extra-full:hover{
+      background:rgba(0,0,0,.06) !important;
+    }
+    .extra-full-modal{
+      padding:6px 2px 2px;
+    }
+    .extra-full-card{
+      border:1px solid #d9d9d9;
+      border-radius:14px;
+      background:#fff;
+      padding:14px;
+      box-shadow:0 4px 12px rgba(0,0,0,.08);
+    }
+    .extra-full-label{
+      font-weight:900;
+      color:#111;
+      margin-bottom:8px;
+      font-size:1.02em;
+    }
+    .extra-full-text{
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.45;
+      color:#222;
+      font-size:.98em;
+      font-weight:700;
+    }
     .remessa-card-meta{
       text-align:center !important;
       color:#333 !important;
@@ -1547,6 +1609,8 @@
       .remessa-card-main{grid-template-columns:1fr !important;gap:8px !important;}
       .remessa-number-pill{width:100% !important;min-width:0 !important;justify-content:center !important;}
       .remessa-subline{text-align:center !important;}
+      .remessa-extra-info{text-align:left !important;font-size:.74em !important;}
+      .remessa-extra-info span{white-space:normal !important;}
       .remessa-current-stage{max-width:100% !important;}
       .stage-chip-row{grid-template-columns:repeat(5, minmax(0, 1fr)) !important;gap:4px !important;}
       .stage-chip{font-size:.62em !important;min-height:48px !important;padding:5px 2px !important;}
@@ -1708,6 +1772,35 @@
       font-weight:900;
       line-height:1.2;
     }
+    .open-stage-head-info-wrap{
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+      flex:1 1 360px;
+      min-width:260px;
+    }
+    .open-stage-full-info{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      background:#fff;
+      border:1px solid #d9d9d9;
+      border-radius:9px;
+      padding:7px 9px;
+      color:#222;
+      font-weight:700;
+      line-height:1.25;
+      max-width:760px;
+    }
+    .open-stage-full-info div{
+      white-space:normal;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+    .open-stage-full-info b{
+      color:#111;
+      margin-right:4px;
+    }
     .open-stage-summary-line{
       display:flex;
       justify-content:space-between;
@@ -1753,6 +1846,8 @@
       .open-stage-card-head{width:100%;}
       .open-stage-remessa-pill{width:100%;min-width:0;}
       .open-stage-head-info{text-align:center;width:100%;}
+      .open-stage-head-info-wrap{width:100%;min-width:0;align-items:stretch;}
+      .open-stage-full-info{text-align:left;max-width:100%;}
       .open-stage-summary-line{flex-direction:column;align-items:flex-start;}
     }
 
@@ -2637,6 +2732,24 @@
 
     // Helpers
     function hasDate(v){ return v!==undefined && v!==null && String(v).trim()!==''; }
+    function escapeHTML(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+    function cleanCardText(v){
+      const s = String(v ?? '').replace(/\s+/g,' ').trim();
+      if(!s || s === '-' || /^0+$/.test(s)) return '';
+      return s;
+    }
+    function firstFieldValue(obj, keys){
+      for(const key of keys){
+        const value = cleanCardText(obj && obj[key]);
+        if(value) return value;
+      }
+      return '';
+    }
+    function addUniqueText(set, value){
+      const clean = cleanCardText(value);
+      if(clean) set.add(clean);
+    }
+    function joinSetText(set){ return Array.from(set || []).filter(Boolean).join(' / '); }
     function formatDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); if(!y||!m||!d) return ''; return `${d}/${m}/${y}`; }
     function formatDateAbreviado(iso){ if(!iso) return ''; const dt=new Date(iso+'T00:00:00'); if(isNaN(dt)) return ''; const dd=String(dt.getDate()).padStart(2,'0'); const mm=String(dt.getMonth()+1).padStart(2,'0'); return `${dd}/${mm}`; }
     function isoFromDate(date){ const y=date.getFullYear(); const m=String(date.getMonth()+1).padStart(2,'0'); const d=String(date.getDate()).padStart(2,'0'); return `${y}-${m}-${d}`; }
@@ -3269,9 +3382,13 @@
           costura:{paresFaltando:0,taloesFaltando:0,allDone:true,maxDate:null},
           distribuicao:{paresFaltando:0,taloesFaltando:0,allDone:true,maxDate:null},
           talonagem:{paresFaltando:0,taloesFaltando:0,allDone:true,maxDate:null},
-          montagem:{paresFaltando:0,taloesFaltando:0,allDone:true,maxDate:null}
+          montagem:{paresFaltando:0,taloesFaltando:0,allDone:true,maxDate:null},
+          clientes:new Set(),
+          normativas:new Set()
         }; }
         const g=grouped[key]; g.paresTotal+=pares; g.taloesTotal+=1;
+        addUniqueText(g.clientes, firstFieldValue(t, ['cliente','Cliente','nomeCliente','NomeCliente','clienteNome','ClienteNome']));
+        addUniqueText(g.normativas, firstFieldValue(t, ['normativa','Normativa','normativas','Normativas','observacao','observação','Observacao','Observação']));
 
         // Corte completo?
         const corteOK = hasDate(t.cabedalData) && hasDate(t.forroData) && hasDate(t.aviamentoData);
@@ -3422,6 +3539,12 @@
             ? `data-stage="${firstOpen}" data-remessa="${grp.remessa}" data-linha="${grp.linha}" data-corte="${grp.dataCorte}" data-entrega="${grp.dataEntrega}" title="Ver talões faltando"`
             : 'title="Todas as etapas concluídas"';
 
+          const clienteInfo = joinSetText(grp.clientes);
+          const normativaInfo = joinSetText(grp.normativas);
+          const extraInfoHtml = (clienteInfo || normativaInfo)
+            ? `<div class="remessa-extra-info">${clienteInfo ? `<span class="js-extra-full" data-extra-title="Cliente" data-extra-text="${escapeHTML(clienteInfo)}" title="Clique para ver o cliente completo"><b>Cliente:</b>${escapeHTML(clienteInfo)}</span>` : ''}${normativaInfo ? `<span class="js-extra-full" data-extra-title="Normativa" data-extra-text="${escapeHTML(normativaInfo)}" title="Clique para ver a normativa completa"><b>Normativa:</b>${escapeHTML(normativaInfo)}</span>` : ''}</div>`
+            : '';
+
           html += `
             <div class="remessa-card ${getTipoClienteClass(grp.tipoCliente)} ${firstOpen ? 'is-incomplete' : 'is-complete'}" ${currentStageAttrs}>
               <div class="remessa-card-main">
@@ -3434,6 +3557,7 @@
                     </div>
                   </div>
                   <div class="remessa-subline">Linha ${grp.linha} • Corte ${formatDateAbreviado(grp.dataCorte)} • Entrega ${formatDateAbreviado(grp.dataEntrega)}</div>
+                  ${extraInfoHtml}
                 </div>
                 <button type="button" class="remessa-current-stage ${etapaClass}" ${currentStageAttrs}>${localizacao}</button>
                 <div class="stage-chip-row">
@@ -3516,11 +3640,27 @@
 
       const totalPares = taloes.reduce((sum,t)=>sum+(Number(t.pares)||0),0);
       const totaisSetoresHtml = buildStageTotalsFromTaloes(baseTaloes);
+
+      const modalClientes = new Set();
+      const modalNormativas = new Set();
+      baseTaloes.forEach(t => {
+        addUniqueText(modalClientes, firstFieldValue(t, ['cliente','Cliente','nomeCliente','NomeCliente','clienteNome','ClienteNome']));
+        addUniqueText(modalNormativas, firstFieldValue(t, ['normativa','Normativa','normativas','Normativas','observacao','observação','Observacao','Observação']));
+      });
+      const modalClienteInfo = joinSetText(modalClientes);
+      const modalNormativaInfo = joinSetText(modalNormativas);
+      const modalInfoHtml = (modalClienteInfo || modalNormativaInfo)
+        ? `<div class="open-stage-full-info">${modalClienteInfo ? `<div><b>Cliente:</b>${escapeHTML(modalClienteInfo)}</div>` : ''}${modalNormativaInfo ? `<div><b>Normativa:</b>${escapeHTML(modalNormativaInfo)}</div>` : ''}</div>`
+        : '';
+
       let html = `
         <div class="open-stage-modal">
           <div class="open-stage-card-head">
             <span class="open-stage-remessa-pill">R. ${remessa}</span>
-            <span class="open-stage-head-info">Linha ${linha} • Corte ${formatDateAbreviado(dataCorte)} • Entrega ${formatDateAbreviado(dataEntrega)}</span>
+            <div class="open-stage-head-info-wrap">
+              <span class="open-stage-head-info">Linha ${linha} • Corte ${formatDateAbreviado(dataCorte)} • Entrega ${formatDateAbreviado(dataEntrega)}</span>
+              ${modalInfoHtml}
+            </div>
             <div class="open-stage-head-totals">${totaisSetoresHtml}</div>
           </div>
           <div class="open-stage-summary-line">
@@ -3976,6 +4116,29 @@
         displayResumoCards(modalTitleText, cardData, totalDisponivel); 
     }
     
+    function showExtraFullModal(title, text){
+      const cleanTitle = String(title || 'Informação');
+      const cleanText = String(text || '').trim();
+      modalTitle.textContent = cleanTitle;
+      modalBodyContent.innerHTML = `
+        <div class="extra-full-modal">
+          <div class="extra-full-card">
+            <div class="extra-full-label">${escapeHTML(cleanTitle)} completo</div>
+            <div class="extra-full-text">${escapeHTML(cleanText || 'Sem informação.')}</div>
+          </div>
+        </div>`;
+      detailsModal.style.display = 'block';
+    }
+
+    // Clique no cliente/normativa do card: abre o texto completo
+    document.addEventListener('click',(e)=>{
+        const extra = e.target.closest('.js-extra-full');
+        if(!extra) return;
+        e.preventDefault();
+        e.stopPropagation();
+        showExtraFullModal(extra.dataset.extraTitle || 'Informação', extra.dataset.extraText || extra.textContent || '');
+    });
+
     // Event listener para clique no link da remessa (chama o modal de detalhes)
     document.addEventListener('click',(e)=>{ 
         const a=e.target.closest('.remessa-link'); 
