@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Controle Ateliê - SistemaTaloes</title>
+  
+  <link rel="stylesheet" href="styles.css">
+<title>Controle Ateliê - SistemaTaloes</title>
 
   <style>
     :root {
@@ -510,6 +512,10 @@
       padding: 10px 16px;
       border-bottom: 1px solid #eef2f7;
       background: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
     }
 
     .modal-checkbox {
@@ -535,7 +541,7 @@
 
     .modal-table {
       width: 100%;
-      min-width: 1020px;
+      min-width: 1130px;
       border-collapse: collapse;
       font-size: 13px;
     }
@@ -559,6 +565,15 @@
     }
 
     .modal-table tr:hover td { background: #f8fafc; }
+
+    .missing-date {
+      color: #dc2626;
+      font-weight: 900;
+      font-size: 16px;
+      display: inline-block;
+      min-width: 18px;
+      text-align: center;
+    }
 
     .details-table-wrap { display: none; }
     .hide { display: none !important; }
@@ -610,6 +625,47 @@
       .filters-card { padding: 10px; }
       .summary-card { min-height: auto; }
       .summary-title { max-width: unset; }
+    }
+  </style>
+
+  <style id="layout-somente-fechamentos">
+    /* Ajuste solicitado: remove visualmente a seção "Produção do dia" e deixa somente os 4 cards de Fechamentos Importantes. */
+    .split-layout {
+      display: block !important;
+      min-height: auto !important;
+    }
+
+    .left-pane {
+      display: none !important;
+    }
+
+    .right-pane {
+      padding-left: 0 !important;
+    }
+
+    .right-cards-grid {
+      grid-template-columns: repeat(4, minmax(250px, 1fr)) !important;
+      gap: 12px !important;
+    }
+
+    .right-cards-grid .summary-card {
+      min-height: 330px;
+    }
+
+    .right-cards-grid .summary-title {
+      max-width: 160px;
+    }
+
+    @media (max-width: 1450px) {
+      .right-cards-grid {
+        grid-template-columns: repeat(2, minmax(260px, 1fr)) !important;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .right-cards-grid {
+        grid-template-columns: 1fr !important;
+      }
     }
   </style>
 </head>
@@ -770,6 +826,10 @@
           <input type="checkbox" id="removeProducedCheckbox"  />
           Remover talões já produzidos
         </label>
+        <label class="modal-checkbox" for="onlyNoEntryCheckbox">
+          <input type="checkbox" id="onlyNoEntryCheckbox" />
+          Talões sem entrada
+        </label>
       </div>
       <div class="modal-table-wrap">
         <table class="modal-table">
@@ -783,13 +843,14 @@
               <th>Pares</th>
               <th>Ateliê</th>
               <th>Entrega</th>
+              <th>Entrada Costura</th>
               <th>Saída Costura</th>
               <th>Entrada Fábrica</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody id="listModalBody">
-            <tr><td colspan="11">Nenhum talão encontrado.</td></tr>
+            <tr><td colspan="12">Nenhum talão encontrado.</td></tr>
           </tbody>
         </table>
       </div>
@@ -846,6 +907,7 @@
       const listModalSummary = document.getElementById("listModalSummary");
       const listModalBody = document.getElementById("listModalBody");
       const removeProducedCheckbox = document.getElementById("removeProducedCheckbox");
+      const onlyNoEntryCheckbox = document.getElementById("onlyNoEntryCheckbox");
       const closeListModalButton = document.getElementById("closeListModalButton");
       const urgentListButton = document.getElementById("urgentListButton");
       const exportListButton = document.getElementById("exportListButton");
@@ -1228,22 +1290,43 @@
         });
       }
 
-      function getModalVisibleTaloes(taloes) {
-        const shouldRemoveProduced = !removeProducedCheckbox || removeProducedCheckbox.checked ;
-        if (!shouldRemoveProduced) return [...taloes];
-        return taloes.filter((talao) => !hasFilledDate(talao.dataSaidaCostura));
+      function getModalFilterResult(taloes) {
+        let visibleTaloes = Array.isArray(taloes) ? [...taloes] : [];
+        const summaryExtras = [];
+
+        if (removeProducedCheckbox && removeProducedCheckbox.checked) {
+          const before = visibleTaloes.length;
+          visibleTaloes = visibleTaloes.filter((talao) => !hasFilledDate(talao.dataSaidaCostura));
+          const removed = before - visibleTaloes.length;
+          if (removed > 0) summaryExtras.push(`${removed.toLocaleString("pt-BR")} já produzidos removidos`);
+        }
+
+        if (onlyNoEntryCheckbox && onlyNoEntryCheckbox.checked) {
+          const before = visibleTaloes.length;
+          visibleTaloes = visibleTaloes.filter((talao) => !hasFilledDate(talao.costuraDataInicio));
+          const hidden = before - visibleTaloes.length;
+          if (hidden > 0) summaryExtras.push(`${hidden.toLocaleString("pt-BR")} com entrada ocultados`);
+        }
+
+        return { visibleTaloes, summaryExtras };
+      }
+
+      function formatDateOrMissing(value) {
+        const clean = toISODateOnly(value);
+        if (!clean) return '<span class="missing-date">X</span>';
+        return escapeHTML(formatDate(clean));
       }
 
       function renderListModalContent() {
-        const visibleTaloes = getModalVisibleTaloes(currentModalTaloes);
+        const { visibleTaloes, summaryExtras } = getModalFilterResult(currentModalTaloes);
         const totalPares = sumTotal(visibleTaloes);
-        const removedCount = currentModalTaloes.length - visibleTaloes.length;
+        const extraText = summaryExtras.length ? ` • ${summaryExtras.join(" • ")}` : "";
 
         listModalTitle.textContent = currentModalTitle || "Listagem";
-        listModalSummary.textContent = `${visibleTaloes.length.toLocaleString("pt-BR")} talões exibidos • ${totalPares.toLocaleString("pt-BR")} pares${removedCount > 0 ? ` • ${removedCount.toLocaleString("pt-BR")} já produzidos removidos` : ""}`;
+        listModalSummary.textContent = `${visibleTaloes.length.toLocaleString("pt-BR")} talões exibidos • ${totalPares.toLocaleString("pt-BR")} pares${extraText}`;
 
         if (!visibleTaloes.length) {
-          listModalBody.innerHTML = '<tr><td colspan="11">Nenhum talão encontrado.</td></tr>';
+          listModalBody.innerHTML = '<tr><td colspan="12">Nenhum talão encontrado.</td></tr>';
           return;
         }
 
@@ -1259,6 +1342,7 @@
             <td><strong>${normalizePares(talao.pares).toLocaleString("pt-BR")}</strong></td>
             <td>${escapeHTML(talao.idAtelieResponsavel || "")}</td>
             <td>${formatDate(toISODateOnly(talao.dataEntrega))}</td>
+            <td>${formatDateOrMissing(talao.costuraDataInicio)}</td>
             <td>${formatDate(talao.dataSaidaCostura)}</td>
             <td>${formatDate(talao.dataEntradaDistribuicao)}</td>
             <td>${escapeHTML(getStatusText(talao))}</td>
@@ -1273,6 +1357,9 @@
 
         if (removeProducedCheckbox) {
           removeProducedCheckbox.checked = false;
+        }
+        if (onlyNoEntryCheckbox) {
+          onlyNoEntryCheckbox.checked = false;
         }
 
         renderListModalContent();
@@ -1313,6 +1400,9 @@
 
       if (removeProducedCheckbox) {
         removeProducedCheckbox.addEventListener("change", renderListModalContent);
+      }
+      if (onlyNoEntryCheckbox) {
+        onlyNoEntryCheckbox.addEventListener("change", renderListModalContent);
       }
 
       closeListModalButton.addEventListener("click", closeListModal);
@@ -1383,14 +1473,29 @@
           weekModels.innerHTML = '<div class="empty-message">Carregando...</div>';
           cutModels.innerHTML = '<div class="empty-message">Carregando...</div>';
 
-          const selectedAtelie = getSelectedAtelie();
-          let queryRef = db.collection("taloes");
-          if (selectedAtelie) {
-            queryRef = queryRef.where("idAtelieResponsavel", "==", selectedAtelie);
-          }
+          // Busca otimizada: antes trazia todos os talões do banco para montar os cards.
+          // Agora carrega apenas janelas úteis para os fechamentos e pendências recentes.
+          const selectedDate = filterData.value || todayISO();
+          const { mondayIso, fridayIso } = getCycleDeliveryRange(selectedDate);
+          const exportTarget = getExportTargetDate(selectedDate);
+          const cutClosing = getCutClosingRange(selectedDate);
+          const endEntrega = [fridayIso, exportTarget.iso].sort().pop();
+          const startLimit = addDaysISO(selectedDate, -365);
+          const hoje = todayISO();
 
-          const snapshot = await queryRef.get();
-          allRightDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          const queries = [
+            db.collection("taloes").where("dataEntrega", ">=", startLimit).where("dataEntrega", "<=", endEntrega).get(),
+            db.collection("taloes").where("dataCorte", "in", cutClosing.cutDates).get(),
+            db.collection("taloes").where("dataSaidaCostura", ">=", startLimit).where("dataSaidaCostura", "<=", hoje).get()
+          ];
+
+          const snaps = await Promise.all(queries);
+          const map = new Map();
+          snaps.forEach((snapshot) => {
+            snapshot.docs.forEach((doc) => map.set(doc.id, { id: doc.id, ...doc.data() }));
+          });
+
+          allRightDocs = Array.from(map.values());
           renderRightReport();
           renderReport();
         } catch (error) {
@@ -1469,7 +1574,6 @@
       }
 
       refreshButton.addEventListener("click", () => {
-        listenDailyReport();
         loadRightReport();
       });
 
@@ -1479,13 +1583,11 @@
       });
 
       filterData.addEventListener("change", () => {
-        listenDailyReport();
         loadRightReport();
       });
 
       todayButton.addEventListener("click", () => {
         filterData.value = todayISO();
-        listenDailyReport();
         loadRightReport();
       });
 
@@ -1538,7 +1640,6 @@
           }
           filterData.value = todayISO();
           await loadAtelies();
-          listenDailyReport();
           loadRightReport();
         } catch (error) {
           console.error("Erro ao iniciar página:", error);
