@@ -802,18 +802,26 @@
       const pages = [];
       let current = [];
       let count = 0;
+
+      // A primeira página tem os cards de "Dados encontrados" no rodapé.
+      // Por isso ela precisa de uma folga maior: se juntar duas linhas e passar
+      // desse limite reduzido, o autoTable quebra a tabela no meio da segunda linha.
+      const firstPageJoinLimit = 11;
+      function currentLimit(){
+        return pages.length === 0 ? firstPageJoinLimit : limit;
+      }
+
       lineGroups.forEach(group => {
         const qtd = group.rows.length;
-        if(qtd > limit){
-          if(current.length){ pages.push(current); current = []; count = 0; }
-          pages.push([group]);
-          return;
-        }
-        if(current.length && count + qtd > limit){
+
+        // Mantém uma linha grande sozinha na página, mesmo que passe do limite
+        // reduzido da primeira página. O corte em partes já respeita o limite geral.
+        if(current.length && count + qtd > currentLimit()){
           pages.push(current);
           current = [];
           count = 0;
         }
+
         current.push(group);
         count += qtd;
       });
@@ -1046,7 +1054,7 @@
             doc.setFont('helvetica','bold');
             doc.setTextColor(0,0,0);
 
-            const chars = String(rawValue).split();
+            const chars = String(rawValue).split('');
             const cx = data.cell.x + (data.cell.width / 2);
             const availableH = Math.max(6, data.cell.height - 2.4);
             const availableW = Math.max(2.5, data.cell.width - 1.2);
