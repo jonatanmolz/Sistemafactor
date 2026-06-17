@@ -169,7 +169,7 @@
     .filters-card {
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 16px;
+      border-radius: 22px;
       padding: 10px 14px;
       box-shadow: var(--shadow);
       margin-bottom: 8px;
@@ -460,9 +460,9 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, .45);
+      background: rgba(17, 24, 39, .70);
       z-index: 50;
-      padding: 18px;
+      padding: 14px;
       align-items: center;
       justify-content: center;
     }
@@ -470,15 +470,15 @@
     .modal-overlay.show { display: flex; }
 
     .modal-content {
-      width: min(1180px, 96vw);
-      max-height: 88vh;
+      width: min(1620px, 99vw);
+      max-height: 96vh;
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 18px 45px rgba(15, 23, 42, .25);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .38);
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      border: 1px solid #cbd5e1;
+      border: 1px solid #d5dde8;
     }
 
     .modal-head {
@@ -486,43 +486,43 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 12px 16px;
+      padding: 12px 20px;
       border-bottom: 1px solid #e5e7eb;
       background: #f8fafc;
     }
 
     .modal-head h3 {
       margin: 0;
-      font-size: 17px;
+      font-size: 18px;
       color: #111827;
     }
 
     .modal-close {
-      border: 0;
-      background: #e5e7eb;
+      border: 1px solid #d7dee9;
+      background: #eef2f7;
       color: #111827;
       border-radius: 10px;
-      padding: 8px 12px;
+      padding: 9px 16px;
       font-weight: 900;
       cursor: pointer;
     }
 
-    .modal-close:hover { background: #d1d5db; }
+    .modal-close:hover { background: #e2e8f0; }
 
     .modal-summary {
-      padding: 10px 16px;
+      padding: 10px 20px;
       color: #475569;
       font-size: 13px;
       border-bottom: 1px solid #eef2f7;
     }
 
     .modal-options {
-      padding: 10px 16px;
+      padding: 10px 20px;
       border-bottom: 1px solid #eef2f7;
       background: #ffffff;
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 24px;
       flex-wrap: wrap;
     }
 
@@ -545,11 +545,15 @@
       cursor: pointer;
     }
 
-    .modal-table-wrap { overflow: auto; }
+    .modal-table-wrap {
+      overflow: auto;
+      padding: 14px 20px 22px;
+      background: #d1d5db;
+    }
 
     .modal-table {
       width: 100%;
-      min-width: 1240px;
+      min-width: 1040px;
       border-collapse: collapse;
       font-size: 13px;
     }
@@ -579,6 +583,140 @@
     .modal-table tr.tipo-estoque td { background: #fff7cc; }
     .modal-table tr.tipo-amostra td { background: #e6f7ea; }
     .modal-table tr.tipo-mercado-interno td { background: #ffffff; }
+
+    .modal-table.remessa-table {
+      min-width: 920px;
+      width: auto;
+      max-width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 12px;
+      font-size: 12px;
+      color: #082f5f;
+      margin: 0;
+    }
+
+    .modal-table.remessa-table th,
+    .modal-table.remessa-table td {
+      border: 0;
+      padding: 5px 8px;
+      text-align: center;
+      white-space: nowrap;
+      background: #ffffff;
+      font-weight: 500;
+      line-height: 1.15;
+    }
+
+    .modal-table.remessa-table thead { display: none; }
+
+    .modal-table.remessa-table .remessa-banner td {
+      text-align: left;
+      background: #ffffff;
+      border: 1px solid #c7d4e5;
+      border-bottom: 0;
+      border-radius: 10px 10px 0 0;
+      padding: 8px 12px 7px;
+      box-shadow: 0 2px 7px rgba(15, 23, 42, .08);
+    }
+
+    .modal-table.remessa-table .remessa-banner.tipo-exportacao td { background: #eef5ff; border-color: #b8cce8; }
+    .modal-table.remessa-table .remessa-banner.tipo-cliente-especial td { background: #fff3f8; border-color: #efc1d8; }
+    .modal-table.remessa-table .remessa-banner.tipo-estoque td { background: #fff9df; border-color: #e5d796; }
+    .modal-table.remessa-table .remessa-banner.tipo-amostra td { background: #f0fbf2; border-color: #b8dfc3; }
+    .modal-table.remessa-table .remessa-banner.tipo-mercado-interno td { background: #ffffff; border-color: #c7d4e5; }
+
+    .remessa-banner-content {
+      display: grid;
+      grid-template-columns: 110px 130px 125px 170px;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .remessa-info-label {
+      display: block;
+      color: #64748b;
+      font-size: 9px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 2px;
+    }
+
+    .remessa-info-value {
+      display: block;
+      color: #002b5c;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .modal-table.remessa-table .talhoes-head th {
+      background: #f1f5f9;
+      color: #334155;
+      border-top: 1px solid #c7d4e5;
+      border-bottom: 1px solid #d7e0eb;
+      font-size: 10px;
+      font-weight: 900;
+      padding: 7px 7px;
+    }
+
+    .modal-table.remessa-table .talhoes-head th:first-child,
+    .modal-table.remessa-table .talao-row td:first-child {
+      border-left: 1px solid #c7d4e5;
+    }
+
+    .modal-table.remessa-table .talhoes-head th:last-child,
+    .modal-table.remessa-table .talao-row td:last-child {
+      border-right: 1px solid #c7d4e5;
+    }
+
+    .modal-table.remessa-table .talao-row td {
+      border-bottom: 1px solid #e2e8f0;
+      color: #0b2f59;
+      font-size: 11.5px;
+      padding: 6px 7px;
+    }
+
+    .modal-table.remessa-table .talao-row.tipo-exportacao td { background: #f6f9ff; }
+    .modal-table.remessa-table .talao-row.tipo-cliente-especial td { background: #fff8fb; }
+    .modal-table.remessa-table .talao-row.tipo-estoque td { background: #fffdf2; }
+    .modal-table.remessa-table .talao-row.tipo-amostra td { background: #f7fdf8; }
+    .modal-table.remessa-table .talao-row.tipo-mercado-interno td { background: #ffffff; }
+
+    .modal-table.remessa-table .talao-row.group-end td {
+      border-bottom: 1px solid #c7d4e5;
+    }
+
+    .modal-table.remessa-table .talao-row.group-end td:first-child {
+      border-bottom-left-radius: 8px;
+    }
+
+    .modal-table.remessa-table .talao-row.group-end td:last-child {
+      border-bottom-right-radius: 8px;
+    }
+
+    .modal-table.remessa-table .group-spacer td {
+      height: 0;
+      padding: 0;
+      background: transparent;
+      border: 0;
+    }
+
+    .modal-table.remessa-table .model-cell {
+      font-weight: 900;
+    }
+
+    .modal-table.remessa-table .model-cell::before {
+      display: none;
+    }
+
+    .modal-table.remessa-table .alert-cell {
+      color: #dc2626 !important;
+      font-weight: 900 !important;
+    }
+
+    .modal-table.remessa-table .alert-row td {
+      color: #dc2626;
+      font-weight: 800;
+    }
 
     .tipo-badge {
       display: inline-flex;
@@ -672,7 +810,7 @@
     }
 
     .right-cards-grid {
-      grid-template-columns: repeat(5, minmax(245px, 1fr)) !important;
+      grid-template-columns: repeat(4, minmax(245px, 1fr)) !important;
       gap: 12px !important;
     }
 
@@ -696,10 +834,991 @@
       }
     }
   </style>
+
+<style id="modal-compact-remessas-v10">
+  .modal-overlay{ background: rgba(15,23,42,.58) !important; padding: 18px !important; }
+  .modal-content{ width:min(1180px,94vw) !important; max-height:90vh !important; border-radius:14px !important; }
+  .modal-table-wrap{ background:#c5c9ce !important; padding:18px 22px 22px !important; overflow:auto !important; }
+  .shipment-group, .remessa-group, .remessa-block, .modal-remessa-group{
+    max-width: 920px !important; margin: 0 0 18px 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow:none !important; border:0 !important;
+  }
+  .shipment-header, .remessa-header, .modal-remessa-header{
+    width: 520px !important; max-width: 100% !important; background:#fff !important; border:1px solid #cbd5e1 !important; border-bottom:0 !important; border-radius:10px 10px 0 0 !important; padding:8px 14px 10px !important;
+    display:grid !important; grid-template-columns: repeat(4, max-content) !important; gap:26px !important; align-items:end !important;
+  }
+  .shipment-header .label, .remessa-header .label, .modal-remessa-header .label, .remessa-info-label{
+    font-size:10px !important; font-weight:900 !important; color:#64748b !important; text-transform:uppercase !important; letter-spacing:.04em !important; line-height:1.05 !important; margin-bottom:2px !important;
+  }
+  .shipment-header .value, .remessa-header .value, .modal-remessa-header .value, .remessa-info-value{
+    font-size:13px !important; font-weight:900 !important; color:#002b5c !important; line-height:1.1 !important; white-space:nowrap !important;
+  }
+  .shipment-table, .remessa-table, .modal-remessa-table{
+    width:auto !important; min-width:820px !important; max-width:920px !important; border-collapse:collapse !important; margin-left:62px !important; background:#fff !important; border:1px solid #cbd5e1 !important; table-layout:auto !important;
+  }
+  .shipment-table th, .remessa-table th, .modal-remessa-table th,
+  .shipment-table td, .remessa-table td, .modal-remessa-table td{
+    padding:5px 8px !important; height:26px !important; line-height:1.05 !important; font-size:12px !important; white-space:nowrap !important; border-bottom:1px solid #e2e8f0 !important; text-align:center !important;
+  }
+  .shipment-table th, .remessa-table th, .modal-remessa-table th{
+    background:#f1f5f9 !important; color:#0f172a !important; font-size:10.5px !important; font-weight:900 !important; text-transform:uppercase !important;
+  }
+  .shipment-table tr, .remessa-table tr, .modal-remessa-table tr{ margin:0 !important; }
+  .shipment-table tbody tr:last-child td, .remessa-table tbody tr:last-child td, .modal-remessa-table tbody tr:last-child td{ border-bottom:0 !important; }
+  .shipment-table strong, .remessa-table strong, .modal-remessa-table strong{ font-weight:900 !important; }
+</style>
+
+
+<style id="modal-remessas-card-table-v11">
+  /* Modal menor e centralizado */
+  .modal-overlay{
+    background: rgba(15, 23, 42, .62) !important;
+    padding: 18px !important;
+  }
+
+  .modal-content{
+    width: min(1080px, 92vw) !important;
+    max-height: 88vh !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+  }
+
+  .modal-head{
+    padding: 10px 18px !important;
+  }
+
+  .modal-head h3{
+    font-size: 18px !important;
+  }
+
+  .modal-summary{
+    padding: 9px 18px !important;
+    font-size: 13px !important;
+  }
+
+  .modal-options{
+    padding: 10px 18px !important;
+    gap: 28px !important;
+  }
+
+  .modal-table-wrap{
+    background: #bfc5cc !important;
+    padding: 18px 22px 24px !important;
+    overflow: auto !important;
+  }
+
+  /* Cada remessa fica como um card/tabela compacto */
+  .modal-table.remessa-table{
+    width: 940px !important;
+    min-width: 940px !important;
+    max-width: 940px !important;
+    margin: 0 auto !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    table-layout: fixed !important;
+    color: #002b5c !important;
+    font-size: 12px !important;
+  }
+
+  .modal-table.remessa-table th,
+  .modal-table.remessa-table td{
+    padding: 5px 6px !important;
+    height: 27px !important;
+    line-height: 1.05 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #d9e1ea !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    background: #ffffff !important;
+  }
+
+  .modal-table.remessa-table thead{ display:none !important; }
+
+  .modal-table.remessa-table .remessa-banner td{
+    height: auto !important;
+    text-align: left !important;
+    padding: 9px 13px 8px !important;
+    background: #ffffff !important;
+    border: 1px solid #c7d4e5 !important;
+    border-bottom: 0 !important;
+    border-radius: 10px 10px 0 0 !important;
+    box-shadow: 0 2px 7px rgba(15,23,42,.08) !important;
+  }
+
+  .modal-table.remessa-table .remessa-banner.tipo-exportacao td{ background:#eaf3ff !important; border-color:#b8cbe6 !important; }
+  .modal-table.remessa-table .remessa-banner.tipo-cliente-especial td{ background:#fff3f8 !important; border-color:#efc1d8 !important; }
+  .modal-table.remessa-table .remessa-banner.tipo-estoque td{ background:#fff8d9 !important; border-color:#e5d796 !important; }
+  .modal-table.remessa-table .remessa-banner.tipo-amostra td{ background:#eefaf1 !important; border-color:#b8dfc3 !important; }
+  .modal-table.remessa-table .remessa-banner.tipo-mercado-interno td{ background:#ffffff !important; border-color:#c7d4e5 !important; }
+
+  .remessa-banner-content{
+    display: grid !important;
+    grid-template-columns: 115px 150px 135px 190px !important;
+    gap: 20px !important;
+    align-items: end !important;
+  }
+
+  .remessa-info-label{
+    display:block !important;
+    margin: 0 0 3px !important;
+    color:#61718a !important;
+    font-size:9px !important;
+    line-height:1 !important;
+    letter-spacing:.05em !important;
+    font-weight:900 !important;
+    text-transform:uppercase !important;
+  }
+
+  .remessa-info-value{
+    display:block !important;
+    color:#002b5c !important;
+    font-size:14px !important;
+    line-height:1.05 !important;
+    font-weight:900 !important;
+  }
+
+  .modal-table.remessa-table .talhoes-head th{
+    background:#f1f5f9 !important;
+    color:#111827 !important;
+    font-size:10px !important;
+    font-weight:900 !important;
+    text-transform:uppercase !important;
+    padding: 6px 5px !important;
+    border-top: 1px solid #c7d4e5 !important;
+    border-bottom: 1px solid #ccd6e2 !important;
+  }
+
+  .modal-table.remessa-table .talhoes-head th:first-child,
+  .modal-table.remessa-table .talao-row td:first-child{
+    border-left: 1px solid #c7d4e5 !important;
+  }
+
+  .modal-table.remessa-table .talhoes-head th:last-child,
+  .modal-table.remessa-table .talao-row td:last-child{
+    border-right: 1px solid #c7d4e5 !important;
+  }
+
+  .modal-table.remessa-table .talao-row td{
+    color:#002b5c !important;
+    font-size:11.5px !important;
+    font-weight:500 !important;
+    padding: 4px 6px !important;
+    height: 25px !important;
+    background:#ffffff !important;
+  }
+
+  .modal-table.remessa-table .talao-row.tipo-exportacao td{ background:#f4f8ff !important; }
+  .modal-table.remessa-table .talao-row.tipo-cliente-especial td{ background:#fff8fb !important; }
+  .modal-table.remessa-table .talao-row.tipo-estoque td{ background:#fffdf2 !important; }
+  .modal-table.remessa-table .talao-row.tipo-amostra td{ background:#f7fdf8 !important; }
+  .modal-table.remessa-table .talao-row.tipo-mercado-interno td{ background:#ffffff !important; }
+
+  .modal-table.remessa-table .model-cell{
+    font-size: 12.5px !important;
+    font-weight: 900 !important;
+  }
+
+  .modal-table.remessa-table .alert-cell,
+  .modal-table.remessa-table .alert-row td.alert-cell{
+    color:#dc2626 !important;
+    font-weight:900 !important;
+  }
+
+  .modal-table.remessa-table .alert-row td{
+    color:#dc2626 !important;
+  }
+
+  .modal-table.remessa-table .alert-row .model-cell{
+    color:#dc2626 !important;
+  }
+
+  .modal-table.remessa-table .talao-row.group-end td{
+    border-bottom: 1px solid #c7d4e5 !important;
+  }
+
+  .modal-table.remessa-table .talao-row.group-end td:first-child{
+    border-bottom-left-radius: 9px !important;
+  }
+
+  .modal-table.remessa-table .talao-row.group-end td:last-child{
+    border-bottom-right-radius: 9px !important;
+  }
+
+  .modal-table.remessa-table .group-spacer td{
+    height: 16px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  /* Larguras mais compactas das colunas */
+  .modal-table.remessa-table .talhoes-head th:nth-child(1),
+  .modal-table.remessa-table .talao-row td:nth-child(1){ width: 62px !important; }
+  .modal-table.remessa-table .talhoes-head th:nth-child(2),
+  .modal-table.remessa-table .talao-row td:nth-child(2){ width: 116px !important; }
+  .modal-table.remessa-table .talhoes-head th:nth-child(3),
+  .modal-table.remessa-table .talao-row td:nth-child(3){ width: 78px !important; }
+  .modal-table.remessa-table .talhoes-head th:nth-child(4),
+  .modal-table.remessa-table .talao-row td:nth-child(4){ width: 62px !important; }
+  .modal-table.remessa-table .talhoes-head th:nth-child(5),
+  .modal-table.remessa-table .talao-row td:nth-child(5){ width: 150px !important; }
+  .modal-table.remessa-table .talhoes-head th:nth-child(6),
+  .modal-table.remessa-table .talao-row td:nth-child(6){ width: 135px !important; }
+  .modal-table.remessa-table .talhoes-head th:nth-child(7),
+  .modal-table.remessa-table .talao-row td:nth-child(7){ width: 145px !important; }
+  .modal-table.remessa-table .talhoes-head th:nth-child(8),
+  .modal-table.remessa-table .talao-row td:nth-child(8){ width: 95px !important; }
+  .modal-table.remessa-table .talhoes-head th:nth-child(9),
+  .modal-table.remessa-table .talao-row td:nth-child(9){ width: 72px !important; }
+
+  @media (max-width: 760px){
+    .modal-content{ width: 96vw !important; }
+    .modal-table.remessa-table{ width: 900px !important; min-width:900px !important; }
+    .modal-table-wrap{ padding: 14px !important; }
+  }
+</style>
+
+
+<style id="modal-remessa-card-final-v12">
+  .modal-overlay{
+    background: rgba(15, 23, 42, .62) !important;
+    padding: 14px !important;
+  }
+
+  .modal-content{
+    width: min(1120px, 94vw) !important;
+    max-height: 90vh !important;
+    border-radius: 12px !important;
+  }
+
+  .modal-head{ padding: 10px 18px !important; }
+  .modal-head h3{ font-size: 18px !important; }
+  .modal-summary{ padding: 9px 18px !important; font-size: 13px !important; }
+  .modal-options{ padding: 10px 18px !important; gap: 26px !important; }
+
+  .modal-table-wrap{
+    background: #bfc5cc !important;
+    padding: 18px 22px 26px !important;
+    overflow: auto !important;
+  }
+
+  .modal-table.remessa-table{
+    width: 940px !important;
+    min-width: 940px !important;
+    max-width: 940px !important;
+    margin: 0 auto !important;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    background: transparent !important;
+  }
+
+  .modal-table.remessa-table > thead{ display: none !important; }
+  .modal-table.remessa-table > tbody,
+  .modal-table.remessa-table > tbody > tr,
+  .modal-table.remessa-table > tbody > tr > td{
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .modal-table.remessa-table > tbody > tr > td{
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .remessa-card{
+    width: 920px !important;
+    margin: 0 0 14px 0 !important;
+    background: transparent !important;
+  }
+
+  .remessa-card-header{
+    width: 610px !important;
+    min-height: 44px !important;
+    display: grid !important;
+    grid-template-columns: 110px 150px 130px 170px !important;
+    gap: 12px !important;
+    align-items: end !important;
+    padding: 8px 14px 9px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-bottom: 0 !important;
+    border-radius: 8px 8px 0 0 !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .08) !important;
+  }
+
+  .remessa-card.tipo-exportacao .remessa-card-header{ background:#eef5ff !important; border-color:#b8cbe6 !important; }
+  .remessa-card.tipo-cliente-especial .remessa-card-header{ background:#fff3f8 !important; border-color:#efc1d8 !important; }
+  .remessa-card.tipo-estoque .remessa-card-header{ background:#fff8d9 !important; border-color:#e5d796 !important; }
+  .remessa-card.tipo-amostra .remessa-card-header{ background:#eefaf1 !important; border-color:#b8dfc3 !important; }
+
+  .remessa-info-label{
+    display:block !important;
+    color:#64748b !important;
+    font-size:9px !important;
+    font-weight:900 !important;
+    text-transform:uppercase !important;
+    letter-spacing:.05em !important;
+    line-height:1 !important;
+    margin: 0 0 3px !important;
+  }
+
+  .remessa-info-value{
+    display:block !important;
+    color:#002b5c !important;
+    font-size:14px !important;
+    line-height:1.05 !important;
+    font-weight:900 !important;
+    white-space:nowrap !important;
+  }
+
+  .remessa-card-table{
+    width: 850px !important;
+    margin-left: 70px !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    background:#ffffff !important;
+    border:1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .06) !important;
+    color:#002b5c !important;
+  }
+
+  .remessa-card-table th,
+  .remessa-card-table td{
+    padding: 4px 6px !important;
+    height: 25px !important;
+    line-height: 1.05 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e1e7ef !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+    color:#002b5c !important;
+  }
+
+  .remessa-card-table th{
+    background:#f1f5f9 !important;
+    color:#0f172a !important;
+    font-size:10px !important;
+    font-weight:900 !important;
+    text-transform:uppercase !important;
+  }
+
+  .remessa-card-table tbody tr:last-child td{ border-bottom: 0 !important; }
+  .remessa-card-table .model-cell{ font-weight:900 !important; font-size:12px !important; }
+  .remessa-card-table .alert-cell,
+  .remessa-card-table .alert-row td.alert-cell{ color:#dc2626 !important; font-weight:900 !important; }
+  .remessa-card-table .alert-row .model-cell{ color:#dc2626 !important; }
+
+  .remessa-card-table th:nth-child(1), .remessa-card-table td:nth-child(1){ width:58px !important; }
+  .remessa-card-table th:nth-child(2), .remessa-card-table td:nth-child(2){ width:112px !important; }
+  .remessa-card-table th:nth-child(3), .remessa-card-table td:nth-child(3){ width:72px !important; }
+  .remessa-card-table th:nth-child(4), .remessa-card-table td:nth-child(4){ width:58px !important; }
+  .remessa-card-table th:nth-child(5), .remessa-card-table td:nth-child(5){ width:142px !important; }
+  .remessa-card-table th:nth-child(6), .remessa-card-table td:nth-child(6){ width:132px !important; }
+  .remessa-card-table th:nth-child(7), .remessa-card-table td:nth-child(7){ width:142px !important; }
+  .remessa-card-table th:nth-child(8), .remessa-card-table td:nth-child(8){ width:90px !important; }
+  .remessa-card-table th:nth-child(9), .remessa-card-table td:nth-child(9){ width:64px !important; }
+
+  @media (max-width: 760px){
+    .modal-content{ width: 96vw !important; }
+    .modal-table.remessa-table{ width: 900px !important; min-width:900px !important; }
+    .modal-table-wrap{ padding: 14px !important; }
+  }
+</style>
+
+
+
+<style id="modal-remessa-card-fix-v13">
+  /* Reset final do modal: remove conflitos dos estilos anteriores */
+  .modal-overlay{
+    background: rgba(15,23,42,.62) !important;
+    padding: 12px !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .modal-content{
+    width: min(1180px, 94vw) !important;
+    max-height: 90vh !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    background:#fff !important;
+  }
+  .modal-head{ padding: 10px 18px !important; min-height: 48px !important; }
+  .modal-head h3{ font-size: 18px !important; line-height:1.1 !important; }
+  .modal-summary{ padding: 8px 18px !important; font-size: 13px !important; }
+  .modal-options{ padding: 9px 18px !important; gap: 28px !important; }
+
+  .modal-table-wrap{
+    background:#bfc5cc !important;
+    padding: 16px 20px 22px !important;
+    overflow:auto !important;
+  }
+
+  /* O corpo externo vira apenas uma lista de cards, não uma tabela visual */
+  .modal-table.remessa-table,
+  .modal-table.remessa-table > tbody{
+    display:block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-collapse: separate !important;
+    table-layout: auto !important;
+    background: transparent !important;
+  }
+  .modal-table.remessa-table > thead{ display:none !important; }
+  .modal-table.remessa-table > tbody > tr.remessa-card-row{
+    display:block !important;
+    width: 980px !important;
+    max-width: calc(100vw - 100px) !important;
+    margin: 0 auto 18px auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+  .modal-table.remessa-table > tbody > tr.remessa-card-row > td{
+    display:block !important;
+    width:100% !important;
+    padding:0 !important;
+    border:0 !important;
+    background:transparent !important;
+  }
+
+  .remessa-card{
+    display:block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .remessa-card-header{
+    width: 600px !important;
+    max-width: 88% !important;
+    display:grid !important;
+    grid-template-columns: 105px 150px 130px 170px !important;
+    gap: 10px !important;
+    align-items:end !important;
+    padding: 8px 14px 9px !important;
+    background:#fff !important;
+    border:1px solid #cbd5e1 !important;
+    border-bottom:0 !important;
+    border-radius: 9px 9px 0 0 !important;
+    box-shadow: 0 1px 3px rgba(15,23,42,.08) !important;
+  }
+  .remessa-card.tipo-exportacao .remessa-card-header{ background:#eef5ff !important; border-color:#b8cbe6 !important; }
+  .remessa-card.tipo-cliente-especial .remessa-card-header{ background:#fff3f8 !important; border-color:#efc1d8 !important; }
+  .remessa-card.tipo-estoque .remessa-card-header{ background:#fff8d9 !important; border-color:#e5d796 !important; }
+  .remessa-card.tipo-amostra .remessa-card-header{ background:#eefaf1 !important; border-color:#b8dfc3 !important; }
+
+  .remessa-info-label{
+    display:block !important;
+    color:#64748b !important;
+    font-size:9px !important;
+    font-weight:900 !important;
+    line-height:1 !important;
+    letter-spacing:.05em !important;
+    text-transform:uppercase !important;
+    margin:0 0 3px !important;
+  }
+  .remessa-info-value{
+    display:block !important;
+    color:#002b5c !important;
+    font-size:14px !important;
+    font-weight:900 !important;
+    line-height:1.05 !important;
+    white-space:nowrap !important;
+  }
+
+  /* Tabela dos talões: compacta e agrupada */
+  .remessa-card-table{
+    display:table !important;
+    width: 880px !important;
+    min-width: 880px !important;
+    max-width: 880px !important;
+    margin: 0 0 0 66px !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    background:#fff !important;
+    border:1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 3px rgba(15,23,42,.06) !important;
+    color:#002b5c !important;
+  }
+  .remessa-card-table thead{ display:table-header-group !important; }
+  .remessa-card-table tbody{ display:table-row-group !important; }
+  .remessa-card-table tr{ display:table-row !important; }
+  .remessa-card-table th,
+  .remessa-card-table td{
+    display:table-cell !important;
+    padding: 4px 6px !important;
+    height: 24px !important;
+    line-height: 1.05 !important;
+    border:0 !important;
+    border-bottom:1px solid #e1e7ef !important;
+    text-align:center !important;
+    vertical-align:middle !important;
+    white-space:nowrap !important;
+    font-size:11px !important;
+    font-weight:500 !important;
+    color:#002b5c !important;
+    background:#fff !important;
+  }
+  .remessa-card-table th{
+    background:#f1f5f9 !important;
+    color:#0f172a !important;
+    font-size:10px !important;
+    font-weight:900 !important;
+    text-transform:uppercase !important;
+    border-top:1px solid #d7e0ea !important;
+    border-bottom:1px solid #cbd5e1 !important;
+  }
+  .remessa-card-table tbody tr:last-child td{ border-bottom:0 !important; }
+  .remessa-card-table .model-cell{ font-weight:900 !important; font-size:12px !important; }
+  .remessa-card-table .alert-cell,
+  .remessa-card-table .alert-row td.alert-cell{ color:#dc2626 !important; font-weight:900 !important; }
+  .remessa-card-table .alert-row .model-cell{ color:#dc2626 !important; }
+
+  .remessa-card-table th:nth-child(1), .remessa-card-table td:nth-child(1){ width:58px !important; }
+  .remessa-card-table th:nth-child(2), .remessa-card-table td:nth-child(2){ width:112px !important; }
+  .remessa-card-table th:nth-child(3), .remessa-card-table td:nth-child(3){ width:72px !important; }
+  .remessa-card-table th:nth-child(4), .remessa-card-table td:nth-child(4){ width:58px !important; }
+  .remessa-card-table th:nth-child(5), .remessa-card-table td:nth-child(5){ width:142px !important; }
+  .remessa-card-table th:nth-child(6), .remessa-card-table td:nth-child(6){ width:132px !important; }
+  .remessa-card-table th:nth-child(7), .remessa-card-table td:nth-child(7){ width:142px !important; }
+  .remessa-card-table th:nth-child(8), .remessa-card-table td:nth-child(8){ width:92px !important; }
+  .remessa-card-table th:nth-child(9), .remessa-card-table td:nth-child(9){ width:66px !important; }
+
+  @media (max-width: 980px){
+    .modal-table.remessa-table > tbody > tr.remessa-card-row{ width: 940px !important; max-width:none !important; }
+    .remessa-card-table{ width:850px !important; min-width:850px !important; }
+  }
+</style>
+
+
+<style id="modal-remessa-corrigido-v14">
+  /* Modal corrigido: lista real de cards, sem tabela externa para não sobrepor remessas */
+  .modal-overlay{ background:rgba(15,23,42,.62) !important; padding:14px !important; }
+  .modal-content{ width:min(1200px,94vw) !important; max-height:90vh !important; border-radius:14px !important; overflow:hidden !important; }
+  .modal-head{ padding:10px 18px !important; min-height:48px !important; }
+  .modal-head h3{ font-size:18px !important; }
+  .modal-summary{ padding:8px 18px !important; font-size:13px !important; }
+  .modal-options{ padding:10px 18px !important; gap:26px !important; }
+  .modal-table-wrap{ background:#bfc5cc !important; padding:18px 20px 24px !important; overflow:auto !important; }
+  .remessa-list{ width:980px !important; max-width:100% !important; margin:0 auto !important; }
+  .remessa-card{ display:block !important; width:100% !important; margin:0 0 18px 0 !important; background:transparent !important; border:0 !important; box-shadow:none !important; }
+  .remessa-card-header{ width:620px !important; max-width:calc(100% - 80px) !important; display:grid !important; grid-template-columns:120px 150px 130px 190px !important; gap:12px !important; align-items:end !important; padding:8px 14px 9px !important; background:#fff !important; border:1px solid #cbd5e1 !important; border-bottom:0 !important; border-radius:10px 10px 0 0 !important; box-shadow:0 1px 4px rgba(15,23,42,.08) !important; }
+  .remessa-card.tipo-exportacao .remessa-card-header{ background:#eaf3ff !important; border-color:#b8cbe6 !important; }
+  .remessa-card.tipo-cliente-especial .remessa-card-header{ background:#fff3f8 !important; border-color:#efc1d8 !important; }
+  .remessa-card.tipo-estoque .remessa-card-header{ background:#fff8d9 !important; border-color:#e5d796 !important; }
+  .remessa-card.tipo-amostra .remessa-card-header{ background:#eefaf1 !important; border-color:#b8dfc3 !important; }
+  .remessa-info-label{ display:block !important; color:#64748b !important; font-size:9px !important; font-weight:900 !important; letter-spacing:.05em !important; text-transform:uppercase !important; line-height:1 !important; margin:0 0 3px !important; }
+  .remessa-info-value{ display:block !important; color:#002b5c !important; font-size:14px !important; font-weight:900 !important; line-height:1.05 !important; white-space:nowrap !important; }
+  .remessa-card-table{ display:table !important; width:900px !important; min-width:900px !important; max-width:900px !important; margin:0 0 0 68px !important; border-collapse:collapse !important; table-layout:fixed !important; background:#fff !important; border:1px solid #cbd5e1 !important; box-shadow:0 1px 4px rgba(15,23,42,.06) !important; color:#002b5c !important; }
+  .remessa-card-table thead{ display:table-header-group !important; }
+  .remessa-card-table tbody{ display:table-row-group !important; }
+  .remessa-card-table tr{ display:table-row !important; }
+  .remessa-card-table th,.remessa-card-table td{ display:table-cell !important; padding:4px 6px !important; height:24px !important; line-height:1.05 !important; border:0 !important; border-bottom:1px solid #e1e7ef !important; text-align:center !important; vertical-align:middle !important; white-space:nowrap !important; font-size:11px !important; font-weight:500 !important; color:#002b5c !important; background:#fff !important; }
+  .remessa-card-table th{ background:#f1f5f9 !important; color:#0f172a !important; font-size:10px !important; font-weight:900 !important; text-transform:uppercase !important; border-top:1px solid #d7e0ea !important; border-bottom:1px solid #cbd5e1 !important; }
+  .remessa-card-table tbody tr:last-child td{ border-bottom:0 !important; }
+  .remessa-card-table .model-cell{ font-weight:900 !important; font-size:12px !important; }
+  .remessa-card-table .alert-cell,.remessa-card-table .alert-row td.alert-cell{ color:#dc2626 !important; font-weight:900 !important; }
+  .remessa-card-table .alert-row .model-cell{ color:#dc2626 !important; }
+  .remessa-card-table th:nth-child(1),.remessa-card-table td:nth-child(1){ width:58px !important; }
+  .remessa-card-table th:nth-child(2),.remessa-card-table td:nth-child(2){ width:112px !important; }
+  .remessa-card-table th:nth-child(3),.remessa-card-table td:nth-child(3){ width:72px !important; }
+  .remessa-card-table th:nth-child(4),.remessa-card-table td:nth-child(4){ width:58px !important; }
+  .remessa-card-table th:nth-child(5),.remessa-card-table td:nth-child(5){ width:142px !important; }
+  .remessa-card-table th:nth-child(6),.remessa-card-table td:nth-child(6){ width:132px !important; }
+  .remessa-card-table th:nth-child(7),.remessa-card-table td:nth-child(7){ width:142px !important; }
+  .remessa-card-table th:nth-child(8),.remessa-card-table td:nth-child(8){ width:92px !important; }
+  .remessa-card-table th:nth-child(9),.remessa-card-table td:nth-child(9){ width:66px !important; }
+</style>
+
+<style id="modal-remessa-ajuste-v15">
+  /* Ajuste visual: fundo um pouco mais claro e cantos arredondados nos blocos/tabelas */
+  .modal-table-wrap{
+    background:#cbd1d8 !important;
+    padding:18px 22px 26px !important;
+  }
+  .remessa-card{
+    margin-bottom:20px !important;
+  }
+  .remessa-card-header{
+    border-radius:12px 12px 0 0 !important;
+    overflow:hidden !important;
+  }
+  .remessa-card-table{
+    border-collapse:separate !important;
+    border-spacing:0 !important;
+    border-radius:0 10px 10px 10px !important;
+    overflow:hidden !important;
+  }
+  .remessa-card-table th:first-child{ border-top-left-radius:0 !important; }
+  .remessa-card-table th:last-child{ border-top-right-radius:10px !important; }
+  .remessa-card-table tbody tr:last-child td:first-child{ border-bottom-left-radius:10px !important; }
+  .remessa-card-table tbody tr:last-child td:last-child{ border-bottom-right-radius:10px !important; }
+  .remessa-card-table th,
+  .remessa-card-table td{
+    border-right:0 !important;
+  }
+</style>
+
+<style id="ajustes-finais-modal-v16">
+  /* 1) Modal sempre acima da navegação */
+  .modal-overlay.show,
+  .modal-overlay{
+    z-index: 99999 !important;
+  }
+  .modal-content{
+    position: relative !important;
+    z-index: 100000 !important;
+  }
+
+  /* Cabeçalho com botão atualizar dados */
+  .modal-head{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:12px !important;
+  }
+  .modal-actions{
+    display:flex !important;
+    align-items:center !important;
+    gap:10px !important;
+    margin-left:auto !important;
+  }
+  .modal-refresh{
+    border:1px solid #cbd5e1 !important;
+    background:#2563eb !important;
+    color:#fff !important;
+    border-radius:10px !important;
+    padding:8px 14px !important;
+    font-weight:900 !important;
+    cursor:pointer !important;
+    min-height:36px !important;
+  }
+  .modal-refresh:hover{ background:#1d4ed8 !important; }
+
+  /* 3) Card da remessa arredondado embaixo também */
+  .remessa-card-header{
+    border-radius:12px !important;
+    border-bottom:1px solid #cbd5e1 !important;
+    margin-bottom:0 !important;
+  }
+  .remessa-card.tipo-exportacao .remessa-card-header{ border-color:#b8cbe6 !important; }
+  .remessa-card.tipo-cliente-especial .remessa-card-header{ border-color:#efc1d8 !important; }
+  .remessa-card.tipo-estoque .remessa-card-header{ border-color:#e5d796 !important; }
+  .remessa-card.tipo-amostra .remessa-card-header{ border-color:#b8dfc3 !important; }
+
+  /* Mantém a tabela agrupada logo abaixo, sem colar no canto da remessa */
+  .remessa-card-table{
+    margin-top:0 !important;
+    border-radius:10px !important;
+  }
+
+  /* Fundo do modal levemente mais claro */
+  .modal-table-wrap{
+    background:#d4dae1 !important;
+  }
+</style>
+
+<style id="modal-layout-v17">
+  /* Botão atualizar dados fora do modal */
+  .page-refresh-bar{
+    display:flex !important;
+    justify-content:flex-start !important;
+    align-items:center !important;
+    margin:8px 2px 6px !important;
+  }
+  #pageReloadButton{
+    min-height:38px !important;
+    padding:10px 18px !important;
+    border-radius:10px !important;
+    font-size:13px !important;
+    box-shadow:0 2px 8px rgba(37,99,235,.18) !important;
+  }
+
+  /* Modal: outra versão mais limpa, com cards/tabelas dentro de um painel claro */
+  .modal-overlay{
+    z-index:99999 !important;
+    padding:18px !important;
+    background:rgba(15,23,42,.58) !important;
+    align-items:center !important;
+  }
+  .modal-content{
+    width:min(1320px,96vw) !important;
+    max-height:90vh !important;
+    border-radius:16px !important;
+    overflow:hidden !important;
+    position:relative !important;
+    z-index:100000 !important;
+  }
+  .modal-head{
+    padding:12px 20px !important;
+    min-height:54px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    background:#f8fafc !important;
+    border-bottom:1px solid #e2e8f0 !important;
+  }
+  .modal-head h3{ font-size:18px !important; }
+  .modal-summary{ padding:10px 20px !important; background:#fff !important; }
+  .modal-options{
+    padding:12px 20px !important;
+    gap:28px !important;
+    background:#fff !important;
+    border-bottom:1px solid #e2e8f0 !important;
+  }
+  .modal-table-wrap{
+    background:#dbe1e7 !important;
+    padding:22px 26px 28px !important;
+    overflow:auto !important;
+  }
+  .remessa-list{
+    width:1060px !important;
+    max-width:100% !important;
+    margin:0 auto !important;
+    padding-bottom:10px !important;
+  }
+  .remessa-card{
+    display:block !important;
+    margin:0 0 22px 0 !important;
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+  }
+  .remessa-card-header{
+    width:680px !important;
+    max-width:calc(100% - 90px) !important;
+    display:grid !important;
+    grid-template-columns:120px 150px 130px 210px !important;
+    gap:18px !important;
+    align-items:end !important;
+    padding:9px 16px 10px !important;
+    background:#fff !important;
+    border:1px solid #c7d4e5 !important;
+    border-radius:12px !important;
+    box-shadow:0 2px 8px rgba(15,23,42,.08) !important;
+    margin:0 0 0 0 !important;
+  }
+  .remessa-card.tipo-exportacao .remessa-card-header{ background:#eef6ff !important; border-color:#b8cbe6 !important; }
+  .remessa-card.tipo-cliente-especial .remessa-card-header{ background:#fff5fa !important; border-color:#efc1d8 !important; }
+  .remessa-card.tipo-estoque .remessa-card-header{ background:#fff9df !important; border-color:#e5d796 !important; }
+  .remessa-card.tipo-amostra .remessa-card-header{ background:#eefaf1 !important; border-color:#b8dfc3 !important; }
+  .remessa-info-label{
+    display:block !important;
+    font-size:9px !important;
+    line-height:1 !important;
+    margin:0 0 3px !important;
+    color:#64748b !important;
+    font-weight:900 !important;
+    letter-spacing:.05em !important;
+    text-transform:uppercase !important;
+  }
+  .remessa-info-value{
+    display:block !important;
+    font-size:14px !important;
+    line-height:1.05 !important;
+    color:#002b5c !important;
+    font-weight:900 !important;
+    white-space:nowrap !important;
+  }
+  .remessa-card-table{
+    display:table !important;
+    width:940px !important;
+    min-width:940px !important;
+    max-width:940px !important;
+    margin:-1px 0 0 72px !important;
+    border-collapse:separate !important;
+    border-spacing:0 !important;
+    table-layout:fixed !important;
+    background:#fff !important;
+    border:1px solid #c7d4e5 !important;
+    border-radius:0 10px 10px 10px !important;
+    overflow:hidden !important;
+    box-shadow:0 2px 8px rgba(15,23,42,.07) !important;
+    color:#002b5c !important;
+  }
+  .remessa-card-table thead{ display:table-header-group !important; }
+  .remessa-card-table tbody{ display:table-row-group !important; }
+  .remessa-card-table tr{ display:table-row !important; }
+  .remessa-card-table th,.remessa-card-table td{
+    display:table-cell !important;
+    text-align:center !important;
+    vertical-align:middle !important;
+    white-space:nowrap !important;
+    padding:4px 6px !important;
+    height:24px !important;
+    line-height:1.05 !important;
+    border:0 !important;
+    border-bottom:1px solid #e1e7ef !important;
+    background:#fff !important;
+    color:#002b5c !important;
+    font-size:11px !important;
+    font-weight:500 !important;
+  }
+  .remessa-card-table th{
+    background:#f1f5f9 !important;
+    color:#0f172a !important;
+    font-size:10px !important;
+    font-weight:900 !important;
+    text-transform:uppercase !important;
+    border-bottom:1px solid #ccd6e2 !important;
+  }
+  .remessa-card-table tbody tr:last-child td{ border-bottom:0 !important; }
+  .remessa-card-table .model-cell{ font-size:12px !important; font-weight:900 !important; }
+  .remessa-card-table .alert-cell,.remessa-card-table .alert-row td.alert-cell{ color:#dc2626 !important; font-weight:900 !important; }
+  .remessa-card-table .alert-row .model-cell{ color:#dc2626 !important; }
+  .remessa-card-table th:nth-child(1),.remessa-card-table td:nth-child(1){ width:58px !important; }
+  .remessa-card-table th:nth-child(2),.remessa-card-table td:nth-child(2){ width:112px !important; }
+  .remessa-card-table th:nth-child(3),.remessa-card-table td:nth-child(3){ width:72px !important; }
+  .remessa-card-table th:nth-child(4),.remessa-card-table td:nth-child(4){ width:58px !important; }
+  .remessa-card-table th:nth-child(5),.remessa-card-table td:nth-child(5){ width:142px !important; }
+  .remessa-card-table th:nth-child(6),.remessa-card-table td:nth-child(6){ width:132px !important; }
+  .remessa-card-table th:nth-child(7),.remessa-card-table td:nth-child(7){ width:142px !important; }
+  .remessa-card-table th:nth-child(8),.remessa-card-table td:nth-child(8){ width:92px !important; }
+  .remessa-card-table th:nth-child(9),.remessa-card-table td:nth-child(9){ width:66px !important; }
+  @media (max-width: 1100px){
+    .remessa-list{ width:980px !important; }
+    .remessa-card-table{ width:900px !important; min-width:900px !important; max-width:900px !important; }
+  }
+</style>
+
+
+<style id="modal-cores-fundo-branco-v18">
+  /* Fundo branco no conteúdo do modal */
+  .modal-table-wrap{
+    background:#ffffff !important;
+    padding:22px 26px 30px !important;
+  }
+
+  /* Cards com sombra leve para separar melhor do fundo branco */
+  .remessa-card{
+    margin-bottom:24px !important;
+  }
+
+  .remessa-card-header{
+    box-shadow:0 4px 12px rgba(15,23,42,.10) !important;
+  }
+
+  .remessa-card-table{
+    box-shadow:0 4px 12px rgba(15,23,42,.08) !important;
+  }
+
+  /* Cores dos tipos de cliente mais marcadas */
+  .remessa-card.tipo-exportacao .remessa-card-header,
+  .remessa-card.tipo-exportacao .remessa-card-table th{
+    background:#d9ebff !important;
+    border-color:#7fb2ef !important;
+  }
+
+  .remessa-card.tipo-exportacao .remessa-card-table tbody td{
+    background:#eef6ff !important;
+  }
+
+  .remessa-card.tipo-cliente-especial .remessa-card-header,
+  .remessa-card.tipo-cliente-especial .remessa-card-table th{
+    background:#ffd9ea !important;
+    border-color:#ef8db9 !important;
+  }
+
+  .remessa-card.tipo-cliente-especial .remessa-card-table tbody td{
+    background:#fff0f7 !important;
+  }
+
+  .remessa-card.tipo-estoque .remessa-card-header,
+  .remessa-card.tipo-estoque .remessa-card-table th{
+    background:#fff0a8 !important;
+    border-color:#e6c94e !important;
+  }
+
+  .remessa-card.tipo-estoque .remessa-card-table tbody td{
+    background:#fff9dc !important;
+  }
+
+  .remessa-card.tipo-amostra .remessa-card-header,
+  .remessa-card.tipo-amostra .remessa-card-table th{
+    background:#d6f6df !important;
+    border-color:#79ca8d !important;
+  }
+
+  .remessa-card.tipo-amostra .remessa-card-table tbody td{
+    background:#effbf2 !important;
+  }
+
+  .remessa-card.tipo-mercado-interno .remessa-card-header,
+  .remessa-card.tipo-mercado-interno .remessa-card-table th{
+    background:#f8fafc !important;
+    border-color:#c7d4e5 !important;
+  }
+
+  .remessa-card.tipo-mercado-interno .remessa-card-table tbody td{
+    background:#ffffff !important;
+  }
+
+  /* Mantém alertas em vermelho mesmo com as cores de fundo */
+  .remessa-card-table .alert-cell,
+  .remessa-card-table .alert-row td.alert-cell,
+  .remessa-card-table .alert-row .model-cell{
+    color:#dc2626 !important;
+    font-weight:900 !important;
+  }
+</style>
+
+
+<style id="modal-ajuste-v19">
+  /* Modal menor e proporcional à tabela, sem a coluna Ateliê */
+  .modal-content{
+    width:min(1120px,94vw) !important;
+    max-height:90vh !important;
+  }
+  .modal-table-wrap{
+    background:#ffffff !important;
+    padding:20px 18px 28px !important;
+  }
+  .remessa-list{
+    width:960px !important;
+    max-width:100% !important;
+    margin:0 auto !important;
+  }
+  .remessa-card{
+    width:960px !important;
+    max-width:100% !important;
+    margin:0 auto 24px !important;
+  }
+  .remessa-card-header{
+    width:650px !important;
+    max-width:calc(100% - 70px) !important;
+    grid-template-columns:120px 150px 130px 200px !important;
+    gap:14px !important;
+  }
+  .remessa-card-table{
+    width:880px !important;
+    min-width:880px !important;
+    max-width:880px !important;
+    margin:-1px 0 0 58px !important;
+  }
+  .remessa-card-table th:nth-child(1),.remessa-card-table td:nth-child(1){ width:58px !important; }
+  .remessa-card-table th:nth-child(2),.remessa-card-table td:nth-child(2){ width:118px !important; }
+  .remessa-card-table th:nth-child(3),.remessa-card-table td:nth-child(3){ width:78px !important; }
+  .remessa-card-table th:nth-child(4),.remessa-card-table td:nth-child(4){ width:62px !important; }
+  .remessa-card-table th:nth-child(5),.remessa-card-table td:nth-child(5){ width:150px !important; }
+  .remessa-card-table th:nth-child(6),.remessa-card-table td:nth-child(6){ width:145px !important; }
+  .remessa-card-table th:nth-child(7),.remessa-card-table td:nth-child(7){ width:155px !important; }
+  .remessa-card-table th:nth-child(8),.remessa-card-table td:nth-child(8){ width:114px !important; }
+  @media (max-width: 980px){
+    .modal-content{ width:96vw !important; }
+    .remessa-card-table{ margin-left:0 !important; }
+    .remessa-card-header{ max-width:100% !important; }
+  }
+</style>
 </head>
 <body>
 <main class="main-content">
-    <section class="filters-card">
+    <section class="filters-card hide" aria-hidden="true">
       <div class="form-group">
         <label for="filterData">Data do controle:</label>
         <input type="date" id="filterData" />
@@ -714,6 +1833,11 @@
 
       <button class="btn btn-primary" id="refreshButton">Atualizar relatório</button>
       <button class="btn btn-secondary" id="todayButton">Hoje</button>
+    </section>
+
+    <section class="page-refresh-bar">
+      <button class="btn btn-primary" id="pageReloadButton" type="button" onclick="window.location.reload()">Atualizar dados</button>
+      <button class="btn btn-secondary" id="noEntryCutButton" type="button">Talões sem Entrada</button>
     </section>
 
     <div class="status-line" id="statusLine">Carregando dados...</div>
@@ -825,23 +1949,10 @@
             <div class="model-list" id="exportThursdayModels"></div>
           </article>
 
-          <article class="summary-card week">
-            <div class="summary-top">
-              <div class="summary-title-wrap">
-                <div class="summary-title">Fechamento da semana</div>
-                <button class="list-button" id="weekListButton" type="button">Talões</button>
-              </div>
-              <div class="summary-value right-metrics" id="weekTotal"></div>
-            </div>
-            <div class="right-card-subtitle" id="weekSubtitle">Semana atual</div>
-            <div class="model-title">Modelos</div>
-            <div class="model-list" id="weekModels"></div>
-          </article>
-
           <article class="summary-card cut">
             <div class="summary-top">
               <div class="summary-title-wrap">
-                <div class="summary-title">Fechamento do corte</div>
+                <div class="summary-title">Fechamento data de corte</div>
                 <button class="list-button" id="cutListButton" type="button">Talões</button>
               </div>
               <div class="summary-value right-metrics" id="cutTotal"></div>
@@ -877,28 +1988,9 @@
         </label>
       </div>
       <div class="modal-table-wrap">
-        <table class="modal-table">
-          <thead>
-            <tr>
-              <th>Remessa</th>
-              <th>Talão</th>
-              <th>Data de corte</th>
-              <th>Linha/Modelo</th>
-              <th>Cor</th>
-              <th>Tipo cliente</th>
-              <th>Pares</th>
-              <th>Ateliê</th>
-              <th>Entrega</th>
-              <th>Entrada Costura</th>
-              <th>Saída Costura</th>
-              <th>Entrada Fábrica</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="listModalBody">
-            <tr><td colspan="13">Nenhum talão encontrado.</td></tr>
-          </tbody>
-        </table>
+        <div id="listModalBody" class="remessa-list">
+          <div class="empty-message">Nenhum talão encontrado.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -919,916 +2011,422 @@
         appId: "default-app-id"
       };
 
-      try {
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-      } catch (error) {
-        console.error("Erro ao inicializar Firebase:", error);
-      }
-
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
       const db = firebase.firestore();
 
-      // Mantido sem db.settings customizado para seguir o mesmo padrão das outras páginas
-      // e evitar avisos do Firestore no console ao abrir localmente.
-
-      const filterData = document.getElementById("filterData");
-      const filterAtelie = document.getElementById("filterAtelie");
-      const atelieFilterGroup = document.getElementById("atelieFilterGroup");
-      const refreshButton = document.getElementById("refreshButton");
-      const todayButton = document.getElementById("todayButton");
-      const statusLine = document.getElementById("statusLine");
-
-      const producedTotal = document.getElementById("producedTotal");
-      const deliveredTotal = document.getElementById("deliveredTotal");
-      const pendingTotal = document.getElementById("pendingTotal");
-      const producedModels = document.getElementById("producedModels");
-      const deliveredModels = document.getElementById("deliveredModels");
-      const pendingModels = document.getElementById("pendingModels");
-      const detailsBody = document.getElementById("detailsBody");
-      const producedListButton = document.getElementById("producedListButton");
-      const deliveredListButton = document.getElementById("deliveredListButton");
-      const pendingListButton = document.getElementById("pendingListButton");
-      const listModal = document.getElementById("listModal");
-      const listModalTitle = document.getElementById("listModalTitle");
-      const listModalSummary = document.getElementById("listModalSummary");
-      const listModalBody = document.getElementById("listModalBody");
-      const removeProducedCheckbox = document.getElementById("removeProducedCheckbox");
-      const onlyNoEntryCheckbox = document.getElementById("onlyNoEntryCheckbox");
-      const onlyNotBippedFactoryCheckbox = document.getElementById("onlyNotBippedFactoryCheckbox");
-      const closeListModalButton = document.getElementById("closeListModalButton");
-      const urgentListButton = document.getElementById("urgentListButton");
-      const exportMondayListButton = document.getElementById("exportMondayListButton");
-      const exportThursdayListButton = document.getElementById("exportThursdayListButton");
-      const weekListButton = document.getElementById("weekListButton");
-      const cutListButton = document.getElementById("cutListButton");
-      const urgentTotal = document.getElementById("urgentTotal");
-      const exportMondayTotal = document.getElementById("exportMondayTotal");
-      const exportThursdayTotal = document.getElementById("exportThursdayTotal");
-      const weekTotal = document.getElementById("weekTotal");
-      const cutTotal = document.getElementById("cutTotal");
-      const urgentModels = document.getElementById("urgentModels");
-      const exportMondayModels = document.getElementById("exportMondayModels");
-      const exportThursdayModels = document.getElementById("exportThursdayModels");
-      const weekModels = document.getElementById("weekModels");
-      const cutModels = document.getElementById("cutModels");
-      const urgentSubtitle = document.getElementById("urgentSubtitle");
-      const exportMondayTitle = document.getElementById("exportMondayTitle");
-      const exportMondaySubtitle = document.getElementById("exportMondaySubtitle");
-      const exportThursdayTitle = document.getElementById("exportThursdayTitle");
-      const exportThursdaySubtitle = document.getElementById("exportThursdaySubtitle");
-      const weekSubtitle = document.getElementById("weekSubtitle");
-      const cutSubtitle = document.getElementById("cutSubtitle");
+      const $ = (id) => document.getElementById(id);
+      const els = {
+        filterData: $("filterData"), filterAtelie: $("filterAtelie"), atelieFilterGroup: $("atelieFilterGroup"),
+        refreshButton: $("refreshButton"), todayButton: $("todayButton"), statusLine: $("statusLine"),
+        listModal: $("listModal"), listModalTitle: $("listModalTitle"), listModalSummary: $("listModalSummary"), listModalBody: $("listModalBody"),
+        closeListModalButton: $("closeListModalButton"), removeProducedCheckbox: $("removeProducedCheckbox"), onlyNoEntryCheckbox: $("onlyNoEntryCheckbox"), onlyNotBippedFactoryCheckbox: $("onlyNotBippedFactoryCheckbox"),
+        urgentTotal: $("urgentTotal"), exportMondayTotal: $("exportMondayTotal"), exportThursdayTotal: $("exportThursdayTotal"), cutTotal: $("cutTotal"),
+        urgentModels: $("urgentModels"), exportMondayModels: $("exportMondayModels"), exportThursdayModels: $("exportThursdayModels"), cutModels: $("cutModels"),
+        urgentSubtitle: $("urgentSubtitle"), exportMondayTitle: $("exportMondayTitle"), exportMondaySubtitle: $("exportMondaySubtitle"), exportThursdayTitle: $("exportThursdayTitle"), exportThursdaySubtitle: $("exportThursdaySubtitle"), cutSubtitle: $("cutSubtitle"),
+        urgentListButton: $("urgentListButton"), exportMondayListButton: $("exportMondayListButton"), exportThursdayListButton: $("exportThursdayListButton"), cutListButton: $("cutListButton"),
+        producedTotal: $("producedTotal"), deliveredTotal: $("deliveredTotal"), pendingTotal: $("pendingTotal"), producedModels: $("producedModels"), deliveredModels: $("deliveredModels"), pendingModels: $("pendingModels"), detailsBody: $("detailsBody"),
+        producedListButton: $("producedListButton"), deliveredListButton: $("deliveredListButton"), pendingListButton: $("pendingListButton"), noEntryCutButton: $("noEntryCutButton")
+      };
 
       let currentUserName = "";
       let currentUserLevel = "";
-      let unsubscribeProduced = null;
-      let producedDocs = [];
-      let modalProducedDocs = [];
-      let modalDeliveredDocs = [];
-      let modalPendingDocs = [];
       let allRightDocs = [];
-      let modalUrgentDocs = [];
-      let modalExportMondayDocs = [];
-      let modalExportThursdayDocs = [];
-      let modalWeekDocs = [];
-      let modalCutDocs = [];
-      let currentModalTitle = "";
-      let currentModalTaloes = [];
-      let currentModalSortMode = "";
-      let rightReportLoadToken = 0;
+      let dailyDocs = [];
+      let modalDocs = { produced: [], delivered: [], pending: [], urgent: [], monday: [], thursday: [], exportFirst: [], exportSecond: [], cut: [] };
+      let currentModal = { title: "", taloes: [], sortMode: "" };
+      let loadToken = 0;
+      const queryCache = new Map();
 
-      function todayISO() {
-        const d = new Date();
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const dd = String(d.getDate()).padStart(2, "0");
-        return `${yyyy}-${mm}-${dd}`;
-      }
-
-      function formatDate(iso) {
-        if (!iso) return "";
-        const [y, m, d] = String(iso).split("-");
-        if (!y || !m || !d) return iso;
-        return `${d}/${m}/${y}`;
-      }
-
-      function toISODateOnly(value) {
+      const pad = (n) => String(n).padStart(2, "0");
+      const localDateToISO = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const todayISO = () => localDateToISO(new Date());
+      const dateFromISO = (iso) => { const [y, m, d] = String(iso || "").split("-").map(Number); return new Date(y || 2000, (m || 1) - 1, d || 1); };
+      const addDaysISO = (iso, days) => { const d = dateFromISO(iso); d.setDate(d.getDate() + days); return localDateToISO(d); };
+      const toISODateOnly = (value) => {
         if (!value) return "";
         if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-        if (value && typeof value.toDate === "function") {
-          const dt = value.toDate();
-          return localDateToISO(dt);
-        }
-        try {
-          const dt = new Date(value);
-          if (isNaN(dt)) return "";
-          return localDateToISO(dt);
-        } catch (error) {
-          return "";
-        }
-      }
-
-      function localDateToISO(dateObj) {
-        const yyyy = dateObj.getFullYear();
-        const mm = String(dateObj.getMonth() + 1).padStart(2, "0");
-        const dd = String(dateObj.getDate()).padStart(2, "0");
-        return `${yyyy}-${mm}-${dd}`;
-      }
-
-      function dateFromISO(iso) {
-        const [y, m, d] = String(iso || "").split("-").map(Number);
-        return new Date(y, (m || 1) - 1, d || 1);
-      }
-
-      function addDaysISO(iso, days) {
-        const dt = dateFromISO(iso);
-        dt.setDate(dt.getDate() + days);
-        return localDateToISO(dt);
-      }
-
-      function formatDateShort(iso) {
-        const clean = toISODateOnly(iso);
-        if (!clean) return "";
-        const [, m, d] = clean.split("-");
-        return `${d}/${m}`;
-      }
-
-      function getCycleDeliveryRange(baseIso) {
-        // Ciclo quarta a terça.
-        // Exemplo: 03/06/2026 a 09/06/2026 => entregas de 08/06 a 12/06.
-        const base = dateFromISO(baseIso);
-        const day = base.getDay();
-        const diffToWednesday = day >= 3 ? day - 3 : day + 4;
-        base.setDate(base.getDate() - diffToWednesday);
-        const cycleWednesdayIso = localDateToISO(base);
-        const mondayIso = addDaysISO(cycleWednesdayIso, 5);
-        const fridayIso = addDaysISO(mondayIso, 4);
-        return { cycleWednesdayIso, mondayIso, fridayIso };
-      }
-
-      function getCutClosingRange(baseIso) {
-        // Fechamento do corte sempre na terça do ciclo quarta-terça.
-        // Ex.: terça 09/06 fecha os cortes 25/05 e 28/05.
-        // Ex.: terça 16/06 fecha os cortes 01/06 e 04/06.
-        const { cycleWednesdayIso } = getCycleDeliveryRange(baseIso);
-        const closingTuesdayIso = addDaysISO(cycleWednesdayIso, 6);
-        const firstCutIso = addDaysISO(closingTuesdayIso, -15);
-        const secondCutIso = addDaysISO(closingTuesdayIso, -12);
-        return { closingTuesdayIso, cutDates: [firstCutIso, secondCutIso] };
-      }
-
-      function getNextWeekdayDate(baseIso, targetWeekday) {
-        const base = dateFromISO(baseIso);
-        const day = base.getDay();
-        let diff = targetWeekday - day;
-        if (diff < 0) diff += 7;
-        if (diff === 0) diff = 7;
-        const target = new Date(base);
-        target.setDate(base.getDate() + diff);
-        return localDateToISO(target);
-      }
-
-      function getExportTargetDates(baseIso) {
-        return {
-          mondayIso: getNextWeekdayDate(baseIso, 1),
-          thursdayIso: getNextWeekdayDate(baseIso, 4)
-        };
-      }
+        if (value && typeof value.toDate === "function") return localDateToISO(value.toDate());
+        const d = new Date(value); return isNaN(d) ? "" : localDateToISO(d);
+      };
+      const formatDate = (iso) => { const clean = toISODateOnly(iso); if (!clean) return ""; const [y,m,d] = clean.split("-"); return `${d}/${m}/${y}`; };
+      const formatDateShort = (iso) => { const clean = toISODateOnly(iso); if (!clean) return ""; const [,m,d] = clean.split("-"); return `${d}/${m}`; };
+      const escapeHTML = (v) => String(v ?? "").replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));
+      const hasFilledDate = (v) => v !== undefined && v !== null && String(v).trim() !== "";
+      const normalizePares = (v) => Number.isFinite(Number(v)) ? Number(v) : 0;
+      const setStatus = (txt) => { els.statusLine.textContent = txt || ""; };
 
       function normalizeTipoCliente(tipo) {
-        const value = String(tipo || "").trim().toLowerCase();
-        if (["exportacao", "exportação", "exportacoes", "exportações"].includes(value)) return "Exportacao";
-        if (["amostra", "amostras"].includes(value)) return "Amostra";
+        const v = String(tipo || "").trim().toLowerCase();
+        if (["exportacao", "exportação", "exportacoes", "exportações"].includes(v)) return "Exportacao";
+        if (["amostra", "amostras"].includes(v)) return "Amostra";
         return String(tipo || "").trim();
       }
-
-      function getTipoClienteLabel(talao) {
-        const tipo = normalizeTipoCliente(talao.tipoCliente);
+      const isAmostra = (t) => normalizeTipoCliente(t.tipoCliente) === "Amostra";
+      function getTipoClienteLabel(t) {
+        const tipo = normalizeTipoCliente(t.tipoCliente);
         if (tipo === "Exportacao") return "Exportação";
-        if (tipo === "Cliente especial") return "Cliente especial";
         if (tipo === "Mercado Interno") return "Mercado interno";
-        if (tipo === "Estoque") return "Estoque";
-        if (tipo === "Amostra") return "Amostra";
         return tipo || "Sem tipo";
       }
-
-      function getTipoClienteRowClass(talao) {
-        const tipo = normalizeTipoCliente(talao.tipoCliente);
+      function getTipoClienteRowClass(t) {
+        const tipo = normalizeTipoCliente(t.tipoCliente);
         if (tipo === "Exportacao") return "tipo-exportacao";
         if (tipo === "Cliente especial") return "tipo-cliente-especial";
         if (tipo === "Estoque") return "tipo-estoque";
         if (tipo === "Amostra") return "tipo-amostra";
         return "tipo-mercado-interno";
       }
-
-      function isAmostra(talao) {
-        return normalizeTipoCliente(talao.tipoCliente) === "Amostra";
-      }
-
-      function setStatus(text) {
-        statusLine.textContent = text || "";
-      }
-
-      async function loadAtelies() {
-        if (!["05", "07"].includes(currentUserLevel)) return;
-        atelieFilterGroup.classList.remove("hide");
-
-        try {
-          const snap = await db.collection("Usuario").where("nivelAcesso", "==", "03").get();
-          const names = snap.docs
-            .map((doc) => doc.data().Nome)
-            .filter(Boolean)
-            .sort((a, b) => a.localeCompare(b));
-
-          names.forEach((name) => {
-            const opt = document.createElement("option");
-            opt.value = name;
-            opt.textContent = name;
-            filterAtelie.appendChild(opt);
-          });
-        } catch (error) {
-          console.error("Erro ao carregar ateliês:", error);
-        }
-      }
-
-      function getSelectedAtelie() {
-        if (["05", "07"].includes(currentUserLevel)) {
-          return filterAtelie.value || "";
-        }
-        return currentUserName;
-      }
-
-      function getModelKey(talao) {
-        const linha = talao.linha ? String(talao.linha).trim() : "";
-        const modelo = talao.modelo ? String(talao.modelo).trim() : "";
-
+      function getModelKey(t) {
+        const linha = String(t.linha || "").trim();
+        const modelo = String(t.modelo || "").trim();
         if (modelo && modelo.includes(".")) return modelo;
         if (linha && modelo) return `${linha}.${modelo}`;
-        if (modelo) return modelo;
-        if (linha) return linha;
-        return "Sem modelo";
+        return modelo || linha || "Sem modelo";
       }
-
-      function normalizePares(value) {
-        const n = Number(value);
-        return Number.isFinite(n) ? n : 0;
+      const sumTotal = (arr) => arr.reduce((acc, t) => acc + normalizePares(t.pares), 0);
+      function sumByModel(arr) {
+        return arr.reduce((map, t) => { const key = getModelKey(t); map[key] = (map[key] || 0) + normalizePares(t.pares); return map; }, {});
       }
-
-      function hasFilledDate(value) {
-        return value !== undefined && value !== null && String(value).trim() !== "";
-      }
-
-      function getStatusText(talao) {
-        if (hasFilledDate(talao.dataEntradaDistribuicao)) return "Entregue na fábrica";
-        if (hasFilledDate(talao.dataSaidaCostura)) return "Pendente de entrega";
-        return "Sem saída";
-      }
-
-      function sumByModel(taloes) {
-        const result = {};
-        taloes.forEach((t) => {
-          const key = getModelKey(t);
-          result[key] = (result[key] || 0) + normalizePares(t.pares);
-        });
-        return result;
-      }
-
-      function sumTotal(taloes) {
-        return taloes.reduce((acc, t) => acc + normalizePares(t.pares), 0);
-      }
-
       function renderModelList(container, data) {
-        const entries = Object.entries(data).filter(([, pares]) => pares > 0);
-        entries.sort((a, b) => a[0].localeCompare(b[0], "pt-BR", { numeric: true }));
-
-        if (entries.length === 0) {
-          container.innerHTML = '<div class="empty-message">Nenhum modelo encontrado.</div>';
-          return;
-        }
-
-        container.innerHTML = entries.map(([model, pares]) => `
-          <div class="model-row">
-            <strong>${escapeHTML(model)}</strong>
-            <span>${pares.toLocaleString("pt-BR")} pares</span>
-          </div>
-        `).join("");
+        const entries = Object.entries(data).filter(([, p]) => p > 0).sort((a,b) => a[0].localeCompare(b[0], "pt-BR", { numeric:true }));
+        container.innerHTML = entries.length ? entries.map(([m,p]) => `<div class="model-row"><strong>${escapeHTML(m)}</strong><span>${p.toLocaleString("pt-BR")} pares</span></div>`).join("") : '<div class="empty-message">Nenhum modelo encontrado.</div>';
       }
-
-      function formatParesMetric(value) {
-        const total = normalizePares(value);
-        return `${total.toLocaleString("pt-BR")} pares`;
+      function getSelectedAtelie() {
+        if (["05", "07"].includes(currentUserLevel)) return els.filterAtelie.value || "";
+        return currentUserName;
       }
-
-      function getFechamentoResumo(taloes) {
-        const paraProduzirDocs = taloes.filter((t) => !hasFilledDate(t.dataSaidaCostura));
-        const jaBipadosDocs = taloes.filter((t) => hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(t.dataEntradaDistribuicao));
-
-        const paraProduzir = sumTotal(paraProduzirDocs);
-        const jaBipados = sumTotal(jaBipadosDocs);
-
-        return {
-          paraProduzir,
-          jaBipados,
-          total: paraProduzir + jaBipados
-        };
+      function filterBase(arr) {
+        const atelie = getSelectedAtelie();
+        return arr.filter(t => !isAmostra(t) && (!atelie || String(t.idAtelieResponsavel || "") === atelie));
       }
-
-      function renderRightCard(totalEl, modelsEl, taloes) {
-        const resumo = getFechamentoResumo(taloes);
-
-        totalEl.innerHTML = `
-          <div class="metric-line"><span class="metric-label">Para produzir:</span><span class="metric-number">${formatParesMetric(resumo.paraProduzir)}</span></div>
-          <div class="metric-line"><span class="metric-label">Já bipados:</span><span class="metric-number">${formatParesMetric(resumo.jaBipados)}</span></div>
-          <div class="metric-line total-line"><span class="metric-label">Total:</span><span class="metric-number">${formatParesMetric(resumo.total)}</span></div>
-        `;
-
-        renderModelList(modelsEl, sumByModel(taloes));
+      function getCycleDeliveryRange(baseIso) {
+        const base = dateFromISO(baseIso); const day = base.getDay(); const diff = day >= 3 ? day - 3 : day + 4;
+        base.setDate(base.getDate() - diff); const wed = localDateToISO(base); const monday = addDaysISO(wed, 5);
+        return { cycleWednesdayIso: wed, mondayIso: monday, fridayIso: addDaysISO(monday, 4) };
       }
-
-      function escapeHTML(value) {
-        return String(value ?? "").replace(/[&<>'"]/g, (char) => ({
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          "'": "&#39;",
-          '"': "&quot;"
-        }[char]));
+      function getCutClosingRange(baseIso) {
+        const { cycleWednesdayIso } = getCycleDeliveryRange(baseIso); const tue = addDaysISO(cycleWednesdayIso, 6);
+        return { closingTuesdayIso: tue, cutDates: [addDaysISO(tue, -15), addDaysISO(tue, -12)] };
       }
-
-      function filterByAtelie(taloes) {
-        const selectedAtelie = getSelectedAtelie();
-        const semAmostras = taloes.filter((t) => !isAmostra(t));
-        if (!selectedAtelie) return semAmostras;
-        return semAmostras.filter((t) => String(t.idAtelieResponsavel || "") === selectedAtelie);
+      function getNextWeekdayDate(baseIso, weekday) {
+        const base = dateFromISO(baseIso); let diff = weekday - base.getDay(); if (diff < 0) diff += 7; if (diff === 0) diff = 7;
+        return addDaysISO(baseIso, diff);
       }
+      const getExportTargetDates = (baseIso) => ({ mondayIso: getNextWeekdayDate(baseIso, 1), thursdayIso: getNextWeekdayDate(baseIso, 4) });
+      function dateRange(startIso, endIso) {
+        const out = []; let d = dateFromISO(startIso); const end = dateFromISO(endIso);
+        while (d <= end) { out.push(localDateToISO(d)); d.setDate(d.getDate() + 1); }
+        return out;
+      }
+      const unique = (arr) => Array.from(new Set(arr.filter(Boolean))).sort();
 
-      function renderDetails(produced, delivered) {
-        const rows = [];
-        const producedIds = new Set(produced.map((t) => t.id));
+      async function getDocsByFieldIn(field, values) {
+        const clean = unique(values);
+        if (!clean.length) return [];
 
-        produced.forEach((t) => rows.push({ type: "Produzido", talao: t }));
-        delivered.forEach((t) => {
-          rows.push({ type: producedIds.has(t.id) ? "Produzido/Entregue" : "Entregue", talao: t });
+        const cachedDocs = [];
+        const missingValues = [];
+
+        clean.forEach((value) => {
+          const cacheKey = `${field}:${value}`;
+          if (queryCache.has(cacheKey)) cachedDocs.push(...queryCache.get(cacheKey));
+          else missingValues.push(value);
         });
 
-        if (rows.length === 0) {
-          detailsBody.innerHTML = '<tr><td colspan="10">Nenhum talão encontrado para esta data.</td></tr>';
-          return;
-        }
-
-        rows.sort((a, b) => {
-          const mA = getModelKey(a.talao);
-          const mB = getModelKey(b.talao);
-          return mA.localeCompare(mB, "pt-BR", { numeric: true });
-        });
-
-        detailsBody.innerHTML = rows.map(({ type, talao }) => `
-          <tr>
-            <td>${escapeHTML(type)}</td>
-            <td>${escapeHTML(talao.numeroRemessa || "")}</td>
-            <td>${escapeHTML(talao.numeroTalaoSequencial || "")}</td>
-            <td>${escapeHTML(getModelKey(talao))}</td>
-            <td>${escapeHTML(talao.corSapato || "")}</td>
-            <td><span class="tipo-badge">${escapeHTML(getTipoClienteLabel(talao))}</span></td>
-            <td><strong>${normalizePares(talao.pares).toLocaleString("pt-BR")}</strong></td>
-            <td>${escapeHTML(talao.idAtelieResponsavel || "")}</td>
-            <td>${formatDate(talao.dataSaidaCostura)}</td>
-            <td>${formatDate(talao.dataEntradaDistribuicao)}</td>
-          </tr>
-        `).join("");
-      }
-
-      function getTipoClienteOrder(talao) {
-        const tipo = normalizeTipoCliente(talao.tipoCliente);
-        const ordem = {
-          "Exportacao": 1,
-          "Cliente especial": 2,
-          "Mercado Interno": 3,
-          "Estoque": 4
-        };
-        return ordem[tipo] || 99;
-      }
-
-      function getSortValueDate(value) {
-        return toISODateOnly(value) || "9999-99-99";
-      }
-
-      function compareTextNumeric(a, b) {
-        return String(a || "").localeCompare(String(b || ""), "pt-BR", { numeric: true });
-      }
-
-      function compareTaloesBase(a, b) {
-        const remessaCompare = compareTextNumeric(a.numeroRemessa, b.numeroRemessa);
-        if (remessaCompare !== 0) return remessaCompare;
-
-        const talaoCompare = compareTextNumeric(a.numeroTalaoSequencial, b.numeroTalaoSequencial);
-        if (talaoCompare !== 0) return talaoCompare;
-
-        return compareTextNumeric(getModelKey(a), getModelKey(b));
-      }
-
-      function sortTaloesForList(taloes, sortMode) {
-        return [...taloes].sort((a, b) => {
-          if (sortMode === "produced" || sortMode === "delivered" || sortMode === "export" || sortMode === "cut") {
-            const dateCompare = compareTextNumeric(getSortValueDate(a.dataCorte), getSortValueDate(b.dataCorte));
-            if (dateCompare !== 0) return dateCompare;
-            return compareTaloesBase(a, b);
-          }
-
-          if (sortMode === "pending") {
-            const saidaCompare = compareTextNumeric(getSortValueDate(a.dataSaidaCostura), getSortValueDate(b.dataSaidaCostura));
-            if (saidaCompare !== 0) return saidaCompare;
-
-            const corteCompare = compareTextNumeric(getSortValueDate(a.dataCorte), getSortValueDate(b.dataCorte));
-            if (corteCompare !== 0) return corteCompare;
-
-            return compareTaloesBase(a, b);
-          }
-
-          if (sortMode === "urgent") {
-            const tipoCompare = getTipoClienteOrder(a) - getTipoClienteOrder(b);
-            if (tipoCompare !== 0) return tipoCompare;
-
-            const corteCompare = compareTextNumeric(getSortValueDate(a.dataCorte), getSortValueDate(b.dataCorte));
-            if (corteCompare !== 0) return corteCompare;
-
-            return compareTaloesBase(a, b);
-          }
-
-          if (sortMode === "week") {
-            const entregaCompare = compareTextNumeric(getSortValueDate(a.dataEntrega), getSortValueDate(b.dataEntrega));
-            if (entregaCompare !== 0) return entregaCompare;
-
-            const corteCompare = compareTextNumeric(getSortValueDate(a.dataCorte), getSortValueDate(b.dataCorte));
-            if (corteCompare !== 0) return corteCompare;
-
-            return compareTaloesBase(a, b);
-          }
-
-          return compareTaloesBase(a, b);
-        });
-      }
-
-      function getModalFilterResult(taloes) {
-        let visibleTaloes = Array.isArray(taloes) ? [...taloes] : [];
-        const summaryExtras = [];
-
-        if (removeProducedCheckbox && removeProducedCheckbox.checked) {
-          const before = visibleTaloes.length;
-          visibleTaloes = visibleTaloes.filter((talao) => !hasFilledDate(talao.dataSaidaCostura));
-          const removed = before - visibleTaloes.length;
-          if (removed > 0) summaryExtras.push(`${removed.toLocaleString("pt-BR")} já produzidos removidos`);
-        }
-
-        if (onlyNoEntryCheckbox && onlyNoEntryCheckbox.checked) {
-          const before = visibleTaloes.length;
-          visibleTaloes = visibleTaloes.filter((talao) => !hasFilledDate(talao.costuraDataInicio));
-          const hidden = before - visibleTaloes.length;
-          if (hidden > 0) summaryExtras.push(`${hidden.toLocaleString("pt-BR")} com entrada ocultados`);
-        }
-
-        if (onlyNotBippedFactoryCheckbox && onlyNotBippedFactoryCheckbox.checked) {
-          const before = visibleTaloes.length;
-          // Mostra somente os talões que JÁ foram bipados na costura
-          // e que AINDA NÃO foram bipados na fábrica/distribuição.
-          visibleTaloes = visibleTaloes.filter((talao) =>
-            hasFilledDate(talao.dataSaidaCostura) && !hasFilledDate(talao.dataEntradaDistribuicao)
-          );
-          const hidden = before - visibleTaloes.length;
-          if (hidden > 0) summaryExtras.push(`${hidden.toLocaleString("pt-BR")} fora do critério ocultados`);
-        }
-
-        return { visibleTaloes, summaryExtras };
-      }
-
-      function formatDateOrMissing(value) {
-        const clean = toISODateOnly(value);
-        if (!clean) return '<span class="missing-date">X</span>';
-        return escapeHTML(formatDate(clean));
-      }
-
-      function renderListModalContent() {
-        const { visibleTaloes, summaryExtras } = getModalFilterResult(currentModalTaloes);
-        const totalPares = sumTotal(visibleTaloes);
-        const extraText = summaryExtras.length ? ` • ${summaryExtras.join(" • ")}` : "";
-
-        listModalTitle.textContent = currentModalTitle || "Listagem";
-        listModalSummary.textContent = `${visibleTaloes.length.toLocaleString("pt-BR")} talões exibidos • ${totalPares.toLocaleString("pt-BR")} pares${extraText}`;
-
-        if (!visibleTaloes.length) {
-          listModalBody.innerHTML = '<tr><td colspan="13">Nenhum talão encontrado.</td></tr>';
-          return;
-        }
-
-        const sorted = sortTaloesForList(visibleTaloes, currentModalSortMode);
-
-        listModalBody.innerHTML = sorted.map((talao) => `
-          <tr class="${getTipoClienteRowClass(talao)}">
-            <td>${escapeHTML(talao.numeroRemessa || "")}</td>
-            <td>${escapeHTML(talao.numeroTalaoSequencial || "")}</td>
-            <td>${formatDate(toISODateOnly(talao.dataCorte))}</td>
-            <td>${escapeHTML(getModelKey(talao))}</td>
-            <td>${escapeHTML(talao.corSapato || "")}</td>
-            <td><span class="tipo-badge">${escapeHTML(getTipoClienteLabel(talao))}</span></td>
-            <td><strong>${normalizePares(talao.pares).toLocaleString("pt-BR")}</strong></td>
-            <td>${escapeHTML(talao.idAtelieResponsavel || "")}</td>
-            <td>${formatDate(toISODateOnly(talao.dataEntrega))}</td>
-            <td>${formatDateOrMissing(talao.costuraDataInicio)}</td>
-            <td>${formatDate(talao.dataSaidaCostura)}</td>
-            <td>${formatDate(talao.dataEntradaDistribuicao)}</td>
-            <td>${escapeHTML(getStatusText(talao))}</td>
-          </tr>
-        `).join("");
-      }
-
-      function openListModal(title, taloes, sortMode) {
-        currentModalTitle = title;
-        currentModalTaloes = Array.isArray(taloes) ? [...taloes] : [];
-        currentModalSortMode = sortMode;
-
-        if (removeProducedCheckbox) {
-          removeProducedCheckbox.checked = false;
-        }
-        if (onlyNoEntryCheckbox) {
-          onlyNoEntryCheckbox.checked = false;
-        }
-        if (onlyNotBippedFactoryCheckbox) {
-          onlyNotBippedFactoryCheckbox.checked = false;
-        }
-
-        renderListModalContent();
-        listModal.classList.add("show");
-      }
-
-      function closeListModal() {
-        listModal.classList.remove("show");
-      }
-
-      producedListButton.addEventListener("click", () => {
-        openListModal("Listagem - Total de pares produzidos", modalProducedDocs, "produced");
-      });
-
-      deliveredListButton.addEventListener("click", () => {
-        openListModal("Listagem - Total entregue na fábrica", modalDeliveredDocs, "delivered");
-      });
-
-      pendingListButton.addEventListener("click", () => {
-        openListModal("Listagem - Total de entrega pendente", modalPendingDocs, "pending");
-      });
-
-      urgentListButton.addEventListener("click", () => {
-        openListModal("Listagem - Atraso Urgente", modalUrgentDocs, "urgent");
-      });
-
-      exportMondayListButton.addEventListener("click", () => {
-        openListModal("Listagem - Exportação Segunda", modalExportMondayDocs, "export");
-      });
-
-      exportThursdayListButton.addEventListener("click", () => {
-        openListModal("Listagem - Exportação Quinta", modalExportThursdayDocs, "export");
-      });
-
-      weekListButton.addEventListener("click", () => {
-        openListModal("Listagem - Fechamento da semana", modalWeekDocs, "week");
-      });
-
-      cutListButton.addEventListener("click", () => {
-        openListModal("Listagem - Fechamento do corte", modalCutDocs, "cut");
-      });
-
-      if (removeProducedCheckbox) {
-        removeProducedCheckbox.addEventListener("change", renderListModalContent);
-      }
-      if (onlyNoEntryCheckbox) {
-        onlyNoEntryCheckbox.addEventListener("change", renderListModalContent);
-      }
-      if (onlyNotBippedFactoryCheckbox) {
-        onlyNotBippedFactoryCheckbox.addEventListener("change", renderListModalContent);
-      }
-
-      closeListModalButton.addEventListener("click", closeListModal);
-      listModal.addEventListener("click", (event) => {
-        if (event.target === listModal) closeListModal();
-      });
-
-      function renderRightReport() {
-        const selectedDate = filterData.value || todayISO();
-        const { mondayIso, fridayIso } = getCycleDeliveryRange(selectedDate);
-        const exportTargets = getExportTargetDates(selectedDate);
-
-        const selectedAtelie = getSelectedAtelie();
-        const baseDocsComAmostraIgnorada = allRightDocs.filter((t) => !isAmostra(t));
-        const baseDocs = selectedAtelie
-          ? baseDocsComAmostraIgnorada.filter((t) => String(t.idAtelieResponsavel || "") === selectedAtelie)
-          : baseDocsComAmostraIgnorada;
-
-        // Base dos cards de fechamento: tudo que ainda não entrou na fábrica.
-        // Dentro de cada card, o resumo separa:
-        // - Para produzir: sem dataSaidaCostura;
-        // - Já bipados: com dataSaidaCostura e sem dataEntradaDistribuicao;
-        // - Total: soma dos dois.
-        const pendentesDistribuicao = baseDocs.filter((t) => !hasFilledDate(t.dataEntradaDistribuicao));
-
-        const urgentMap = new Map();
-        pendentesDistribuicao.forEach((t) => {
-          const entrega = toISODateOnly(t.dataEntrega);
-          const isExport = normalizeTipoCliente(t.tipoCliente) === "Exportacao";
-          const exportAtrasada = isExport && entrega && entrega < exportTargets.mondayIso && entrega < exportTargets.thursdayIso;
-          const semanaAtrasada = entrega && entrega < mondayIso;
-          if (exportAtrasada || semanaAtrasada) urgentMap.set(t.id || `${t.numeroRemessa}-${t.numeroTalaoSequencial}`, t);
-        });
-
-        const urgentDocs = Array.from(urgentMap.values());
-        const exportMondayDocs = pendentesDistribuicao.filter((t) =>
-          normalizeTipoCliente(t.tipoCliente) === "Exportacao" && toISODateOnly(t.dataEntrega) === exportTargets.mondayIso
-        );
-        const exportThursdayDocs = pendentesDistribuicao.filter((t) =>
-          normalizeTipoCliente(t.tipoCliente) === "Exportacao" && toISODateOnly(t.dataEntrega) === exportTargets.thursdayIso
-        );
-        const weekDocs = pendentesDistribuicao.filter((t) => {
-          const entrega = toISODateOnly(t.dataEntrega);
-          return entrega && entrega >= mondayIso && entrega <= fridayIso;
-        });
-        const cutClosing = getCutClosingRange(selectedDate);
-        const cutDateSet = new Set(cutClosing.cutDates);
-        const cutDocs = pendentesDistribuicao.filter((t) => cutDateSet.has(toISODateOnly(t.dataCorte)));
-
-        modalUrgentDocs = urgentDocs;
-        modalExportMondayDocs = exportMondayDocs;
-        modalExportThursdayDocs = exportThursdayDocs;
-        modalWeekDocs = weekDocs;
-        modalCutDocs = cutDocs;
-
-        renderRightCard(urgentTotal, urgentModels, urgentDocs);
-        renderRightCard(exportMondayTotal, exportMondayModels, exportMondayDocs);
-        renderRightCard(exportThursdayTotal, exportThursdayModels, exportThursdayDocs);
-        renderRightCard(weekTotal, weekModels, weekDocs);
-        renderRightCard(cutTotal, cutModels, cutDocs);
-
-        urgentSubtitle.textContent = `Em atraso urgente • janela de 14 dias para trás`;
-        exportMondayTitle.textContent = "Exportação Segunda";
-        exportMondaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportTargets.mondayIso)}`;
-        exportThursdayTitle.textContent = "Exportação Quinta";
-        exportThursdaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportTargets.thursdayIso)}`;
-        weekSubtitle.textContent = `Data de entrega da montagem de ${formatDateShort(mondayIso)} a ${formatDateShort(fridayIso)}`;
-        cutSubtitle.textContent = `Data de Fechamento ${formatDate(cutClosing.closingTuesdayIso)} • Cortes ${formatDateShort(cutClosing.cutDates[0])} e ${formatDateShort(cutClosing.cutDates[1])}`;
-      }
-
-      function uniqueDates(values) {
-        return Array.from(new Set(values.filter(Boolean))).sort();
-      }
-
-      function getDateRangeList(startIso, endIso) {
-        const dates = [];
-        if (!startIso || !endIso || startIso > endIso) return dates;
-
-        let cursor = dateFromISO(startIso);
-        const endDate = dateFromISO(endIso);
-
-        while (cursor <= endDate) {
-          dates.push(localDateToISO(cursor));
-          cursor.setDate(cursor.getDate() + 1);
-        }
-
-        return dates;
-      }
-
-      async function getDocsByFieldIn(fieldName, values) {
-        const cleanValues = uniqueDates(values);
-        if (!cleanValues.length) return [];
+        if (!missingValues.length) return cachedDocs;
 
         const chunks = [];
-        for (let i = 0; i < cleanValues.length; i += 10) {
-          chunks.push(cleanValues.slice(i, i + 10));
-        }
+        for (let i = 0; i < missingValues.length; i += 10) chunks.push(missingValues.slice(i, i + 10));
 
-        const snapshots = await Promise.all(
-          chunks.map((chunk) => db.collection("taloes").where(fieldName, "in", chunk).get())
-        );
+        const snaps = await Promise.all(chunks.map(chunk =>
+          db.collection("taloes").where(field, "in", chunk).get()
+        ));
 
-        return snapshots.flatMap((snapshot) =>
-          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-        );
+        const docsByValue = new Map(missingValues.map((value) => [value, []]));
+        const fetchedDocs = [];
+
+        snaps.forEach((snap) => {
+          snap.docs.forEach((doc) => {
+            const item = { id: doc.id, ...doc.data() };
+            const keyDate = toISODateOnly(item[field]);
+            if (docsByValue.has(keyDate)) docsByValue.get(keyDate).push(item);
+            fetchedDocs.push(item);
+          });
+        });
+
+        docsByValue.forEach((docs, value) => queryCache.set(`${field}:${value}`, docs));
+        return [...cachedDocs, ...fetchedDocs];
       }
-
-      async function getDocsByFieldRange(fieldName, startIso, endIso) {
+      async function getDocsByFieldRange(field, startIso, endIso) {
         if (!startIso || !endIso || startIso > endIso) return [];
-
-        const snapshot = await db.collection("taloes")
-          .where(fieldName, ">=", startIso)
-          .where(fieldName, "<=", endIso)
-          .get();
-
-        return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const s = await db.collection("taloes").where(field, ">=", startIso).where(field, "<=", endIso).get();
+        return s.docs.map(d => ({ id: d.id, ...d.data() }));
+      }
+      async function getDocsByFieldEqual(field, value) {
+        if (!value) return [];
+        const s = await db.collection("taloes").where(field, "==", value).get();
+        return s.docs.map(d => ({ id: d.id, ...d.data() }));
       }
 
-      async function loadRightReport() {
-        const loadToken = ++rightReportLoadToken;
+      function renderMetrics(el, arr) {
+        const paraProduzir = sumTotal(arr.filter(t => !hasFilledDate(t.dataSaidaCostura)));
+        const jaBipados = sumTotal(arr.filter(t => hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(t.dataEntradaDistribuicao)));
+        el.innerHTML = `
+          <div class="metric-line"><span class="metric-label">Para produzir:</span><span class="metric-number">${paraProduzir.toLocaleString("pt-BR")} pares</span></div>
+          <div class="metric-line"><span class="metric-label">Já bipados:</span><span class="metric-number">${jaBipados.toLocaleString("pt-BR")} pares</span></div>
+          <div class="metric-line total-line"><span class="metric-label">Total:</span><span class="metric-number">${(paraProduzir + jaBipados).toLocaleString("pt-BR")} pares</span></div>`;
+      }
+      function renderRightCard(totalEl, modelEl, arr) { renderMetrics(totalEl, arr); renderModelList(modelEl, sumByModel(arr)); }
+
+      function buildReportSets() {
+        const baseDate = todayISO();
+        els.filterData.value = baseDate;
+        const { mondayIso, fridayIso } = getCycleDeliveryRange(baseDate);
+        const targets = getExportTargetDates(baseDate);
+        const cutClosing = getCutClosingRange(baseDate);
+        const base = filterBase(allRightDocs).filter(t => !hasFilledDate(t.dataEntradaDistribuicao));
+
+        const urgentMap = new Map();
+        base.forEach(t => {
+          const entrega = toISODateOnly(t.dataEntrega);
+          if (!entrega) return;
+          const isExport = normalizeTipoCliente(t.tipoCliente) === "Exportacao";
+          if ((isExport && entrega < targets.mondayIso && entrega < targets.thursdayIso) || entrega < mondayIso) urgentMap.set(t.id || `${t.numeroRemessa}-${t.numeroTalaoSequencial}`, t);
+        });
+        modalDocs.urgent = Array.from(urgentMap.values());
+        modalDocs.monday = base.filter(t => normalizeTipoCliente(t.tipoCliente) === "Exportacao" && toISODateOnly(t.dataEntrega) === targets.mondayIso);
+        modalDocs.thursday = base.filter(t => normalizeTipoCliente(t.tipoCliente) === "Exportacao" && toISODateOnly(t.dataEntrega) === targets.thursdayIso);
+        const exportCards = [
+          { label: "Exportação Segunda", iso: targets.mondayIso, docs: modalDocs.monday },
+          { label: "Exportação Quinta", iso: targets.thursdayIso, docs: modalDocs.thursday }
+        ].sort((a, b) => a.iso.localeCompare(b.iso));
+        modalDocs.exportFirst = exportCards[0].docs;
+        modalDocs.exportSecond = exportCards[1].docs;
+        const cutSet = new Set(cutClosing.cutDates);
+        modalDocs.cut = base.filter(t => cutSet.has(toISODateOnly(t.dataCorte)));
+
+        renderRightCard(els.urgentTotal, els.urgentModels, modalDocs.urgent);
+        renderRightCard(els.exportMondayTotal, els.exportMondayModels, modalDocs.exportFirst);
+        renderRightCard(els.exportThursdayTotal, els.exportThursdayModels, modalDocs.exportSecond);
+        renderRightCard(els.cutTotal, els.cutModels, modalDocs.cut);
+
+        els.urgentSubtitle.textContent = "Em atraso urgente • janela de 14 dias para trás";
+        els.exportMondayTitle.textContent = exportCards[0].label;
+        els.exportMondaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportCards[0].iso)}`;
+        els.exportThursdayTitle.textContent = exportCards[1].label;
+        els.exportThursdaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportCards[1].iso)}`;
+        els.cutSubtitle.textContent = `Data de Fechamento ${formatDate(cutClosing.closingTuesdayIso)} • Cortes ${formatDateShort(cutClosing.cutDates[0])} e ${formatDateShort(cutClosing.cutDates[1])}`;
+      }
+
+      function renderDailyHiddenCards() {
+        const produced = filterBase(dailyDocs);
+        const delivered = produced.filter(t => hasFilledDate(t.dataEntradaDistribuicao));
+        const pending = filterBase(allRightDocs).filter(t => hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(t.dataEntradaDistribuicao));
+        modalDocs.produced = produced; modalDocs.delivered = delivered; modalDocs.pending = pending;
+        if (els.producedTotal) els.producedTotal.textContent = sumTotal(produced).toLocaleString("pt-BR");
+        if (els.deliveredTotal) els.deliveredTotal.textContent = sumTotal(delivered).toLocaleString("pt-BR");
+        if (els.pendingTotal) els.pendingTotal.textContent = sumTotal(pending).toLocaleString("pt-BR");
+        if (els.producedModels) renderModelList(els.producedModels, sumByModel(produced));
+        if (els.deliveredModels) renderModelList(els.deliveredModels, sumByModel(delivered));
+        if (els.pendingModels) renderModelList(els.pendingModels, sumByModel(pending));
+      }
+
+      async function loadReport() {
+        const token = ++loadToken;
+        const selectedDate = todayISO();
+        els.filterData.value = selectedDate;
+        [els.urgentModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Carregando...</div>');
+        [els.urgentTotal, els.exportMondayTotal, els.exportThursdayTotal, els.cutTotal].forEach(el => el.innerHTML = '');
+        setStatus("Buscando somente as datas necessárias...");
+
         try {
-          urgentModels.innerHTML = '<div class="empty-message">Carregando...</div>';
-          exportMondayModels.innerHTML = '<div class="empty-message">Carregando...</div>';
-          exportThursdayModels.innerHTML = '<div class="empty-message">Carregando...</div>';
-          weekModels.innerHTML = '<div class="empty-message">Carregando...</div>';
-          cutModels.innerHTML = '<div class="empty-message">Carregando...</div>';
-          setStatus("Buscando somente datas necessárias...");
-
-          const selectedDate = filterData.value || todayISO();
           const { mondayIso, fridayIso } = getCycleDeliveryRange(selectedDate);
-          const exportTargets = getExportTargetDates(selectedDate);
+          const targets = getExportTargetDates(selectedDate);
           const cutClosing = getCutClosingRange(selectedDate);
-
-          // Janela máxima solicitada: 14 dias para trás e 25 dias para frente
-          // a partir da data base. Nada fora dessa janela entra nas buscas.
           const windowStartIso = addDaysISO(selectedDate, -14);
           const windowEndIso = addDaysISO(selectedDate, 25);
+          const inside = (iso) => iso && iso >= windowStartIso && iso <= windowEndIso;
 
-          const withinWindow = (iso) => iso && iso >= windowStartIso && iso <= windowEndIso;
+          const deliveryDates = unique([
+            targets.mondayIso,
+            targets.thursdayIso
+          ].filter(inside));
 
-          const weekDeliveryDates = getDateRangeList(mondayIso, fridayIso).filter(withinWindow);
-          const deliveryDates = uniqueDates([
-            ...weekDeliveryDates,
-            exportTargets.mondayIso,
-            exportTargets.thursdayIso
-          ].filter(withinWindow));
+          const cutDates = cutClosing.cutDates.filter(inside);
 
-          const cutDates = cutClosing.cutDates.filter(withinWindow);
+          // Importante para performance:
+          // em vez de uma busca por intervalo grande em dataEntrega,
+          // busca somente os 14 dias exatos da janela de atraso, em blocos de 10.
+          // Isso evita a página ficar presa quando troca a data.
+          const urgentDates = dateRange(windowStartIso, addDaysISO(selectedDate, -1));
 
-          const urgentStartIso = windowStartIso;
-          const urgentEndIso = addDaysISO(selectedDate, -1);
-
-          const [deliveryDocs, cutDocs, urgentDocs] = await Promise.all([
+          const [deliveryDocs, cutDocs, urgentDocs, dayDocs] = await Promise.all([
             getDocsByFieldIn("dataEntrega", deliveryDates),
             getDocsByFieldIn("dataCorte", cutDates),
-            getDocsByFieldRange("dataEntrega", urgentStartIso, urgentEndIso)
+            getDocsByFieldIn("dataEntrega", urgentDates),
+            getDocsByFieldIn("dataSaidaCostura", [selectedDate])
           ]);
 
-          if (loadToken !== rightReportLoadToken) return;
+          if (token !== loadToken) return;
 
           const map = new Map();
-          [...deliveryDocs, ...cutDocs, ...urgentDocs].forEach((doc) => {
-            map.set(doc.id, doc);
-          });
-
+          [...deliveryDocs, ...cutDocs, ...urgentDocs].forEach(d => map.set(d.id, d));
           allRightDocs = Array.from(map.values());
+          dailyDocs = dayDocs;
 
-          renderRightReport();
-          renderReport();
-
+          buildReportSets();
+          renderDailyHiddenCards();
           const atelieText = getSelectedAtelie() || "todos os ateliês";
           setStatus(`Relatório atualizado: ${formatDate(selectedDate)} • Ateliê: ${atelieText} • Busca limitada a 14 dias para trás e 25 dias para frente`);
-        } catch (error) {
-          console.error("Erro ao carregar fechamentos:", error);
-          urgentModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
-          exportMondayModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
-          exportThursdayModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
-          weekModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
-          cutModels.innerHTML = '<div class="empty-message">Erro ao carregar.</div>';
+        } catch (e) {
+          console.error("Erro ao carregar relatório:", e);
+          [els.urgentModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Erro ao carregar.</div>');
           setStatus("Erro ao carregar. Veja o console para detalhes.");
         }
       }
 
-      function renderReport() {
-        const selectedDate = filterData.value || todayISO();
-
-        // Produzidos e entregues continuam sendo do dia selecionado.
-        const produced = filterByAtelie(producedDocs).filter((t) => !isAmostra(t));
-        const delivered = produced.filter((t) => hasFilledDate(t.dataEntradaDistribuicao));
-
-        // Entrega pendente agora soma TODOS os talões pendentes, independente da data:
-        // precisa ter saída da costura e não pode ter entrada na distribuição.
-        const pending = filterByAtelie(allRightDocs)
-          .filter((t) => !isAmostra(t))
-          .filter((t) => hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(t.dataEntradaDistribuicao));
-
-        modalProducedDocs = produced;
-        modalDeliveredDocs = delivered;
-        modalPendingDocs = pending;
-
-        const producedByModel = sumByModel(produced);
-        const deliveredByModel = sumByModel(delivered);
-        const pendingByModel = sumByModel(pending);
-
-        const producedSum = sumTotal(produced);
-        const deliveredSum = sumTotal(delivered);
-        const pendingSum = sumTotal(pending);
-
-        producedTotal.textContent = producedSum.toLocaleString("pt-BR");
-        deliveredTotal.textContent = deliveredSum.toLocaleString("pt-BR");
-        pendingTotal.textContent = pendingSum.toLocaleString("pt-BR");
-
-        renderModelList(producedModels, producedByModel);
-        renderModelList(deliveredModels, deliveredByModel);
-        renderModelList(pendingModels, pendingByModel);
-        renderDetails(produced, delivered, pendingByModel);
-
-        const atelieText = getSelectedAtelie() || "todos os ateliês";
-        setStatus(`Relatório atualizado: ${formatDate(selectedDate)} • Ateliê: ${atelieText}`);
-      }
-
-      function clearListeners() {
-        if (typeof unsubscribeProduced === "function") unsubscribeProduced();
-        unsubscribeProduced = null;
-      }
-
-      function listenDailyReport() {
-        clearListeners();
-
-        const selectedDate = filterData.value || todayISO();
-        filterData.value = selectedDate;
-        producedDocs = [];
-        modalProducedDocs = [];
-        modalDeliveredDocs = [];
-        modalPendingDocs = [];
-        detailsBody.innerHTML = '<tr><td colspan="10">Carregando...</td></tr>';
-        setStatus("Buscando produção diária...");
-
-        const producedQuery = db.collection("taloes").where("dataSaidaCostura", "==", selectedDate);
-
-        unsubscribeProduced = producedQuery.onSnapshot((snapshot) => {
-          producedDocs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-          renderReport();
-        }, (error) => {
-          console.error("Erro ao carregar produzidos:", error);
-          setStatus("Erro ao carregar produção. Veja o console para detalhes.");
+      function compareTextNumeric(a, b) { return String(a || "").localeCompare(String(b || ""), "pt-BR", { numeric:true }); }
+      const getSortValueDate = (v) => toISODateOnly(v) || "9999-99-99";
+      function compareBase(a, b) { return compareTextNumeric(a.numeroRemessa, b.numeroRemessa) || compareTextNumeric(a.numeroTalaoSequencial, b.numeroTalaoSequencial) || compareTextNumeric(getModelKey(a), getModelKey(b)); }
+      function tipoOrder(t) { return ({ Exportacao:1, "Cliente especial":2, "Mercado Interno":3, Estoque:4 }[normalizeTipoCliente(t.tipoCliente)] || 99); }
+      function sortTaloes(arr, mode) {
+        return [...arr].sort((a,b) => {
+          if (["produced","delivered","export","cut"].includes(mode)) return compareTextNumeric(getSortValueDate(a.dataCorte), getSortValueDate(b.dataCorte)) || compareBase(a,b);
+          if (mode === "pending") return compareTextNumeric(getSortValueDate(a.dataSaidaCostura), getSortValueDate(b.dataSaidaCostura)) || compareTextNumeric(getSortValueDate(a.dataCorte), getSortValueDate(b.dataCorte)) || compareBase(a,b);
+          if (mode === "urgent") return tipoOrder(a) - tipoOrder(b) || compareTextNumeric(getSortValueDate(a.dataCorte), getSortValueDate(b.dataCorte)) || compareBase(a,b);
+          return compareBase(a,b);
         });
       }
+      function formatDateOrMissing(v) { const clean = toISODateOnly(v); return clean ? escapeHTML(formatDate(clean)) : '<span class="missing-date">X</span>'; }
+      function getStatusText(t) { if (hasFilledDate(t.dataEntradaDistribuicao)) return "Entregue na fábrica"; if (hasFilledDate(t.dataSaidaCostura)) return "Pendente de entrega"; return "Sem saída"; }
+      function filteredModalDocs() {
+        let arr = [...currentModal.taloes]; const extras = [];
+        if (els.removeProducedCheckbox.checked) { const before = arr.length; arr = arr.filter(t => !hasFilledDate(t.dataSaidaCostura)); const removed = before - arr.length; if (removed) extras.push(`${removed.toLocaleString("pt-BR")} já produzidos removidos`); }
+        if (els.onlyNoEntryCheckbox.checked) { const before = arr.length; arr = arr.filter(t => !hasFilledDate(t.costuraDataInicio)); const hidden = before - arr.length; if (hidden) extras.push(`${hidden.toLocaleString("pt-BR")} com entrada ocultados`); }
+        if (els.onlyNotBippedFactoryCheckbox.checked) { const before = arr.length; arr = arr.filter(t => hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(t.dataEntradaDistribuicao)); const hidden = before - arr.length; if (hidden) extras.push(`${hidden.toLocaleString("pt-BR")} fora do critério ocultados`); }
+        return { arr, extras };
+      }
+      function renderDateCell(value, alertWhenMissing) {
+        const clean = toISODateOnly(value);
+        if (clean) return escapeHTML(formatDate(clean));
+        return alertWhenMissing ? '<span class="missing-date">X</span>' : '';
+      }
 
-      refreshButton.addEventListener("click", () => {
-        loadRightReport();
-      });
+      function groupByRemessa(taloes) {
+        const map = new Map();
+        taloes.forEach((t) => {
+          const key = String(t.numeroRemessa || "Sem remessa");
+          if (!map.has(key)) map.set(key, []);
+          map.get(key).push(t);
+        });
+        return Array.from(map.entries()).sort((a, b) => compareTextNumeric(a[0], b[0]));
+      }
 
-      filterAtelie.addEventListener("change", () => {
-        renderRightReport();
-        renderReport();
-      });
+      function renderModal() {
+        const { arr, extras } = filteredModalDocs();
+        els.listModalTitle.textContent = currentModal.title;
+        els.listModalSummary.textContent = `${arr.length.toLocaleString("pt-BR")} talões exibidos • ${sumTotal(arr).toLocaleString("pt-BR")} pares${extras.length ? " • " + extras.join(" • ") : ""}`;
+        if (!arr.length) { els.listModalBody.innerHTML = '<div class="empty-message">Nenhum talão encontrado.</div>'; return; }
 
-      filterData.addEventListener("change", () => {
-        loadRightReport();
-      });
+        const sorted = sortTaloes(arr, currentModal.sortMode);
+        const groups = groupByRemessa(sorted);
+        const html = [];
 
-      todayButton.addEventListener("click", () => {
-        filterData.value = todayISO();
-        loadRightReport();
+        groups.forEach(([remessa, taloes]) => {
+          const ref = taloes[0] || {};
+          const rowClass = getTipoClienteRowClass(ref);
+          const rowsHtml = taloes.map((t) => {
+            const semEntradaCostura = !hasFilledDate(t.costuraDataInicio);
+            const semEntradaFabricaAposSaida = hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(t.dataEntradaDistribuicao);
+            const alertRow = semEntradaCostura || semEntradaFabricaAposSaida;
+            const statusText = semEntradaCostura ? "Sem entrada" : (semEntradaFabricaAposSaida ? "No atelier" : getStatusText(t));
+            return `
+              <tr class="${getTipoClienteRowClass(t)} ${alertRow ? "alert-row" : ""}">
+                <td>${escapeHTML(t.numeroTalaoSequencial || "")}</td>
+                <td class="model-cell">${escapeHTML(getModelKey(t))}</td>
+                <td>${escapeHTML(t.corSapato || "")}</td>
+                <td>${normalizePares(t.pares).toLocaleString("pt-BR")}</td>
+                <td class="${semEntradaCostura ? "alert-cell" : ""}">${renderDateCell(t.costuraDataInicio, true)}</td>
+                <td>${renderDateCell(t.dataSaidaCostura, false)}</td>
+                <td class="${semEntradaFabricaAposSaida ? "alert-cell" : ""}">${renderDateCell(t.dataEntradaDistribuicao, false)}</td>
+                <td class="${alertRow ? "alert-cell" : ""}">${escapeHTML(statusText)}</td>
+              </tr>
+            `;
+          }).join("");
+
+          html.push(`
+            <section class="remessa-card ${rowClass}">
+              <div class="remessa-card-header">
+                <div><span class="remessa-info-label">Remessa</span><span class="remessa-info-value">${escapeHTML(remessa)}</span></div>
+                <div><span class="remessa-info-label">Data de corte</span><span class="remessa-info-value">${formatDate(toISODateOnly(ref.dataCorte))}</span></div>
+                <div><span class="remessa-info-label">Entrega</span><span class="remessa-info-value">${formatDate(toISODateOnly(ref.dataEntrega))}</span></div>
+                <div><span class="remessa-info-label">Tipo cliente</span><span class="remessa-info-value">${escapeHTML(getTipoClienteLabel(ref))}</span></div>
+              </div>
+              <table class="remessa-card-table">
+                <thead>
+                  <tr>
+                    <th>Talão</th><th>Linha/Modelo</th><th>Cor</th><th>Pares</th><th>Entrada Costura</th><th>Saída Costura</th><th>Entrada Fábrica</th><th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>${rowsHtml}</tbody>
+              </table>
+            </section>
+          `);
+        });
+
+        els.listModalBody.innerHTML = html.join("");
+      }
+      function openModal(title, arr, sortMode) {
+        currentModal = { title, taloes: Array.isArray(arr) ? arr : [], sortMode };
+        els.removeProducedCheckbox.checked = false; els.onlyNoEntryCheckbox.checked = false; els.onlyNotBippedFactoryCheckbox.checked = false;
+        renderModal(); els.listModal.classList.add("show");
+      }
+      const closeModal = () => els.listModal.classList.remove("show");
+
+      async function loadAtelies() {
+        if (!["05", "07"].includes(currentUserLevel)) return;
+        els.atelieFilterGroup.classList.remove("hide");
+        const snap = await db.collection("Usuario").where("nivelAcesso", "==", "03").get();
+        const names = snap.docs.map(d => d.data().Nome).filter(Boolean).sort((a,b) => a.localeCompare(b, "pt-BR"));
+        els.filterAtelie.innerHTML = '<option value="">Todos os ateliês</option>' + names.map(n => `<option value="${escapeHTML(n)}">${escapeHTML(n)}</option>`).join("");
+      }
+
+      els.refreshButton.addEventListener("click", loadReport);
+      els.todayButton.addEventListener("click", () => { els.filterData.value = todayISO(); loadReport(); });
+      els.filterData.addEventListener("change", loadReport);
+      els.filterAtelie.addEventListener("change", () => { buildReportSets(); renderDailyHiddenCards(); const atelieText = getSelectedAtelie() || "todos os ateliês"; setStatus(`Relatório atualizado: ${formatDate(todayISO())} • Ateliê: ${atelieText} • Busca limitada a 14 dias para trás e 25 dias para frente`); });
+      els.closeListModalButton.addEventListener("click", closeModal);
+      els.listModal.addEventListener("click", e => { if (e.target === els.listModal) closeModal(); });
+      [els.removeProducedCheckbox, els.onlyNoEntryCheckbox, els.onlyNotBippedFactoryCheckbox].forEach(cb => cb.addEventListener("change", renderModal));
+      els.urgentListButton.addEventListener("click", () => openModal("Listagem - Atraso Urgente", modalDocs.urgent, "urgent"));
+      els.exportMondayListButton.addEventListener("click", () => openModal(els.exportMondayTitle.textContent || "Listagem - Exportação", modalDocs.exportFirst, "export"));
+      els.exportThursdayListButton.addEventListener("click", () => openModal(els.exportThursdayTitle.textContent || "Listagem - Exportação", modalDocs.exportSecond, "export"));
+      els.cutListButton.addEventListener("click", () => openModal("Listagem - Fechamento do corte", modalDocs.cut, "cut"));
+      if (els.noEntryCutButton) els.noEntryCutButton.addEventListener("click", () => {
+        const semEntrada = (modalDocs.cut || []).filter((t) => !hasFilledDate(t.costuraDataInicio));
+        openModal("Listagem - Talões sem Entrada", semEntrada, "cut");
       });
+      if (els.producedListButton) els.producedListButton.addEventListener("click", () => openModal("Listagem - Total de pares produzidos", modalDocs.produced, "produced"));
+      if (els.deliveredListButton) els.deliveredListButton.addEventListener("click", () => openModal("Listagem - Total entregue na fábrica", modalDocs.delivered, "delivered"));
+      if (els.pendingListButton) els.pendingListButton.addEventListener("click", () => openModal("Listagem - Total de entrega pendente", modalDocs.pending, "pending"));
 
       auth.onAuthStateChanged(async (user) => {
         try {
-          if (!user) {
-            window.location.href = "login.html";
-            return;
-          }
-
-          const email = user.email || "";
-          const userSnap = await db.collection("Usuario").doc(email).get();
-
-          if (!userSnap.exists) {
-            alert("Dados do usuário não encontrados. Faça login novamente.");
-            await auth.signOut();
-            window.location.href = "login.html";
-            return;
-          }
-
-          const userData = userSnap.data() || {};
-          currentUserName = userData.Nome || "";
-          currentUserLevel = userData.nivelAcesso || "";
-
-          const niveisPermitidos = ["03", "05", "07"];
-          if (!niveisPermitidos.includes(String(currentUserLevel))) {
-            alert("Você não tem permissão para acessar esta página.");
-            window.location.href = "index.html";
-            return;
-          }
-
-          localStorage.setItem("userNivelAcesso", currentUserLevel);
-          localStorage.setItem("userName", currentUserName);
-
-          if (window.SistemaNavegacao) {
-            window.SistemaNavegacao.init({
-              userLevel: currentUserLevel,
-              userName: currentUserName,
-              title: "Controle Ateliê",
-              onLogout: async () => {
-                try {
-                  await auth.signOut();
-                } finally {
-                  localStorage.removeItem("userNivelAcesso");
-                  localStorage.removeItem("userName");
-                  window.location.href = "login.html";
-                }
-              }
-            });
-          }
-          filterData.value = todayISO();
+          if (!user) { window.location.href = "login.html"; return; }
+          const snap = await db.collection("Usuario").doc(user.email || "").get();
+          if (!snap.exists) { alert("Dados do usuário não encontrados. Faça login novamente."); await auth.signOut(); window.location.href = "login.html"; return; }
+          const data = snap.data() || {}; currentUserName = data.Nome || ""; currentUserLevel = data.nivelAcesso || "";
+          if (!["03", "05", "07"].includes(String(currentUserLevel))) { alert("Você não tem permissão para acessar esta página."); window.location.href = "index.html"; return; }
+          localStorage.setItem("userNivelAcesso", currentUserLevel); localStorage.setItem("userName", currentUserName);
+          if (window.SistemaNavegacao) window.SistemaNavegacao.init({ userLevel: currentUserLevel, userName: currentUserName, title: "Controle Ateliê", onLogout: async () => { await auth.signOut(); localStorage.removeItem("userNivelAcesso"); localStorage.removeItem("userName"); window.location.href = "login.html"; } });
+          els.filterData.value = todayISO();
           await loadAtelies();
-          loadRightReport();
-        } catch (error) {
-          console.error("Erro ao iniciar página:", error);
-          setStatus("Erro ao iniciar a página. Veja o console para detalhes.");
-        }
+          loadReport();
+        } catch (e) { console.error("Erro ao iniciar página:", e); setStatus("Erro ao iniciar a página. Veja o console para detalhes."); }
       });
-
-      window.addEventListener("beforeunload", clearListeners);
     })();
   </script>
+
 </body>
 </html>
