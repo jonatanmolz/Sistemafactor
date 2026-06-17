@@ -2143,6 +2143,31 @@
         const { cycleWednesdayIso } = getCycleDeliveryRange(baseIso); const tue = addDaysISO(cycleWednesdayIso, 6);
         return { closingTuesdayIso: tue, cutDates: [addDaysISO(tue, -15), addDaysISO(tue, -12)] };
       }
+
+      function getCutClosingDateForCut(dataCorteIso) {
+        const clean = toISODateOnly(dataCorteIso);
+        if (!clean) return "";
+        const corte = dateFromISO(clean);
+        const day = corte.getDay();
+        const diffToMonday = day === 0 ? -6 : 1 - day;
+        corte.setDate(corte.getDate() + diffToMonday);
+        return addDaysISO(localDateToISO(corte), 15);
+      }
+
+      function isCutDateOverdue(dataCorteIso, baseIso = todayISO()) {
+        const closingIso = getCutClosingDateForCut(dataCorteIso);
+        return Boolean(closingIso && closingIso < baseIso);
+      }
+
+      function isTalaoCutOverdue(talao, baseIso = todayISO()) {
+        const dataCorte = toISODateOnly(talao.dataCorte);
+        return Boolean(
+          dataCorte &&
+          isCutDateOverdue(dataCorte, baseIso) &&
+          !hasFilledDate(talao.dataEntradaDistribuicao) &&
+          !isAmostra(talao)
+        );
+      }
       function getNextWeekdayDate(baseIso, weekday) {
         const base = dateFromISO(baseIso); let diff = weekday - base.getDay(); if (diff < 0) diff += 7; if (diff === 0) diff = 7;
         return addDaysISO(baseIso, diff);
@@ -2224,9 +2249,13 @@
         const urgentMap = new Map();
         base.forEach(t => {
           const entrega = toISODateOnly(t.dataEntrega);
-          if (!entrega) return;
           const isExport = normalizeTipoCliente(t.tipoCliente) === "Exportacao";
-          if ((isExport && entrega < targets.mondayIso && entrega < targets.thursdayIso) || entrega < mondayIso) urgentMap.set(t.id || `${t.numeroRemessa}-${t.numeroTalaoSequencial}`, t);
+          const entregaAtrasada = Boolean(entrega && ((isExport && entrega < targets.mondayIso && entrega < targets.thursdayIso) || entrega < mondayIso));
+          const corteAtrasado = isTalaoCutOverdue(t, baseDate);
+
+          if (entregaAtrasada || corteAtrasado) {
+            urgentMap.set(t.id || `${t.numeroRemessa}-${t.numeroTalaoSequencial}`, t);
+          }
         });
         modalDocs.urgent = Array.from(urgentMap.values());
         modalDocs.monday = base.filter(t => normalizeTipoCliente(t.tipoCliente) === "Exportacao" && toISODateOnly(t.dataEntrega) === targets.mondayIso);
@@ -2245,7 +2274,7 @@
         renderRightCard(els.exportThursdayTotal, els.exportThursdayModels, modalDocs.exportSecond, els.exportThursdayTitle.textContent || "Exportação", "export");
         renderRightCard(els.cutTotal, els.cutModels, modalDocs.cut, "Fechamento do corte", "cut");
 
-        els.urgentSubtitle.textContent = "Em atraso urgente • janela de 14 dias para trás";
+        els.urgentSubtitle.textContent = "Entregas e cortes em atraso";
         els.exportMondayTitle.textContent = exportCards[0].label;
         els.exportMondaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportCards[0].iso)}`;
         els.exportThursdayTitle.textContent = exportCards[1].label;
@@ -2288,6 +2317,9 @@
           ].filter(inside));
 
           const cutDates = cutClosing.cutDates.filter(inside);
+          const overdueCutStartIso = addDaysISO(selectedDate, -35);
+          const overdueCutEndIso = addDaysISO(selectedDate, -1);
+          const overdueCutDates = dateRange(overdueCutStartIso, overdueCutEndIso).filter((iso) => isCutDateOverdue(iso, selectedDate));
 
           // Importante para performance:
           // em vez de uma busca por intervalo grande em dataEntrega,
@@ -2295,24 +2327,25 @@
           // Isso evita a página ficar presa quando troca a data.
           const urgentDates = dateRange(windowStartIso, addDaysISO(selectedDate, -1));
 
-          const [deliveryDocs, cutDocs, urgentDocs, dayDocs] = await Promise.all([
+          const [deliveryDocs, cutDocs, urgentDocs, overdueCutDocs, dayDocs] = await Promise.all([
             getDocsByFieldIn("dataEntrega", deliveryDates),
             getDocsByFieldIn("dataCorte", cutDates),
             getDocsByFieldIn("dataEntrega", urgentDates),
+            getDocsByFieldIn("dataCorte", overdueCutDates),
             getDocsByFieldIn("dataSaidaCostura", [selectedDate])
           ]);
 
           if (token !== loadToken) return;
 
           const map = new Map();
-          [...deliveryDocs, ...cutDocs, ...urgentDocs].forEach(d => map.set(d.id, d));
+          [...deliveryDocs, ...cutDocs, ...urgentDocs, ...overdueCutDocs].forEach(d => map.set(d.id, d));
           allRightDocs = Array.from(map.values());
           dailyDocs = dayDocs;
 
           buildReportSets();
           renderDailyHiddenCards();
           const atelieText = getSelectedAtelie() || "todos os ateliês";
-          setStatus(`Relatório atualizado: ${formatDate(selectedDate)} • Ateliê: ${atelieText} • Busca limitada a 14 dias para trás e 25 dias para frente`);
+          setStatus(`Relatório atualizado: ${formatDate(selectedDate)} • Ateliê: ${atelieText} • Busca limitada e cortes atrasados dos últimos 35 dias`);
         } catch (e) {
           console.error("Erro ao carregar relatório:", e);
           [els.urgentModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Erro ao carregar.</div>');
@@ -2429,7 +2462,7 @@
       els.refreshButton.addEventListener("click", loadReport);
       els.todayButton.addEventListener("click", () => { els.filterData.value = todayISO(); loadReport(); });
       els.filterData.addEventListener("change", loadReport);
-      els.filterAtelie.addEventListener("change", () => { buildReportSets(); renderDailyHiddenCards(); const atelieText = getSelectedAtelie() || "todos os ateliês"; setStatus(`Relatório atualizado: ${formatDate(todayISO())} • Ateliê: ${atelieText} • Busca limitada a 14 dias para trás e 25 dias para frente`); });
+      els.filterAtelie.addEventListener("change", () => { buildReportSets(); renderDailyHiddenCards(); const atelieText = getSelectedAtelie() || "todos os ateliês"; setStatus(`Relatório atualizado: ${formatDate(todayISO())} • Ateliê: ${atelieText} • Busca limitada e cortes atrasados dos últimos 35 dias`); });
       els.closeListModalButton.addEventListener("click", closeModal);
       els.listModal.addEventListener("click", e => { if (e.target === els.listModal) closeModal(); });
       [els.removeProducedCheckbox, els.onlyNoEntryCheckbox, els.onlyNotBippedFactoryCheckbox].forEach(cb => cb.addEventListener("change", renderModal));
