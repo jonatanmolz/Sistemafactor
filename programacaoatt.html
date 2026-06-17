@@ -419,6 +419,26 @@
       font-size: 15px;
     }
 
+
+    .model-button {
+      width: 100%;
+      border: 1px solid rgba(148, 163, 184, .45);
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+    }
+
+    .model-button:hover {
+      background: rgba(255,255,255,.92);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(15,23,42,.08);
+    }
+
+    .model-button:active {
+      transform: translateY(0);
+    }
+
     .empty-message {
       padding: 12px 10px;
       border-radius: 12px;
@@ -2093,9 +2113,18 @@
       function sumByModel(arr) {
         return arr.reduce((map, t) => { const key = getModelKey(t); map[key] = (map[key] || 0) + normalizePares(t.pares); return map; }, {});
       }
-      function renderModelList(container, data) {
+      function renderModelList(container, data, taloes, titlePrefix, sortMode) {
         const entries = Object.entries(data).filter(([, p]) => p > 0).sort((a,b) => a[0].localeCompare(b[0], "pt-BR", { numeric:true }));
-        container.innerHTML = entries.length ? entries.map(([m,p]) => `<div class="model-row"><strong>${escapeHTML(m)}</strong><span>${p.toLocaleString("pt-BR")} pares</span></div>`).join("") : '<div class="empty-message">Nenhum modelo encontrado.</div>';
+        const sourceDocs = Array.isArray(taloes) ? taloes : [];
+        container._modelDocs = sourceDocs;
+        container._modelTitlePrefix = titlePrefix || "Listagem";
+        container._modelSortMode = sortMode || "";
+        container.innerHTML = entries.length ? entries.map(([m,p]) => `
+          <button class="model-row model-button" type="button" data-model="${escapeHTML(m)}" title="Ver talões do modelo ${escapeHTML(m)}">
+            <strong>${escapeHTML(m)}</strong>
+            <span>${p.toLocaleString("pt-BR")} pares</span>
+          </button>
+        `).join("") : '<div class="empty-message">Nenhum modelo encontrado.</div>';
       }
       function getSelectedAtelie() {
         if (["05", "07"].includes(currentUserLevel)) return els.filterAtelie.value || "";
@@ -2182,7 +2211,7 @@
           <div class="metric-line"><span class="metric-label">Já bipados:</span><span class="metric-number">${jaBipados.toLocaleString("pt-BR")} pares</span></div>
           <div class="metric-line total-line"><span class="metric-label">Total:</span><span class="metric-number">${(paraProduzir + jaBipados).toLocaleString("pt-BR")} pares</span></div>`;
       }
-      function renderRightCard(totalEl, modelEl, arr) { renderMetrics(totalEl, arr); renderModelList(modelEl, sumByModel(arr)); }
+      function renderRightCard(totalEl, modelEl, arr, titlePrefix, sortMode) { renderMetrics(totalEl, arr); renderModelList(modelEl, sumByModel(arr), arr, titlePrefix, sortMode); }
 
       function buildReportSets() {
         const baseDate = todayISO();
@@ -2211,10 +2240,10 @@
         const cutSet = new Set(cutClosing.cutDates);
         modalDocs.cut = base.filter(t => cutSet.has(toISODateOnly(t.dataCorte)));
 
-        renderRightCard(els.urgentTotal, els.urgentModels, modalDocs.urgent);
-        renderRightCard(els.exportMondayTotal, els.exportMondayModels, modalDocs.exportFirst);
-        renderRightCard(els.exportThursdayTotal, els.exportThursdayModels, modalDocs.exportSecond);
-        renderRightCard(els.cutTotal, els.cutModels, modalDocs.cut);
+        renderRightCard(els.urgentTotal, els.urgentModels, modalDocs.urgent, "Atraso Urgente", "urgent");
+        renderRightCard(els.exportMondayTotal, els.exportMondayModels, modalDocs.exportFirst, els.exportMondayTitle.textContent || "Exportação", "export");
+        renderRightCard(els.exportThursdayTotal, els.exportThursdayModels, modalDocs.exportSecond, els.exportThursdayTitle.textContent || "Exportação", "export");
+        renderRightCard(els.cutTotal, els.cutModels, modalDocs.cut, "Fechamento do corte", "cut");
 
         els.urgentSubtitle.textContent = "Em atraso urgente • janela de 14 dias para trás";
         els.exportMondayTitle.textContent = exportCards[0].label;
@@ -2232,9 +2261,9 @@
         if (els.producedTotal) els.producedTotal.textContent = sumTotal(produced).toLocaleString("pt-BR");
         if (els.deliveredTotal) els.deliveredTotal.textContent = sumTotal(delivered).toLocaleString("pt-BR");
         if (els.pendingTotal) els.pendingTotal.textContent = sumTotal(pending).toLocaleString("pt-BR");
-        if (els.producedModels) renderModelList(els.producedModels, sumByModel(produced));
-        if (els.deliveredModels) renderModelList(els.deliveredModels, sumByModel(delivered));
-        if (els.pendingModels) renderModelList(els.pendingModels, sumByModel(pending));
+        if (els.producedModels) renderModelList(els.producedModels, sumByModel(produced), produced, "Total de pares produzidos", "produced");
+        if (els.deliveredModels) renderModelList(els.deliveredModels, sumByModel(delivered), delivered, "Total entregue na fábrica", "delivered");
+        if (els.pendingModels) renderModelList(els.pendingModels, sumByModel(pending), pending, "Total de entrega pendente", "pending");
       }
 
       async function loadReport() {
@@ -2404,6 +2433,19 @@
       els.closeListModalButton.addEventListener("click", closeModal);
       els.listModal.addEventListener("click", e => { if (e.target === els.listModal) closeModal(); });
       [els.removeProducedCheckbox, els.onlyNoEntryCheckbox, els.onlyNotBippedFactoryCheckbox].forEach(cb => cb.addEventListener("change", renderModal));
+      document.addEventListener("click", (event) => {
+        const modelButton = event.target.closest(".model-button");
+        if (!modelButton) return;
+        const container = modelButton.closest(".model-list");
+        if (!container) return;
+        const selectedModel = modelButton.dataset.model || "";
+        const sourceDocs = Array.isArray(container._modelDocs) ? container._modelDocs : [];
+        const filtered = sourceDocs.filter((t) => getModelKey(t) === selectedModel);
+        const titlePrefix = container._modelTitlePrefix || "Listagem";
+        const sortMode = container._modelSortMode || "";
+        openModal(`Listagem - ${titlePrefix} • Modelo ${selectedModel}`, filtered, sortMode);
+      });
+
       els.urgentListButton.addEventListener("click", () => openModal("Listagem - Atraso Urgente", modalDocs.urgent, "urgent"));
       els.exportMondayListButton.addEventListener("click", () => openModal(els.exportMondayTitle.textContent || "Listagem - Exportação", modalDocs.exportFirst, "export"));
       els.exportThursdayListButton.addEventListener("click", () => openModal(els.exportThursdayTitle.textContent || "Listagem - Exportação", modalDocs.exportSecond, "export"));
