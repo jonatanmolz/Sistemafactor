@@ -217,8 +217,8 @@
 
     .btn-primary { background: var(--primary); color: #fff; }
     .btn-primary:hover { background: var(--primary-2); }
-    .btn-secondary { background: #e5e7eb; color: #111827; }
-    .btn-secondary:hover { background: #d1d5db; }
+    .btn-secondary { background: #ff0000; color: #111827; }
+    .btn-secondary:hover { background: #ff7878; }
 
     .status-line {
       color: var(--muted);
@@ -733,12 +733,17 @@
     }
 
     .missing-date {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: #fee2e2;
       color: #dc2626;
+      font-size: 18px;
       font-weight: 900;
-      font-size: 16px;
-      display: inline-block;
-      min-width: 18px;
-      text-align: center;
+      line-height: 1;
     }
 
     .details-table-wrap { display: none; }
