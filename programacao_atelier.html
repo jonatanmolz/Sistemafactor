@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="styles.css">
+
   <title>Programação Ateliê - SistemaTaloes</title>
   <style>
     :root {
@@ -54,6 +54,151 @@
 
     @media(max-width:1450px){.cards-grid{grid-template-columns:repeat(2,minmax(280px,1fr))}}@media(max-width:760px){.main-content{width:calc(100vw - 16px);padding:8px 0 18px}.cards-grid{grid-template-columns:1fr}.page-head{flex-direction:column}.filters-card{padding:10px}.form-group{flex:1 1 160px}.btn{flex:1 1 150px}.week-card{min-height:auto}}
   </style>
+
+
+  <style id="modal-remessas-padrao-factor">
+    /* Modal no padrão Controle Ateliê: remessas em cards + talões agrupados em tabela compacta */
+    .modal-overlay.show{ align-items:center !important; justify-content:center !important; padding:18px !important; z-index:9999 !important; }
+    .modal-content, .detail-modal-content{
+      width:min(1120px,94vw) !important;
+      max-height:90vh !important;
+      border-radius:18px !important;
+      overflow:hidden !important;
+      background:#fff !important;
+      box-shadow:0 22px 55px rgba(15,23,42,.30) !important;
+      border:1px solid #cbd5e1 !important;
+    }
+    .modal-table-wrap, .detail-table-wrap{
+      overflow:auto !important;
+      background:#fff !important;
+      padding:20px 18px 28px !important;
+      max-height:65vh !important;
+      border:0 !important;
+      border-radius:0 !important;
+    }
+    .remessa-list{
+      width:960px !important;
+      max-width:100% !important;
+      margin:0 auto !important;
+      padding:0 !important;
+      color:#002b5c !important;
+    }
+    .remessa-card{
+      display:block !important;
+      width:960px !important;
+      max-width:100% !important;
+      margin:0 auto 24px !important;
+      background:transparent !important;
+      border:0 !important;
+      box-shadow:none !important;
+    }
+    .remessa-card-header{
+      width:650px !important;
+      max-width:calc(100% - 70px) !important;
+      display:grid !important;
+      grid-template-columns:120px 150px 130px 200px !important;
+      gap:14px !important;
+      align-items:end !important;
+      padding:9px 16px 10px !important;
+      background:#fff !important;
+      border:1px solid #c7d4e5 !important;
+      border-radius:12px !important;
+      box-shadow:0 4px 12px rgba(15,23,42,.10) !important;
+      margin:0 !important;
+    }
+    .remessa-info-label{
+      display:block !important;
+      font-size:9px !important;
+      line-height:1 !important;
+      margin:0 0 3px !important;
+      color:#64748b !important;
+      font-weight:900 !important;
+      letter-spacing:.05em !important;
+      text-transform:uppercase !important;
+    }
+    .remessa-info-value{
+      display:block !important;
+      font-size:14px !important;
+      line-height:1.05 !important;
+      color:#002b5c !important;
+      font-weight:900 !important;
+      white-space:nowrap !important;
+    }
+    .remessa-card-table{
+      display:table !important;
+      width:880px !important;
+      min-width:880px !important;
+      max-width:880px !important;
+      margin:-1px 0 0 58px !important;
+      border-collapse:separate !important;
+      border-spacing:0 !important;
+      table-layout:fixed !important;
+      background:#fff !important;
+      border:1px solid #c7d4e5 !important;
+      border-radius:0 10px 10px 10px !important;
+      overflow:hidden !important;
+      box-shadow:0 4px 12px rgba(15,23,42,.08) !important;
+      color:#002b5c !important;
+    }
+    .remessa-card-table thead{ display:table-header-group !important; }
+    .remessa-card-table tbody{ display:table-row-group !important; }
+    .remessa-card-table tr{ display:table-row !important; }
+    .remessa-card-table th,.remessa-card-table td{
+      display:table-cell !important;
+      text-align:center !important;
+      vertical-align:middle !important;
+      white-space:nowrap !important;
+      padding:4px 6px !important;
+      height:24px !important;
+      line-height:1.05 !important;
+      border:0 !important;
+      border-bottom:1px solid #e1e7ef !important;
+      background:#fff !important;
+      color:#002b5c !important;
+      font-size:11px !important;
+      font-weight:500 !important;
+    }
+    .remessa-card-table th{
+      background:#f1f5f9 !important;
+      color:#0f172a !important;
+      font-size:10px !important;
+      font-weight:900 !important;
+      text-transform:uppercase !important;
+      border-bottom:1px solid #ccd6e2 !important;
+    }
+    .remessa-card-table tbody tr:last-child td{ border-bottom:0 !important; }
+    .remessa-card-table .model-cell{ font-size:12px !important; font-weight:900 !important; }
+    .remessa-card-table .alert-cell,.remessa-card-table .alert-row td.alert-cell,.remessa-card-table .alert-row .model-cell{ color:#dc2626 !important; font-weight:900 !important; }
+    .remessa-card.tipo-exportacao .remessa-card-header,
+    .remessa-card.tipo-exportacao .remessa-card-table th{ background:#d9ebff !important; border-color:#7fb2ef !important; }
+    .remessa-card.tipo-exportacao .remessa-card-table tbody td{ background:#eef6ff !important; }
+    .remessa-card.tipo-cliente-especial .remessa-card-header,
+    .remessa-card.tipo-cliente-especial .remessa-card-table th{ background:#ffd9ea !important; border-color:#ef8db9 !important; }
+    .remessa-card.tipo-cliente-especial .remessa-card-table tbody td{ background:#fff0f7 !important; }
+    .remessa-card.tipo-estoque .remessa-card-header,
+    .remessa-card.tipo-estoque .remessa-card-table th{ background:#fff0a8 !important; border-color:#e6c94e !important; }
+    .remessa-card.tipo-estoque .remessa-card-table tbody td{ background:#fff9dc !important; }
+    .remessa-card.tipo-amostra .remessa-card-header,
+    .remessa-card.tipo-amostra .remessa-card-table th{ background:#d6f6df !important; border-color:#79ca8d !important; }
+    .remessa-card.tipo-amostra .remessa-card-table tbody td{ background:#effbf2 !important; }
+    .remessa-card.tipo-mercado-interno .remessa-card-header,
+    .remessa-card.tipo-mercado-interno .remessa-card-table th{ background:#f8fafc !important; border-color:#c7d4e5 !important; }
+    .remessa-card.tipo-mercado-interno .remessa-card-table tbody td{ background:#ffffff !important; }
+    .remessa-card-table th:nth-child(1),.remessa-card-table td:nth-child(1){ width:58px !important; }
+    .remessa-card-table th:nth-child(2),.remessa-card-table td:nth-child(2){ width:118px !important; }
+    .remessa-card-table th:nth-child(3),.remessa-card-table td:nth-child(3){ width:78px !important; }
+    .remessa-card-table th:nth-child(4),.remessa-card-table td:nth-child(4){ width:62px !important; }
+    .remessa-card-table th:nth-child(5),.remessa-card-table td:nth-child(5){ width:150px !important; }
+    .remessa-card-table th:nth-child(6),.remessa-card-table td:nth-child(6){ width:145px !important; }
+    .remessa-card-table th:nth-child(7),.remessa-card-table td:nth-child(7){ width:155px !important; }
+    .remessa-card-table th:nth-child(8),.remessa-card-table td:nth-child(8){ width:114px !important; }
+    @media (max-width:980px){
+      .modal-content,.detail-modal-content{ width:96vw !important; }
+      .remessa-card-table{ margin-left:0 !important; }
+      .remessa-card-header{ max-width:100% !important; width:100% !important; grid-template-columns:repeat(2, minmax(120px,1fr)) !important; }
+    }
+  </style>
+
 </head>
 <body>
   <main class="main-content">
@@ -96,24 +241,9 @@
         </label>
       </div>
       <div class="modal-table-wrap">
-        <table class="modal-table">
-          <thead>
-            <tr>
-              <th>Remessa</th>
-              <th>Talão</th>
-              <th>Data de corte</th>
-              <th>Linha/Modelo</th>
-              <th>Cor</th>
-              <th>Pares</th>
-              <th>Ateliê</th>
-              <th>Entrada Costura</th>
-              <th>Saída Costura</th>
-              <th>Entrada Fábrica</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="listModalBody"><tr><td colspan="11">Nenhum talão encontrado.</td></tr></tbody>
-        </table>
+        <div id="listModalBody" class="remessa-list">
+          <div class="empty-message">Nenhum talão encontrado.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -231,6 +361,42 @@
         return hasFilledDate(talao.costuraDataInicio) ? formatDate(talao.costuraDataInicio) : '<span class="missing-x">X</span>';
       }
 
+      function getTipoClienteLabelFromTalao(talao){
+        const tipo = normalizeTipoCliente(talao.tipoCliente);
+        if (tipo === "Exportacao" || tipo === "Exportação") return "Exportação";
+        if (tipo === "Cliente especial") return "Cliente especial";
+        if (tipo === "Mercado Interno") return "Mercado interno";
+        if (tipo === "Estoque") return "Estoque";
+        if (tipo === "Amostra") return "Amostra";
+        return tipo || "Sem tipo";
+      }
+
+      function getTipoClienteCardClass(talao){
+        const tipo = normalizeTipoCliente(talao.tipoCliente);
+        if (tipo === "Exportacao" || tipo === "Exportação") return "tipo-exportacao";
+        if (tipo === "Cliente especial") return "tipo-cliente-especial";
+        if (tipo === "Estoque") return "tipo-estoque";
+        if (tipo === "Amostra") return "tipo-amostra";
+        return "tipo-mercado-interno";
+      }
+
+      function groupTaloesByRemessa(taloes){
+        const map = new Map();
+        taloes.forEach((t) => {
+          const key = String(t.numeroRemessa || "Sem remessa");
+          if (!map.has(key)) map.set(key, []);
+          map.get(key).push(t);
+        });
+        return Array.from(map.entries()).sort((a,b)=>compareTextNumeric(a[0], b[0]));
+      }
+
+      function renderDateCell(value, alertWhenMissing){
+        const formatted = formatDate(value);
+        if (formatted) return escapeHTML(formatted);
+        return alertWhenMissing ? '<span class="missing-x">X</span>' : '';
+      }
+
+
       function sortTaloes(taloes){
         return [...taloes].sort((a,b)=>{
           const corteCompare = compareTextNumeric(toISODateOnly(a.dataCorte), toISODateOnly(b.dataCorte));
@@ -262,25 +428,49 @@
         const removedCount = currentModalTaloes.length - list.length;
         listModalTitle.textContent = currentModalTitle || "Listagem";
         listModalSummary.textContent = `${list.length.toLocaleString("pt-BR")} talões exibidos • ${sumTotal(list).toLocaleString("pt-BR")} pares${removedCount > 0 ? ` • ${removedCount.toLocaleString("pt-BR")} talões ocultados pelos filtros` : ""}`;
+
         if(!list.length){
-          listModalBody.innerHTML = '<tr><td colspan="11">Nenhum talão encontrado.</td></tr>';
-        } else {
-          listModalBody.innerHTML = list.map((talao)=>`
-            <tr>
-              <td>${escapeHTML(talao.numeroRemessa || "")}</td>
-              <td>${escapeHTML(talao.numeroTalaoSequencial || "")}</td>
-              <td>${formatDate(talao.dataCorte)}</td>
-              <td><strong>${escapeHTML(getModelKey(talao))}</strong></td>
-              <td>${escapeHTML(getColorKey(talao))}</td>
-              <td><strong>${normalizePares(talao.pares).toLocaleString("pt-BR")}</strong></td>
-              <td>${escapeHTML(talao.idAtelieResponsavel || "")}</td>
-              <td>${renderEntradaCostura(talao)}</td>
-              <td>${formatDate(talao.dataSaidaCostura)}</td>
-              <td>${formatDate(talao.dataEntradaDistribuicao)}</td>
-              <td><span class="status-pill">${escapeHTML(getStatusText(talao))}</span></td>
-            </tr>
-          `).join("");
+          listModalBody.innerHTML = '<div class="empty-message">Nenhum talão encontrado.</div>';
+          return;
         }
+
+        const groups = groupTaloesByRemessa(list);
+        listModalBody.innerHTML = groups.map(([remessa, taloes])=>{
+          const ref = taloes[0] || {};
+          const rowsHtml = taloes.map((talao)=>{
+            const semEntradaCostura = !hasFilledDate(talao.costuraDataInicio);
+            const semEntradaFabricaAposSaida = hasFilledDate(talao.dataSaidaCostura) && !hasFilledDate(talao.dataEntradaDistribuicao);
+            const alertRow = semEntradaCostura || semEntradaFabricaAposSaida;
+            const statusText = semEntradaCostura ? "Sem entrada" : (semEntradaFabricaAposSaida ? "No atelier" : getStatusText(talao));
+            return `
+              <tr class="${alertRow ? "alert-row" : ""}">
+                <td>${escapeHTML(talao.numeroTalaoSequencial || "")}</td>
+                <td class="model-cell">${escapeHTML(getModelKey(talao))}</td>
+                <td>${escapeHTML(getColorKey(talao))}</td>
+                <td>${normalizePares(talao.pares).toLocaleString("pt-BR")}</td>
+                <td class="${semEntradaCostura ? "alert-cell" : ""}">${renderDateCell(talao.costuraDataInicio, true)}</td>
+                <td>${renderDateCell(talao.dataSaidaCostura, false)}</td>
+                <td class="${semEntradaFabricaAposSaida ? "alert-cell" : ""}">${renderDateCell(talao.dataEntradaDistribuicao, false)}</td>
+                <td class="${alertRow ? "alert-cell" : ""}">${escapeHTML(statusText)}</td>
+              </tr>
+            `;
+          }).join("");
+
+          return `
+            <section class="remessa-card ${getTipoClienteCardClass(ref)}">
+              <div class="remessa-card-header">
+                <div><span class="remessa-info-label">Remessa</span><span class="remessa-info-value">${escapeHTML(remessa)}</span></div>
+                <div><span class="remessa-info-label">Data de corte</span><span class="remessa-info-value">${formatDate(ref.dataCorte)}</span></div>
+                <div><span class="remessa-info-label">Entrega</span><span class="remessa-info-value">${formatDate(ref.dataEntrega)}</span></div>
+                <div><span class="remessa-info-label">Tipo cliente</span><span class="remessa-info-value">${escapeHTML(getTipoClienteLabelFromTalao(ref))}</span></div>
+              </div>
+              <table class="remessa-card-table">
+                <thead><tr><th>Talão</th><th>Linha/Modelo</th><th>Cor</th><th>Pares</th><th>Entrada Costura</th><th>Saída Costura</th><th>Entrada Fábrica</th><th>Status</th></tr></thead>
+                <tbody>${rowsHtml}</tbody>
+              </table>
+            </section>
+          `;
+        }).join("");
       }
 
       function openListModal(title, taloes){
