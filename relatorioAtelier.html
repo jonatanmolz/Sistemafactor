@@ -461,6 +461,55 @@
       font-weight: 900;
     }
 
+
+
+    .detail-filter-bar {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 10px 12px;
+      margin: 0 0 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+
+    .detail-filter-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .detail-filter-option input {
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
+      padding: 0;
+      margin: 0;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    .missing-date-x {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: #fee2e2;
+      color: #dc2626;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
     .detail-table-wrap {
       border: 1px solid #e2e8f0;
       border-radius: 14px;
@@ -665,8 +714,8 @@
 
     .summary-cards-container {
       display: grid;
-      grid-template-columns: repeat(3, minmax(220px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(4, minmax(240px, 1fr));
+      gap: 14px;
       box-sizing: border-box;
     }
 
@@ -683,6 +732,23 @@
     .summary-status-section.produced { background: var(--green-soft); border-color: #b8d9c5; }
     .summary-status-section.todo { background: var(--yellow-soft); border-color: #eadb94; }
     .summary-status-section.total { background: var(--blue-soft); border-color: #b8cbe0; }
+    .summary-status-section.unbipped { background: var(--gray-soft); border-color: #cbd5e1; }
+
+    .overview-summary-cards .summary-status-section {
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    }
+
+    .overview-summary-cards .summary-status-section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .11);
+      border-color: #93c5fd;
+    }
+
+    .overview-summary-cards .summary-status-section:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, .18), 0 10px 24px rgba(15, 23, 42, .11);
+    }
 
     .summary-status-section h4 {
       margin: 0 0 10px;
@@ -728,7 +794,7 @@
     @media (max-width: 1280px) {
       .span-1, .span-2, .span-3 { grid-column: span 3; }
       .filters-actions { justify-content: flex-start; }
-      .mini-cards { grid-template-columns: repeat(2, minmax(170px, 1fr)); }
+      .mini-cards, .summary-cards-container { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
     }
 
     @media (max-width: 820px) {
@@ -747,14 +813,25 @@
   <main class="main-content">
     <section class="filters-container">
       <div class="filters-grid">
-        <div class="form-group span-1">
-          <label for="filterLinha">Linha:</label>
-          <input type="text" id="filterLinha" placeholder="Ex: 7142" />
+        <div class="form-group span-2">
+          <label>Data de Saída:</label>
+          <button class="date-range-button" id="saidaRangeButton" type="button"><span>Selecionar data/período</span></button>
+          <input type="hidden" id="filterDataSaida" />
+          <input type="hidden" id="filterDataSaidaFim" />
         </div>
 
-        <div class="form-group span-1">
-          <label for="filterModelo">Modelo:</label>
-          <input type="text" id="filterModelo" placeholder="Ex: 522" />
+        <div class="form-group span-2">
+          <label>Data de Corte:</label>
+          <button class="date-range-button" id="corteRangeButton" type="button"><span>Selecionar data/período</span></button>
+          <input type="hidden" id="filterDataCorte" />
+          <input type="hidden" id="filterDataCorteFim" />
+        </div>
+
+        <div class="form-group span-2">
+          <label>Data de Entrega:</label>
+          <button class="date-range-button" id="entregaRangeButton" type="button"><span>Selecionar data/período</span></button>
+          <input type="hidden" id="filterDataEntrega" />
+          <input type="hidden" id="filterDataEntregaFim" />
         </div>
 
         <div class="form-group span-1">
@@ -767,23 +844,14 @@
           <input type="text" id="filterTalao" placeholder="Ex: 001" />
         </div>
 
-        <div class="form-group span-2">
-          <label>Data de Corte:</label>
-          <button class="date-range-button" id="corteRangeButton" type="button"><span>Selecionar data/período</span></button>
-          <input type="hidden" id="filterDataCorte" />
-          <input type="hidden" id="filterDataCorteFim" />
-        </div>
-
-        <div class="form-group span-2">
-          <label>Data de Saída:</label>
-          <button class="date-range-button" id="saidaRangeButton" type="button"><span>Selecionar data/período</span></button>
-          <input type="hidden" id="filterDataSaida" />
-          <input type="hidden" id="filterDataSaidaFim" />
+        <div class="form-group span-1">
+          <label for="filterLinha">Linha:</label>
+          <input type="text" id="filterLinha" placeholder="Ex: 7142" />
         </div>
 
         <div class="form-group span-1">
-          <label for="filterDataEntrada">Data de Entrada:</label>
-          <input type="date" id="filterDataEntrada" />
+          <label for="filterModelo">Modelo:</label>
+          <input type="text" id="filterModelo" placeholder="Ex: 522" />
         </div>
 
         <div class="form-group span-1">
@@ -798,28 +866,10 @@
           </select>
         </div>
 
-        <div class="form-group span-1">
-          <label for="filterStatusCostura">Status Costura:</label>
-          <select id="filterStatusCostura">
-            <option value="">Todos</option>
-            <option value="Aguardando Material">Aguardando Material</option>
-            <option value="Em Produção">Em Produção</option>
-            <option value="Finalizado">Finalizado</option>
-          </select>
-        </div>
-
-        <div class="form-group span-2" id="atelieFilterGroup">
-          <label for="filterAtelie">Ateliê Responsável:</label>
-          <select id="filterAtelie">
-            <option value="">Todos</option>
-          </select>
-        </div>
-
         <div class="filters-actions">
           <button class="btn btn-primary" id="searchButton" type="button">Gerar Relatório</button>
           <button class="btn btn-secondary" id="quickFiltersButton" type="button">Filtros rápidos</button>
           <button class="btn btn-secondary" id="clearFiltersButton" type="button">Limpar</button>
-          <button class="btn btn-success" id="reportButton" type="button">Resumo</button>
         </div>
       </div>
     </section>
@@ -832,44 +882,12 @@
       <div class="overview-head">
         <div>
           <h2>Resumo do Relatório</h2>
-          <p id="overviewSubtitle">Nenhum relatório gerado.</p>
+
         </div>
       </div>
 
-      <div class="mini-cards">
-        <article class="mini-card total" data-detail="total" role="button" tabindex="0" title="Clique para ver a lista de talões">
-          <h3>Total de pares filtrados</h3>
-          <div><strong id="totalPares">0</strong><span>pares</span></div>
-        </article>
-        <article class="mini-card produced" data-detail="produced" role="button" tabindex="0" title="Clique para ver a lista de talões">
-          <h3>Pares já produzidos</h3>
-          <div><strong id="producedPares">0</strong><span>pares</span></div>
-        </article>
-        <article class="mini-card todo" data-detail="todo" role="button" tabindex="0" title="Clique para ver a lista de talões">
-          <h3>Pares que faltam produzir</h3>
-          <div><strong id="todoPares">0</strong><span>pares</span></div>
-        </article>
-        <article class="mini-card unbipped" data-detail="unbipped" role="button" tabindex="0" title="Clique para ver a lista de talões">
-          <h3>Pares não bipados na fábrica</h3>
-          <div><strong id="unbippedPares">0</strong><span>pares</span></div>
-        </article>
-      </div>
+      <div id="overviewSummaryCards" class="summary-cards-container overview-summary-cards"></div>
 
-      <section class="type-breakdown-panel">
-        <h3>Resumo por tipo de cliente</h3>
-        <div class="type-breakdown-list" id="typeBreakdownList"></div>
-      </section>
-
-      <div class="model-sections-grid">
-        <section class="model-section">
-          <h3>Produção por modelos — já produzido</h3>
-          <div class="model-list" id="producedModelsList"></div>
-        </section>
-        <section class="model-section">
-          <h3>Produção por modelos — falta produzir</h3>
-          <div class="model-list" id="todoModelsList"></div>
-        </section>
-      </div>
     </section>
 
     <div class="table-container" id="reportContent">
@@ -920,6 +938,20 @@
       </div>
       <div class="modal-body">
         <div id="cardDetailTotals" class="detail-summary-bar"></div>
+        <div class="detail-filter-bar" id="cardDetailFilterBar">
+          <label class="detail-filter-option" for="detailRemoveProduced">
+            <input type="checkbox" id="detailRemoveProduced" />
+            <span>Remover talões já produzidos</span>
+          </label>
+          <label class="detail-filter-option" for="detailOnlyNoEntry">
+            <input type="checkbox" id="detailOnlyNoEntry" />
+            <span>Talões sem entrada</span>
+          </label>
+          <label class="detail-filter-option" for="detailOnlyBippedNotFactory">
+            <input type="checkbox" id="detailOnlyBippedNotFactory" />
+            <span>Bipados na costura e não na fábrica</span>
+          </label>
+        </div>
         <div class="detail-table-wrap">
           <table class="detail-table">
             <thead>
@@ -933,7 +965,7 @@
                 <th>Cor Sapato</th>
                 <th>Tipo Cliente</th>
                 <th>Pares</th>
-                <th>Status Costura</th>
+                <th>Entrada Ateliê</th>
                 <th>Saída Costura</th>
                 <th>Entrada Distribuição</th>
               </tr>
@@ -1062,17 +1094,15 @@
     const filterDataCorteFim = document.getElementById("filterDataCorteFim");
     const filterDataSaida = document.getElementById("filterDataSaida");
     const filterDataSaidaFim = document.getElementById("filterDataSaidaFim");
-    const filterDataEntrada = document.getElementById("filterDataEntrada");
+    const filterDataEntrega = document.getElementById("filterDataEntrega");
+    const filterDataEntregaFim = document.getElementById("filterDataEntregaFim");
     const filterTipoCliente = document.getElementById("filterTipoCliente");
-    const filterStatusCostura = document.getElementById("filterStatusCostura");
-    const filterAtelie = document.getElementById("filterAtelie");
-    const atelieFilterGroup = document.getElementById("atelieFilterGroup");
 
     const corteRangeButton = document.getElementById("corteRangeButton");
     const saidaRangeButton = document.getElementById("saidaRangeButton");
+    const entregaRangeButton = document.getElementById("entregaRangeButton");
     const searchButton = document.getElementById("searchButton");
     const clearFiltersButton = document.getElementById("clearFiltersButton");
-    const reportButton = document.getElementById("reportButton");
     const quickFiltersButton = document.getElementById("quickFiltersButton");
 
     const taloesTableBody = document.getElementById("taloesTableBody");
@@ -1082,13 +1112,7 @@
     const statusLine = document.getElementById("statusLine");
     const overviewPanel = document.getElementById("overviewPanel");
     const overviewSubtitle = document.getElementById("overviewSubtitle");
-    const totalPares = document.getElementById("totalPares");
-    const producedPares = document.getElementById("producedPares");
-    const todoPares = document.getElementById("todoPares");
-    const unbippedPares = document.getElementById("unbippedPares");
-    const producedModelsList = document.getElementById("producedModelsList");
-    const todoModelsList = document.getElementById("todoModelsList");
-    const typeBreakdownList = document.getElementById("typeBreakdownList");
+    const overviewSummaryCards = document.getElementById("overviewSummaryCards");
 
     const summaryModal = document.getElementById("summaryModal");
     const closeModalButton = document.getElementById("closeModalButton");
@@ -1099,6 +1123,9 @@
     const cardDetailSubtitle = document.getElementById("cardDetailSubtitle");
     const cardDetailTotals = document.getElementById("cardDetailTotals");
     const cardDetailTableBody = document.getElementById("cardDetailTableBody");
+    const detailRemoveProduced = document.getElementById("detailRemoveProduced");
+    const detailOnlyNoEntry = document.getElementById("detailOnlyNoEntry");
+    const detailOnlyBippedNotFactory = document.getElementById("detailOnlyBippedNotFactory");
     const quickModal = document.getElementById("quickModal");
     const closeQuickModalButton = document.getElementById("closeQuickModalButton");
     const dateModal = document.getElementById("dateModal");
@@ -1121,6 +1148,7 @@
     let datePickerStart = null;
     let datePickerEnd = null;
     let quickFilterMode = null;
+    let currentCardDetailTaloes = [];
 
     const corTalaoMapping = {
       "Exportacao": "row-azul",
@@ -1277,6 +1305,15 @@
       return talao.dataEntradaDistribuicao || talao.entradaDistribuicao || talao.dataEntradaFabrica || "";
     }
 
+    function getDataEntradaAtelie(talao) {
+      return talao.costuraDataInicio || talao.dataEntradaCostura || talao.dataEntradaAtelie || "";
+    }
+
+    function renderDateOrRedX(value) {
+      const formatted = formatDate(value);
+      return formatted || '<span class="missing-date-x" title="Sem entrada">×</span>';
+    }
+
     function isNotBippedInFactory(talao) {
       // Considera como "não bipado na fábrica" o talão que já saiu da costura,
       // mas ainda não possui data de entrada na distribuição/fábrica.
@@ -1366,16 +1403,6 @@
       return base;
     }
 
-    function renderTypeBreakdown(taloes) {
-      const data = getTypeBreakdown(taloes);
-      typeBreakdownList.innerHTML = Object.entries(data).map(([label, totals]) => `
-        <div class="type-chip">
-          <strong>${escapeHTML(label)}</strong>
-          <span>${totals.pares.toLocaleString("pt-BR")} pares</span>
-          <small>${totals.taloes.toLocaleString("pt-BR")} talões</small>
-        </div>
-      `).join("");
-    }
 
     function getTypeBreakdownText(taloes) {
       const data = getTypeBreakdown(taloes);
@@ -1424,42 +1451,17 @@
       return String(status).toLowerCase().replace(/\s+/g, "-");
     }
 
-    async function loadAtelies() {
-      filterAtelie.innerHTML = '<option value="">Todos</option>';
-      if (currentUserLevel === "03") {
-        const opt = document.createElement("option");
-        opt.value = currentUserName;
-        opt.textContent = currentUserName;
-        filterAtelie.appendChild(opt);
-        filterAtelie.value = currentUserName;
-        filterAtelie.disabled = true;
-        return;
-      }
-      filterAtelie.disabled = false;
-      try {
-        const snap = await getDocs(query(collection(db, "Usuario"), where("nivelAcesso", "==", "03")));
-        const names = snap.docs.map((d) => d.data().Nome).filter(Boolean).sort((a, b) => a.localeCompare(b, "pt-BR"));
-        names.forEach((name) => {
-          const opt = document.createElement("option");
-          opt.value = name;
-          opt.textContent = name;
-          filterAtelie.appendChild(opt);
-        });
-      } catch (error) {
-        console.error("Erro ao carregar ateliês:", error);
-      }
-    }
+    async function loadAtelies() { return; }
 
     function listenToTaloes() {
       // Carga otimizada: não escuta mais todos os talões do banco na abertura.
       // A busca é feita sob demanda a partir dos filtros selecionados.
       allTaloes = [];
       loading.style.display = "none";
-      statusLine.textContent = "Selecione um filtro rápido, data, remessa, talão ou ateliê para gerar o relatório.";
+      statusLine.textContent = "";
     }
 
     function buildQueryFromCurrentFilters() {
-      const selectedAtelie = filterAtelie.value;
       const remessa = filterRemessa.value.trim();
       const talao = filterTalao.value.trim();
 
@@ -1493,14 +1495,14 @@
         const start = filterDataSaida.value || filterDataSaidaFim.value;
         const end = filterDataSaidaFim.value || filterDataSaida.value;
         conditions.push(where("dataSaidaCostura", ">=", start), where("dataSaidaCostura", "<=", end));
-      } else if (filterDataEntrada.value) {
-        conditions.push(where("costuraDataInicio", "==", filterDataEntrada.value));
+      } else if (filterDataEntrega.value || filterDataEntregaFim.value) {
+        const start = filterDataEntrega.value || filterDataEntregaFim.value;
+        const end = filterDataEntregaFim.value || filterDataEntrega.value;
+        conditions.push(where("dataEntrega", ">=", start), where("dataEntrega", "<=", end));
       } else if (remessa) {
         conditions.push(where("numeroRemessa", "==", remessa));
       } else if (talao) {
         conditions.push(where("numeroTalaoSequencial", "==", talao));
-      } else if (selectedAtelie) {
-        conditions.push(where("idAtelieResponsavel", "==", selectedAtelie));
       } else if (filterTipoCliente.value) {
         conditions.push(where("tipoCliente", "==", filterTipoCliente.value));
       }
@@ -1529,12 +1531,27 @@
 
     function openDateModal(field) {
       activeDateField = field;
-      const isCorte = field === "corte";
-      const startValue = isCorte ? filterDataCorte.value : filterDataSaida.value;
-      const endValue = isCorte ? filterDataCorteFim.value : filterDataSaidaFim.value;
-      dateModalTitle.textContent = isCorte ? "Selecionar Data de Corte" : "Selecionar Data de Saída";
-      datePickerStart = startValue || null;
-      datePickerEnd = endValue || null;
+      const fields = {
+        corte: {
+          start: filterDataCorte,
+          end: filterDataCorteFim,
+          title: "Selecionar Data de Corte"
+        },
+        saida: {
+          start: filterDataSaida,
+          end: filterDataSaidaFim,
+          title: "Selecionar Data de Saída"
+        },
+        entrega: {
+          start: filterDataEntrega,
+          end: filterDataEntregaFim,
+          title: "Selecionar Data de Entrega"
+        }
+      };
+      const config = fields[field] || fields.corte;
+      dateModalTitle.textContent = config.title;
+      datePickerStart = config.start.value || null;
+      datePickerEnd = config.end.value || null;
       const base = dateFromISO(datePickerStart || datePickerEnd || todayISO());
       datePickerMonth = new Date(base.getFullYear(), base.getMonth(), 1);
       renderDatePicker();
@@ -1589,34 +1606,30 @@
       renderDatePicker();
     }
 
+    function getActiveDateControls() {
+      if (activeDateField === "entrega") return { start: filterDataEntrega, end: filterDataEntregaFim, button: entregaRangeButton };
+      if (activeDateField === "saida") return { start: filterDataSaida, end: filterDataSaidaFim, button: saidaRangeButton };
+      return { start: filterDataCorte, end: filterDataCorteFim, button: corteRangeButton };
+    }
+
     function applyDateModal() {
       quickFilterMode = null;
       if (datePickerStart && !datePickerEnd) datePickerEnd = datePickerStart;
 
-      if (activeDateField === "corte") {
-        filterDataCorte.value = datePickerStart || "";
-        filterDataCorteFim.value = datePickerEnd || "";
-        updateRangeButton(corteRangeButton, filterDataCorte.value, filterDataCorteFim.value);
-      } else {
-        filterDataSaida.value = datePickerStart || "";
-        filterDataSaidaFim.value = datePickerEnd || "";
-        updateRangeButton(saidaRangeButton, filterDataSaida.value, filterDataSaidaFim.value);
-      }
+      const controls = getActiveDateControls();
+      controls.start.value = datePickerStart || "";
+      controls.end.value = datePickerEnd || "";
+      updateRangeButton(controls.button, controls.start.value, controls.end.value);
       closeDateModal();
     }
 
     function clearDateModal() {
       datePickerStart = null;
       datePickerEnd = null;
-      if (activeDateField === "corte") {
-        filterDataCorte.value = "";
-        filterDataCorteFim.value = "";
-        updateRangeButton(corteRangeButton, "", "");
-      } else {
-        filterDataSaida.value = "";
-        filterDataSaidaFim.value = "";
-        updateRangeButton(saidaRangeButton, "", "");
-      }
+      const controls = getActiveDateControls();
+      controls.start.value = "";
+      controls.end.value = "";
+      updateRangeButton(controls.button, "", "");
       quickFilterMode = null;
       renderDatePicker();
     }
@@ -1630,12 +1643,12 @@
       filterDataCorteFim.value = "";
       filterDataSaida.value = "";
       filterDataSaidaFim.value = "";
-      filterDataEntrada.value = "";
+      filterDataEntrega.value = "";
+      filterDataEntregaFim.value = "";
       filterTipoCliente.value = "";
-      filterStatusCostura.value = "";
-      if (currentUserLevel !== "03") filterAtelie.value = "";
       updateRangeButton(corteRangeButton, "", "");
       updateRangeButton(saidaRangeButton, "", "");
+      updateRangeButton(entregaRangeButton, "", "");
       quickFilterMode = null;
     }
 
@@ -1669,7 +1682,7 @@
         filterTipoCliente.value = "Exportacao";
       }
 
-      statusLine.textContent = info ? `Filtro rápido: ${info.label} (${info.detail}).` : "Filtro rápido aplicado.";
+      
       closeQuickModal();
       applyFilters();
     }
@@ -1692,8 +1705,6 @@
       const remessa = filterRemessa.value.trim().toLowerCase();
       const talao = filterTalao.value.trim().toLowerCase();
       const tipoCliente = filterTipoCliente.value;
-      const statusCostura = filterStatusCostura.value;
-      const selectedAtelie = filterAtelie.value;
 
       let currentFiltered;
       try {
@@ -1709,9 +1720,9 @@
 
       if (!currentFiltered.length && !buildQueryFromCurrentFilters()) {
         loading.style.display = "none";
-        noData.textContent = "Escolha um filtro rápido, data, remessa, talão, tipo ou ateliê para iniciar a busca.";
+        noData.textContent = "";
         noData.style.display = "block";
-        statusLine.textContent = "Aguardando filtros para evitar carregar todos os talões.";
+        statusLine.textContent = "";
         return;
       }
 
@@ -1761,23 +1772,14 @@
         });
       }
 
-      if (selectedAtelie) currentFiltered = currentFiltered.filter((t) => String(t.idAtelieResponsavel || "") === selectedAtelie);
       if (linha) currentFiltered = currentFiltered.filter((t) => String(t.linha || "").toLowerCase().includes(linha));
       if (modelo) currentFiltered = currentFiltered.filter((t) => String(t.modelo || "").toLowerCase().includes(modelo));
       if (remessa) currentFiltered = currentFiltered.filter((t) => String(t.numeroRemessa || "").toLowerCase().includes(remessa));
       if (talao) currentFiltered = currentFiltered.filter((t) => String(t.numeroTalaoSequencial || "").toLowerCase().includes(talao));
       if (tipoCliente) currentFiltered = currentFiltered.filter((t) => normalizeTipoCliente(t.tipoCliente) === normalizeTipoCliente(tipoCliente));
-      if (statusCostura) {
-        currentFiltered = currentFiltered.filter((t) => {
-          const status = getStatusCostura(t);
-          if (statusCostura === "Aguardando Material") return status === "Aguardando Material" || (!t.statusCostura && t.statusGeral === "Cortado");
-          return status === statusCostura;
-        });
-      }
-
       currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataCorte, filterDataCorte.value, filterDataCorteFim.value));
       currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataSaidaCostura, filterDataSaida.value, filterDataSaidaFim.value));
-      if (filterDataEntrada.value) currentFiltered = currentFiltered.filter((t) => toISODateOnly(t.costuraDataInicio) === filterDataEntrada.value);
+      currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataEntrega, filterDataEntrega.value, filterDataEntregaFim.value));
 
       filteredTaloes = sortTaloes(currentFiltered);
       renderTable(filteredTaloes);
@@ -1794,31 +1796,50 @@
       }
 
       const total = sumTotal(filteredTaloes);
-      const atelieText = selectedAtelie || (currentUserLevel === "03" ? currentUserName : "todos os ateliês");
       const quickInfo = quickFilterMode ? getQuickFilterInfo(quickFilterMode) : null;
       const quickText = quickInfo ? `Filtro rápido: ${quickInfo.label} (${quickInfo.detail}) • ` : "";
       const breakdownText = quickFilterMode && functionNeedsBreakdown(quickFilterMode) ? ` • ${getTypeBreakdownText(filteredTaloes)}` : "";
-      statusLine.textContent = `${quickText}Relatório gerado: ${filteredTaloes.length.toLocaleString("pt-BR")} talões • ${total.toLocaleString("pt-BR")} pares • Ateliê: ${atelieText}${breakdownText}.`;
+      
     }
 
-    function renderOverview(taloes) {
+    function renderSummaryStatusCards(container, cards) {
+      container.innerHTML = cards.map((card) => {
+        const byModel = sumByModel(card.taloes);
+        const entries = Object.entries(byModel).sort((a, b) => a[0].localeCompare(b[0], "pt-BR", { numeric: true }));
+        const items = entries.length
+          ? entries.map(([model, pares]) => `<div class="summary-item"><span class="item-label">${escapeHTML(model)}</span><span class="item-value">${pares.toLocaleString("pt-BR")} pares</span></div>`).join("")
+          : '<p class="empty-message">Nenhum modelo encontrado.</p>';
+
+        return `
+          <section class="summary-status-section ${card.className}" data-detail="${card.detail}" role="button" tabindex="0" title="Clique para ver a lista de talões">
+            <h4>${card.title}</h4>
+            <div class="summary-content-sub">
+              <h5>Por Linha / Modelo</h5>
+              ${items}
+            </div>
+            <div class="summary-total">Total: ${sumTotal(card.taloes).toLocaleString("pt-BR")} pares</div>
+          </section>
+        `;
+      }).join("");
+    }
+
+    function getOverviewCards(taloes) {
       const produced = taloes.filter((t) => hasFilledDate(t.dataSaidaCostura));
       const todo = taloes.filter((t) => !hasFilledDate(t.dataSaidaCostura));
       const unbipped = taloes.filter(isNotBippedInFactory);
+
+      return [
+        { title: "Total de pares", className: "total", detail: "total", taloes },
+        { title: "Produzidos", className: "produced", detail: "produced", taloes: produced },
+        { title: "Falta Produzir", className: "todo", detail: "todo", taloes: todo },
+        { title: "Não bipados na fábrica", className: "unbipped", detail: "unbipped", taloes: unbipped }
+      ];
+    }
+
+    function renderOverview(taloes) {
       const total = sumTotal(taloes);
-      const producedTotal = sumTotal(produced);
-      const todoTotal = sumTotal(todo);
-      const unbippedTotal = sumTotal(unbipped);
-
-      overviewSubtitle.textContent = `${taloes.length.toLocaleString("pt-BR")} talões encontrados • ${total.toLocaleString("pt-BR")} pares`;
-      totalPares.textContent = total.toLocaleString("pt-BR");
-      producedPares.textContent = producedTotal.toLocaleString("pt-BR");
-      todoPares.textContent = todoTotal.toLocaleString("pt-BR");
-      unbippedPares.textContent = unbippedTotal.toLocaleString("pt-BR");
-
-      renderTypeBreakdown(taloes);
-      renderModelList(producedModelsList, sumByModel(produced));
-      renderModelList(todoModelsList, sumByModel(todo));
+      
+      renderSummaryStatusCards(overviewSummaryCards, getOverviewCards(taloes));
     }
 
     function renderTable(taloes) {
@@ -1876,6 +1897,42 @@
       return config[type] || config.total;
     }
 
+    function applyCardDetailFilters(taloes) {
+      let result = [...(taloes || [])];
+
+      if (detailRemoveProduced?.checked) {
+        result = result.filter((t) => !hasFilledDate(t.dataSaidaCostura));
+      }
+
+      if (detailOnlyNoEntry?.checked) {
+        result = result.filter((t) => !hasFilledDate(getDataEntradaAtelie(t)));
+      }
+
+      if (detailOnlyBippedNotFactory?.checked) {
+        result = result.filter(isNotBippedInFactory);
+      }
+
+      return result;
+    }
+
+    function updateCardDetailTotals(taloes) {
+      const totalTaloes = taloes.length;
+      const totalPares = sumTotal(taloes);
+      const totalModelos = new Set(taloes.map(getModelKey)).size;
+
+      cardDetailTotals.innerHTML = `
+        <span class="detail-summary-pill">${totalTaloes.toLocaleString("pt-BR")} talões</span>
+        <span class="detail-summary-pill">${totalPares.toLocaleString("pt-BR")} pares</span>
+        <span class="detail-summary-pill">${totalModelos.toLocaleString("pt-BR")} modelos</span>
+      `;
+    }
+
+    function refreshCardDetailModal() {
+      const visibleTaloes = applyCardDetailFilters(currentCardDetailTaloes);
+      updateCardDetailTotals(visibleTaloes);
+      renderCardDetailTable(visibleTaloes);
+    }
+
     function renderCardDetailTable(taloes) {
       if (!taloes.length) {
         cardDetailTableBody.innerHTML = '<tr><td colspan="12" style="text-align:center;">Nenhum talão encontrado para este card.</td></tr>';
@@ -1884,7 +1941,6 @@
 
       cardDetailTableBody.innerHTML = sortTaloes(taloes).map((talao) => {
         const rowColorClass = corTalaoMapping[talao.tipoCliente] || "";
-        const displayStatusCostura = getStatusCostura(talao);
         return `
           <tr class="${rowColorClass}">
             <td>${formatDate(talao.dataCorte)}</td>
@@ -1896,7 +1952,7 @@
             <td>${escapeHTML(talao.corSapato || "")}</td>
             <td>${escapeHTML(talao.tipoCliente || "")}</td>
             <td><strong>${normalizePares(talao.pares).toLocaleString("pt-BR")}</strong></td>
-            <td><span class="status-badge ${getStatusClass(displayStatusCostura)}">${escapeHTML(displayStatusCostura)}</span></td>
+            <td>${renderDateOrRedX(getDataEntradaAtelie(talao))}</td>
             <td>${formatDate(talao.dataSaidaCostura)}</td>
             <td>${formatDate(getDataEntradaDistribuicao(talao))}</td>
           </tr>
@@ -1907,18 +1963,15 @@
     function openCardDetailModal(type) {
       if (!filteredTaloes.length) return;
       const cardData = getSummaryCardData(type);
-      const totalTaloes = cardData.taloes.length;
-      const totalPares = sumTotal(cardData.taloes);
-      const totalModelos = new Set(cardData.taloes.map(getModelKey)).size;
+
+      currentCardDetailTaloes = [...cardData.taloes];
+      if (detailRemoveProduced) detailRemoveProduced.checked = false;
+      if (detailOnlyNoEntry) detailOnlyNoEntry.checked = false;
+      if (detailOnlyBippedNotFactory) detailOnlyBippedNotFactory.checked = false;
 
       cardDetailTitle.textContent = cardData.title;
       cardDetailSubtitle.textContent = cardData.description;
-      cardDetailTotals.innerHTML = `
-        <span class="detail-summary-pill">${totalTaloes.toLocaleString("pt-BR")} talões</span>
-        <span class="detail-summary-pill">${totalPares.toLocaleString("pt-BR")} pares</span>
-        <span class="detail-summary-pill">${totalModelos.toLocaleString("pt-BR")} modelos</span>
-      `;
-      renderCardDetailTable(cardData.taloes);
+      refreshCardDetailModal();
       cardDetailModal.classList.add("show");
     }
 
@@ -1928,33 +1981,7 @@
 
     function updateAtelierSummaryCards() {
       const taloesForSummary = filteredTaloes.length ? filteredTaloes : [];
-      const produced = taloesForSummary.filter((t) => hasFilledDate(t.dataSaidaCostura));
-      const todo = taloesForSummary.filter((t) => !hasFilledDate(t.dataSaidaCostura));
-      const total = taloesForSummary;
-
-      const cards = [
-        { title: "Pares que faltam produzir", className: "todo", taloes: todo },
-        { title: "Pares já produzidos", className: "produced", taloes: produced },
-        { title: "Total do relatório", className: "total", taloes: total }
-      ];
-
-      atelierSummaryCard.innerHTML = cards.map((card) => {
-        const byModel = sumByModel(card.taloes);
-        const entries = Object.entries(byModel).sort((a, b) => a[0].localeCompare(b[0], "pt-BR", { numeric: true }));
-        const items = entries.length
-          ? entries.map(([model, pares]) => `<div class="summary-item"><span class="item-label">${escapeHTML(model)}</span><span class="item-value">${pares.toLocaleString("pt-BR")} pares</span></div>`).join("")
-          : '<p class="empty-message">Nenhum modelo encontrado.</p>';
-        return `
-          <section class="summary-status-section ${card.className}">
-            <h4>${card.title}</h4>
-            <div class="summary-content-sub">
-              <h5>Por Linha / Modelo</h5>
-              ${items}
-            </div>
-            <div class="summary-total">Total: ${sumTotal(card.taloes).toLocaleString("pt-BR")} pares</div>
-          </section>
-        `;
-      }).join("");
+      renderSummaryStatusCards(atelierSummaryCard, getOverviewCards(taloesForSummary));
     }
 
     function openModal() {
@@ -1985,7 +2012,6 @@
       statusLine.textContent = `${allTaloes.length.toLocaleString("pt-BR")} talões carregados.`;
     });
 
-    reportButton.addEventListener("click", openModal);
     quickFiltersButton.addEventListener("click", openQuickModal);
     closeModalButton.addEventListener("click", closeModal);
     closeCardDetailModalButton.addEventListener("click", closeCardDetailModal);
@@ -1993,6 +2019,7 @@
     closeDateModalButton.addEventListener("click", closeDateModal);
     corteRangeButton.addEventListener("click", () => openDateModal("corte"));
     saidaRangeButton.addEventListener("click", () => openDateModal("saida"));
+    entregaRangeButton.addEventListener("click", () => openDateModal("entrega"));
     applyDateModalButton.addEventListener("click", applyDateModal);
     clearDateModalButton.addEventListener("click", clearDateModal);
     datePickerPrev.addEventListener("click", () => {
@@ -2008,14 +2035,23 @@
       button.addEventListener("click", () => applyQuickFilter(button.dataset.filter));
     });
 
-    document.querySelectorAll(".mini-card[data-detail]").forEach((card) => {
-      card.addEventListener("click", () => openCardDetailModal(card.dataset.detail));
-      card.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          openCardDetailModal(card.dataset.detail);
-        }
-      });
+    overviewSummaryCards.addEventListener("click", (event) => {
+      const card = event.target.closest("[data-detail]");
+      if (card) openCardDetailModal(card.dataset.detail);
+    });
+
+    overviewSummaryCards.addEventListener("keydown", (event) => {
+      const card = event.target.closest("[data-detail]");
+      if (card && (event.key === "Enter" || event.key === " ")) {
+        event.preventDefault();
+        openCardDetailModal(card.dataset.detail);
+      }
+    });
+
+
+    [detailRemoveProduced, detailOnlyNoEntry, detailOnlyBippedNotFactory].forEach((checkbox) => {
+      if (!checkbox) return;
+      checkbox.addEventListener("change", refreshCardDetailModal);
     });
 
     [summaryModal, cardDetailModal, quickModal, dateModal].forEach((modal) => {
