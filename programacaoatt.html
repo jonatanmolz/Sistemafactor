@@ -1555,8 +1555,18 @@
   .page-refresh-bar{
     display:flex !important;
     justify-content:flex-start !important;
-    align-items:center !important;
+    align-items:end !important;
+    gap:10px !important;
+    flex-wrap:wrap !important;
     margin:8px 2px 6px !important;
+  }
+  .page-refresh-bar .atelie-page-filter{
+    min-width:260px !important;
+    max-width:320px !important;
+  }
+  .page-refresh-bar .atelie-page-filter select{
+    min-height:38px !important;
+    padding:9px 12px !important;
   }
   #pageReloadButton{
     min-height:38px !important;
@@ -1850,13 +1860,6 @@
         <input type="date" id="filterData" />
       </div>
 
-      <div class="form-group hide" id="atelieFilterGroup">
-        <label for="filterAtelie">Ateliê:</label>
-        <select id="filterAtelie">
-          <option value="">Todos os ateliês</option>
-        </select>
-      </div>
-
       <button class="btn btn-primary" id="refreshButton">Atualizar relatório</button>
       <button class="btn btn-secondary" id="todayButton">Hoje</button>
     </section>
@@ -1864,6 +1867,12 @@
     <section class="page-refresh-bar">
       <button class="btn btn-primary" id="pageReloadButton" type="button" onclick="window.location.reload()">Atualizar dados</button>
       <button class="btn btn-secondary" id="noEntryCutButton" type="button">Talões sem Entrada</button>
+      <div class="form-group hide atelie-page-filter" id="atelieFilterGroup">
+        <label for="filterAtelie">Filtrar por ateliê responsável:</label>
+        <select id="filterAtelie">
+          <option value="">Todos os ateliês</option>
+        </select>
+      </div>
     </section>
 
     <div class="status-line" id="statusLine">Carregando dados...</div>
@@ -2127,13 +2136,40 @@
           </button>
         `).join("") : '<div class="empty-message">Nenhum modelo encontrado.</div>';
       }
+      function normalizeAtelieText(value) {
+        return String(value || "")
+          .trim()
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+      }
+
+      function getAtelieResponsavelValues(talao) {
+        return [
+          talao?.idAtelieResponsavel,
+          talao?.atelieResponsavel,
+          talao?.atelierResponsavel,
+          talao?.nomeAtelieResponsavel,
+          talao?.nomeAtelierResponsavel,
+          talao?.atelie,
+          talao?.atelier
+        ].filter(Boolean);
+      }
+
+      function talaoPertenceAoAtelie(talao, atelie) {
+        const selected = normalizeAtelieText(atelie);
+        if (!selected) return true;
+        return getAtelieResponsavelValues(talao).some(value => normalizeAtelieText(value) === selected);
+      }
+
       function getSelectedAtelie() {
-        if (["05", "07"].includes(currentUserLevel)) return els.filterAtelie.value || "";
+        if (String(currentUserLevel) === "07") return els.filterAtelie?.value || "";
         return currentUserName;
       }
+
       function filterBase(arr) {
         const atelie = getSelectedAtelie();
-        return arr.filter(t => !isAmostra(t) && (!atelie || String(t.idAtelieResponsavel || "") === atelie));
+        return arr.filter(t => !isAmostra(t) && talaoPertenceAoAtelie(t, atelie));
       }
       function getCycleDeliveryRange(baseIso) {
         const base = dateFromISO(baseIso); const day = base.getDay(); const diff = day >= 3 ? day - 3 : day + 4;
@@ -2453,17 +2489,26 @@
       const closeModal = () => els.listModal.classList.remove("show");
 
       async function loadAtelies() {
-        if (!["05", "07"].includes(currentUserLevel)) return;
+        if (String(currentUserLevel) !== "07") return;
+        if (!els.atelieFilterGroup || !els.filterAtelie) return;
         els.atelieFilterGroup.classList.remove("hide");
         const snap = await db.collection("Usuario").where("nivelAcesso", "==", "03").get();
-        const names = snap.docs.map(d => d.data().Nome).filter(Boolean).sort((a,b) => a.localeCompare(b, "pt-BR"));
+        const names = snap.docs
+          .map(d => d.data().Nome)
+          .filter(Boolean)
+          .sort((a,b) => a.localeCompare(b, "pt-BR"));
         els.filterAtelie.innerHTML = '<option value="">Todos os ateliês</option>' + names.map(n => `<option value="${escapeHTML(n)}">${escapeHTML(n)}</option>`).join("");
       }
 
       els.refreshButton.addEventListener("click", loadReport);
       els.todayButton.addEventListener("click", () => { els.filterData.value = todayISO(); loadReport(); });
       els.filterData.addEventListener("change", loadReport);
-      els.filterAtelie.addEventListener("change", () => { buildReportSets(); renderDailyHiddenCards(); const atelieText = getSelectedAtelie() || "todos os ateliês"; setStatus(`Relatório atualizado: ${formatDate(todayISO())} • Ateliê: ${atelieText} • Busca limitada e cortes atrasados dos últimos 35 dias`); });
+      if (els.filterAtelie) els.filterAtelie.addEventListener("change", () => {
+        buildReportSets();
+        renderDailyHiddenCards();
+        const atelieText = getSelectedAtelie() || "todos os ateliês";
+        setStatus(`Relatório atualizado: ${formatDate(todayISO())} • Ateliê: ${atelieText} • Busca limitada e cortes atrasados dos últimos 35 dias`);
+      });
       els.closeListModalButton.addEventListener("click", closeModal);
       els.listModal.addEventListener("click", e => { if (e.target === els.listModal) closeModal(); });
       [els.removeProducedCheckbox, els.onlyNoEntryCheckbox, els.onlyNotBippedFactoryCheckbox].forEach(cb => cb.addEventListener("change", renderModal));
