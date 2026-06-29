@@ -3,831 +3,397 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Distribuição - SistemaTaloes</title>
+  <title>Distribuição PDF - SistemaTaloes</title>
+  <style>
+    :root{--bg:#f4f4f4;--ink:#333;--ink2:#555;--card:#fff;--muted:#777;--pri:#007bff;--pri700:#0056b3;--ok:#198754;--warn:#ffc107;--danger:#dc3545;--bd:#ddd;--chip:#f0f0f0}
+    *{box-sizing:border-box} body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;min-height:100vh;color:var(--ink)}
+    .main-content{padding:16px;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .panel{background:var(--card);border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.08);width:100%;max-width:1280px;padding:14px}
+    .filters-container{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;justify-content:flex-start}
+    .form-group{display:flex;flex-direction:column;gap:4px;min-width:150px}.form-group label{font-weight:700;color:var(--ink2);font-size:.82em}
+    input,select{padding:9px;border:1px solid #ccc;border-radius:8px;font-size:.92em;background:#fff}
+    input[type=file]{min-width:300px}.btn{padding:10px 14px;border:0;border-radius:8px;cursor:pointer;font-weight:700;display:inline-flex;gap:6px;align-items:center;justify-content:center}
+    .btn-primary{background:var(--pri);color:#fff}.btn-primary:hover{background:var(--pri700)}.btn-secondary{background:#e9ecef;color:#111}.btn-secondary:hover{background:#dde2e6}.btn-ok{background:var(--ok);color:#fff}.btn-danger{background:var(--danger);color:#fff}
+    .hint{color:var(--muted);font-size:.86em;line-height:1.35;margin:8px 0 0}.status{padding:9px 10px;border-radius:8px;background:#eef4ff;color:#27456f;font-weight:700;display:none}
+    .summary{display:flex;gap:8px;flex-wrap:wrap}.summary .card{background:#fff;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;min-width:140px;text-align:center}.summary strong{display:block;font-size:1.25em;color:#111}.summary span{font-size:.82em;color:var(--muted);font-weight:700}
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}.toolbar-left,.toolbar-right{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .excel-wrap{width:100%;overflow:auto;border:1px solid #bbb;background:#fff}
+    .excel-cards{display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:14px;align-items:start}
+    .dist-card{background:#fff;border:1px solid #cfcfcf;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);overflow:hidden}
+    .dist-card-head{background:#f3f3f3;border-bottom:1px solid #cfcfcf;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+    .dist-card-head h3{margin:0;font-size:1em}.dist-card-head small{color:var(--muted);font-weight:700}.dist-card-body{overflow:auto;padding:8px}
+    .copy-card-btn{padding:7px 10px;border:0;border-radius:7px;background:var(--ok);color:#fff;font-weight:700;cursor:pointer}.copy-card-btn:hover{filter:brightness(.94)}
+    .excel-table{border-collapse:collapse;font-size:.82em;width:100%;min-width:260px}.excel-table th,.excel-table td{border:1px solid #999;padding:4px 7px;text-align:center;white-space:nowrap;height:24px}.excel-table th{background:#ddd;font-weight:800}.excel-table .date-title{font-size:1.2em;background:#d9d9d9}.excel-table .line-title{background:#f6f6f6;font-weight:800}.excel-table .total-row td{background:#d9d9d9;font-weight:800}.excel-table .gap{border:0;background:#fff;min-width:12px}.excel-table input{border:0;padding:2px 4px;width:78px;text-align:center;background:transparent}.excel-table input:focus{outline:2px solid var(--pri);background:#fff}
+    .raw-table{width:100%;border-collapse:collapse;font-size:.78em}.raw-table th,.raw-table td{border:1px solid var(--bd);padding:5px;text-align:center;white-space:nowrap}.raw-table th{background:#f2f2f2}.raw-table tr:nth-child(even){background:#fafafa}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{background:#e9ecef;border:0;border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:700}.tab.active{background:var(--pri);color:#fff}.view{display:none}.view.active{display:block}
+    .debug{font-family:Consolas,monospace;font-size:.78em;white-space:pre-wrap;background:#111;color:#eee;border-radius:8px;padding:10px;max-height:260px;overflow:auto}
+    #sistemaMenuDrawer .sistema-menu-lista{max-height:none!important;height:calc(100vh - 54px)!important;overflow-y:auto!important;display:block!important;padding:8px 8px 16px!important;background:transparent!important;box-shadow:none!important;font-size:inherit!important;transition:none!important}
+    #sistemaMenuDrawer .sistema-menu-link{display:flex!important;align-items:center!important;min-height:34px!important;padding:0 12px 0 20px!important;border-radius:8px!important;color:#f4f7fb!important;text-decoration:none!important;font-size:13px!important;font-weight:500!important;margin:1px 0!important;position:relative!important;white-space:normal!important}
+    @media(max-width:1100px){.excel-cards{grid-template-columns:repeat(2,minmax(260px,1fr))}}
+    @media(max-width:760px){.main-content{padding:8px}.panel{padding:10px}.form-group,input[type=file]{min-width:100%;width:100%}.btn{flex:1}.toolbar{align-items:stretch}.toolbar-left,.toolbar-right{width:100%}.summary .card{flex:1 1 calc(50% - 8px)}.excel-cards{grid-template-columns:1fr}.excel-table{font-size:.72em}}
+  </style>
   <script src="navegacao.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
-  <style>
-    :root{
-      --bg:#f4f4f4; --card:#fff; --ink:#111; --ink-2:#555; --muted:#777; --bd:#111;
-      --soft:#e9ecef; --soft-2:#d9d9d9; --pri:#007bff; --pri-700:#0056b3; --danger:#dc3545; --danger-700:#bd2130;
-      --ok:#28a745; --ok-700:#1e7e34; --warn:#ffc107;
-    }
-    *{box-sizing:border-box}
-    body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;color:var(--ink);min-height:100vh}
-    .main-content{padding:16px;display:flex;flex-direction:column;align-items:center;gap:14px}
-    .panel{background:var(--card);width:100%;max-width:1240px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:14px}
-    .panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
-    h1,h2,h3{margin:0}
-    h1{font-size:22px}
-    h2{font-size:18px}
-    .hint{font-size:13px;color:var(--muted);line-height:1.35}
-    .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
-    .form-group{display:flex;flex-direction:column;gap:4px;min-width:130px}
-    label{font-size:12px;font-weight:700;color:var(--ink-2)}
-    input,select,textarea{font-family:Arial,Helvetica,sans-serif;border:1px solid #cfcfcf;border-radius:8px;padding:8px;font-size:14px;background:#fff}
-    input[type="file"]{padding:7px;background:#fff}
-    .file-picker-hidden{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
-    .selected-files{font-size:13px;color:var(--ink-2);margin-top:8px;line-height:1.35}
-    .date-small{width:120px}
-    .btn{border:none;border-radius:8px;padding:9px 13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:.15s;background:#e9ecef;color:#111;text-decoration:none;white-space:nowrap}
-    .btn:hover{filter:brightness(.97)}
-    .btn-primary{background:var(--pri);color:#fff}.btn-primary:hover{background:var(--pri-700)}
-    .btn-ok{background:var(--ok);color:#fff}.btn-ok:hover{background:var(--ok-700)}
-    .btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:var(--danger-700)}
-    .btn-mini{padding:4px 7px;font-size:12px;border-radius:6px}
-    .status{font-size:13px;color:var(--ink-2);margin-top:8px;line-height:1.4}
-    .status strong{color:#000}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .separator{height:1px;background:#ddd;margin:10px 0}
-
-    /* Página visual da distribuição */
-    .sheet-wrap{width:100%;overflow:auto;background:#ececec;border-radius:10px;padding:12px}
-    .sheet{background:#fff;width:1120px;min-height:620px;margin:0 auto;padding:12px;color:#000;box-shadow:0 2px 12px rgba(0,0,0,.12)}
-    .sheet-header{display:grid;grid-template-columns: 2fr 1.05fr 1.05fr 1.05fr .72fr;gap:10px;margin-bottom:14px;align-items:start}
-    .big-date{display:grid;grid-template-columns:1.05fr 1.35fr;border:2px solid #111;height:48px}
-    .big-date div{display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;background:#d9d9d9;border-right:1px solid #111}
-    .big-date input{border:0;border-radius:0;background:#d9d9d9;text-align:center;font-size:22px;font-weight:800;width:100%;height:100%}
-    .top-date{border:2px solid #111;display:grid;grid-template-rows:24px 24px;height:50px}
-    .top-date label{display:flex;align-items:center;justify-content:center;background:#d9d9d9;border-bottom:1px solid #111;color:#000;font-size:17px;font-weight:800}
-    .top-date input{border:0;border-radius:0;text-align:center;font-size:17px;padding:0;height:100%;font-weight:500}
-    .cards-grid{display:grid;grid-template-columns:repeat(6, 1fr);gap:8px;align-items:start}
-    .dist-card{border:2px solid #111;background:#fff;min-width:0}
-    .card-top-note{height:18px;text-align:center;border:0;border-bottom:1px solid #111;border-radius:0;font-size:13px;width:100%;padding:0;background:#fff}
-    .card-line{display:grid;grid-template-columns:38px 1fr;height:22px;border-bottom:1px solid #111}
-    .card-line .lbl{display:flex;align-items:center;justify-content:center;background:#e6e6e6;border-right:1px solid #111;font-weight:700;font-size:13px}
-    .card-line input{border:0;border-radius:0;text-align:center;font-weight:800;font-size:13px;padding:0;width:100%}
-    table.dist-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
-    .dist-table th,.dist-table td{border:1px solid #111;padding:2px;text-align:center;height:20px;overflow:hidden;white-space:nowrap}
-    .dist-table th{background:#d9d9d9;font-weight:700}
-    .dist-table input{border:0;border-radius:0;width:100%;height:18px;padding:0 2px;text-align:center;font-size:13px;background:transparent}
-    .dist-table input.qty{text-align:right;padding-right:4px}
-    .total-row td{background:#d9d9d9;font-weight:700;height:24px}
-    .dist-table .col-mod{width:31%}.dist-table .col-pares{width:31%}.dist-table .col-atelier{width:38%}
-
-    .bottom-area{display:grid;grid-template-columns: 2.4fr 1.05fr;gap:14px;margin-top:22px;align-items:start}
-    .names-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px}
-    .names-table th,.names-table td{border:1px solid #111;text-align:center;height:27px;padding:2px}
-    .names-table th{background:#bfbfbf;font-weight:800}
-    .names-table input{border:0;border-radius:0;width:100%;height:100%;text-align:center;padding:0;background:transparent}
-    .red-total{background:red!important;color:#000;font-weight:800}
-    .summary-box{width:100%;border-collapse:collapse;table-layout:fixed;font-size:24px;font-weight:900}
-    .summary-box td{border:2px solid #111;background:#d9d9d9;padding:16px;text-align:center}
-    .summary-box .label{text-align:left;font-size:24px}
-    .summary-box.small td{font-size:22px;padding:14px}
-    .bottom-summary{display:flex;flex-direction:column;gap:8px}
-    .controls-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-
-    .manual-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
-    .manual-table th,.manual-table td{border:1px solid #ddd;padding:6px;text-align:center}
-    .manual-table th{background:#f2f2f2}
-    .manual-table input{width:100%;padding:6px}
-    .hidden{display:none!important}
-
-    @media (max-width:760px){
-      .main-content{padding:8px}.panel{padding:10px}.filters .form-group{min-width:calc(50% - 8px);flex:1}.btn{flex:1 1 auto}.sheet{transform-origin:top left}.sheet-wrap{padding:8px}.panel-title{align-items:flex-start}h1{font-size:19px}
-    }
-
-    @media print{
-      @page{size:A4 landscape;margin:6mm}
-      body{background:#fff}
-      #sistemaMenuOverlay,#sistemaMenuDrawer,#sistemaMenuButton,.panel:not(.print-panel),.controls-row,.no-print{display:none!important}
-      .main-content{padding:0;display:block}
-      .print-panel{box-shadow:none;border-radius:0;padding:0;margin:0;max-width:none;width:100%}
-      .sheet-wrap{overflow:visible;padding:0;background:#fff;border-radius:0}
-      .sheet{width:100%;box-shadow:none;padding:0;min-height:0}
-      .sheet-header{gap:7px;margin-bottom:10px}
-      .cards-grid{gap:5px}
-      .bottom-area{gap:10px;margin-top:16px}
-      input{print-color-adjust:exact;-webkit-print-color-adjust:exact}
-      .dist-table th,.dist-table td{height:19px;font-size:11px;padding:1px}
-      .dist-table input{font-size:11px;height:17px}
-      .summary-box td{padding:12px}.summary-box .label{font-size:22px}
-    }
-
-    /* Correção para o menu padrão do navegacao.js */
-    #sistemaMenuDrawer .sistema-menu-lista{max-height:none!important;height:calc(100vh - 54px)!important;overflow-y:auto!important;overflow-x:hidden!important;display:block!important;padding:8px 8px 16px!important;background:transparent!important;box-shadow:none!important;font-size:inherit!important;transition:none!important}
-    #sistemaMenuDrawer .sistema-menu-grupo{display:block!important}
-    #sistemaMenuDrawer .sistema-menu-link{display:flex!important;align-items:center!important;min-height:34px!important;padding:0 12px 0 20px!important;border-radius:8px!important;color:#f4f7fb!important;text-decoration:none!important;font-size:13px!important;font-weight:500!important;margin:1px 0!important;position:relative!important;white-space:normal!important}
-  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 </head>
 <body>
   <div class="main-content">
-    <div class="panel no-print">
-      <div class="panel-title">
-        <div>
-          <h1>Distribuição</h1>
-          <div class="hint">Escolha o <strong>PDF Factor Corte</strong> e o <strong>XLSX modelo completo</strong>. Depois carregue os arquivos para montar os quadros e baixe o mesmo XLSX preenchido, mantendo as abas Valores e Fab. As datas são calculadas pela Data de Corte: Corte +9, Costura +15 e Embarque/Montagem +18 dias.</div>
-        </div>
+    <section class="panel">
+      <div class="filters-container">
+        <div class="form-group" style="min-width:330px"><label for="pdfFile">PDF Beira Rio / Cronograma de Produção</label><input type="file" id="pdfFile" accept="application/pdf" /></div>
+        <div class="form-group" style="min-width:330px"><label for="excelFile">Excel modelo da programação</label><input type="file" id="excelFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></div>
+        <div class="form-group"><label for="filterLinha">Filtrar linha</label><input id="filterLinha" placeholder="Ex: 4134" /></div>
+        <div class="form-group"><label for="filterData">Filtrar corte</label><input id="filterData" placeholder="Ex: 06/07" /></div>
+        <button class="btn btn-primary" id="processBtn">Ler PDF</button>
+        <button class="btn btn-secondary" id="clearBtn">Limpar</button>
       </div>
-      <div class="toolbar" style="margin-bottom:10px">
-        <input type="file" id="combinedFiles" class="file-picker-hidden" accept=".pdf,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple />
-        <label class="btn btn-primary" for="combinedFiles">Escolher arquivos</label>
-        <button class="btn btn-primary" id="importPdfButton" type="button">Carregar arquivos</button>
-        <button class="btn btn-ok" id="fillTemplateButton" type="button">Baixar XLSX preenchido</button>
-        <button class="btn" id="clearButton" type="button">Limpar</button>
-      </div>
-      <div id="selectedFilesLabel" class="selected-files">Nenhum arquivo selecionado.</div>
-      <div class="filters" style="margin-top:8px">
-        <div class="form-group date-small">
-          <label for="dataCorteInput">Data de Corte</label>
-          <input type="text" id="dataCorteInput" placeholder="15/jun" />
-        </div>
-        <div class="form-group date-small">
-          <label for="corteInput">Corte</label>
-          <input type="text" id="corteInput" placeholder="24/jun" />
-        </div>
-        <div class="form-group date-small">
-          <label for="costuraInput">Costura</label>
-          <input type="text" id="costuraInput" placeholder="30/jun" />
-        </div>
-        <div class="form-group date-small">
-          <label for="embarqueInput">Embarque</label>
-          <input type="text" id="embarqueInput" placeholder="03/jul" />
-        </div>
-      </div>
-      <div id="status" class="status">Aguardando seleção dos arquivos.</div>
-    </div>
+      <p class="hint">A página lê o PDF, identifica <b>Linha</b>, <b>data de corte</b> e os <b>modelos no cabeçalho da direita</b>. Depois você anexa o Excel modelo e clica em <b>Gerar Excel ajustado</b>. A página altera somente data de corte, linha, modelo e pares, mantendo fórmulas e campos do arquivo.</p>
+      <div class="status" id="statusBox"></div>
+    </section>
 
-    <div class="panel print-panel">
-      <div class="sheet-wrap">
-        <div class="sheet" id="distributionSheet">
-          <div class="sheet-header">
-            <div class="big-date">
-              <div>Data de Corte</div>
-              <input id="sheetDataCorte" value="" placeholder="15/jun" />
-            </div>
-            <div></div>
-            <div class="top-date"><label>Corte</label><input id="sheetCorte" placeholder="24/jun" /></div>
-            <div class="top-date"><label>Costura</label><input id="sheetCostura" placeholder="30/jun" /></div>
-            <div class="top-date"><label>Embarque</label><input id="sheetEmbarque" placeholder="03/jul" /></div>
-          </div>
-          <div class="cards-grid" id="cardsGrid"></div>
-          <div class="bottom-area">
-            <div>
-              <table class="names-table">
-                <thead>
-                  <tr><th>Michel</th><th>Rogerio</th><th>Lucimara</th><th>Fabi</th><th>Neusa</th><th>Corte</th><th>Pronto</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td><input value="0"></td><td><input value="0"></td><td><input value="0"></td><td><input value="0"></td><td><input value="0"></td><td><input value="0"></td><td><input value="0"></td></tr>
-                  <tr><th>Segurar</th><th></th><th></th><th></th><th></th><th></th><th></th></tr>
-                  <tr><td><input value="0"></td><td><input value="0"></td><td><input value="0"></td><td><input value="0"></td><td><input value="0"></td><td><input value="0"></td><td class="red-total"><input value="0"></td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="bottom-summary">
-              <table class="summary-box"><tr><td class="label">Total de Pares</td><td id="grandTotalCell">0</td></tr></table>
-              <table class="summary-box small"><tr><td class="label">Data de Corte</td><td id="bottomDateCell">-</td></tr></table>
-            </div>
-          </div>
+    <section class="panel" id="resultPanel" style="display:none">
+      <div class="toolbar">
+        <div class="toolbar-left"><h2 style="margin:0">Distribuição por Linha / Modelo</h2></div>
+        <div class="toolbar-right">
+          <button class="btn btn-ok" id="generateExcelBtn">Gerar Excel ajustado</button>
+          <button class="btn btn-ok" id="copyExcelBtn">Copiar para Excel</button>
+          <button class="btn btn-secondary" id="downloadCsvBtn">Baixar CSV</button>
         </div>
       </div>
-    </div>
+      <div class="summary" id="summaryCards" style="margin:12px 0"></div>
+      <div class="tabs"><button class="tab active" data-view="viewExcel">Tabela Excel</button><button class="tab" data-view="viewRaw">Conferência</button><button class="tab" data-view="viewDebug">Diagnóstico</button></div>
+      <div id="viewExcel" class="view active" style="margin-top:10px"><div class="excel-cards" id="excelTable"></div></div>
+      <div id="viewRaw" class="view" style="margin-top:10px"><div class="excel-wrap"><table class="raw-table" id="rawTable"></table></div></div>
+      <div id="viewDebug" class="view" style="margin-top:10px"><div class="debug" id="debugBox"></div></div>
+    </section>
   </div>
 
-  <script>
-    const state = {
-      cards: [],
-      maxRowsPerCard: 12,
-      selectedPdfFile: null,
-      selectedXlsxFile: null
-    };
+<script>
+(function(){
+  'use strict';
+  if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    const MONTHS = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-    const $ = (id) => document.getElementById(id);
+  const $ = id => document.getElementById(id);
+  const pdfFile = $('pdfFile'), excelFile = $('excelFile'), processBtn = $('processBtn'), clearBtn = $('clearBtn'), statusBox = $('statusBox');
+  const resultPanel = $('resultPanel'), summaryCards = $('summaryCards'), excelTable = $('excelTable'), rawTable = $('rawTable'), debugBox = $('debugBox');
+  let aggregated = [], rawRows = [], debugLines = [], detectedYear = null;
 
-    function setStatus(message){ if($('status')) $('status').innerHTML = message; }
-
-    function getPdfFile(){
-      return state.selectedPdfFile || ($('pdfFile') && $('pdfFile').files ? $('pdfFile').files[0] : null);
+  function initMenu(){
+    const userLevel = localStorage.getItem('userNivelAcesso') || '07';
+    const userName = localStorage.getItem('userName') || 'Usuário';
+    if (window.SistemaNavegacao && window.SistemaNavegacao.init) {
+      window.SistemaNavegacao.init({ userLevel, userName, title:'Controle de produção FactorShoes', onLogout: () => { localStorage.clear(); window.location.href = 'login.html'; } });
     }
+  }
+  document.addEventListener('DOMContentLoaded', initMenu);
 
-    function getXlsxTemplateFile(){
-      return state.selectedXlsxFile || ($('xlsxTemplateFile') && $('xlsxTemplateFile').files ? $('xlsxTemplateFile').files[0] : null);
+  function setStatus(msg, show=true){ statusBox.textContent = msg; statusBox.style.display = show ? 'block' : 'none'; }
+  function parseNumber(v){ if(v==null) return 0; const s=String(v).trim().replace(/\s/g,''); if(!s) return 0; return Number(s.replace(/[.,]/g,'')) || 0; }
+  function fmt(n){ return Number(n||0).toLocaleString('pt-BR'); }
+  function isDate(s){ return /^\d{2}\/\d{2}$/.test(String(s||'').trim()); }
+  function isLine(s){ return /^\d{4}$/.test(String(s||'').trim()); }
+  function isModel(s){ return /^\d{2,5}$/.test(String(s||'').trim()); }
+  function isQty(s){ return /^\d{1,3}([.,]\d{3})*$/.test(String(s||'').trim()) || /^\d+$/.test(String(s||'').trim()); }
+
+  function groupRows(items){
+    const rows=[];
+    items.forEach(it=>{
+      const y = Math.round(it.y/2)*2;
+      let row = rows.find(r => Math.abs(r.y-y) <= 3);
+      if(!row){ row={y, items:[]}; rows.push(row); }
+      row.items.push(it);
+    });
+    rows.sort((a,b)=>b.y-a.y);
+    rows.forEach(r=>r.items.sort((a,b)=>a.x-b.x));
+    return rows;
+  }
+
+  async function readPdf(file){
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({data:buf}).promise;
+    rawRows=[]; debugLines=[];
+    for(let p=1;p<=pdf.numPages;p++){
+      const page = await pdf.getPage(p);
+      const text = await page.getTextContent();
+      const items = text.items.map(it=>({ text:String(it.str||'').trim(), x:it.transform[4], y:it.transform[5], w:it.width||0 })).filter(it=>it.text);
+      const rows = groupRows(items);
+      parsePage(rows, p);
     }
+    aggregate();
+  }
 
-    function handleCombinedFiles(){
-      const input = $('combinedFiles');
-      const files = Array.from((input && input.files) ? input.files : []);
-      state.selectedPdfFile = files.find(f => /\.pdf$/i.test(f.name) || f.type === 'application/pdf') || null;
-      state.selectedXlsxFile = files.find(f => /\.xlsx$/i.test(f.name) || /spreadsheetml/.test(f.type || '')) || null;
-      const parts = [];
-      if(state.selectedPdfFile) parts.push(`PDF: ${escapeHtml(state.selectedPdfFile.name)}`);
-      if(state.selectedXlsxFile) parts.push(`XLSX: ${escapeHtml(state.selectedXlsxFile.name)}`);
-      if($('selectedFilesLabel')) $('selectedFilesLabel').innerHTML = parts.length ? parts.join(' &nbsp; | &nbsp; ') : 'Nenhum arquivo válido selecionado.';
-      if(!state.selectedPdfFile && !state.selectedXlsxFile) setStatus('Selecione um PDF Factor Corte e um XLSX modelo completo.');
-      else if(!state.selectedPdfFile) setStatus('XLSX selecionado. Falta escolher o PDF Factor Corte.');
-      else if(!state.selectedXlsxFile) setStatus('PDF selecionado. Falta escolher o XLSX modelo completo para baixar preenchido.');
-      else setStatus('Arquivos selecionados. Clique em <strong>Carregar arquivos</strong> para montar a distribuição.');
+  function parsePage(rows, pageNo){
+    const pageText = rows.map(r=>r.items.map(i=>i.text).join(' ')).join(' ');
+    const fullDates = pageText.match(/\b\d{2}\/\d{2}\/\d{4}\b/g) || [];
+    if(fullDates.length && !detectedYear){ detectedYear = Number(fullDates[0].slice(-4)); }
+    let header = null;
+    for(const r of rows){
+      const txt = r.items.map(i=>i.text).join(' ');
+      if(/\bLinha\b/.test(txt) && /\bCliente\b/.test(txt) && r.items.some(i=>isModel(i.text))){ header = r; break; }
     }
+    if(!header){ debugLines.push(`Página ${pageNo}: cabeçalho da grade de modelos não encontrado.`); return; }
+    const cortHead = header.items.find(i=>/^Cort$/i.test(i.text));
+    const clienteHead = header.items.find(i=>/^Cliente$/i.test(i.text));
+    const linhaHead = header.items.find(i=>/^Linha$/i.test(i.text));
+    const paresHead = header.items.find(i=>/^Pares$/i.test(i.text));
+    const modelCols = header.items
+      .filter(i => isModel(i.text) && i.x > (clienteHead ? clienteHead.x : 700))
+      .map(i => ({ model:i.text, x:i.x }))
+      .sort((a,b)=>a.x-b.x);
+    debugLines.push(`Página ${pageNo}: ${modelCols.length} modelos no cabeçalho: ${modelCols.map(m=>m.model).join(', ')}`);
+    if(!modelCols.length) return;
 
-    function parseNumberBR(value){
-      if(value == null) return 0;
-      let s = String(value).trim().replace(/\s/g,'');
-      if(!s) return 0;
-      s = s.replace(/\./g,'').replace(/,/g,'');
-      const n = parseInt(s,10);
-      return Number.isFinite(n) ? n : 0;
-    }
-
-    function formatNumberBR(n){
-      n = parseNumberBR(n);
-      return n.toLocaleString('pt-BR');
-    }
-
-    function normalizeDateShort(dateStr){
-      if(!dateStr) return '';
-      const s = String(dateStr).trim();
-      let m = s.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);
-      if(m){
-        const day = String(parseInt(m[1],10)).padStart(2,'0');
-        const monthIndex = parseInt(m[2],10)-1;
-        if(monthIndex >= 0 && monthIndex < 12) return `${day}/${MONTHS[monthIndex]}`;
-      }
-      m = s.match(/^(\d{1,2})[-\/ ]?([a-zç]{3})/i);
-      if(m) return `${String(parseInt(m[1],10)).padStart(2,'0')}/${m[2].toLowerCase()}`;
-      return s;
-    }
-
-    function parseDateForSchedule(value){
-      if(!value) return null;
-      const s = String(value).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-      let m = s.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);
-      if(m){
-        const day = parseInt(m[1], 10);
-        const month = parseInt(m[2], 10) - 1;
-        let year = m[3] ? parseInt(m[3], 10) : new Date().getFullYear();
-        if(year < 100) year += 2000;
-        if(month >= 0 && month < 12 && day >= 1 && day <= 31) return new Date(year, month, day, 12, 0, 0);
-      }
-      m = s.match(/^(\d{1,2})[-\/ ]?([a-z]{3,})$/i);
-      if(m){
-        const day = parseInt(m[1], 10);
-        const monthText = m[2].slice(0,3);
-        const month = MONTHS.indexOf(monthText);
-        if(month >= 0 && day >= 1 && day <= 31) return new Date(new Date().getFullYear(), month, day, 12, 0, 0);
-      }
-      return null;
-    }
-
-    function formatDateShortFromDate(date){
-      return `${String(date.getDate()).padStart(2,'0')}/${MONTHS[date.getMonth()]}`;
-    }
-
-    function addDaysShort(baseDateText, days){
-      const date = parseDateForSchedule(baseDateText);
-      if(!date) return '';
-      const result = new Date(date.getFullYear(), date.getMonth(), date.getDate() + days, 12, 0, 0);
-      return formatDateShortFromDate(result);
-    }
-
-    function applyAutoScheduleDates(force=false){
-      const dataCorte = $('sheetDataCorte').value || $('dataCorteInput').value || '';
-      if(!parseDateForSchedule(dataCorte)) return;
-      const schedule = {
-        corte: addDaysShort(dataCorte, 9),
-        costura: addDaysShort(dataCorte, 15),
-        embarque: addDaysShort(dataCorte, 18)
-      };
-      const setPair = (toolbarId, sheetId, value) => {
-        if(!value) return;
-        if(force || !$(''+toolbarId).value || !$(''+sheetId).value){
-          $(toolbarId).value = value;
-          $(sheetId).value = value;
-        }
-      };
-      setPair('corteInput', 'sheetCorte', schedule.corte);
-      setPair('costuraInput', 'sheetCostura', schedule.costura);
-      setPair('embarqueInput', 'sheetEmbarque', schedule.embarque);
-    }
-
-    function syncHeaderInputs(options={}){
-      const forceAutoDates = Boolean(options.forceAutoDates);
-      const dataCorte = $('dataCorteInput').value || $('sheetDataCorte').value || '';
-      $('dataCorteInput').value = dataCorte;
-      $('sheetDataCorte').value = dataCorte;
-      applyAutoScheduleDates(forceAutoDates);
-      $('sheetCorte').value = $('corteInput').value || $('sheetCorte').value;
-      $('sheetCostura').value = $('costuraInput').value || $('sheetCostura').value;
-      $('sheetEmbarque').value = $('embarqueInput').value || $('sheetEmbarque').value;
-      $('corteInput').value = $('sheetCorte').value || $('corteInput').value;
-      $('costuraInput').value = $('sheetCostura').value || $('costuraInput').value;
-      $('embarqueInput').value = $('sheetEmbarque').value || $('embarqueInput').value;
-      $('bottomDateCell').textContent = $('sheetDataCorte').value || '-';
-    }
-
-    function hookHeaderSync(){
-      ['dataCorteInput','corteInput','costuraInput','embarqueInput'].forEach(id => {
-        $(id).addEventListener('input', () => syncHeaderInputs({ forceAutoDates: id === 'dataCorteInput' }));
+    const minY = header.y - 850;
+    for(const r of rows){
+      if(r.y >= header.y - 8 || r.y < minY) continue;
+      const first = r.items[0]?.text || '';
+      if(!isLine(first)) continue;
+      const line = first;
+      const cut = nearestText(r.items, cortHead ? cortHead.x : 330, isDate);
+      const totalPares = nearestText(r.items, paresHead ? paresHead.x : 300, isQty);
+      const adm = r.items.find(i => /\d{2}-\d{6,}/.test(i.text))?.text || '';
+      const cliente = r.items.filter(i => i.x > 560 && i.x < (modelCols[0].x-10)).map(i=>i.text).join(' ').trim();
+      modelCols.forEach((col, idx)=>{
+        const nextX = modelCols[idx+1]?.x ?? col.x + 45;
+        const prevX = modelCols[idx-1]?.x ?? col.x - 45;
+        const left = (prevX + col.x)/2, right = (col.x + nextX)/2;
+        const values = r.items.filter(i => i.x >= left && i.x < right && isQty(i.text)).map(i=>parseNumber(i.text));
+        const paresModelo = values.reduce((a,b)=>a+b,0);
+        if(paresModelo>0){ rawRows.push({page:pageNo,line,cut,model:col.model,pares:paresModelo,totalPares:parseNumber(totalPares),adm,cliente}); }
       });
-      ['sheetDataCorte','sheetCorte','sheetCostura','sheetEmbarque'].forEach(id => {
-        $(id).addEventListener('input', () => {
-          if(id === 'sheetDataCorte') { $('dataCorteInput').value = $(id).value; syncHeaderInputs({ forceAutoDates: true }); }
-          if(id === 'sheetCorte') { $('corteInput').value = $(id).value; syncHeaderInputs(); }
-          if(id === 'sheetCostura') { $('costuraInput').value = $(id).value; syncHeaderInputs(); }
-          if(id === 'sheetEmbarque') { $('embarqueInput').value = $(id).value; syncHeaderInputs(); }
+    }
+  }
+
+  function nearestText(items, x, predicate){
+    let best=null;
+    items.forEach(i=>{ if(predicate(i.text)){ const d=Math.abs(i.x-x); if(!best || d<best.d) best={d, text:i.text}; } });
+    return best ? best.text : '';
+  }
+
+  function aggregate(){
+    const map = new Map();
+    rawRows.forEach(r=>{
+      const key = `${r.cut}|${r.line}|${r.model}`;
+      if(!map.has(key)) map.set(key,{cut:r.cut,line:r.line,model:r.model,pares:0,atelier:''});
+      map.get(key).pares += r.pares;
+    });
+    aggregated = [...map.values()].sort((a,b)=> (a.cut||'').localeCompare(b.cut||'') || a.line.localeCompare(b.line) || Number(a.model)-Number(b.model));
+  }
+
+  function applyFilters(rows){
+    const fl = $('filterLinha').value.trim(); const fd = $('filterData').value.trim();
+    return rows.filter(r => (!fl || r.line.includes(fl)) && (!fd || r.cut.includes(fd)));
+  }
+
+  function render(){
+    const rows = applyFilters(aggregated);
+    const raw = applyFilters(rawRows);
+    resultPanel.style.display = rows.length ? 'block' : 'none';
+    if(!rows.length){ setStatus('Nenhum dado encontrado. Confira se o PDF é o cronograma da Beira Rio e se os filtros estão vazios.'); return; }
+    const totalPares = rows.reduce((s,r)=>s+r.pares,0);
+    const linhas = [...new Set(rows.map(r=>r.line))]; const modelos = [...new Set(rows.map(r=>r.model))]; const cortes=[...new Set(rows.map(r=>r.cut))];
+    summaryCards.innerHTML = `<div class="card"><strong>${fmt(totalPares)}</strong><span>Pares</span></div><div class="card"><strong>${linhas.length}</strong><span>Linhas</span></div><div class="card"><strong>${modelos.length}</strong><span>Modelos</span></div><div class="card"><strong>${cortes.join(', ')}</strong><span>Cortes</span></div>`;
+    renderExcel(rows); renderRaw(raw); debugBox.textContent = debugLines.join('\n') + `\n\nRegistros lidos: ${rawRows.length}\nRegistros consolidados: ${aggregated.length}`;
+    setStatus(`PDF lido com sucesso: ${fmt(totalPares)} pares encontrados em ${linhas.length} linha(s).`);
+  }
+
+  function renderExcel(rows){
+    const byDate = groupBy(rows, r=>r.cut || 'Sem data');
+    let html='';
+    Object.keys(byDate).sort().forEach(date=>{
+      const lines = groupBy(byDate[date], r=>r.line);
+      Object.keys(lines).sort().forEach(line=>{
+        const list = lines[line].sort((a,b)=>Number(a.model)-Number(b.model));
+        const total = list.reduce((s,r)=>s+r.pares,0);
+        const cardKey = `${date}|${line}`;
+        html += `<div class="dist-card">
+          <div class="dist-card-head">
+            <div><h3>Linha ${line}</h3><small>Corte ${date} • Total ${fmt(total)} pares</small></div>
+            <button type="button" class="copy-card-btn" data-card-key="${cardKey}">Copiar esta tabela</button>
+          </div>
+          <div class="dist-card-body">
+            <table class="excel-table">
+              <thead>
+                <tr><th colspan="3" class="date-title">Corte ${date}</th></tr>
+                <tr><th colspan="3" class="line-title">Linha ${line}</th></tr>
+                <tr><th>Mod</th><th>Pares</th><th>Atelier</th></tr>
+              </thead>
+              <tbody>
+                ${list.map(r=>`<tr><td>${r.model}</td><td>${fmt(r.pares)}</td><td><input data-key="${r.cut}|${r.line}|${r.model}" value="${r.atelier||''}" placeholder=""></td></tr>`).join('')}
+                <tr class="total-row"><td>Total</td><td>${fmt(total)}</td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>`;
+      });
+    });
+    excelTable.innerHTML = html;
+    excelTable.querySelectorAll('input[data-key]').forEach(inp=>inp.addEventListener('input', e=>{ const row=aggregated.find(r=>`${r.cut}|${r.line}|${r.model}`===e.target.dataset.key); if(row) row.atelier=e.target.value; }));
+    excelTable.querySelectorAll('.copy-card-btn').forEach(btn=>btn.addEventListener('click', async()=>{
+      await navigator.clipboard.writeText(buildTSV(btn.dataset.cardKey));
+      alert('Tabela deste card copiada! Agora é só colar no Excel.');
+    }));
+  }
+
+  function renderRaw(rows){
+    rawTable.innerHTML = '<thead><tr><th>Pág.</th><th>Linha</th><th>Corte</th><th>Modelo</th><th>Pares modelo</th><th>Adm-Rem</th><th>Cliente</th></tr></thead><tbody>' + rows.map(r=>`<tr><td>${r.page}</td><td>${r.line}</td><td>${r.cut}</td><td>${r.model}</td><td>${fmt(r.pares)}</td><td>${r.adm||''}</td><td>${r.cliente||''}</td></tr>`).join('') + '</tbody>';
+  }
+
+  function groupBy(arr, fn){ return arr.reduce((o,x)=>{ const k=fn(x); (o[k]||(o[k]=[])).push(x); return o; },{}); }
+
+  function buildTSV(cardKey){
+    const rows = applyFilters(aggregated);
+    const selected = cardKey ? rows.filter(r => `${r.cut || 'Sem data'}|${r.line}` === cardKey) : rows;
+    const byDate = groupBy(selected, r=>r.cut || 'Sem data');
+    const out=[];
+    Object.keys(byDate).sort().forEach(date=>{
+      const lines=groupBy(byDate[date], r=>r.line);
+      const lineKeys=Object.keys(lines).sort();
+      if(cardKey){
+        const line=lineKeys[0];
+        out.push(['Corte', date]);
+        out.push(['Linha', line]);
+        out.push(['Mod','Pares','Atelier']);
+        lines[line].sort((a,b)=>Number(a.model)-Number(b.model)).forEach(r=>out.push([r.model, r.pares, r.atelier||'']));
+        out.push(['Total', lines[line].reduce((s,r)=>s+r.pares,0), '']);
+      } else {
+        out.push(['Data de Corte', date]);
+        out.push(lineKeys.flatMap(l=>['Linha', l, '', '']));
+        out.push(lineKeys.flatMap(()=>['Mod','Pares','Atelier','']));
+        const maxLen=Math.max(...lineKeys.map(l=>lines[l].length));
+        for(let i=0;i<maxLen;i++) out.push(lineKeys.flatMap(l=>{ const r=lines[l].sort((a,b)=>Number(a.model)-Number(b.model))[i]; return r ? [r.model, r.pares, r.atelier||'', ''] : ['', '', '', '']; }));
+        out.push(lineKeys.flatMap(l=>['Total', lines[l].reduce((s,r)=>s+r.pares,0), '', ''])); out.push([]);
+      }
+    });
+    return out.map(r=>r.join('\t')).join('\n');
+  }
+
+
+  function onlyVisibleRows(){
+    return applyFilters(aggregated).filter(r=>r.cut && r.line && r.model && Number(r.pares)>0);
+  }
+
+  function getGroupedForExcel(){
+    const rows = onlyVisibleRows();
+    const grouped = [];
+    const byDate = groupBy(rows, r=>r.cut || 'Sem data');
+    Object.keys(byDate).sort().forEach(date=>{
+      const byLine = groupBy(byDate[date], r=>r.line);
+      Object.keys(byLine).sort().forEach(line=>{
+        const itens = byLine[line].slice().sort((a,b)=>Number(a.model)-Number(b.model));
+        grouped.push({date, line, itens});
+      });
+    });
+    return grouped;
+  }
+
+  function parseCutDate(dateStr){
+    const m = String(dateStr||'').match(/^(\d{2})\/(\d{2})$/);
+    if(!m) return null;
+    const year = detectedYear || new Date().getFullYear();
+    return new Date(year, Number(m[2])-1, Number(m[1]));
+  }
+
+  function fileNameFromDate(dateStr){
+    const m = String(dateStr||'').match(/^(\d{2})\/(\d{2})$/);
+    return m ? `${m[1]}-${m[2]}.xlsx` : 'distribuicao.xlsx';
+  }
+
+  function clearTemplateInputCells(ws){
+    const slots = getTemplateSlots();
+    slots.forEach(slot=>{
+      ws.getCell(slot.lineCell).value = null;
+      for(let r=slot.start; r<=slot.end; r++){
+        ws.getCell(`${slot.modCol}${r}`).value = null;
+        ws.getCell(`${slot.paresCol}${r}`).value = null;
+      }
+    });
+    // limpa somente a data digitada no topo; as datas calculadas por fórmula ficam intactas
+    ws.getCell('G1').value = null;
+  }
+
+  function getTemplateSlots(){
+    const groups = [
+      {header:4, start:6, end:17},
+      {header:20, start:22, end:33},
+      {header:36, start:38, end:49}
+    ];
+    const cols = [
+      ['B','C','C'], ['G','H','H'], ['L','M','M'], ['Q','R','R'], ['V','W','W'], ['AA','AB','AB']
+    ];
+    const slots=[];
+    groups.forEach(g=>cols.forEach(c=>{
+      slots.push({lineCell:`${c[2]}${g.header}`, modCol:c[0], paresCol:c[1], start:g.start, end:g.end});
+    }));
+    return slots;
+  }
+
+  function downloadBlob(blob, filename){
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  async function gerarExcelAjustado(){
+    try{
+      if(!aggregated.length){ alert('Leia o PDF primeiro.'); return; }
+      if(!excelFile.files[0]){ alert('Selecione o Excel modelo primeiro.'); return; }
+      if(!window.ExcelJS){ alert('Biblioteca ExcelJS não carregou. Verifique a internet e tente novamente.'); return; }
+      const groups = getGroupedForExcel();
+      if(!groups.length){ alert('Nenhum dado para lançar no Excel.'); return; }
+      const slots = getTemplateSlots();
+      const tooManyGroups = groups.length > slots.length;
+      const tooManyModels = groups.filter(g => g.itens.length > 12);
+      if(tooManyGroups){ alert(`O Excel modelo possui ${slots.length} quadros. O PDF gerou ${groups.length}. Vou lançar somente os ${slots.length} primeiros para não alterar a estrutura.`); }
+      if(tooManyModels.length){ alert('Alguma linha possui mais de 12 modelos. Para não alterar a tabela/fórmulas, serão lançados somente os 12 primeiros modelos em cada quadro.'); }
+
+      setStatus('Gerando Excel ajustado...');
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(await excelFile.files[0].arrayBuffer());
+      const ws = workbook.getWorksheet('Distribuição') || workbook.worksheets[1] || workbook.worksheets[0];
+      if(!ws) throw new Error('Aba Distribuição não encontrada no Excel.');
+
+      clearTemplateInputCells(ws);
+      const firstDate = groups[0].date;
+      const d = parseCutDate(firstDate);
+      ws.getCell('G1').value = d || firstDate;
+      if(d) ws.getCell('G1').numFmt = 'dd/mmm';
+
+      groups.slice(0, slots.length).forEach((group, idx)=>{
+        const slot = slots[idx];
+        ws.getCell(slot.lineCell).value = Number(group.line) || group.line;
+        group.itens.slice(0, 12).forEach((item, i)=>{
+          const row = slot.start + i;
+          ws.getCell(`${slot.modCol}${row}`).value = Number(item.model) || item.model;
+          ws.getCell(`${slot.paresCol}${row}`).value = Number(item.pares) || 0;
         });
       });
-    }
 
-    function createEmptyCard(line='', group='', rows=[]){
-      const cardRows = Array.from({length:state.maxRowsPerCard}, (_,i) => rows[i] || {model:'', pares:'', atelier:''});
-      return { line, group, rows: cardRows };
-    }
+      if(workbook.calcProperties){ workbook.calcProperties.fullCalcOnLoad = true; workbook.calcProperties.forceFullCalc = true; }
+      const buffer = await workbook.xlsx.writeBuffer();
+      downloadBlob(new Blob([buffer], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), fileNameFromDate(firstDate));
+      setStatus(`Excel gerado: ${fileNameFromDate(firstDate)}. Foram lançados ${Math.min(groups.length, slots.length)} quadro(s).`);
+    }catch(err){ console.error(err); setStatus('Erro ao gerar Excel: ' + (err.message || err)); }
+  }
 
-    function rebuildCards(){
-      const grid = $('cardsGrid');
-      grid.innerHTML = '';
-      let grandTotal = 0;
-      state.cards.forEach((card, cardIndex) => {
-        const total = card.rows.reduce((sum, r) => sum + parseNumberBR(r.pares), 0);
-        grandTotal += total;
-        const el = document.createElement('div');
-        el.className = 'dist-card';
-        el.dataset.cardIndex = cardIndex;
-        el.innerHTML = `
-          <input class="card-top-note" data-field="group" value="${escapeHtml(card.group || '')}" title="Grupo/Fábrica/observação do quadro">
-          <div class="card-line"><div class="lbl">Linha</div><input data-field="line" value="${escapeHtml(card.line || '')}"></div>
-          <table class="dist-table">
-            <colgroup><col class="col-mod"><col class="col-pares"><col class="col-atelier"></colgroup>
-            <thead><tr><th>Mod</th><th>Pares</th><th>Atelier</th></tr></thead>
-            <tbody>
-              ${card.rows.map((r,i)=>`<tr>
-                <td><input data-row="${i}" data-col="model" value="${escapeHtml(r.model || '')}"></td>
-                <td><input class="qty" data-row="${i}" data-col="pares" value="${r.pares ? formatNumberBR(r.pares) : ''}"></td>
-                <td><input data-row="${i}" data-col="atelier" value="${escapeHtml(r.atelier || '')}"></td>
-              </tr>`).join('')}
-            </tbody>
-            <tfoot><tr class="total-row"><td>Total</td><td colspan="2">${formatNumberBR(total)}</td></tr></tfoot>
-          </table>`;
-        grid.appendChild(el);
-      });
-      while(state.cards.length < 6){
-        state.cards.push(createEmptyCard());
-        return rebuildCards();
-      }
-      $('grandTotalCell').textContent = formatNumberBR(grandTotal);
-      $('bottomDateCell').textContent = $('sheetDataCorte').value || '-';
-    }
-
-    function escapeHtml(value){
-      return String(value ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-    }
-
-    function updateStateFromSheet(){
-      document.querySelectorAll('.dist-card').forEach(cardEl => {
-        const ci = Number(cardEl.dataset.cardIndex);
-        if(!state.cards[ci]) return;
-        state.cards[ci].group = cardEl.querySelector('[data-field="group"]').value;
-        state.cards[ci].line = cardEl.querySelector('[data-field="line"]').value;
-        cardEl.querySelectorAll('[data-row][data-col]').forEach(inp => {
-          const ri = Number(inp.dataset.row);
-          const col = inp.dataset.col;
-          state.cards[ci].rows[ri][col] = col === 'pares' ? parseNumberBR(inp.value) : inp.value;
-        });
-      });
-    }
-
-
-    function updateTotalsOnly(){
-      let grandTotal = 0;
-      document.querySelectorAll('.dist-card').forEach(cardEl => {
-        const ci = Number(cardEl.dataset.cardIndex);
-        const card = state.cards[ci];
-        if(!card) return;
-        const total = card.rows.reduce((sum, r) => sum + parseNumberBR(r.pares), 0);
-        grandTotal += total;
-        const totalCell = cardEl.querySelector('.total-row td[colspan]');
-        if(totalCell) totalCell.textContent = formatNumberBR(total);
-      });
-      $('grandTotalCell').textContent = formatNumberBR(grandTotal);
-      $('bottomDateCell').textContent = $('sheetDataCorte').value || '-';
-    }
-
-    function attachSheetEvents(){
-      $('cardsGrid').addEventListener('input', (ev) => {
-        if(ev.target.matches('input')){
-          updateStateFromSheet();
-          updateTotalsOnly();
-        }
-      });
-      $('cardsGrid').addEventListener('focusout', (ev) => {
-        if(ev.target.matches('input.qty')){
-          ev.target.value = ev.target.value ? formatNumberBR(ev.target.value) : '';
-          updateStateFromSheet();
-          updateTotalsOnly();
-        }
-      });
-    }
-
-    function rowsToCards(groupedRows){
-      const cards = [];
-      groupedRows.forEach(group => {
-        const rows = group.rows || [];
-        for(let i=0; i<Math.max(1, rows.length); i+=state.maxRowsPerCard){
-          cards.push(createEmptyCard(group.line, group.group || '', rows.slice(i, i+state.maxRowsPerCard)));
-        }
-      });
-      while(cards.length < 6) cards.push(createEmptyCard());
-      return cards;
-    }
-
-    async function importPdf(){
-      const file = getPdfFile();
-      if(!file){ setStatus('Selecione o PDF Factor Corte primeiro.'); return; }
-      if(!window.pdfjsLib){ setStatus('Não foi possível carregar o leitor de PDF. Verifique a internet/CDN ou use a inserção manual.'); return; }
-      try{
-        setStatus('Lendo PDF...');
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        const buffer = await file.arrayBuffer();
-        const pdf = await pdfjsLib.getDocument({data:buffer}).promise;
-        const result = await parseFactorCortePdf(pdf);
-        if(!result.groups.length){
-          setStatus('Não consegui localizar modelos/pares no PDF. Confirme se é o relatório <strong>FAB0801_M - Cronograma de Produção (por Modelo)</strong>.');
-          return;
-        }
-        state.cards = rowsToCards(result.groups);
-        if(result.dataCorte){
-          $('dataCorteInput').value = normalizeDateShort(result.dataCorte);
-          $('sheetDataCorte').value = normalizeDateShort(result.dataCorte);
-        }
-        syncHeaderInputs({ forceAutoDates: true });
-        rebuildCards();
-        const total = result.groups.reduce((s,g)=>s+g.rows.reduce((a,r)=>a+parseNumberBR(r.pares),0),0);
-        setStatus(`PDF importado com sucesso. Linhas encontradas: <strong>${result.groups.map(g=>g.line).join(', ')}</strong>. Total: <strong>${formatNumberBR(total)}</strong> pares.`);
-      }catch(err){
-        console.error(err);
-        setStatus('Erro ao importar PDF: ' + escapeHtml(err.message || String(err)));
-      }
-    }
-
-    async function parseFactorCortePdf(pdf){
-      const aggregate = new Map();
-      const orders = new Map();
-      const fabs = new Map();
-      let dataCorte = '';
-      let globalOrderCounter = 0;
-
-      for(let pageNum=1; pageNum<=pdf.numPages; pageNum++){
-        const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({scale:1});
-        const content = await page.getTextContent();
-        const items = content.items.map(item => {
-          const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
-          const width = item.width || 0;
-          const text = (item.str || '').trim();
-          return { text, x0: tx[4], y: tx[5], x1: tx[4] + width };
-        }).filter(it => it.text);
-
-        if(pageNum === 1){
-          const dateItem = items.find(it => /^\d{2}\/\d{2}\/\d{4}$/.test(it.text));
-          if(dateItem) dataCorte = dateItem.text;
-        }
-
-        const clienteHeader = items.find(it => it.text === 'Cliente' && it.x0 > 350 && it.y < 130);
-        if(!clienteHeader) continue;
-        const headerY = clienteHeader.y;
-        const headers = items
-          .filter(it => it.x0 > 500 && Math.abs(it.y - headerY) < 5 && /^\d{2,4}$/.test(it.text))
-          .sort((a,b)=>a.x1-b.x1)
-          .map((it,idx)=>({ model:it.text, x1:it.x1, order:globalOrderCounter + idx }));
-        if(!headers.length) continue;
-        globalOrderCounter += headers.length + 100;
-
-        const lineItems = items.filter(it => it.x0 < 40 && /^\d{4}$/.test(it.text) && it.y > headerY + 5 && it.y < viewport.height - 50);
-        lineItems.forEach(lineItem => {
-          const linha = lineItem.text;
-          const rowY = lineItem.y;
-          const fabItem = items.find(it => it.x0 > 260 && it.x0 < 288 && Math.abs(it.y-rowY) < 4 && /^\d+$/.test(it.text));
-          if(fabItem){
-            if(!fabs.has(linha)) fabs.set(linha, new Map());
-            const current = fabs.get(linha).get(fabItem.text) || 0;
-            fabs.get(linha).set(fabItem.text, current + 1);
-          }
-          const values = items.filter(it => it.x0 > headers[0].x1 - 22 && Math.abs(it.y-rowY) < 4);
-          values.forEach(v => {
-            if(!/^\d{1,3}([\.,]\d{3})*$|^\d+$/.test(v.text)) return;
-            const qty = parseNumberBR(v.text);
-            if(!qty) return;
-            let nearest = headers[0];
-            let best = Infinity;
-            headers.forEach(h => {
-              const d = Math.abs(h.x1 - v.x1);
-              if(d < best){ best = d; nearest = h; }
-            });
-            if(best > 7) return;
-            const key = `${linha}||${nearest.model}`;
-            aggregate.set(key, (aggregate.get(key) || 0) + qty);
-            if(!orders.has(key)) orders.set(key, nearest.order);
-          });
-        });
-      }
-
-      const lines = new Map();
-      aggregate.forEach((pares,key) => {
-        const [line, model] = key.split('||');
-        if(!lines.has(line)) lines.set(line, []);
-        lines.get(line).push({ model, pares, atelier:'', order: orders.get(key) || 0 });
-      });
-
-      const groups = Array.from(lines.entries()).map(([line, rows]) => {
-        rows.sort((a,b)=>a.order-b.order);
-        const fabMap = fabs.get(line);
-        let group = '';
-        if(fabMap && fabMap.size){
-          group = Array.from(fabMap.entries()).sort((a,b)=>b[1]-a[1])[0][0];
-        }
-        return { line, group, rows: rows.map(r => ({ model:r.model, pares:r.pares, atelier:'' })) };
-      }).sort((a,b)=>Number(a.line)-Number(b.line));
-
-      return { dataCorte, groups };
-    }
-
-    function addManualRow(line='', model='', pares='', group='', atelier=''){
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><input value="${escapeHtml(group)}" placeholder="Ex: 6"></td>
-        <td><input value="${escapeHtml(line)}" placeholder="4134"></td>
-        <td><input value="${escapeHtml(model)}" placeholder="1017"></td>
-        <td><input value="${escapeHtml(pares)}" placeholder="120"></td>
-        <td><input value="${escapeHtml(atelier)}" placeholder=""></td>
-        <td><button class="btn btn-danger btn-mini" type="button">Excluir</button></td>`;
-      tr.querySelector('button').addEventListener('click', () => tr.remove());
-      $('manualTable').querySelector('tbody').appendChild(tr);
-    }
-
-    function generateManual(){
-      const map = new Map();
-      document.querySelectorAll('#manualTable tbody tr').forEach(tr => {
-        const [groupInp,lineInp,modelInp,paresInp,atelierInp] = tr.querySelectorAll('input');
-        const line = lineInp.value.trim();
-        const model = modelInp.value.trim();
-        const pares = parseNumberBR(paresInp.value);
-        if(!line || !model || !pares) return;
-        if(!map.has(line)) map.set(line, { line, group:groupInp.value.trim(), rows:[] });
-        const obj = map.get(line);
-        if(!obj.group && groupInp.value.trim()) obj.group = groupInp.value.trim();
-        obj.rows.push({ model, pares, atelier:atelierInp.value.trim() });
-      });
-      const groups = Array.from(map.values()).sort((a,b)=>Number(a.line)-Number(b.line));
-      state.cards = rowsToCards(groups);
-      syncHeaderInputs();
-      rebuildCards();
-      const total = groups.reduce((s,g)=>s+g.rows.reduce((a,r)=>a+parseNumberBR(r.pares),0),0);
-      setStatus(`Distribuição manual gerada. Total: <strong>${formatNumberBR(total)}</strong> pares.`);
-    }
-
-    function exportExcel(){
-      updateStateFromSheet();
-      syncHeaderInputs();
-      const clone = $('distributionSheet').cloneNode(true);
-      clone.querySelectorAll('input').forEach(inp => {
-        const span = document.createElement('span');
-        span.textContent = inp.value;
-        inp.replaceWith(span);
-      });
-      const html = `
-        <html><head><meta charset="UTF-8"><style>
-          body{font-family:Arial,sans-serif} table{border-collapse:collapse} td,th{border:1px solid #111;padding:4px;text-align:center} .cards-grid{display:grid;grid-template-columns:repeat(6, 1fr);gap:8px}.sheet-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr .7fr;gap:8px}.bottom-area{display:grid;grid-template-columns:2.4fr 1.05fr;gap:14px}.dist-card{border:2px solid #111}.card-top-note{text-align:center}.card-line{display:grid;grid-template-columns:38px 1fr}.lbl, th, .total-row td{background:#d9d9d9;font-weight:bold}.summary-box td{font-size:20px;background:#d9d9d9;font-weight:bold}
-        </style></head><body>${clone.outerHTML}</body></html>`;
-      const blob = new Blob(['\ufeff', html], {type:'application/vnd.ms-excel;charset=utf-8;'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      const dateName = ($('sheetDataCorte').value || 'distribuicao').replace(/[\/\s]/g,'-');
-      a.href = url;
-      a.download = `distribuicao_${dateName}.xls`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    }
-
-
-    function getCardsForTemplate(){
-      updateStateFromSheet();
-      const cards = (state.cards || []).map(card => ({
-        line: String(card.line || '').trim(),
-        group: String(card.group || '').trim(),
-        rows: (card.rows || []).filter(r => String(r.model || '').trim() || parseNumberBR(r.pares) || String(r.atelier || '').trim())
-          .map(r => ({ model:String(r.model || '').trim(), pares:parseNumberBR(r.pares), atelier:String(r.atelier || '').trim() }))
-      })).filter(card => card.line || card.rows.length || card.group);
-      return cards;
-    }
-
-    function worksheetByNameFlexible(workbook, names){
-      for(const name of names){
-        const ws = workbook.getWorksheet(name);
-        if(ws) return ws;
-      }
-      const lowerNames = names.map(n => n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''));
-      return workbook.worksheets.find(ws => lowerNames.includes(ws.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')));
-    }
-
-    function setCell(ws, address, value){
-      const cell = ws.getCell(address);
-      cell.value = value === '' ? null : value;
-    }
-
-    function setCellByIndexes(ws, row, col, value){
-      const cell = ws.getCell(row, col);
-      cell.value = value === '' ? null : value;
-    }
-
-    function clearTemplateDistribuicao(ws){
-      const starts = [2,7,12,17,22,27]; // B, G, L, Q, V, AA
-      const blocks = [
-        {groupRow:3, lineRow:4, dataStart:6, totalRow:18},
-        {groupRow:null, lineRow:20, dataStart:22, totalRow:34},
-        {groupRow:null, lineRow:36, dataStart:38, totalRow:50}
-      ];
-      blocks.forEach(block => {
-        starts.forEach(start => {
-          if(block.groupRow) setCellByIndexes(ws, block.groupRow, start + 2, null);
-          setCellByIndexes(ws, block.lineRow, start + 1, null);
-          for(let r=0; r<12; r++){
-            setCellByIndexes(ws, block.dataStart + r, start, null);
-            setCellByIndexes(ws, block.dataStart + r, start + 1, null);
-            setCellByIndexes(ws, block.dataStart + r, start + 2, null);
-            const helperCol = start - 1;
-            if(helperCol >= 1) setCellByIndexes(ws, block.dataStart + r, helperCol, null);
-          }
-          setCellByIndexes(ws, block.totalRow, start + 1, 0);
-        });
-      });
-      setCell(ws, 'Z52', 0);
-    }
-
-
-    function revealTemplateRowsForCards(ws, cardsCount){
-      const visibleBlocks = Math.ceil(Math.max(cardsCount, 1) / 6);
-      const ranges = [
-        { start: 1, end: 18 },
-        { start: 20, end: 34 },
-        { start: 36, end: 50 }
-      ];
-      ranges.forEach((range, idx) => {
-        if(idx < visibleBlocks){
-          for(let r = range.start; r <= range.end; r++){
-            ws.getRow(r).hidden = false;
-          }
-        }
-      });
-    }
-
-    function fillDistribuicaoSheet(ws, cards){
-      syncHeaderInputs({ forceAutoDates: false });
-      const starts = [2,7,12,17,22,27];
-      const blocks = [
-        {groupRow:3, lineRow:4, dataStart:6, totalRow:18},
-        {groupRow:null, lineRow:20, dataStart:22, totalRow:34},
-        {groupRow:null, lineRow:36, dataStart:38, totalRow:50}
-      ];
-      const dataCorte = $('sheetDataCorte').value || $('dataCorteInput').value || '';
-      const corte = $('sheetCorte').value || $('corteInput').value || '';
-      const costura = $('sheetCostura').value || $('costuraInput').value || '';
-      const embarque = $('sheetEmbarque').value || $('embarqueInput').value || '';
-
-      setCell(ws, 'G1', dataCorte);
-      setCell(ws, 'L2', corte);
-      setCell(ws, 'Q2', costura);
-      setCell(ws, 'V2', embarque);
-      setCell(ws, 'Z55', dataCorte);
-
-      clearTemplateDistribuicao(ws);
-      revealTemplateRowsForCards(ws, cards.length);
-
-      let grandTotal = 0;
-      cards.slice(0, 18).forEach((card, index) => {
-        const block = blocks[Math.floor(index / 6)];
-        const start = starts[index % 6];
-        if(block.groupRow) setCellByIndexes(ws, block.groupRow, start + 2, card.group || '');
-        setCellByIndexes(ws, block.lineRow, start + 1, card.line || '');
-        let total = 0;
-        (card.rows || []).slice(0, 12).forEach((row, i) => {
-          const excelRow = block.dataStart + i;
-          const model = row.model || '';
-          const pares = parseNumberBR(row.pares);
-          total += pares;
-          setCellByIndexes(ws, excelRow, start, model);
-          setCellByIndexes(ws, excelRow, start + 1, pares || null);
-          setCellByIndexes(ws, excelRow, start + 2, row.atelier || '');
-          const helperCol = start - 1;
-          if(helperCol >= 1 && card.line && model) setCellByIndexes(ws, excelRow, helperCol, `${card.line}.${model}`);
-        });
-        setCellByIndexes(ws, block.totalRow, start + 1, total);
-        grandTotal += total;
-      });
-      setCell(ws, 'Z52', grandTotal);
-      return grandTotal;
-    }
-
-    async function fillTemplateWorkbook(){
-      syncHeaderInputs();
-      const file = getXlsxTemplateFile();
-      if(!file){ setStatus('Selecione o XLSX modelo completo antes de baixar a planilha preenchida.'); return; }
-      if(!window.ExcelJS){ setStatus('Não foi possível carregar o leitor de XLSX. Verifique a internet/CDN.'); return; }
-      const cards = getCardsForTemplate();
-      if(!cards.length){ setStatus('Não há dados para preencher. Importe o PDF ou gere a distribuição manual primeiro.'); return; }
-      try{
-        setStatus('Abrindo XLSX modelo e preenchendo a aba Distribuição...');
-        const buffer = await file.arrayBuffer();
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.load(buffer);
-        const ws = worksheetByNameFlexible(workbook, ['Distribuição','Distribuicao']);
-        if(!ws){ setStatus('Não encontrei a aba <strong>Distribuição</strong> no XLSX enviado.'); return; }
-        const total = fillDistribuicaoSheet(ws, cards);
-        workbook.calcProperties.fullCalcOnLoad = true;
-        workbook.calcProperties.forceFullCalc = true;
-        const out = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([out], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = file.name || 'distribuicao.xlsx';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-        const aviso = cards.length > 18 ? ` Atenção: o modelo comporta 18 quadros; ${cards.length - 18} quadro(s) ficaram fora.` : '';
-        setStatus(`XLSX preenchido gerado com sucesso. Total gravado: <strong>${formatNumberBR(total)}</strong> pares.${aviso}`);
-      }catch(err){
-        console.error(err);
-        setStatus('Erro ao preencher o XLSX: ' + escapeHtml(err.message || String(err)));
-      }
-    }
-
-    function saveLocal(){
-      updateStateFromSheet();
-      const payload = {
-        cards: state.cards,
-        dataCorte: $('sheetDataCorte').value,
-        corte: $('sheetCorte').value,
-        costura: $('sheetCostura').value,
-        embarque: $('sheetEmbarque').value
-      };
-      localStorage.setItem('distribuicao_draft', JSON.stringify(payload));
-      setStatus('Distribuição salva no navegador.');
-    }
-
-    function loadLocal(){
-      const raw = localStorage.getItem('distribuicao_draft');
-      if(!raw){ setStatus('Nenhuma distribuição salva no navegador.'); return; }
-      try{
-        const data = JSON.parse(raw);
-        state.cards = data.cards || [];
-        $('sheetDataCorte').value = data.dataCorte || '';
-        $('sheetCorte').value = data.corte || '';
-        $('sheetCostura').value = data.costura || '';
-        $('sheetEmbarque').value = data.embarque || '';
-        $('dataCorteInput').value = data.dataCorte || '';
-        $('corteInput').value = data.corte || '';
-        $('costuraInput').value = data.costura || '';
-        $('embarqueInput').value = data.embarque || '';
-        rebuildCards();
-        setStatus('Distribuição carregada do navegador.');
-      }catch(err){ setStatus('Erro ao carregar salvo: ' + escapeHtml(err.message)); }
-    }
-
-    function clearAll(){
-      if(!confirm('Limpar a distribuição atual?')) return;
-      state.cards = Array.from({length:6}, () => createEmptyCard());
-      state.selectedPdfFile = null;
-      state.selectedXlsxFile = null;
-      if($('combinedFiles')) $('combinedFiles').value = '';
-      if($('selectedFilesLabel')) $('selectedFilesLabel').textContent = 'Nenhum arquivo selecionado.';
-      ['dataCorteInput','corteInput','costuraInput','embarqueInput','sheetDataCorte','sheetCorte','sheetCostura','sheetEmbarque'].forEach(id => { if($(id)) $(id).value = ''; });
-      rebuildCards();
-      setStatus('Distribuição limpa.');
-    }
-
-    function init(){
-      state.cards = Array.from({length:6}, () => createEmptyCard());
-      rebuildCards();
-      hookHeaderSync();
-      attachSheetEvents();
-      if($('combinedFiles')) $('combinedFiles').addEventListener('change', handleCombinedFiles);
-      if($('importPdfButton')) $('importPdfButton').addEventListener('click', importPdf);
-      if($('fillTemplateButton')) $('fillTemplateButton').addEventListener('click', fillTemplateWorkbook);
-      if($('clearButton')) $('clearButton').addEventListener('click', clearAll);
-      if($('printButton')) $('printButton').addEventListener('click', () => { updateStateFromSheet(); syncHeaderInputs(); window.print(); });
-      if($('exportExcelButton')) $('exportExcelButton').addEventListener('click', exportExcel);
-      if($('toggleManualButton')) $('toggleManualButton').addEventListener('click', () => $('manualArea').classList.toggle('hidden'));
-      if($('addManualRowButton')) $('addManualRowButton').addEventListener('click', () => addManualRow());
-      if($('generateManualButton')) $('generateManualButton').addEventListener('click', generateManual);
-      if($('addCardButton')) $('addCardButton').addEventListener('click', () => { updateStateFromSheet(); state.cards.push(createEmptyCard()); rebuildCards(); });
-      if($('addRowToLastCardButton')) $('addRowToLastCardButton').addEventListener('click', () => {
-        updateStateFromSheet();
-        if(!state.cards.length) state.cards.push(createEmptyCard());
-        state.cards[state.cards.length-1].rows.push({model:'',pares:'',atelier:''});
-        rebuildCards();
-      });
-      if($('saveLocalButton')) $('saveLocalButton').addEventListener('click', saveLocal);
-      if($('loadLocalButton')) $('loadLocalButton').addEventListener('click', loadLocal);
-      if($('manualTable')) for(let i=0;i<4;i++) addManualRow();
-    }
-
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
+  processBtn.addEventListener('click', async()=>{
+    try{
+      if(!pdfFile.files[0]){ alert('Selecione o PDF primeiro.'); return; }
+      setStatus('Lendo PDF... aguarde.'); processBtn.disabled=true; aggregated=[]; rawRows=[]; debugLines=[];
+      await readPdf(pdfFile.files[0]); render();
+    }catch(err){ console.error(err); setStatus('Erro ao ler PDF: ' + (err.message || err)); }
+    finally{ processBtn.disabled=false; }
+  });
+  clearBtn.addEventListener('click',()=>{ pdfFile.value=''; excelFile.value=''; $('filterLinha').value=''; $('filterData').value=''; aggregated=[]; rawRows=[]; detectedYear=null; excelTable.innerHTML=''; rawTable.innerHTML=''; debugBox.textContent=''; resultPanel.style.display='none'; setStatus('',false); });
+  $('filterLinha').addEventListener('input', render); $('filterData').addEventListener('input', render);
+  $('copyExcelBtn').addEventListener('click', async()=>{ await navigator.clipboard.writeText(buildTSV()); alert('Tabela copiada! Agora é só colar no Excel.'); });
+  $('generateExcelBtn').addEventListener('click', gerarExcelAjustado);
+  $('downloadCsvBtn').addEventListener('click',()=>{ const blob=new Blob([buildTSV()],{type:'text/tab-separated-values;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='distribuicao_pdf.tsv'; a.click(); URL.revokeObjectURL(a.href); });
+  document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); btn.classList.add('active'); $(btn.dataset.view).classList.add('active'); }));
+})();
+</script>
 </body>
 </html>
