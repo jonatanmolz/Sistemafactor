@@ -1,399 +1,535 @@
 <!DOCTYPE html>
+<!-- distribuicao_montagem.html - leitura de PDF de corte, conferência e gravação da distribuição por data de corte -->
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Distribuição PDF - SistemaTaloes</title>
-  <style>
-    :root{--bg:#f4f4f4;--ink:#333;--ink2:#555;--card:#fff;--muted:#777;--pri:#007bff;--pri700:#0056b3;--ok:#198754;--warn:#ffc107;--danger:#dc3545;--bd:#ddd;--chip:#f0f0f0}
-    *{box-sizing:border-box} body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;min-height:100vh;color:var(--ink)}
-    .main-content{padding:16px;display:flex;flex-direction:column;align-items:center;gap:14px}
-    .panel{background:var(--card);border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.08);width:100%;max-width:1280px;padding:14px}
-    .filters-container{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;justify-content:flex-start}
-    .form-group{display:flex;flex-direction:column;gap:4px;min-width:150px}.form-group label{font-weight:700;color:var(--ink2);font-size:.82em}
-    input,select{padding:9px;border:1px solid #ccc;border-radius:8px;font-size:.92em;background:#fff}
-    input[type=file]{min-width:300px}.btn{padding:10px 14px;border:0;border-radius:8px;cursor:pointer;font-weight:700;display:inline-flex;gap:6px;align-items:center;justify-content:center}
-    .btn-primary{background:var(--pri);color:#fff}.btn-primary:hover{background:var(--pri700)}.btn-secondary{background:#e9ecef;color:#111}.btn-secondary:hover{background:#dde2e6}.btn-ok{background:var(--ok);color:#fff}.btn-danger{background:var(--danger);color:#fff}
-    .hint{color:var(--muted);font-size:.86em;line-height:1.35;margin:8px 0 0}.status{padding:9px 10px;border-radius:8px;background:#eef4ff;color:#27456f;font-weight:700;display:none}
-    .summary{display:flex;gap:8px;flex-wrap:wrap}.summary .card{background:#fff;border:1px solid var(--bd);border-radius:10px;padding:10px 12px;min-width:140px;text-align:center}.summary strong{display:block;font-size:1.25em;color:#111}.summary span{font-size:.82em;color:var(--muted);font-weight:700}
-    .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between}.toolbar-left,.toolbar-right{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .excel-wrap{width:100%;overflow:auto;border:1px solid #bbb;background:#fff}
-    .excel-cards{display:grid;grid-template-columns:repeat(3,minmax(260px,1fr));gap:14px;align-items:start}
-    .dist-card{background:#fff;border:1px solid #cfcfcf;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);overflow:hidden}
-    .dist-card-head{background:#f3f3f3;border-bottom:1px solid #cfcfcf;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-    .dist-card-head h3{margin:0;font-size:1em}.dist-card-head small{color:var(--muted);font-weight:700}.dist-card-body{overflow:auto;padding:8px}
-    .copy-card-btn{padding:7px 10px;border:0;border-radius:7px;background:var(--ok);color:#fff;font-weight:700;cursor:pointer}.copy-card-btn:hover{filter:brightness(.94)}
-    .excel-table{border-collapse:collapse;font-size:.82em;width:100%;min-width:260px}.excel-table th,.excel-table td{border:1px solid #999;padding:4px 7px;text-align:center;white-space:nowrap;height:24px}.excel-table th{background:#ddd;font-weight:800}.excel-table .date-title{font-size:1.2em;background:#d9d9d9}.excel-table .line-title{background:#f6f6f6;font-weight:800}.excel-table .total-row td{background:#d9d9d9;font-weight:800}.excel-table .gap{border:0;background:#fff;min-width:12px}.excel-table input{border:0;padding:2px 4px;width:78px;text-align:center;background:transparent}.excel-table input:focus{outline:2px solid var(--pri);background:#fff}
-    .raw-table{width:100%;border-collapse:collapse;font-size:.78em}.raw-table th,.raw-table td{border:1px solid var(--bd);padding:5px;text-align:center;white-space:nowrap}.raw-table th{background:#f2f2f2}.raw-table tr:nth-child(even){background:#fafafa}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{background:#e9ecef;border:0;border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:700}.tab.active{background:var(--pri);color:#fff}.view{display:none}.view.active{display:block}
-    .debug{font-family:Consolas,monospace;font-size:.78em;white-space:pre-wrap;background:#111;color:#eee;border-radius:8px;padding:10px;max-height:260px;overflow:auto}
-    #sistemaMenuDrawer .sistema-menu-lista{max-height:none!important;height:calc(100vh - 54px)!important;overflow-y:auto!important;display:block!important;padding:8px 8px 16px!important;background:transparent!important;box-shadow:none!important;font-size:inherit!important;transition:none!important}
-    #sistemaMenuDrawer .sistema-menu-link{display:flex!important;align-items:center!important;min-height:34px!important;padding:0 12px 0 20px!important;border-radius:8px!important;color:#f4f7fb!important;text-decoration:none!important;font-size:13px!important;font-weight:500!important;margin:1px 0!important;position:relative!important;white-space:normal!important}
-    @media(max-width:1100px){.excel-cards{grid-template-columns:repeat(2,minmax(260px,1fr))}}
-    @media(max-width:760px){.main-content{padding:8px}.panel{padding:10px}.form-group,input[type=file]{min-width:100%;width:100%}.btn{flex:1}.toolbar{align-items:stretch}.toolbar-left,.toolbar-right{width:100%}.summary .card{flex:1 1 calc(50% - 8px)}.excel-cards{grid-template-columns:1fr}.excel-table{font-size:.72em}}
-  </style>
-  <script src="navegacao.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Distribuição Montagem - SistemaTaloes</title>
+<style>
+:root{--bg:#f4f4f4;--card:#fff;--ink:#222;--muted:#666;--bd:#ddd;--pri:#007bff;--ok:#198754;--danger:#dc3545;--warn:#ffc107;--chip:#f8f8f8;--shadow:0 4px 14px rgba(0,0,0,.08)}*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;color:var(--ink)}body.auth-loading main,body.auth-loading .modal-backdrop{display:none!important}header{background:#333;color:#fff;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}header h1{margin:0;font-size:25px}.user-info{text-align:right;font-size:13px;line-height:1.25}.user-info span{display:block;font-weight:700}.header-actions{display:flex;gap:8px}button{font-family:inherit}#menuToggleButton,#logoutButton{border:0;color:#fff;padding:8px 14px;border-radius:7px;cursor:pointer}#menuToggleButton{background:#6c757d}#logoutButton{background:var(--danger)}nav{background:#555;padding:10px 20px;font-size:.8em}nav ul{list-style:none;margin:0;padding:0;display:flex;gap:12px;flex-wrap:wrap}nav a{color:#fff;text-decoration:none;padding:7px 12px;border-radius:7px;display:block}nav a:hover,nav a.active{background:#777}.nav-collapsed{display:none}main{padding:18px 0 28px;display:flex;flex-direction:column;align-items:center;gap:14px}.card{width:95%;background:var(--card);border-radius:12px;box-shadow:var(--shadow);padding:18px 20px}.page-title{margin:0 0 6px;font-size:1.55rem}.page-subtitle{margin:0 0 16px;color:var(--muted);font-size:.98rem;line-height:1.35}.section-title{margin:0 0 12px;font-size:1.18rem}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;align-items:end}.form-group{display:flex;flex-direction:column;gap:6px}.form-group label{font-weight:700;color:#4b5563;font-size:.9rem}.form-group input,.form-group select{padding:10px 12px;border:1px solid #cfcfcf;border-radius:8px;font-size:.95rem;background:#fff;width:100%}.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}.btn{padding:10px 16px;border:0;border-radius:8px;cursor:pointer;font-size:.95rem}.btn-primary{background:var(--pri);color:#fff}.btn-secondary{background:#e9ecef;color:#222}.btn-success{background:var(--ok);color:#fff}.btn-warning{background:#ffc107;color:#111}.btn-danger{background:var(--danger);color:#fff}.btn:disabled{opacity:.55;cursor:not-allowed}.message{margin-top:14px;padding:12px;border-radius:8px;font-size:.95rem;display:none}.message.show{display:block}.message.info{background:#d1ecf1;color:#0c5460}.message.success{background:#d4edda;color:#155724}.message.error{background:#f8d7da;color:#721c24}.message.warning{background:#fff3cd;color:#664d03}.hidden{display:none!important}.summary-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px}.summary-item{background:var(--chip);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;text-align:center;min-height:72px;display:flex;flex-direction:column;justify-content:center}.summary-item strong{font-size:1.08rem;margin-bottom:4px;color:#000;word-break:break-word}.summary-item small{font-weight:700;color:#111;font-size:.76rem}.table-actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}.table-actions-right{display:flex;gap:10px;flex-wrap:wrap}.viewer-warning{background:#fff3cd;border:1px solid #ffe69c;color:#664d03;border-radius:10px;padding:10px 12px;font-size:.9rem;margin-bottom:12px}.table-info-panel{background:#eaf7ee;border:1px solid #cfead8;border-radius:12px;padding:12px;margin-bottom:12px;color:#155724;font-size:.9rem}.table-wrap{width:100%;overflow:auto;border:1px solid var(--bd);border-radius:10px;background:#fff}table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:980px}th,td{border:1px solid var(--bd);padding:8px 10px;text-align:center;white-space:nowrap}thead th{background:#f2f2f2;position:sticky;top:0;z-index:2}tbody tr:nth-child(even){background:#fafafa}.cell-left{text-align:left}.small-input{max-width:120px;text-align:center}.tag{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid #d8d8d8;background:#fff}.mini-help{font-size:.82rem;color:var(--muted);line-height:1.35}.distribution-sheet{background:#fff;border-radius:12px;border:1px solid #d9d9d9;padding:16px;overflow:auto}.sheet-top{display:grid;grid-template-columns:minmax(260px,1.4fr) repeat(3,minmax(170px,.7fr));gap:12px;margin-bottom:18px}.sheet-info,.sheet-date-box{border:2px solid #111;background:#eee;display:grid;grid-template-columns:1.1fr 1fr;min-height:50px}.sheet-info strong,.sheet-date-box strong{display:flex;align-items:center;justify-content:center;border-right:2px solid #111;font-size:1.2rem}.sheet-info span,.sheet-date-box span{display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;background:#f7f7f7}.sheet-date-box{grid-template-columns:1fr}.sheet-date-box strong{border-right:0;border-bottom:2px solid #111;font-size:1.05rem}.sheet-date-box span{font-size:1rem;background:#fff}.line-card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px}.line-card{border:2px solid #111;background:#fff;min-height:236px;display:flex;flex-direction:column}.line-card table{min-width:0;width:100%;font-size:.9rem}.line-card th,.line-card td{border:1px solid #111;padding:5px 7px}.line-card thead th{background:#d9d9d9;position:static}.line-card .blank-row td{height:24px}.line-card tfoot td{background:#d9d9d9;font-weight:700}.total-pares-box{margin-left:auto;margin-top:20px;width:min(390px,100%);display:grid;grid-template-columns:1.4fr 1fr;border:2px solid #111;background:#d9d9d9}.total-pares-box strong,.total-pares-box span{padding:18px 14px;text-align:center;font-size:1.25rem}.total-pares-box strong{border-right:2px solid #111}.total-pares-box span{font-weight:800;background:#efefef}.remessa-list{max-width:360px;white-space:normal;line-height:1.35}.remessa-list details{cursor:pointer}.remessa-list summary{font-weight:700;color:#0c5460}.remessa-list div{margin-top:4px}.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:18px;z-index:999}.modal-backdrop.show{display:flex}.modal{background:#fff;width:min(900px,96vw);max-height:92vh;overflow:auto;border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.25);padding:18px}.modal-header{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #eee;padding-bottom:10px;margin-bottom:14px}.modal-header h3{margin:0}.modal-close{border:0;background:#e9ecef;border-radius:8px;cursor:pointer;padding:8px 12px}.sistema-menu-lista{background:transparent!important;box-shadow:none!important;font-size:inherit!important}.sistema-menu-lista a{font-weight:500!important}.permission-banner{background:#e7f1ff;border:1px solid #b6d4fe;color:#084298;border-radius:10px;padding:10px 12px;font-size:.9rem;margin:12px 0}.list-table{min-width:720px}.list-table td,.list-table th{white-space:nowrap}.readonly-date input[readonly]{background:#f8f9fa;color:#555}.access-denied{background:#f8d7da;border:1px solid #f5c2c7;color:#842029;border-radius:10px;padding:12px;margin-top:12px}.modal .table-wrap{max-height:62vh}.editor-details{border:1px solid #e6e6e6;border-radius:12px;background:#fff}.editor-details>summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-weight:700;font-size:1.05rem;background:#f7f7f7;border-radius:12px}.editor-details>summary::-webkit-details-marker{display:none}.editor-details[open]>summary{border-bottom:1px solid #e6e6e6;border-radius:12px 12px 0 0}.editor-summary-hint{font-size:.86rem;color:var(--muted);font-weight:400}.editor-content{padding:16px}.editor-content .table-actions{margin-bottom:10px}@media print{@page{size:A4 landscape;margin:8mm}html,body{background:#fff!important;margin:0!important;padding:0!important}body *{visibility:hidden!important}#distributionSheet,#distributionSheet *{visibility:visible!important}#distributionSheet{position:absolute!important;left:0!important;top:0!important;width:100%!important;border:0!important;border-radius:0!important;padding:0!important;overflow:visible!important;background:#fff!important}.sheet-top{grid-template-columns:minmax(210px,1.4fr) repeat(3,minmax(130px,.7fr))!important;gap:8px!important;margin-bottom:12px!important}.line-card-grid{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}.line-card{break-inside:avoid!important;page-break-inside:avoid!important;min-height:210px!important}.line-card table{font-size:10pt!important}.line-card th,.line-card td{padding:3px 5px!important}.total-pares-box{break-inside:avoid!important;page-break-inside:avoid!important;margin-top:14px!important}.sheet-info strong,.sheet-date-box strong{font-size:13pt!important}.sheet-info span,.sheet-date-box span{font-size:12pt!important}}@media(max-width:768px){header h1{font-size:20px}.card{width:96%;padding:14px}.summary-bar{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}.table-actions{flex-direction:column;align-items:flex-start}.sheet-top{grid-template-columns:1fr}.sheet-info{grid-template-columns:1fr}.sheet-info strong{border-right:0;border-bottom:2px solid #111}.total-pares-box{margin-left:0}}
+</style>
+<script src="navegacao.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
-<body>
-  <div class="main-content">
-    <section class="panel">
-      <div class="filters-container">
-        <div class="form-group" style="min-width:330px"><label for="pdfFile">PDF Beira Rio / Cronograma de Produção</label><input type="file" id="pdfFile" accept="application/pdf" /></div>
-        <div class="form-group" style="min-width:330px"><label for="excelFile">Excel modelo da programação</label><input type="file" id="excelFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" /></div>
-        <div class="form-group"><label for="filterLinha">Filtrar linha</label><input id="filterLinha" placeholder="Ex: 4134" /></div>
-        <div class="form-group"><label for="filterData">Filtrar corte</label><input id="filterData" placeholder="Ex: 06/07" /></div>
-        <button class="btn btn-primary" id="processBtn">Ler PDF</button>
-        <button class="btn btn-secondary" id="clearBtn">Limpar</button>
-      </div>
-      <p class="hint">A página lê o PDF, identifica <b>Linha</b>, <b>data de corte</b> e os <b>modelos no cabeçalho da direita</b>. Depois você anexa o Excel modelo e clica em <b>Gerar Excel ajustado</b>. A página altera somente data de corte, linha, modelo e pares, mantendo fórmulas e campos do arquivo.</p>
-      <div class="status" id="statusBox"></div>
-    </section>
+<body class="auth-loading">
+<main>
+<section class="card">
+  <h2 class="page-title">Distribuição de Montagem</h2>
+  <p class="page-subtitle">Leia o PDF de corte, confira os modelos e pares por linha, ajuste se necessário e salve na coleção <strong>Distribuicao</strong> usando a data de corte como documento. As datas previstas são calculadas automaticamente pela data de corte.</p>
+  <div class="grid" id="creationGrid">
+    <div class="form-group">
+      <label for="pdfFileInput">PDF de Corte</label>
+      <input type="file" id="pdfFileInput" accept="application/pdf" />
+    </div>
+    <div class="form-group">
+      <label for="dataCorteInput">Data de Corte</label>
+      <input type="date" id="dataCorteInput" />
+    </div>
+    <div class="form-group readonly-date">
+      <label for="dataCorteProgramadaInput">Corte previsto</label>
+      <input type="date" id="dataCorteProgramadaInput" readonly />
+    </div>
+    <div class="form-group readonly-date">
+      <label for="dataCosturaInput">Costura prevista</label>
+      <input type="date" id="dataCosturaInput" readonly />
+    </div>
+    <div class="form-group readonly-date">
+      <label for="dataEmbarqueInput">Embarque previsto</label>
+      <input type="date" id="dataEmbarqueInput" readonly />
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-warning" id="listDistributionsButton" type="button">Abrir distribuição salva</button>
+    <button class="btn btn-primary" id="readPdfButton" type="button">Ler PDF</button>
+    <button class="btn btn-success" id="saveButton" type="button" disabled>Salvar distribuição</button>
+    <button class="btn btn-secondary" id="clearButton" type="button">Limpar tela</button>
+  </div>
+  <div id="messageBox" class="message"></div>
+</section>
 
-    <section class="panel" id="resultPanel" style="display:none">
-      <div class="toolbar">
-        <div class="toolbar-left"><h2 style="margin:0">Distribuição por Linha / Modelo</h2></div>
-        <div class="toolbar-right">
-          <button class="btn btn-ok" id="generateExcelBtn">Gerar Excel ajustado</button>
-          <button class="btn btn-ok" id="copyExcelBtn">Copiar para Excel</button>
-          <button class="btn btn-secondary" id="downloadCsvBtn">Baixar CSV</button>
+
+<section id="summaryCard" class="card hidden">
+  <h3 class="section-title">Resumo da distribuição</h3>
+  <div class="summary-bar" id="summaryBar"></div>
+</section>
+
+<section id="sheetCard" class="card hidden">
+  <div class="table-actions">
+    <h3 class="section-title" style="margin:0">Visual igual à folha de distribuição</h3>
+    <div class="table-actions-right">
+      <button class="btn btn-secondary" id="printButton" type="button">Imprimir / Salvar PDF</button>
+    </div>
+  </div>
+  <div class="distribution-sheet" id="distributionSheet"></div>
+</section>
+
+<section id="editorCard" class="card hidden">
+  <details class="editor-details" id="editorDetails">
+    <summary>
+      <span>Conferência, edição e adição de modelos</span>
+      <span class="editor-summary-hint">Clique para abrir ou fechar</span>
+    </summary>
+    <div class="editor-content">
+      <div class="table-actions">
+        <h3 class="section-title" style="margin:0">Itens da distribuição</h3>
+        <div class="table-actions-right">
+          <button class="btn btn-secondary" id="addRowButton" type="button">Adicionar modelo</button>
         </div>
       </div>
-      <div class="summary" id="summaryCards" style="margin:12px 0"></div>
-      <div class="tabs"><button class="tab active" data-view="viewExcel">Tabela Excel</button><button class="tab" data-view="viewRaw">Conferência</button><button class="tab" data-view="viewDebug">Diagnóstico</button></div>
-      <div id="viewExcel" class="view active" style="margin-top:10px"><div class="excel-cards" id="excelTable"></div></div>
-      <div id="viewRaw" class="view" style="margin-top:10px"><div class="excel-wrap"><table class="raw-table" id="rawTable"></table></div></div>
-      <div id="viewDebug" class="view" style="margin-top:10px"><div class="debug" id="debugBox"></div></div>
-    </section>
+      <div id="viewerWarning" class="viewer-warning hidden">Seu nível de acesso permite somente consultar distribuições salvas. Para criar, ler PDF ou salvar alterações, use nível 07 ou 08.</div>
+      <div class="table-info-panel" id="tableInfoPanel"></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Linha</th>
+              <th>Modelo</th>
+              <th>Pares</th>
+              <th>Remessas do modelo</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="editorTableBody"></tbody>
+        </table>
+      </div>
+      <p class="mini-help" style="margin-top:10px">Quando alterar o total de pares manualmente, as remessas originais continuam salvas apenas como referência de origem do PDF.</p>
+    </div>
+  </details>
+</section>
+</main>
+
+<div class="modal-backdrop" id="addModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>Adicionar modelo manualmente</h3>
+      <button class="modal-close" id="closeAddModalButton" type="button">Fechar</button>
+    </div>
+    <div class="grid">
+      <div class="form-group"><label for="addLinhaInput">Linha</label><input type="text" id="addLinhaInput" placeholder="Ex: 4134" /></div>
+      <div class="form-group"><label for="addModeloInput">Modelo</label><input type="text" id="addModeloInput" placeholder="Ex: 1017" /></div>
+      <div class="form-group"><label for="addParesInput">Pares</label><input type="number" id="addParesInput" min="0" step="1" placeholder="Ex: 1152" /></div>
+    </div>
+    <div class="actions"><button class="btn btn-success" id="confirmAddRowButton" type="button">Adicionar</button></div>
   </div>
+</div>
 
-<script>
-(function(){
-  'use strict';
-  if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+<div class="modal-backdrop" id="listModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>Distribuições salvas</h3>
+      <button class="modal-close" id="closeListModalButton" type="button">Fechar</button>
+    </div>
+    <div class="table-info-panel" id="listModalInfo">Clique em abrir para carregar uma distribuição já criada.</div>
+    <div class="table-wrap">
+      <table class="list-table">
+        <thead>
+          <tr>
+            <th>Data de Corte</th>
+            <th>Total de Pares</th>
+            <th>Linhas</th>
+            <th>Modelos</th>
+            <th>Arquivo origem</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="distributionsListBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
-  const $ = id => document.getElementById(id);
-  const pdfFile = $('pdfFile'), excelFile = $('excelFile'), processBtn = $('processBtn'), clearBtn = $('clearBtn'), statusBox = $('statusBox');
-  const resultPanel = $('resultPanel'), summaryCards = $('summaryCards'), excelTable = $('excelTable'), rawTable = $('rawTable'), debugBox = $('debugBox');
-  let aggregated = [], rawRows = [], debugLines = [], detectedYear = null;
 
-  function initMenu(){
-    const userLevel = localStorage.getItem('userNivelAcesso') || '07';
-    const userName = localStorage.getItem('userName') || 'Usuário';
-    if (window.SistemaNavegacao && window.SistemaNavegacao.init) {
-      window.SistemaNavegacao.init({ userLevel, userName, title:'Controle de produção FactorShoes', onLogout: () => { localStorage.clear(); window.location.href = 'login.html'; } });
+<script type="module">
+const firebaseConfig={apiKey:"AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",authDomain:"sistemataloes.firebaseapp.com",projectId:"sistemataloes",storageBucket:"sistemataloes.appspot.com",messagingSenderId:"684534379685",appId:typeof __app_id!=="undefined"?__app_id:"default-app-id"};
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+import{getFirestore,doc,getDoc,setDoc,serverTimestamp,collection,getDocs}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const FULL_ACCESS_LEVELS=new Set(["07","08"]);
+const VIEW_ACCESS_LEVELS=new Set(["02","04","06","07","08"]);
+let currentUserLevel="",currentUserName="",currentUserEmail="",currentUserCanEdit=false,currentUserCanView=false;
+let currentDistribution=null;
+
+const $=id=>document.getElementById(id);
+const pdfFileInput=$("pdfFileInput"),creationGrid=$("creationGrid"),dataCorteInput=$("dataCorteInput"),dataCorteProgramadaInput=$("dataCorteProgramadaInput"),dataCosturaInput=$("dataCosturaInput"),dataEmbarqueInput=$("dataEmbarqueInput"),readPdfButton=$("readPdfButton"),saveButton=$("saveButton"),clearButton=$("clearButton"),listDistributionsButton=$("listDistributionsButton"),messageBox=$("messageBox"),summaryCard=$("summaryCard"),summaryBar=$("summaryBar"),sheetCard=$("sheetCard"),distributionSheet=$("distributionSheet"),editorCard=$("editorCard"),editorTableBody=$("editorTableBody"),viewerWarning=$("viewerWarning"),tableInfoPanel=$("tableInfoPanel"),printButton=$("printButton"),addRowButton=$("addRowButton"),addModalBackdrop=$("addModalBackdrop"),closeAddModalButton=$("closeAddModalButton"),confirmAddRowButton=$("confirmAddRowButton"),addLinhaInput=$("addLinhaInput"),addModeloInput=$("addModeloInput"),addParesInput=$("addParesInput"),listModalBackdrop=$("listModalBackdrop"),closeListModalButton=$("closeListModalButton"),distributionsListBody=$("distributionsListBody"),listModalInfo=$("listModalInfo");
+
+function initPdfJs(){if(!window.pdfjsLib){showMessage("PDF.js não carregou. Verifique a conexão com a internet e recarregue a página.","error");return false}window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";return true}
+function showMessage(text,type="info"){messageBox.textContent=text;messageBox.className=`message show ${type}`}
+function clearMessage(){messageBox.className="message";messageBox.textContent=""}
+function onlyDigits(v){return String(v??"").replace(/\D/g,"")}
+function parsePdfNumber(v){const s=onlyDigits(v);return s?Number(s):0}
+function isNumberToken(v){return /^\d{1,3}([.,]\d{3})*$|^\d+$/.test(String(v||"").trim())}
+function isModelToken(v){return /^\d{2,4}$/.test(String(v||"").trim())}
+function isRemessaToken(v){return /^\d{2}-\d{6,}$/.test(String(v||"").trim())}
+function isDateToken(v){return /^\d{2}\/\d{2}\/\d{4}$/.test(String(v||"").trim())}
+function formatNumber(n){return Number(n||0).toLocaleString("pt-BR",{maximumFractionDigits:0})}
+function pad2(v){return String(v).padStart(2,"0")}
+function isoToDocId(iso){if(!iso)return"";const [y,m,d]=iso.split("-");return `${d}-${m}-${y}`}
+function isoToBR(iso){if(!iso)return"";const [y,m,d]=iso.split("-");return `${d}/${m}/${y}`}
+function brToISO(br){if(!br)return"";const [d,m,y]=br.split("/");return `${y}-${m}-${d}`}
+function docIdToISO(docId){if(!docId)return"";const [d,m,y]=docId.split("-");return `${y}-${m}-${d}`}
+function docIdToBR(docId){return docId?docId.replaceAll("-","/"):""}
+function addDaysISO(iso,days){if(!iso)return"";const d=new Date(`${iso}T12:00:00`);d.setDate(d.getDate()+Number(days||0));return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`}
+function recalcPredictedDates(){const base=dataCorteInput.value||currentDistribution?.dataCorteISO||docIdToISO(currentDistribution?.dataCorte||"");if(!base)return;dataCorteProgramadaInput.value=addDaysISO(base,9);dataCosturaInput.value=addDaysISO(base,15);dataEmbarqueInput.value=addDaysISO(base,18)}
+function formatMonthDay(isoOrDoc){if(!isoOrDoc)return"";let iso=isoOrDoc.includes("-")&&isoOrDoc.split("-")[0].length===4?isoOrDoc:docIdToISO(isoOrDoc);const d=new Date(`${iso}T12:00:00`);return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"short"}).replace(".","")}
+function normalizeKey(v){return String(v??"").trim()}
+function numericSort(a,b){return Number(a)-Number(b)}
+function escapeHtml(s){return String(s??"").replace(/[&<>'"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[m]))}
+
+function getTokensFromTextItem(item,viewport){
+  const raw=String(item.str||"").trim();
+  if(!raw)return[];
+  let tx;
+  try{tx=window.pdfjsLib.Util.transform(viewport.transform,item.transform)}catch(e){tx=item.transform}
+  const x=tx[4]||0;
+  const y=tx[5]||0;
+  const width=Math.max(Number(item.width||0),raw.length*3.6);
+  const parts=raw.split(/\s+/).filter(Boolean);
+  if(parts.length===1)return[{text:raw,x,y,cx:x+width/2,w:width}];
+  const totalChars=parts.reduce((acc,p)=>acc+p.length,0)+Math.max(0,parts.length-1);
+  const spaceW=width/Math.max(1,totalChars);
+  let cursor=x;
+  return parts.map(part=>{const w=width*(part.length/Math.max(1,totalChars));const tok={text:part,x:cursor,y,cx:cursor+w/2,w};cursor+=w+spaceW;return tok});
+}
+function uniqueYs(tokens,tolerance=3){const ys=[];tokens.map(t=>t.y).sort((a,b)=>a-b).forEach(y=>{if(!ys.some(v=>Math.abs(v-y)<=tolerance))ys.push(y)});return ys}
+function getSameLine(tokens,y,tol=4.5){return tokens.filter(t=>Math.abs(t.y-y)<=tol)}
+function mostCommon(values){const map=new Map();values.filter(Boolean).forEach(v=>map.set(v,(map.get(v)||0)+1));let best="",count=0;map.forEach((c,v)=>{if(c>count){best=v;count=c}});return best}
+function nearestHeader(headers,cx){let best=null,dist=Infinity;headers.forEach(h=>{const d=Math.abs(h.x-cx);if(d<dist){dist=d;best=h}});return{best,dist}}
+function addModelValue(result,linha,modelo,pares){linha=normalizeKey(linha);modelo=normalizeKey(modelo);if(!linha||!modelo||!pares)return;if(!result.linhas[linha])result.linhas[linha]={total:0,modelos:{},remessas:{}};result.linhas[linha].modelos[modelo]=(Number(result.linhas[linha].modelos[modelo]||0)+Number(pares||0));}
+function addRemessaValue(result,linha,modelo,remessa){linha=normalizeKey(linha);modelo=normalizeKey(modelo);if(!linha||!modelo||!remessa?.pares)return;if(!result.linhas[linha])result.linhas[linha]={total:0,modelos:{},remessas:{}};if(!result.linhas[linha].remessas[modelo])result.linhas[linha].remessas[modelo]=[];result.linhas[linha].remessas[modelo].push(remessa);}
+
+async function extractDistributionFromPdf(file){
+  if(!initPdfJs())throw new Error("PDF.js não disponível.");
+  const arrayBuffer=await file.arrayBuffer();
+  const pdf=await window.pdfjsLib.getDocument({data:arrayBuffer}).promise;
+  const result={arquivoOrigem:file.name||"",dataCorte:"",dataCorteISO:"",linhas:{},itens:[],totalPares:0,totalModelos:0,totalRemessas:0};
+
+  for(let pageNumber=1;pageNumber<=pdf.numPages;pageNumber++){
+    const page=await pdf.getPage(pageNumber);
+    const viewport=page.getViewport({scale:1});
+    const textContent=await page.getTextContent();
+    const tokens=textContent.items.flatMap(item=>getTokensFromTextItem(item,viewport)).filter(t=>t.text);
+    if(!result.dataCorte){
+      const dateTok=tokens.find(t=>t.x<170&&t.y<80&&isDateToken(t.text));
+      if(dateTok){result.dataCorte=dateTok.text.replaceAll("/","-");result.dataCorteISO=brToISO(dateTok.text)}
     }
-  }
-  document.addEventListener('DOMContentLoaded', initMenu);
-
-  function setStatus(msg, show=true){ statusBox.textContent = msg; statusBox.style.display = show ? 'block' : 'none'; }
-  function parseNumber(v){ if(v==null) return 0; const s=String(v).trim().replace(/\s/g,''); if(!s) return 0; return Number(s.replace(/[.,]/g,'')) || 0; }
-  function fmt(n){ return Number(n||0).toLocaleString('pt-BR'); }
-  function isDate(s){ return /^\d{2}\/\d{2}$/.test(String(s||'').trim()); }
-  function isLine(s){ return /^\d{4}$/.test(String(s||'').trim()); }
-  function isModel(s){ return /^\d{2,5}$/.test(String(s||'').trim()); }
-  function isQty(s){ return /^\d{1,3}([.,]\d{3})*$/.test(String(s||'').trim()) || /^\d+$/.test(String(s||'').trim()); }
-
-  function groupRows(items){
-    const rows=[];
-    items.forEach(it=>{
-      const y = Math.round(it.y/2)*2;
-      let row = rows.find(r => Math.abs(r.y-y) <= 3);
-      if(!row){ row={y, items:[]}; rows.push(row); }
-      row.items.push(it);
-    });
-    rows.sort((a,b)=>b.y-a.y);
-    rows.forEach(r=>r.items.sort((a,b)=>a.x-b.x));
-    return rows;
-  }
-
-  async function readPdf(file){
-    const buf = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({data:buf}).promise;
-    rawRows=[]; debugLines=[];
-    for(let p=1;p<=pdf.numPages;p++){
-      const page = await pdf.getPage(p);
-      const text = await page.getTextContent();
-      const items = text.items.map(it=>({ text:String(it.str||'').trim(), x:it.transform[4], y:it.transform[5], w:it.width||0 })).filter(it=>it.text);
-      const rows = groupRows(items);
-      parsePage(rows, p);
-    }
-    aggregate();
-  }
-
-  function parsePage(rows, pageNo){
-    const pageText = rows.map(r=>r.items.map(i=>i.text).join(' ')).join(' ');
-    const fullDates = pageText.match(/\b\d{2}\/\d{2}\/\d{4}\b/g) || [];
-    if(fullDates.length && !detectedYear){ detectedYear = Number(fullDates[0].slice(-4)); }
-    let header = null;
-    for(const r of rows){
-      const txt = r.items.map(i=>i.text).join(' ');
-      if(/\bLinha\b/.test(txt) && /\bCliente\b/.test(txt) && r.items.some(i=>isModel(i.text))){ header = r; break; }
-    }
-    if(!header){ debugLines.push(`Página ${pageNo}: cabeçalho da grade de modelos não encontrado.`); return; }
-    const cortHead = header.items.find(i=>/^Cort$/i.test(i.text));
-    const clienteHead = header.items.find(i=>/^Cliente$/i.test(i.text));
-    const linhaHead = header.items.find(i=>/^Linha$/i.test(i.text));
-    const paresHead = header.items.find(i=>/^Pares$/i.test(i.text));
-    const modelCols = header.items
-      .filter(i => isModel(i.text) && i.x > (clienteHead ? clienteHead.x : 700))
-      .map(i => ({ model:i.text, x:i.x }))
-      .sort((a,b)=>a.x-b.x);
-    debugLines.push(`Página ${pageNo}: ${modelCols.length} modelos no cabeçalho: ${modelCols.map(m=>m.model).join(', ')}`);
-    if(!modelCols.length) return;
-
-    const minY = header.y - 850;
-    for(const r of rows){
-      if(r.y >= header.y - 8 || r.y < minY) continue;
-      const first = r.items[0]?.text || '';
-      if(!isLine(first)) continue;
-      const line = first;
-      const cut = nearestText(r.items, cortHead ? cortHead.x : 330, isDate);
-      const totalPares = nearestText(r.items, paresHead ? paresHead.x : 300, isQty);
-      const adm = r.items.find(i => /\d{2}-\d{6,}/.test(i.text))?.text || '';
-      const cliente = r.items.filter(i => i.x > 560 && i.x < (modelCols[0].x-10)).map(i=>i.text).join(' ').trim();
-      modelCols.forEach((col, idx)=>{
-        const nextX = modelCols[idx+1]?.x ?? col.x + 45;
-        const prevX = modelCols[idx-1]?.x ?? col.x - 45;
-        const left = (prevX + col.x)/2, right = (col.x + nextX)/2;
-        const values = r.items.filter(i => i.x >= left && i.x < right && isQty(i.text)).map(i=>parseNumber(i.text));
-        const paresModelo = values.reduce((a,b)=>a+b,0);
-        if(paresModelo>0){ rawRows.push({page:pageNo,line,cut,model:col.model,pares:paresModelo,totalPares:parseNumber(totalPares),adm,cliente}); }
+    const adm=tokens.filter(t=>t.text==="Adm-Rem");
+    if(!adm.length)continue;
+    const headerY=adm.sort((a,b)=>a.y-b.y)[0].y;
+    const headers=tokens.filter(t=>Math.abs(t.y-headerY)<=6&&t.x>510&&isModelToken(t.text)).map(t=>({model:t.text,x:t.cx})).sort((a,b)=>a.x-b.x);
+    if(!headers.length)continue;
+    const firstModelX=headers[0].x-18;
+    const rows=tokens.filter(t=>t.x>80&&t.x<165&&isRemessaToken(t.text)).map(remTok=>{
+      const line=getSameLine(tokens,remTok.y).sort((a,b)=>a.x-b.x);
+      const linha=(line.find(t=>t.x<38&&/^\d{4}$/.test(t.text))||{}).text||"";
+      const lote=(line.find(t=>t.x>35&&t.x<92&&/^[\w.-]+$/.test(t.text))||{}).text||"";
+      const paresTok=line.find(t=>t.x>145&&t.x<195&&isNumberToken(t.text));
+      const dateRow=(line.find(t=>t.x>180&&t.x<210&&/^\d{2}\/\d{2}$/.test(t.text))||{}).text||"";
+      const cliente=line.filter(t=>t.x>395&&t.x<545).sort((a,b)=>a.x-b.x).map(t=>t.text).join(" ");
+      return{y:remTok.y,linha,lote,remessa:remTok.text,pares:parsePdfNumber(paresTok?.text||"0"),dataCorte:dateRow,cliente};
+    }).sort((a,b)=>a.y-b.y);
+    const totalYs=uniqueYs(tokens.filter(t=>String(t.text||"").toLowerCase().includes("modelo")).map(t=>({y:t.y})),3).sort((a,b)=>a-b);
+    let previousY=headerY;
+    for(const totalY of totalYs){
+      const groupRows=rows.filter(r=>r.y>previousY&&r.y<totalY+3);
+      previousY=totalY;
+      if(!groupRows.length)continue;
+      const linha=mostCommon(groupRows.map(r=>r.linha));
+      if(!linha)continue;
+      if(!result.linhas[linha])result.linhas[linha]={total:0,modelos:{},remessas:{}};
+      const totalLineTok=getSameLine(tokens,totalY,5).find(t=>t.x>100&&t.x<155&&isNumberToken(t.text));
+      const totalLine=parsePdfNumber(totalLineTok?.text||"0");
+      if(totalLine>result.linhas[linha].total)result.linhas[linha].total=totalLine;
+      const totalValues=getSameLine(tokens,totalY,5).filter(t=>t.x>firstModelX&&isNumberToken(t.text));
+      totalValues.forEach(tok=>{
+        const {best,dist}=nearestHeader(headers,tok.cx);
+        if(best&&dist<18)addModelValue(result,linha,best.model,parsePdfNumber(tok.text));
       });
-    }
-  }
-
-  function nearestText(items, x, predicate){
-    let best=null;
-    items.forEach(i=>{ if(predicate(i.text)){ const d=Math.abs(i.x-x); if(!best || d<best.d) best={d, text:i.text}; } });
-    return best ? best.text : '';
-  }
-
-  function aggregate(){
-    const map = new Map();
-    rawRows.forEach(r=>{
-      const key = `${r.cut}|${r.line}|${r.model}`;
-      if(!map.has(key)) map.set(key,{cut:r.cut,line:r.line,model:r.model,pares:0,atelier:''});
-      map.get(key).pares += r.pares;
-    });
-    aggregated = [...map.values()].sort((a,b)=> (a.cut||'').localeCompare(b.cut||'') || a.line.localeCompare(b.line) || Number(a.model)-Number(b.model));
-  }
-
-  function applyFilters(rows){
-    const fl = $('filterLinha').value.trim(); const fd = $('filterData').value.trim();
-    return rows.filter(r => (!fl || r.line.includes(fl)) && (!fd || r.cut.includes(fd)));
-  }
-
-  function render(){
-    const rows = applyFilters(aggregated);
-    const raw = applyFilters(rawRows);
-    resultPanel.style.display = rows.length ? 'block' : 'none';
-    if(!rows.length){ setStatus('Nenhum dado encontrado. Confira se o PDF é o cronograma da Beira Rio e se os filtros estão vazios.'); return; }
-    const totalPares = rows.reduce((s,r)=>s+r.pares,0);
-    const linhas = [...new Set(rows.map(r=>r.line))]; const modelos = [...new Set(rows.map(r=>r.model))]; const cortes=[...new Set(rows.map(r=>r.cut))];
-    summaryCards.innerHTML = `<div class="card"><strong>${fmt(totalPares)}</strong><span>Pares</span></div><div class="card"><strong>${linhas.length}</strong><span>Linhas</span></div><div class="card"><strong>${modelos.length}</strong><span>Modelos</span></div><div class="card"><strong>${cortes.join(', ')}</strong><span>Cortes</span></div>`;
-    renderExcel(rows); renderRaw(raw); debugBox.textContent = debugLines.join('\n') + `\n\nRegistros lidos: ${rawRows.length}\nRegistros consolidados: ${aggregated.length}`;
-    setStatus(`PDF lido com sucesso: ${fmt(totalPares)} pares encontrados em ${linhas.length} linha(s).`);
-  }
-
-  function renderExcel(rows){
-    const byDate = groupBy(rows, r=>r.cut || 'Sem data');
-    let html='';
-    Object.keys(byDate).sort().forEach(date=>{
-      const lines = groupBy(byDate[date], r=>r.line);
-      Object.keys(lines).sort().forEach(line=>{
-        const list = lines[line].sort((a,b)=>Number(a.model)-Number(b.model));
-        const total = list.reduce((s,r)=>s+r.pares,0);
-        const cardKey = `${date}|${line}`;
-        html += `<div class="dist-card">
-          <div class="dist-card-head">
-            <div><h3>Linha ${line}</h3><small>Corte ${date} • Total ${fmt(total)} pares</small></div>
-            <button type="button" class="copy-card-btn" data-card-key="${cardKey}">Copiar esta tabela</button>
-          </div>
-          <div class="dist-card-body">
-            <table class="excel-table">
-              <thead>
-                <tr><th colspan="3" class="date-title">Corte ${date}</th></tr>
-                <tr><th colspan="3" class="line-title">Linha ${line}</th></tr>
-                <tr><th>Mod</th><th>Pares</th><th>Atelier</th></tr>
-              </thead>
-              <tbody>
-                ${list.map(r=>`<tr><td>${r.model}</td><td>${fmt(r.pares)}</td><td><input data-key="${r.cut}|${r.line}|${r.model}" value="${r.atelier||''}" placeholder=""></td></tr>`).join('')}
-                <tr class="total-row"><td>Total</td><td>${fmt(total)}</td><td></td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>`;
-      });
-    });
-    excelTable.innerHTML = html;
-    excelTable.querySelectorAll('input[data-key]').forEach(inp=>inp.addEventListener('input', e=>{ const row=aggregated.find(r=>`${r.cut}|${r.line}|${r.model}`===e.target.dataset.key); if(row) row.atelier=e.target.value; }));
-    excelTable.querySelectorAll('.copy-card-btn').forEach(btn=>btn.addEventListener('click', async()=>{
-      await navigator.clipboard.writeText(buildTSV(btn.dataset.cardKey));
-      alert('Tabela deste card copiada! Agora é só colar no Excel.');
-    }));
-  }
-
-  function renderRaw(rows){
-    rawTable.innerHTML = '<thead><tr><th>Pág.</th><th>Linha</th><th>Corte</th><th>Modelo</th><th>Pares modelo</th><th>Adm-Rem</th><th>Cliente</th></tr></thead><tbody>' + rows.map(r=>`<tr><td>${r.page}</td><td>${r.line}</td><td>${r.cut}</td><td>${r.model}</td><td>${fmt(r.pares)}</td><td>${r.adm||''}</td><td>${r.cliente||''}</td></tr>`).join('') + '</tbody>';
-  }
-
-  function groupBy(arr, fn){ return arr.reduce((o,x)=>{ const k=fn(x); (o[k]||(o[k]=[])).push(x); return o; },{}); }
-
-  function buildTSV(cardKey){
-    const rows = applyFilters(aggregated);
-    const selected = cardKey ? rows.filter(r => `${r.cut || 'Sem data'}|${r.line}` === cardKey) : rows;
-    const byDate = groupBy(selected, r=>r.cut || 'Sem data');
-    const out=[];
-    Object.keys(byDate).sort().forEach(date=>{
-      const lines=groupBy(byDate[date], r=>r.line);
-      const lineKeys=Object.keys(lines).sort();
-      if(cardKey){
-        const line=lineKeys[0];
-        out.push(['Corte', date]);
-        out.push(['Linha', line]);
-        out.push(['Mod','Pares','Atelier']);
-        lines[line].sort((a,b)=>Number(a.model)-Number(b.model)).forEach(r=>out.push([r.model, r.pares, r.atelier||'']));
-        out.push(['Total', lines[line].reduce((s,r)=>s+r.pares,0), '']);
-      } else {
-        out.push(['Data de Corte', date]);
-        out.push(lineKeys.flatMap(l=>['Linha', l, '', '']));
-        out.push(lineKeys.flatMap(()=>['Mod','Pares','Atelier','']));
-        const maxLen=Math.max(...lineKeys.map(l=>lines[l].length));
-        for(let i=0;i<maxLen;i++) out.push(lineKeys.flatMap(l=>{ const r=lines[l].sort((a,b)=>Number(a.model)-Number(b.model))[i]; return r ? [r.model, r.pares, r.atelier||'', ''] : ['', '', '', '']; }));
-        out.push(lineKeys.flatMap(l=>['Total', lines[l].reduce((s,r)=>s+r.pares,0), '', ''])); out.push([]);
-      }
-    });
-    return out.map(r=>r.join('\t')).join('\n');
-  }
-
-
-  function onlyVisibleRows(){
-    return applyFilters(aggregated).filter(r=>r.cut && r.line && r.model && Number(r.pares)>0);
-  }
-
-  function getGroupedForExcel(){
-    const rows = onlyVisibleRows();
-    const grouped = [];
-    const byDate = groupBy(rows, r=>r.cut || 'Sem data');
-    Object.keys(byDate).sort().forEach(date=>{
-      const byLine = groupBy(byDate[date], r=>r.line);
-      Object.keys(byLine).sort().forEach(line=>{
-        const itens = byLine[line].slice().sort((a,b)=>Number(a.model)-Number(b.model));
-        grouped.push({date, line, itens});
-      });
-    });
-    return grouped;
-  }
-
-  function parseCutDate(dateStr){
-    const m = String(dateStr||'').match(/^(\d{2})\/(\d{2})$/);
-    if(!m) return null;
-    const year = detectedYear || new Date().getFullYear();
-    return new Date(year, Number(m[2])-1, Number(m[1]));
-  }
-
-  function fileNameFromDate(dateStr){
-    const m = String(dateStr||'').match(/^(\d{2})\/(\d{2})$/);
-    return m ? `${m[1]}-${m[2]}.xlsx` : 'distribuicao.xlsx';
-  }
-
-  function clearTemplateInputCells(ws){
-    const slots = getTemplateSlots();
-    slots.forEach(slot=>{
-      ws.getCell(slot.lineCell).value = null;
-      for(let r=slot.start; r<=slot.end; r++){
-        ws.getCell(`${slot.modCol}${r}`).value = null;
-        ws.getCell(`${slot.paresCol}${r}`).value = null;
-      }
-    });
-    // limpa somente a data digitada no topo; as datas calculadas por fórmula ficam intactas
-    ws.getCell('G1').value = null;
-  }
-
-  function getTemplateSlots(){
-    const groups = [
-      {header:4, start:6, end:17},
-      {header:20, start:22, end:33},
-      {header:36, start:38, end:49}
-    ];
-    const cols = [
-      ['B','C','C'], ['G','H','H'], ['L','M','M'], ['Q','R','R'], ['V','W','W'], ['AA','AB','AB']
-    ];
-    const slots=[];
-    groups.forEach(g=>cols.forEach(c=>{
-      slots.push({lineCell:`${c[2]}${g.header}`, modCol:c[0], paresCol:c[1], start:g.start, end:g.end});
-    }));
-    return slots;
-  }
-
-  function downloadBlob(blob, filename){
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
-  }
-
-  async function gerarExcelAjustado(){
-    try{
-      if(!aggregated.length){ alert('Leia o PDF primeiro.'); return; }
-      if(!excelFile.files[0]){ alert('Selecione o Excel modelo primeiro.'); return; }
-      if(!window.ExcelJS){ alert('Biblioteca ExcelJS não carregou. Verifique a internet e tente novamente.'); return; }
-      const groups = getGroupedForExcel();
-      if(!groups.length){ alert('Nenhum dado para lançar no Excel.'); return; }
-      const slots = getTemplateSlots();
-      const tooManyGroups = groups.length > slots.length;
-      const tooManyModels = groups.filter(g => g.itens.length > 12);
-      if(tooManyGroups){ alert(`O Excel modelo possui ${slots.length} quadros. O PDF gerou ${groups.length}. Vou lançar somente os ${slots.length} primeiros para não alterar a estrutura.`); }
-      if(tooManyModels.length){ alert('Alguma linha possui mais de 12 modelos. Para não alterar a tabela/fórmulas, serão lançados somente os 12 primeiros modelos em cada quadro.'); }
-
-      setStatus('Gerando Excel ajustado...');
-      const workbook = new ExcelJS.Workbook();
-      await workbook.xlsx.load(await excelFile.files[0].arrayBuffer());
-      const ws = workbook.getWorksheet('Distribuição') || workbook.worksheets[1] || workbook.worksheets[0];
-      if(!ws) throw new Error('Aba Distribuição não encontrada no Excel.');
-
-      clearTemplateInputCells(ws);
-      const firstDate = groups[0].date;
-      const d = parseCutDate(firstDate);
-      ws.getCell('G1').value = d || firstDate;
-      if(d) ws.getCell('G1').numFmt = 'dd/mmm';
-
-      groups.slice(0, slots.length).forEach((group, idx)=>{
-        const slot = slots[idx];
-        ws.getCell(slot.lineCell).value = Number(group.line) || group.line;
-        group.itens.slice(0, 12).forEach((item, i)=>{
-          const row = slot.start + i;
-          ws.getCell(`${slot.modCol}${row}`).value = Number(item.model) || item.model;
-          ws.getCell(`${slot.paresCol}${row}`).value = Number(item.pares) || 0;
+      groupRows.forEach(row=>{
+        const rowValues=getSameLine(tokens,row.y,5).filter(t=>t.x>firstModelX&&isNumberToken(t.text));
+        rowValues.forEach(tok=>{
+          const {best,dist}=nearestHeader(headers,tok.cx);
+          const pares=parsePdfNumber(tok.text);
+          if(best&&dist<18&&pares){addRemessaValue(result,linha,best.model,{remessa:row.remessa,lote:row.lote,pares,paresTalhao:row.pares,cliente:row.cliente||""});}
         });
       });
-
-      if(workbook.calcProperties){ workbook.calcProperties.fullCalcOnLoad = true; workbook.calcProperties.forceFullCalc = true; }
-      const buffer = await workbook.xlsx.writeBuffer();
-      downloadBlob(new Blob([buffer], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), fileNameFromDate(firstDate));
-      setStatus(`Excel gerado: ${fileNameFromDate(firstDate)}. Foram lançados ${Math.min(groups.length, slots.length)} quadro(s).`);
-    }catch(err){ console.error(err); setStatus('Erro ao gerar Excel: ' + (err.message || err)); }
+    }
   }
+  rebuildItems(result);
+  return result;
+}
 
-  processBtn.addEventListener('click', async()=>{
-    try{
-      if(!pdfFile.files[0]){ alert('Selecione o PDF primeiro.'); return; }
-      setStatus('Lendo PDF... aguarde.'); processBtn.disabled=true; aggregated=[]; rawRows=[]; debugLines=[];
-      await readPdf(pdfFile.files[0]); render();
-    }catch(err){ console.error(err); setStatus('Erro ao ler PDF: ' + (err.message || err)); }
-    finally{ processBtn.disabled=false; }
+function rebuildItems(distribution){
+  const itens=[];let totalPares=0,totalRemessas=0;
+  Object.keys(distribution.linhas||{}).sort(numericSort).forEach(linha=>{
+    const lineData=distribution.linhas[linha]||{modelos:{},remessas:{}};
+    const modelos=lineData.modelos||{};
+    Object.keys(modelos).sort(numericSort).forEach(modelo=>{
+      const pares=Number(modelos[modelo]||0);
+      totalPares+=pares;
+      const remessas=(lineData.remessas&&lineData.remessas[modelo])?lineData.remessas[modelo]:[];
+      totalRemessas+=remessas.length;
+      itens.push({linha,modelo,pares,remessas});
+    });
+    lineData.total=Object.values(modelos).reduce((a,b)=>a+Number(b||0),0);
   });
-  clearBtn.addEventListener('click',()=>{ pdfFile.value=''; excelFile.value=''; $('filterLinha').value=''; $('filterData').value=''; aggregated=[]; rawRows=[]; detectedYear=null; excelTable.innerHTML=''; rawTable.innerHTML=''; debugBox.textContent=''; resultPanel.style.display='none'; setStatus('',false); });
-  $('filterLinha').addEventListener('input', render); $('filterData').addEventListener('input', render);
-  $('copyExcelBtn').addEventListener('click', async()=>{ await navigator.clipboard.writeText(buildTSV()); alert('Tabela copiada! Agora é só colar no Excel.'); });
-  $('generateExcelBtn').addEventListener('click', gerarExcelAjustado);
-  $('downloadCsvBtn').addEventListener('click',()=>{ const blob=new Blob([buildTSV()],{type:'text/tab-separated-values;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='distribuicao_pdf.tsv'; a.click(); URL.revokeObjectURL(a.href); });
-  document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{ document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active')); document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); btn.classList.add('active'); $(btn.dataset.view).classList.add('active'); }));
-})();
+  distribution.itens=itens;
+  distribution.totalPares=totalPares;
+  distribution.totalModelos=itens.length;
+  distribution.totalRemessas=totalRemessas;
+  return distribution;
+}
+function rebuildLinesFromItems(){
+  if(!currentDistribution)return;
+  const linhas={};
+  currentDistribution.itens.forEach(item=>{
+    const linha=normalizeKey(item.linha),modelo=normalizeKey(item.modelo),pares=Number(item.pares||0);
+    if(!linha||!modelo)return;
+    if(!linhas[linha])linhas[linha]={total:0,modelos:{},remessas:{}};
+    linhas[linha].modelos[modelo]=pares;
+    linhas[linha].remessas[modelo]=Array.isArray(item.remessas)?item.remessas:[];
+    linhas[linha].total+=pares;
+  });
+  currentDistribution.linhas=linhas;
+  rebuildItems(currentDistribution);
+}
+
+function renderSummary(){
+  if(!currentDistribution)return;
+  const linhas=Object.keys(currentDistribution.linhas||{}).length;
+  summaryBar.innerHTML=`
+    <div class="summary-item"><strong>${docIdToBR(currentDistribution.dataCorte||"")}</strong><small>DATA DE CORTE</small></div>
+    <div class="summary-item"><strong>${formatNumber(linhas)}</strong><small>LINHAS</small></div>
+    <div class="summary-item"><strong>${formatNumber(currentDistribution.totalModelos)}</strong><small>MODELOS</small></div>
+    <div class="summary-item"><strong>${formatNumber(currentDistribution.totalRemessas)}</strong><small>REMESSAS COM MODELO</small></div>
+    <div class="summary-item"><strong>${formatNumber(currentDistribution.totalPares)}</strong><small>TOTAL DE PARES</small></div>`;
+  summaryCard.classList.remove("hidden");
+}
+function renderSheet(){
+  if(!currentDistribution)return;
+  const dataDoc=currentDistribution.dataCorte||isoToDocId(dataCorteInput.value);
+  const cortePrev=dataCorteProgramadaInput.value?formatMonthDay(dataCorteProgramadaInput.value):"";
+  const costuraPrev=dataCosturaInput.value?formatMonthDay(dataCosturaInput.value):"";
+  const embarquePrev=dataEmbarqueInput.value?formatMonthDay(dataEmbarqueInput.value):"";
+  const cards=Object.keys(currentDistribution.linhas||{}).sort(numericSort).map(linha=>renderLineCard(linha,currentDistribution.linhas[linha])).join("");
+  distributionSheet.innerHTML=`
+    <div class="sheet-top">
+      <div class="sheet-info"><strong>Data de Corte</strong><span>${formatMonthDay(dataDoc)}</span></div>
+      <div class="sheet-date-box"><strong>Corte</strong><span>${cortePrev||"—"}</span></div>
+      <div class="sheet-date-box"><strong>Costura</strong><span>${costuraPrev||"—"}</span></div>
+      <div class="sheet-date-box"><strong>Embarque</strong><span>${embarquePrev||"—"}</span></div>
+    </div>
+    <div class="line-card-grid">${cards||"<p>Nenhuma linha carregada.</p>"}</div>
+    <div class="total-pares-box"><strong>Total de Pares</strong><span>${formatNumber(currentDistribution.totalPares)}</span></div>`;
+  sheetCard.classList.remove("hidden");
+}
+function renderLineCard(linha,lineData){
+  const modelos=Object.entries(lineData.modelos||{}).sort((a,b)=>numericSort(a[0],b[0]));
+  const rows=modelos.map(([modelo,pares])=>`<tr><td>${escapeHtml(modelo)}</td><td>${formatNumber(pares)}</td></tr>`).join("");
+  const blanks=Math.max(0,10-modelos.length);
+  const blankRows=Array.from({length:blanks}).map(()=>`<tr class="blank-row"><td>&nbsp;</td><td>&nbsp;</td></tr>`).join("");
+  return `<div class="line-card"><table><thead><tr><th>Linha</th><th>${escapeHtml(linha)}</th></tr><tr><th>Mod</th><th>Pares</th></tr></thead><tbody>${rows}${blankRows}</tbody><tfoot><tr><td>Total</td><td>${formatNumber(lineData.total||0)}</td></tr></tfoot></table></div>`;
+}
+function renderEditor(){
+  if(!currentDistribution)return;
+  const disabledAttr=currentUserCanEdit?"":"disabled";
+  const actionHeader=document.querySelector('#editorCard thead th:last-child');
+  if(actionHeader)actionHeader.classList.toggle("hidden",!currentUserCanEdit);
+  addRowButton.classList.toggle("hidden",!currentUserCanEdit);
+  editorTableBody.innerHTML=currentDistribution.itens.map((item,index)=>{
+    const remessas=item.remessas||[];
+    const remessasHtml=remessas.length?`<div class="remessa-list"><details><summary>${remessas.length} remessa(s)</summary><div>${remessas.map(r=>`${escapeHtml(r.remessa)} • ${formatNumber(r.pares)} pares${r.lote?` • lote ${escapeHtml(r.lote)}`:""}`).join("<br>")}</div></details></div>`:"<span class='tag'>manual/sem remessa</span>";
+    return `<tr data-index="${index}">
+      <td><input class="small-input edit-linha" type="text" value="${escapeHtml(item.linha)}" ${disabledAttr} /></td>
+      <td><input class="small-input edit-modelo" type="text" value="${escapeHtml(item.modelo)}" ${disabledAttr} /></td>
+      <td><input class="small-input edit-pares" type="number" min="0" step="1" value="${Number(item.pares||0)}" ${disabledAttr} /></td>
+      <td class="cell-left">${remessasHtml}</td>
+      <td class="${currentUserCanEdit?"":"hidden"}"><button class="btn btn-danger btn-remove-row" type="button">Remover</button></td>
+    </tr>`;
+  }).join("");
+  editorTableBody.querySelectorAll("input").forEach(input=>input.addEventListener("change",syncEditorRows));
+  editorTableBody.querySelectorAll(".btn-remove-row").forEach(btn=>btn.addEventListener("click",e=>{const tr=e.target.closest("tr");const index=Number(tr.dataset.index);currentDistribution.itens.splice(index,1);rebuildLinesFromItems();renderAll();}));
+  tableInfoPanel.textContent=`${formatNumber(currentDistribution.itens.length)} modelo(s) carregado(s). Confira os pares antes de salvar.`;
+  viewerWarning.classList.toggle("hidden",currentUserCanEdit);
+  saveButton.disabled=!currentUserCanEdit||!currentDistribution.itens.length;
+  editorCard.classList.remove("hidden");
+}
+function syncEditorRows(){
+  if(!currentDistribution)return;
+  currentDistribution.itens=[...editorTableBody.querySelectorAll("tr")].map((tr,i)=>({
+    linha:normalizeKey(tr.querySelector(".edit-linha").value),
+    modelo:normalizeKey(tr.querySelector(".edit-modelo").value),
+    pares:Number(tr.querySelector(".edit-pares").value||0),
+    remessas:currentDistribution.itens[i]?.remessas||[]
+  })).filter(i=>i.linha&&i.modelo&&i.pares>=0);
+  rebuildLinesFromItems();
+  renderSummary();renderSheet();
+}
+function renderAll(){renderSummary();renderSheet();renderEditor();setPermissionUI();}
+function hideResults(){summaryCard.classList.add("hidden");sheetCard.classList.add("hidden");editorCard.classList.add("hidden");saveButton.disabled=true;distributionSheet.innerHTML="";editorTableBody.innerHTML="";summaryBar.innerHTML="";tableInfoPanel.textContent=""}
+
+async function readPdf(){
+  if(!currentUserCanEdit){showMessage("Seu nível de acesso não permite ler PDF. Use o botão Abrir distribuição salva para consultar.","warning");return}
+  clearMessage();hideResults();
+  const file=pdfFileInput.files?.[0];
+  if(!file){showMessage("Selecione um PDF de corte para ler.","error");return}
+  if(file.type&&file.type!=="application/pdf"){showMessage("O arquivo selecionado não parece ser PDF.","error");return}
+  try{
+    readPdfButton.disabled=true;showMessage("Lendo PDF e montando distribuição...","info");
+    const dist=await extractDistributionFromPdf(file);
+    if(!dist.dataCorte){
+      const fromInput=dataCorteInput.value;
+      if(fromInput){dist.dataCorte=isoToDocId(fromInput);dist.dataCorteISO=fromInput}
+    }
+    if(!dist.dataCorte){showMessage("Não consegui identificar a data de corte no PDF. Informe a data manualmente e tente salvar depois.","warning")}
+    if(dist.dataCorteISO)dataCorteInput.value=dist.dataCorteISO;
+    currentDistribution=dist;
+    recalcPredictedDates();
+    renderAll();
+    showMessage(`PDF lido com sucesso: ${formatNumber(dist.totalPares)} pares em ${formatNumber(dist.totalModelos)} modelo(s).`,"success");
+  }catch(e){console.error(e);showMessage(`Erro ao ler PDF: ${e.message}`,"error")}
+  finally{readPdfButton.disabled=false}
+}
+function buildSavePayload(existingSnap){
+  syncEditorRows();
+  const dataISO=dataCorteInput.value||currentDistribution.dataCorteISO||docIdToISO(currentDistribution.dataCorte||"");
+  const docId=isoToDocId(dataISO)||currentDistribution.dataCorte;
+  if(!docId)throw new Error("Informe a data de corte antes de salvar.");
+  currentDistribution.dataCorte=docId;currentDistribution.dataCorteISO=dataISO;
+  recalcPredictedDates();
+  rebuildLinesFromItems();
+  return{docId,payload:{
+    dataCorte:docId,
+    dataCorteBR:docIdToBR(docId),
+    dataCorteISO:dataISO,
+    arquivoOrigem:currentDistribution.arquivoOrigem||"",
+    datasProgramacao:{corte:dataCorteProgramadaInput.value||"",costura:dataCosturaInput.value||"",embarque:dataEmbarqueInput.value||""},
+    totalPares:currentDistribution.totalPares,
+    totalLinhas:Object.keys(currentDistribution.linhas||{}).length,
+    totalModelos:currentDistribution.totalModelos,
+    totalRemessas:currentDistribution.totalRemessas,
+    linhas:currentDistribution.linhas,
+    itens:currentDistribution.itens,
+    atualizadoPor:currentUserEmail,
+    atualizadoPorNome:currentUserName,
+    atualizadoEm:serverTimestamp(),
+    criadoEm:existingSnap?.exists()?existingSnap.data().criadoEm||serverTimestamp():serverTimestamp()
+  }};
+}
+async function saveDistribution(){
+  if(!currentUserCanEdit){showMessage("Seu nível de acesso não permite salvar distribuição.","warning");return}
+  if(!currentDistribution||!currentDistribution.itens.length){showMessage("Leia um PDF ou abra uma distribuição antes de salvar.","error");return}
+  try{
+    saveButton.disabled=true;showMessage("Preparando dados para salvar...","info");
+    const dataISO=dataCorteInput.value||currentDistribution.dataCorteISO||docIdToISO(currentDistribution.dataCorte||"");
+    const docId=isoToDocId(dataISO)||currentDistribution.dataCorte;
+    const ref=doc(db,"Distribuicao",docId);
+    const snap=await getDoc(ref);
+    if(snap.exists()&&!confirm(`Já existe uma distribuição salva para ${docIdToBR(docId)}. Deseja substituir?`)){showMessage("Salvamento cancelado.","warning");return}
+    const{payload}=buildSavePayload(snap);
+    await setDoc(ref,payload,{merge:false});
+    showMessage(`Distribuição ${docId} salva com sucesso na coleção Distribuicao.`,"success");
+  }catch(e){console.error(e);showMessage(`Erro ao salvar distribuição: ${e.message}`,"error")}
+  finally{saveButton.disabled=!currentUserCanEdit||!currentDistribution?.itens?.length}
+}
+async function loadDistributionByDocId(docId){
+  clearMessage();hideResults();
+  if(!docId){showMessage("Data da distribuição inválida.","error");return}
+  try{
+    showMessage("Buscando distribuição salva...","info");
+    const snap=await getDoc(doc(db,"Distribuicao",docId));
+    if(!snap.exists()){showMessage(`Nenhuma distribuição encontrada para ${docIdToBR(docId)}.`,"error");return}
+    const data=snap.data();
+    currentDistribution={arquivoOrigem:data.arquivoOrigem||"",dataCorte:data.dataCorte||docId,dataCorteISO:data.dataCorteISO||docIdToISO(docId),linhas:data.linhas||{},itens:Array.isArray(data.itens)?data.itens:[],totalPares:0,totalModelos:0,totalRemessas:0};
+    if(!currentDistribution.itens.length)rebuildItems(currentDistribution);else rebuildLinesFromItems();
+    dataCorteInput.value=currentDistribution.dataCorteISO||docIdToISO(docId);
+    recalcPredictedDates();
+    renderAll();
+    showMessage(`Distribuição ${docId} aberta com sucesso.`, "success");
+  }catch(e){console.error(e);showMessage(`Erro ao abrir distribuição: ${e.message}`,"error")}
+}
+async function openDistributionsModal(){
+  clearMessage();
+  listModalBackdrop.classList.add("show");
+  distributionsListBody.innerHTML='<tr><td colspan="6">Carregando distribuições salvas...</td></tr>';
+  listModalInfo.textContent="Buscando documentos da coleção Distribuicao...";
+  try{
+    const snap=await getDocs(collection(db,"Distribuicao"));
+    const rows=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>docIdToISO(b.id).localeCompare(docIdToISO(a.id)));
+    if(!rows.length){distributionsListBody.innerHTML='<tr><td colspan="6">Nenhuma distribuição criada ainda.</td></tr>';listModalInfo.textContent="Nenhuma distribuição encontrada.";return}
+    listModalInfo.textContent=`${rows.length} distribuição(ões) encontrada(s).`;
+    distributionsListBody.innerHTML=rows.map(row=>{
+      const data=row.data||{};
+      return `<tr>
+        <td><strong>${docIdToBR(data.dataCorte||row.id)}</strong></td>
+        <td>${formatNumber(data.totalPares||0)}</td>
+        <td>${formatNumber(data.totalLinhas||Object.keys(data.linhas||{}).length)}</td>
+        <td>${formatNumber(data.totalModelos||0)}</td>
+        <td class="cell-left">${escapeHtml(data.arquivoOrigem||"—")}</td>
+        <td><button class="btn btn-primary btn-open-saved" type="button" data-doc-id="${escapeHtml(row.id)}">Abrir</button></td>
+      </tr>`;
+    }).join("");
+    distributionsListBody.querySelectorAll(".btn-open-saved").forEach(btn=>btn.addEventListener("click",async()=>{const docId=btn.dataset.docId;listModalBackdrop.classList.remove("show");await loadDistributionByDocId(docId)}));
+  }catch(e){console.error(e);distributionsListBody.innerHTML='<tr><td colspan="6">Erro ao carregar distribuições.</td></tr>';listModalInfo.textContent=`Erro: ${e.message}`;}
+}
+function clearPage(){pdfFileInput.value="";dataCorteInput.value="";dataCorteProgramadaInput.value="";dataCosturaInput.value="";dataEmbarqueInput.value="";currentDistribution=null;clearMessage();hideResults()}
+function addRow(){if(!currentUserCanEdit){showMessage("Seu nível de acesso não permite adicionar modelos.","warning");return}addLinhaInput.value="";addModeloInput.value="";addParesInput.value="";addModalBackdrop.classList.add("show");setTimeout(()=>addLinhaInput.focus(),50)}
+function confirmAddRow(){
+  const linha=normalizeKey(addLinhaInput.value),modelo=normalizeKey(addModeloInput.value),pares=Number(addParesInput.value||0);
+  if(!linha||!modelo||!pares){showMessage("Informe linha, modelo e pares para adicionar.","error");return}
+  if(!currentDistribution){currentDistribution={arquivoOrigem:"manual",dataCorte:isoToDocId(dataCorteInput.value),dataCorteISO:dataCorteInput.value,linhas:{},itens:[],totalPares:0,totalModelos:0,totalRemessas:0}}
+  const existing=currentDistribution.itens.find(i=>i.linha===linha&&i.modelo===modelo);
+  if(existing){existing.pares+=pares}else currentDistribution.itens.push({linha,modelo,pares,remessas:[]});
+  rebuildLinesFromItems();renderAll();addModalBackdrop.classList.remove("show");showMessage("Modelo adicionado. Confira antes de salvar.","success")
+}
+function printSheet(){if(!currentDistribution){showMessage("Abra ou leia uma distribuição antes de imprimir.","warning");return}window.print()}
+function setPermissionUI(){
+  currentUserCanEdit=FULL_ACCESS_LEVELS.has(currentUserLevel);
+  currentUserCanView=VIEW_ACCESS_LEVELS.has(currentUserLevel);
+  if(!currentUserCanView){redirectUnauthorized();return}
+  creationGrid.classList.toggle("hidden",!currentUserCanEdit);
+  readPdfButton.classList.toggle("hidden",!currentUserCanEdit);
+  saveButton.classList.toggle("hidden",!currentUserCanEdit);
+  addRowButton.classList.toggle("hidden",!currentUserCanEdit);
+  clearButton.classList.remove("hidden");
+  listDistributionsButton.classList.remove("hidden");
+  viewerWarning.classList.toggle("hidden",currentUserCanEdit);
+  saveButton.disabled=!currentUserCanEdit||!currentDistribution?.itens?.length;
+  if(!currentUserCanEdit&&!currentDistribution)showMessage("Seu acesso é somente consulta. Clique em Abrir distribuição salva para visualizar as distribuições já criadas.","info");
+}
+function initNavigationSafe(nivel,nome){try{if(typeof window.initNavigation==="function")window.initNavigation(nivel,nome)}catch(e){console.warn("Falha ao iniciar navegação",e)}}
+function redirectUnauthorized(){
+  alert("Seu nível de acesso não permite abrir esta página. Você será redirecionado para o início.");
+  window.location.replace("index.html");
+}
+
+readPdfButton.addEventListener("click",readPdf);
+saveButton.addEventListener("click",saveDistribution);
+clearButton.addEventListener("click",clearPage);
+listDistributionsButton.addEventListener("click",openDistributionsModal);
+closeListModalButton.addEventListener("click",()=>listModalBackdrop.classList.remove("show"));
+listModalBackdrop.addEventListener("click",e=>{if(e.target===listModalBackdrop)listModalBackdrop.classList.remove("show")});
+printButton.addEventListener("click",printSheet);
+addRowButton.addEventListener("click",addRow);
+closeAddModalButton.addEventListener("click",()=>addModalBackdrop.classList.remove("show"));
+confirmAddRowButton.addEventListener("click",confirmAddRow);
+addModalBackdrop.addEventListener("click",e=>{if(e.target===addModalBackdrop)addModalBackdrop.classList.remove("show")});
+[dataCorteInput].forEach(input=>input.addEventListener("change",()=>{recalcPredictedDates();if(currentDistribution){currentDistribution.dataCorte=isoToDocId(input.value);currentDistribution.dataCorteISO=input.value;renderSummary();renderSheet();setPermissionUI()}}));
+
+onAuthStateChanged(auth,async user=>{
+  if(!user){window.location.href="login.html";return}
+  try{
+    currentUserEmail=user.email||"";
+    const userSnap=await getDoc(doc(db,"Usuario",user.email));
+    if(!userSnap.exists()){alert("Dados do usuário não encontrados. Faça login novamente.");await signOut(auth);window.location.href="login.html";return}
+    const data=userSnap.data();currentUserLevel=String(data.nivelAcesso||"");currentUserName=data.Nome||"Usuário";
+    localStorage.setItem("userNivelAcesso",currentUserLevel);localStorage.setItem("userName",currentUserName);
+    if(!VIEW_ACCESS_LEVELS.has(currentUserLevel)){redirectUnauthorized();return}
+    document.body.classList.remove("auth-loading");
+    initNavigationSafe(currentUserLevel,currentUserName);setPermissionUI();
+  }catch(e){console.error(e);alert("Erro ao validar usuário. Faça login novamente.");await signOut(auth);window.location.href="login.html"}
+});
 </script>
 </body>
 </html>
