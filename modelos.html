@@ -51,6 +51,11 @@ thead th{background:#f2f2f2;position:sticky;top:0;z-index:2}
 tbody tr:nth-child(even){background:#fafafa}
 tbody tr.model-row{cursor:pointer;transition:background .15s ease}
 tbody tr.model-row:hover{background:#eaf4ff}
+tbody tr.model-row.no-price{background:#ffe3e8!important;color:#7f1d1d}
+tbody tr.model-row.no-price:hover{background:#ffd2da!important}
+tbody tr.model-row.no-price td{border-color:#f3a8b5}
+.price-missing-badge{display:inline-block;background:#dc3545;color:#fff;border-radius:999px;padding:4px 9px;font-size:.72rem;font-weight:900;letter-spacing:.02em}
+.price-warning-text{display:block;color:#b42318;font-size:.70rem;font-weight:800;margin-top:2px}
 .cell-left{text-align:left}.money{text-align:right}.tag{display:inline-block;border:1px solid #d8d8d8;border-radius:999px;padding:3px 7px;background:#fff;margin:2px;font-size:.72rem;line-height:1.15}.tag.empty{color:#777;background:#f2f2f2}.models-card .cell-left{line-height:1.45}.mini-help{font-size:.8rem;color:var(--muted);line-height:1.35}.empty-state{padding:24px;text-align:center;color:#666}
 
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.50);display:none;align-items:center;justify-content:center;padding:14px;z-index:5000}.modal-backdrop.show{display:flex}
@@ -78,7 +83,7 @@ tbody tr.model-row:hover{background:#eaf4ff}
   <div class="page-head">
     <div>
       <h2 class="page-title">Modelos e Preços</h2>
-
+      <p class="page-subtitle">Cadastre e edite os modelos salvos na coleção <strong>modelos</strong>. Clique em qualquer linha da tabela para editar.</p>
     </div>
     <div class="top-actions">
       <button class="btn btn-success" id="createModelButton" type="button">Criar modelo</button>
@@ -145,12 +150,12 @@ tbody tr.model-row:hover{background:#eaf4ff}
           <div class="form-group"><label for="precoInput">Preço</label><input type="text" id="precoInput" placeholder="R$ 0,00" autocomplete="off" /></div>
           <div class="form-group"><label for="motivoInput">Motivo</label><input type="text" id="motivoInput" placeholder="Ex: ajuste de preço" autocomplete="off" /></div>
         </div>
-        <div class="form-group" style="margin-top:9px"><label for="observacaoInput">Observações do modelo</label><textarea id="observacaoInput" placeholder="Observações sobre o modelo"></textarea></div>
+        <div class="form-group" style="margin-top:9px"><label for="observacaoInput">Observações do modelo</label><textarea id="observacaoInput" placeholder="Ex: Modelo igual ao 7142.118, ajuste especial, orientação da fábrica..."></textarea></div>
       </div>
 
       <div class="compact-card">
         <div class="compact-title">
-          <div><strong>Valores do modelo</strong><br><span class="mini-help">Adicone setores no botão ao lado</span></div>
+          <div><strong>Valores do modelo</strong><br><span class="mini-help">Altere o valor e registre uma observação específica do setor quando necessário. Campos vazios ou zerados não serão salvos.</span></div>
           <button class="btn btn-secondary btn-small" id="addSectorButton" type="button">Adicionar setor</button>
         </div>
         <div class="modal-summary">
@@ -367,6 +372,10 @@ async function loadModels(){
   models.sort((a,b)=>(Number(a.linha)-Number(b.linha))||(Number(a.modelo)-Number(b.modelo))||String(a.id).localeCompare(String(b.id)));
   renderModelsTable();
 }
+function modelSemPreco(model){
+  const valor=Number(model?.preco?.valor||0);
+  return !Number.isFinite(valor)||valor<=0;
+}
 function renderModelsTable(){
   const term=normalizeText(els.modelFilterInput.value||"");
   const categoriaTerm=normalizeText(els.categoriaFilterInput.value||"");
@@ -377,17 +386,20 @@ function renderModelsTable(){
     const subcategoriaMatch=!subcategoriaTerm||normalizeText(m.subcategoria||"").includes(subcategoriaTerm);
     return mainMatch&&categoriaMatch&&subcategoriaMatch;
   });
-  els.listInfo.textContent=`${filtered.length} de ${models.length} modelo(s)`;
+  const semPrecoCount=filtered.filter(modelSemPreco).length;
+  els.listInfo.textContent=semPrecoCount?`${filtered.length} de ${models.length} modelo(s) • ${semPrecoCount} sem preço`:`${filtered.length} de ${models.length} modelo(s)`;
   if(!filtered.length){els.modelsTableBody.innerHTML=`<tr><td colspan="8" class="empty-state">Nenhum modelo encontrado.</td></tr>`;return;}
   els.modelsTableBody.innerHTML=filtered.map(m=>{
     const setores=m.preco?.setores||{};
+    const semPreco=modelSemPreco(m);
     const sectorTags=orderedSectorEntries(setores).length?orderedSectorEntries(setores).map(([k,v])=>`<span class="tag">${escapeHtml(k)}: ${formatMoney(v)}</span>`).join(""):`<span class="tag empty">Sem setores</span>`;
-    return `<tr class="model-row" data-open-model="${escapeHtml(m.id)}" title="Clique para editar ${escapeHtml(m.id)}">
+    const priceContent=semPreco?`<span class="price-missing-badge">SEM PREÇO</span><span class="price-warning-text">Cadastrar valor</span>`:`<strong>${formatMoney(m.preco?.valor||0)}</strong>`;
+    return `<tr class="model-row${semPreco?" no-price":""}" data-open-model="${escapeHtml(m.id)}" title="Clique para editar ${escapeHtml(m.id)}">
       <td>${escapeHtml(m.linha||"")}</td>
       <td><strong>${escapeHtml(m.modelo||"")}</strong></td>
       <td>${escapeHtml(m.categoria||"-")}</td>
       <td>${escapeHtml(m.subcategoria||"-")}</td>
-      <td class="money"><strong>${formatMoney(m.preco?.valor||0)}</strong></td>
+      <td class="money">${priceContent}</td>
       <td class="cell-left">${sectorTags}</td>
       <td class="money">${formatMoney(m.totalSetores||0)}</td>
       <td class="money"><strong>${formatMoney(m.saldo||0)}</strong></td>
