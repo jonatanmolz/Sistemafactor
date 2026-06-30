@@ -17,21 +17,24 @@
     '04': 'Montagem',
     '05': 'Admin',
     '06': 'Consultor',
-    '07': 'Super'
+    '07': 'Super',
+    '08': 'Financeiro'
   };
 
   const PAGINAS = [
     // Início
-    { group: 'Início', name: 'Index', href: 'index.html', levels: ['01', '02', '03', '04', '05', '06', '07'] },
+    { group: 'Início', name: 'Index', href: 'index.html', levels: ['01', '02', '03', '04', '05', '06', '07','08'] },
 
     // Cadastro
     { group: 'Cadastro', name: 'Cadastro Usuarios', href: 'cadastroUsuarios.html', levels: ['07'] },
     { group: 'Cadastro', name: 'Cadastro Talões', href: 'cadastroTaloes.html', levels: ['01', '05', '07'] },
     { group: 'Cadastro', name: 'Cadastro Manual', href: 'cadastromanual.html', levels: ['05', '07'] },
-    { group: 'Cadastro', name: 'Criar Distribuição', href: 'distribuicao_montagem.html', levels: ['05', '07'] },
+    { group: 'Cadastro', name: 'Modelos', href: 'modelos.html', levels: ['05', '07','08'] },
+    { group: 'Cadastro', name: 'Criar Distribuição', href: 'distribuicao_montagem.html', levels: ['05', '07','08'] },
     { group: 'Cadastro', name: 'Criar Programação', href: 'programacao_montagem.html', levels: ['05', '07'] },
     { group: 'Cadastro', name: 'Backup', href: 'migracaotaloes.html', levels: ['07'] },
     { group: 'Cadastro', name: 'Excluir (backup)', href: 'excluirbackups.html', levels: ['07'] },
+     
      
     // Ferramentas
     { group: 'Ferramentas', name: 'Romaneio', href: 'romaneio.html', levels: ['05', '07'] },
