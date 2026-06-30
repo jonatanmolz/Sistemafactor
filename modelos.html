@@ -29,7 +29,7 @@ main{width:100%;padding:14px 0 22px;display:flex;flex-direction:column;align-ite
 .form-group input,.form-group select,textarea{padding:8px 10px;border:1px solid #cfcfcf;border-radius:7px;font-size:.92rem;background:#fff;width:100%}
 textarea{min-height:54px;resize:vertical}
 .btn{padding:9px 14px;border:0;border-radius:8px;cursor:pointer;font-size:.92rem;white-space:nowrap}
-.btn-primary{background:var(--pri);color:#fff}.btn-secondary{background:#e9ecef;color:#222}.btn-success{background:var(--ok);color:#fff}.btn-danger{background:var(--danger);color:#fff}.btn-small{padding:6px 9px;font-size:.78rem}.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary{background:var(--pri);color:#fff}.btn-secondary{background:#e9ecef;color:#222}.btn-success{background:var(--ok);color:#fff}.btn-warning{background:var(--warn);color:#111}.btn-danger{background:var(--danger);color:#fff}.btn-small{padding:6px 9px;font-size:.78rem}.btn:disabled{opacity:.55;cursor:not-allowed}
 .message{margin-top:10px;padding:10px;border-radius:8px;font-size:.9rem;display:none}.message.show{display:block}.message.info{background:#d1ecf1;color:#0c5460}.message.success{background:#d4edda;color:#155724}.message.error{background:#f8d7da;color:#721c24}.message.warning{background:#fff3cd;color:#664d03}.hidden{display:none!important}
 .filter-bar{display:grid;grid-template-columns:minmax(170px,260px) minmax(150px,210px) minmax(150px,210px) auto;gap:8px;align-items:end;margin-top:12px}
 .table-actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
@@ -86,6 +86,7 @@ tbody tr.model-row.no-price td{border-color:#f3a8b5}
       <p class="page-subtitle">Cadastre e edite os modelos salvos na coleção <strong>modelos</strong>. Clique em qualquer linha da tabela para editar.</p>
     </div>
     <div class="top-actions">
+      <button class="btn btn-warning" id="adjustPricesButton" type="button">Reajustar preços</button>
       <button class="btn btn-success" id="createModelButton" type="button">Criar modelo</button>
       <button class="btn btn-secondary" id="refreshButton" type="button">Atualizar</button>
     </div>
@@ -178,11 +179,36 @@ tbody tr.model-row.no-price td{border-color:#f3a8b5}
   </div>
 </div>
 
+<div class="modal-backdrop" id="adjustModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <h3>Reajuste geral</h3>
+      <button class="modal-close" id="closeAdjustModalButton" type="button">Fechar</button>
+    </div>
+    <div class="modal-body">
+      <div class="compact-card">
+        <div class="compact-title"><strong>Aplicar percentual em todos os modelos</strong></div>
+        <p class="mini-help" style="margin-top:0">Use percentual positivo para aumento, exemplo <strong>10</strong>. Use percentual negativo para redução, exemplo <strong>-5</strong>. O reajuste será aplicado no preço e em todos os setores com valor.</p>
+        <div class="model-grid" style="grid-template-columns:120px minmax(180px,1fr) minmax(180px,1fr)">
+          <div class="form-group"><label for="adjustPercentInput">Percentual</label><input type="text" id="adjustPercentInput" placeholder="Ex: 10 ou -5" autocomplete="off" /></div>
+          <div class="form-group"><label for="adjustMotivoInput">Motivo</label><input type="text" id="adjustMotivoInput" placeholder="Ex: reajuste tabela Beira Rio" autocomplete="off" /></div>
+          <div class="form-group"><label for="adjustConfirmInput">Confirmação</label><input type="text" id="adjustConfirmInput" placeholder="Digite REAJUSTAR" autocomplete="off" /></div>
+        </div>
+        <div class="form-group" style="margin-top:9px"><label for="adjustObsInput">Observação do reajuste</label><textarea id="adjustObsInput" placeholder="Ex: aumento geral informado pela fábrica, redução de negociação, ajuste anual..."></textarea></div>
+        <div id="adjustPreview" class="message info show" style="display:block;margin-top:10px">Informe o percentual para visualizar o reajuste.</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-warning" id="applyAdjustmentButton" type="button">Aplicar reajuste</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 const firebaseConfig={apiKey:"AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",authDomain:"sistemataloes.firebaseapp.com",projectId:"sistemataloes",storageBucket:"sistemataloes.appspot.com",messagingSenderId:"684534379685",appId:typeof __app_id!=="undefined"?__app_id:"default-app-id"};
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
 import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-import{getFirestore,doc,getDoc,setDoc,collection,getDocs,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import{getFirestore,doc,getDoc,setDoc,collection,getDocs,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const FULL_ACCESS_LEVELS=new Set(["07","08"]);
@@ -190,9 +216,10 @@ let currentUser=null,currentUserLevel="",models=[],currentEditingId=null,current
 
 const $=id=>document.getElementById(id);
 const els={
-  createModelButton:$("createModelButton"),refreshButton:$("refreshButton"),clearFilterButton:$("clearFilterButton"),modelFilterInput:$("modelFilterInput"),categoriaFilterInput:$("categoriaFilterInput"),subcategoriaFilterInput:$("subcategoriaFilterInput"),messageBox:$("messageBox"),listInfo:$("listInfo"),modelsTableBody:$("modelsTableBody"),
+  createModelButton:$("createModelButton"),adjustPricesButton:$("adjustPricesButton"),refreshButton:$("refreshButton"),clearFilterButton:$("clearFilterButton"),modelFilterInput:$("modelFilterInput"),categoriaFilterInput:$("categoriaFilterInput"),subcategoriaFilterInput:$("subcategoriaFilterInput"),messageBox:$("messageBox"),listInfo:$("listInfo"),modelsTableBody:$("modelsTableBody"),
   modelModalBackdrop:$("modelModalBackdrop"),modelModalTitle:$("modelModalTitle"),closeModelModalButton:$("closeModelModalButton"),linhaInput:$("linhaInput"),modeloInput:$("modeloInput"),categoriaInput:$("categoriaInput"),subcategoriaInput:$("subcategoriaInput"),precoInput:$("precoInput"),motivoInput:$("motivoInput"),observacaoInput:$("observacaoInput"),
-  sectorList:$("sectorList"),addSectorButton:$("addSectorButton"),formPreco:$("formPreco"),formTotalSetores:$("formTotalSetores"),formSaldo:$("formSaldo"),saveModelButton:$("saveModelButton"),historyBlock:$("historyBlock"),historyTitle:$("historyTitle"),historyList:$("historyList")
+  sectorList:$("sectorList"),addSectorButton:$("addSectorButton"),formPreco:$("formPreco"),formTotalSetores:$("formTotalSetores"),formSaldo:$("formSaldo"),saveModelButton:$("saveModelButton"),historyBlock:$("historyBlock"),historyTitle:$("historyTitle"),historyList:$("historyList"),
+  adjustModalBackdrop:$("adjustModalBackdrop"),closeAdjustModalButton:$("closeAdjustModalButton"),adjustPercentInput:$("adjustPercentInput"),adjustMotivoInput:$("adjustMotivoInput"),adjustConfirmInput:$("adjustConfirmInput"),adjustObsInput:$("adjustObsInput"),adjustPreview:$("adjustPreview"),applyAdjustmentButton:$("applyAdjustmentButton")
 };
 
 function redirectUnauthorized(){alert("Seu nível de acesso não permite abrir esta página. Você será redirecionado para o início.");window.location.replace("index.html");}
@@ -490,7 +517,114 @@ function renderHistory(model){
   }).join("");
 }
 
+
+function formatPercentValue(value){
+  return (Number(value)||0).toLocaleString("pt-BR",{minimumFractionDigits:0,maximumFractionDigits:3})+"%";
+}
+function openAdjustModal(){
+  if(!models.length){showMessage("warning","Carregue a lista de modelos antes de aplicar reajuste.");return;}
+  els.adjustPercentInput.value="";
+  els.adjustMotivoInput.value="";
+  els.adjustConfirmInput.value="";
+  els.adjustObsInput.value="";
+  updateAdjustPreview();
+  els.adjustModalBackdrop.classList.add("show");
+  setTimeout(()=>els.adjustPercentInput.focus(),50);
+}
+function closeAdjustModal(){els.adjustModalBackdrop.classList.remove("show");}
+function updateAdjustPreview(){
+  const pct=parseNumber(els.adjustPercentInput.value);
+  const loadedCount=models.length;
+  if(pct===null||pct===0){
+    els.adjustPreview.className="message info show";
+    els.adjustPreview.textContent=`Informe um percentual diferente de zero. Existem ${loadedCount} modelo(s) carregado(s).`;
+    return;
+  }
+  const tipo=pct>0?"aumento":"redução";
+  els.adjustPreview.className="message warning show";
+  els.adjustPreview.textContent=`Será aplicado ${tipo} de ${formatPercentValue(Math.abs(pct))} em todos os modelos da coleção. Preço e setores serão reajustados e o histórico manual será registrado em cada modelo alterado.`;
+}
+function adjustedValue(value,percent){
+  return round3((Number(value)||0)*(1+(Number(percent)||0)/100));
+}
+function adjustedModelDataFrom(oldModel,percent){
+  const oldSectors=oldModel?.preco?.setores||{};
+  const newSectors={};
+  Object.entries(oldSectors).forEach(([name,value])=>{
+    const n=adjustedValue(value,percent);
+    if(n!==0)newSectors[name]=n;
+  });
+  const preco=adjustedValue(oldModel?.preco?.valor||0,percent);
+  const setoresOrdenados=sortedSectorsObject(newSectors);
+  const totalSetores=round3(sumSectors(setoresOrdenados));
+  const saldo=round3(preco-totalSetores);
+  const linha=String(oldModel?.linha||String(oldModel?.id||"").split(".")[0]||"");
+  const modelo=String(oldModel?.modelo||String(oldModel?.id||"").split(".")[1]||"");
+  return {
+    linha,modelo,
+    categoria:String(oldModel?.categoria||""),
+    subcategoria:String(oldModel?.subcategoria||""),
+    observacaoModelo:String(oldModel?.observacaoModelo||oldModel?.observacao||""),
+    chave:oldModel?.chave||oldModel?.id||modelId(linha,modelo),
+    preco:{valor:preco,setores:setoresOrdenados},
+    totalSetores,saldo,
+    ativo:oldModel?.ativo!==false
+  };
+}
+async function applyBulkAdjustment(){
+  const pct=parseNumber(els.adjustPercentInput.value);
+  if(pct===null||pct===0){showMessage("warning","Informe um percentual diferente de zero para reajustar.");return;}
+  if(String(els.adjustConfirmInput.value||"").trim().toUpperCase()!=="REAJUSTAR"){
+    showMessage("warning","Digite REAJUSTAR no campo de confirmação para aplicar o reajuste geral.");
+    return;
+  }
+  const motivo=els.adjustMotivoInput.value.trim()||`Reajuste geral ${pct>0?"+":""}${formatPercentValue(pct)}`;
+  const observacao=els.adjustObsInput.value.trim();
+  const mensagem=`Confirmar reajuste geral de ${pct>0?"+":""}${formatPercentValue(pct)} em todos os modelos? Essa ação vai alterar os preços e setores dos modelos.`;
+  if(!confirm(mensagem))return;
+  els.applyAdjustmentButton.disabled=true;
+  try{
+    showMessage("info","Aplicando reajuste geral nos modelos...");
+    const snap=await getDocs(collection(db,"modelos"));
+    const docs=snap.docs;
+    let batch=writeBatch(db),batchOps=0,updated=0;
+    const now=new Date().toISOString();
+    for(const docSnap of docs){
+      const oldData=docSnap.data();
+      const oldModel={id:docSnap.id,...oldData};
+      const newData=adjustedModelDataFrom(oldModel,pct);
+      const changes=buildChanges(oldData,newData,{},observacao).filter(c=>c.campo);
+      if(!changes.length)continue;
+      const historico=Array.isArray(oldData?.historico)?oldData.historico.filter(h=>!isImportHistory(h)):[];
+      batch.set(docSnap.ref,{
+        ...newData,
+        origem:"Reajuste geral",
+        criadoEm:oldData?.criadoEm||serverTimestamp(),
+        atualizadoEm:serverTimestamp(),
+        atualizadoPor:currentUser.email,
+        historico:[...historico,{data:now,motivo,observacao,usuario:currentUser.email,alteracoes:changes,tipo:"manual-reajuste"}]
+      },{merge:false});
+      batchOps++;updated++;
+      if(batchOps>=450){await batch.commit();batch=writeBatch(db);batchOps=0;}
+    }
+    if(batchOps>0)await batch.commit();
+    closeAdjustModal();
+    await loadModels();
+    showMessage("success",`Reajuste aplicado com sucesso em ${updated} modelo(s).`);
+  }catch(err){
+    console.error(err);
+    showMessage("error","Erro ao aplicar reajuste geral: "+err.message);
+  }finally{
+    els.applyAdjustmentButton.disabled=false;
+  }
+}
+
 els.createModelButton.addEventListener("click",openCreateModal);
+els.adjustPricesButton.addEventListener("click",openAdjustModal);
+els.closeAdjustModalButton.addEventListener("click",closeAdjustModal);
+els.adjustModalBackdrop.addEventListener("click",e=>{if(e.target===els.adjustModalBackdrop)closeAdjustModal();});
+els.adjustPercentInput.addEventListener("input",updateAdjustPreview);
+els.applyAdjustmentButton.addEventListener("click",applyBulkAdjustment);
 els.refreshButton.addEventListener("click",async()=>{try{await loadModels();showMessage("success","Lista atualizada.");}catch(err){console.error(err);showMessage("error","Não consegui carregar a coleção modelos. Detalhe: "+err.message);}});
 els.clearFilterButton.addEventListener("click",()=>{els.modelFilterInput.value="";els.categoriaFilterInput.value="";els.subcategoriaFilterInput.value="";renderModelsTable();});
 els.modelFilterInput.addEventListener("input",renderModelsTable);
