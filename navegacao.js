@@ -50,6 +50,7 @@
     { group: 'Relatórios', name: 'Cronograma', href: 'cronograma.html', levels: ['01', '02', '04', '05', '06', '07'] },
     { group: 'Relatórios', name: 'Crono Celular', href: 'cronograma_mobile.html', levels: ['01', '02', '04', '05', '06', '07'] },
     { group: 'Relatórios', name: 'Giro', href: 'giro_geral.html', levels: ['01', '02', '04', '05', '06', '07'] }, 
+     { group: 'Relatórios', name: 'Faturamento', href: 'faturamento_fina.html', levels: ['07' ,'08'] }, 
     { group: 'Relatórios', name: 'Controle de produção', href: 'controle.html', levels: ['05', '07'] }, 
     { group: 'Relatórios', name: 'Controle Celular', href: 'controle_mobile.html', levels: ['05', '06', '07'] }, 
 
