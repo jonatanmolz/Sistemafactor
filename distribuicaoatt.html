@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<!-- distribuicaoatt.html - distribuição lógica de modelos entre ateliês - acesso 07/08 -->
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Distribuição Ateliês - SistemaTaloes</title>
+<style>
+:root{--bg:#f4f4f4;--card:#fff;--ink:#111827;--muted:#5f6673;--bd:#d9dde5;--pri:#0d6efd;--ok:#198754;--danger:#dc3545;--warn:#ffc107;--shadow:0 4px 14px rgba(0,0,0,.08)}
+*{box-sizing:border-box}html,body{max-width:100%;overflow-x:hidden}body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);margin:0;color:var(--ink)}body.auth-loading main{display:none!important}button{font-family:inherit}main{width:100%;padding:14px 0 24px;display:flex;flex-direction:column;align-items:center;gap:12px}.card{width:min(95%,1780px);background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:16px 18px}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}.page-title{font-size:1.45rem;margin:0 0 4px}.page-subtitle{margin:0;color:var(--muted);font-size:.92rem;line-height:1.35}.section-title{margin:0;font-size:1.1rem}.form-group{display:flex;flex-direction:column;gap:5px}.form-group label{font-weight:700;color:#374151;font-size:.82rem}.form-group input,.form-group select{padding:8px 10px;border:1px solid #cfcfcf;border-radius:7px;font-size:.92rem;background:#fff;width:100%}.filter-bar{display:grid;grid-template-columns:180px 180px minmax(210px,1fr) auto auto auto;gap:8px;align-items:end;margin-top:12px}.actions,.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.btn{padding:9px 14px;border:0;border-radius:8px;cursor:pointer;font-size:.92rem;white-space:nowrap}.btn-primary{background:var(--pri);color:#fff}.btn-secondary{background:#e9ecef;color:#222}.btn-success{background:var(--ok);color:#fff}.btn-warning{background:var(--warn);color:#111}.btn-danger{background:var(--danger);color:#fff}.btn-small{padding:6px 9px;font-size:.78rem}.btn:disabled{opacity:.55;cursor:not-allowed}.message{margin-top:10px;padding:10px;border-radius:8px;font-size:.9rem;display:none}.message.show{display:block}.message.info{background:#d1ecf1;color:#0c5460}.message.success{background:#d4edda;color:#155724}.message.error{background:#f8d7da;color:#721c24}.message.warning{background:#fff3cd;color:#664d03}.hidden{display:none!important}.mini-help{font-size:.82rem;color:var(--muted);line-height:1.35}.tag{display:inline-block;border:1px solid #d8dde5;border-radius:999px;padding:3px 8px;background:#fff;margin:2px;font-size:.72rem;line-height:1.15}.tag.good{background:#edf8f1;border-color:#cfead8;color:#14532d;font-weight:800}.tag.bad{background:#ffe3e8;border-color:#f3a8b5;color:#842029;font-weight:800}.tag.info{background:#eaf4ff;border-color:#b6d4fe;color:#084298;font-weight:800}.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px}.summary-item{background:#f8fafc;border:1px solid var(--bd);border-radius:10px;padding:11px 12px;text-align:center;min-height:74px;display:flex;flex-direction:column;justify-content:center}.summary-item strong{font-size:1.08rem;margin-bottom:4px}.summary-item small{font-weight:800;text-transform:uppercase;font-size:.72rem}.summary-item.ok{background:#edf8f1;border-color:#cfead8}.summary-item.warn{background:#fff6d8;border-color:#ffe69c}.summary-item.danger{background:#ffe3e8;border-color:#f3a8b5;color:#842029}.summary-item.primary{background:#eaf4ff;border-color:#b6d4fe}.table-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}.atelier-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:12px;align-items:start}.atelier-card{position:relative;border:1px solid #d8dde5;border-left:7px solid var(--att-accent,#0d6efd);border-radius:12px;background:linear-gradient(180deg,var(--att-soft,#fff),#fff 78%);padding:12px;min-height:230px;transition:box-shadow .15s ease}.atelier-card.drag-over{outline:3px dashed var(--att-accent,#0d6efd);outline-offset:3px;background:#fffef4}.atelier-card.color-0{--att-accent:#0d6efd;--att-soft:#f0f7ff}.atelier-card.color-1{--att-accent:#198754;--att-soft:#eefaf3}.atelier-card.color-2{--att-accent:#fd7e14;--att-soft:#fff5ec}.atelier-card.color-3{--att-accent:#6f42c1;--att-soft:#f5f0ff}.atelier-card.color-4{--att-accent:#20c997;--att-soft:#ecfffa}.atelier-card.color-5{--att-accent:#dc3545;--att-soft:#fff1f3}.atelier-card.color-6{--att-accent:#0dcaf0;--att-soft:#edfbff}.atelier-card.color-7{--att-accent:#ffc107;--att-soft:#fff9df}.atelier-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:8px}.atelier-head h3{margin:0;font-size:1.1rem}.atelier-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0}.stat-box{border:1px solid #d8dde5;background:#f8fafc;border-radius:9px;padding:7px;text-align:center;min-width:0}.stat-box strong{display:block;font-size:.92rem;white-space:nowrap}.stat-box small{text-transform:uppercase;font-weight:800;font-size:.60rem;color:#374151}.group-box{border:1px solid #d8dde5;border-radius:9px;margin-top:9px;overflow:hidden;background:#fff}.group-head{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#eef2f7;padding:7px 8px;font-weight:900}.group-head .muted{font-size:.76rem;color:#374151;font-weight:700}.model-table{width:100%;border-collapse:collapse;font-size:.78rem;table-layout:fixed}.model-table th,.model-table td{border:1px solid #e1e5ea;padding:5px 5px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.model-table th{background:#f7f7f7}.model-table th:nth-child(1),.model-table td:nth-child(1){width:24%}.model-table th:nth-child(2),.model-table td:nth-child(2){width:18%}.model-table th:nth-child(3),.model-table td:nth-child(3){width:15%}.model-table th:nth-child(4),.model-table td:nth-child(4){width:21%}.model-table th:nth-child(5),.model-table td:nth-child(5){width:22%}.model-row{cursor:grab}.model-row:active{cursor:grabbing}.model-row.missing{background:#ffe3e8!important;color:#7f1d1d}.model-link{font-weight:900;color:#0b5ed7}.btn-dividir{border:0;background:#e9ecef;color:#111;border-radius:7px;padding:5px 7px;font-size:.72rem;font-weight:800;cursor:pointer}.btn-dividir:hover{background:#dce2e8}.empty-drop{border:1px dashed #cbd5e1;background:#f8fafc;border-radius:9px;padding:18px;text-align:center;color:#64748b;margin-top:10px}.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.50);display:none;align-items:center;justify-content:center;padding:16px;z-index:5000}.modal-backdrop.show{display:flex}.modal{background:#fff;width:min(920px,96vw);max-height:92vh;overflow:auto;border-radius:14px;box-shadow:0 22px 60px rgba(0,0,0,.28);padding:0}.modal-header{display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 16px;z-index:3}.modal-header h3{margin:0;font-size:1.1rem}.modal-close{border:0;background:#e9ecef;color:#222;border-radius:8px;padding:8px 14px;cursor:pointer}.modal-body{padding:14px 16px}.modal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.table-wrap{width:100%;overflow:auto;border:1px solid var(--bd);border-radius:10px;background:#fff;max-height:60vh}table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:760px}th,td{border:1px solid var(--bd);padding:7px 8px;text-align:center;white-space:nowrap}thead th{background:#f2f2f2;position:sticky;top:0;z-index:2}tbody tr:nth-child(even){background:#fafafa}.cell-left{text-align:left}.money{text-align:right}.selected-row{background:#eaf4ff!important}.sistema-menu-lista{background:transparent!important;box-shadow:none!important;font-size:inherit!important}.sistema-menu-lista a{font-weight:500!important}@media(max-width:1100px){.card{width:96%;min-width:0}.filter-bar{grid-template-columns:1fr 1fr}.atelier-grid{grid-template-columns:1fr}.atelier-stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:760px){.filter-bar{grid-template-columns:1fr}.model-table{font-size:.72rem}.model-table th,.model-table td{padding:4px}.modal-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:1fr 1fr}}
+
+/* AJUSTES_COMPACTOS_2026-07-02 */
+.top-action-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}.date-filter-row{display:grid;grid-template-columns:160px 160px minmax(220px,520px);gap:8px;align-items:end;margin-top:10px}.print-title{display:none}.atelier-grid{grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:9px}.atelier-card{padding:8px 9px;min-height:0}.atelier-head{margin-bottom:5px}.atelier-head h3{font-size:1rem}.atelier-card .mini-help{font-size:.72rem}.atelier-stats{gap:5px;margin:5px 0;grid-template-columns:repeat(4,1fr)}.stat-box{padding:5px 4px;border-radius:7px}.stat-box strong{font-size:.78rem}.stat-box small{font-size:.53rem}.stat-box.compare-good{background:#e8f7ed;border-color:#b7e2c4;color:#14532d}.stat-box.compare-bad{background:#ffe8ec;border-color:#f3a8b5;color:#842029}.stat-symbol{font-weight:900;margin-right:3px}.category-box{border:1px solid #cfd8e3;border-radius:8px;margin-top:7px;overflow:hidden;background:#fff}.category-head{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#dde8f5;padding:5px 7px;font-size:.86rem;font-weight:900}.category-head .muted{font-size:.70rem;color:#374151}.subcat-box{border-top:1px solid #d8dde5}.subcat-head{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#f1f5f9;padding:4px 7px;font-size:.78rem;font-weight:900}.subcat-head .muted{font-size:.66rem;color:#374151}.group-box{margin-top:0;border:0;border-radius:0}.group-head{display:none}.model-table{font-size:.67rem;line-height:1;table-layout:fixed}.model-table th,.model-table td{padding:3px 4px;height:22px}.model-table th:nth-child(1),.model-table td:nth-child(1){width:33%}.model-table th:nth-child(2),.model-table td:nth-child(2){width:18%}.model-table th:nth-child(3),.model-table td:nth-child(3){width:15%}.model-table th:nth-child(4),.model-table td:nth-child(4){width:20%}.model-table th:nth-child(5),.model-table td:nth-child(5){width:14%}.model-link{font-size:.70rem}.btn-dividir{padding:3px 5px;font-size:.62rem;border-radius:5px}.history-badge{display:inline-block;margin-left:4px;color:#8a5a00;font-weight:900;cursor:help}.drag-hint{font-size:.68rem;color:#64748b;margin-top:4px}.modal-backdrop{z-index:6000}.printButton{display:inline-flex}
+@media(max-width:1200px){.atelier-grid{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}.date-filter-row{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.top-action-row,.date-filter-row{grid-template-columns:1fr;display:grid}.atelier-grid{grid-template-columns:1fr}.atelier-stats{grid-template-columns:repeat(2,1fr)}}
+@media print{@page{size:A4 landscape;margin:7mm}html,body{background:#fff!important;margin:0!important;padding:0!important}body *{visibility:hidden!important}.sistema-topbar,.sistema-menu-drawer,.sistema-menu-overlay,.card:not(#atelierSection),#messageBox,.no-print{display:none!important}.print-title,#atelierSection,#atelierSection *{visibility:visible!important}.print-title{display:block!important;margin:0 0 8px!important;font-size:13pt!important}.atelierSectionPrintHeader{display:block!important}#atelierSection{display:block!important;position:absolute!important;left:0!important;top:0!important;width:100%!important;box-shadow:none!important;border-radius:0!important;padding:0!important;background:#fff!important}.atelier-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:6px!important}.atelier-card{break-inside:avoid!important;page-break-inside:avoid!important;padding:6px!important;border-width:1px!important;border-left-width:5px!important;background:#fff!important}.atelier-head h3{font-size:11pt!important}.atelier-card .mini-help,.tag,.drag-hint,.btn-dividir,.action-col{display:none!important}.atelier-stats{display:none!important}.financial-data,.money,.value-col,.group-head .muted,.category-head .muted,.subcat-head .muted{display:none!important}.model-table{font-size:8pt!important}.model-table th,.model-table td{padding:2px 3px!important;height:auto!important}.model-table th:nth-child(1),.model-table td:nth-child(1){width:45%!important}.model-table th:nth-child(2),.model-table td:nth-child(2){width:28%!important}.model-table th:nth-child(3),.model-table td:nth-child(3){width:27%!important}.model-table th:nth-child(4),.model-table td:nth-child(4),.model-table th:nth-child(5),.model-table td:nth-child(5){display:none!important}.category-head{font-size:9pt!important;padding:3px 5px!important}.subcat-head{font-size:8pt!important;padding:2px 5px!important}}
+
+
+
+/* AJUSTES_SOLICITADOS_2026-07-02 */
+.card{width:min(98%,1900px)}
+.filter-bar{grid-template-columns:150px 150px minmax(180px,420px) auto auto auto auto;gap:6px}
+.top-actions .btn{padding:7px 10px;font-size:.82rem}
+.date-filter-row{grid-template-columns:140px 140px minmax(180px,420px);gap:6px}
+.atelier-grid{grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:8px}
+.atelier-card{padding:6px 7px;border-radius:10px;border-left-width:6px}
+.atelier-head{margin-bottom:3px}.atelier-head h3{font-size:11px;line-height:1.1}.tag{font-size:10px;padding:2px 6px}
+.atelier-stats{gap:4px;margin:4px 0}.stat-box{padding:4px 3px;border-radius:6px}.stat-box strong{font-size:10px}.stat-box small{font-size:8px;line-height:1.05}
+.category-box{margin-top:5px;border-radius:7px}.category-head{font-size:11px;padding:4px 6px}.category-head .muted{font-size:10px}
+.subcat-box{margin-left:12px;border-left:2px solid #d8dde5}.subcat-head{font-size:10px;padding:3px 5px 3px 12px}.subcat-head .muted{font-size:9px}
+.model-table{font-size:10px}.model-table th,.model-table td{padding:2px 3px;height:18px}.model-link{font-size:10px}.history-badge{font-size:10px;margin-left:3px}.drag-hint{font-size:9px;margin-top:3px}.empty-drop{padding:10px;font-size:10px}
+.model-table th:nth-child(1),.model-table td:nth-child(1){width:44%}.model-table th:nth-child(2),.model-table td:nth-child(2){width:24%}.model-table th:nth-child(3),.model-table td:nth-child(3){width:32%}.model-table th:nth-child(4),.model-table td:nth-child(4){width:32%}
+.print-only-col,.print-pares-dia{display:none!important}
+@media(min-width:1500px){.atelier-grid{grid-template-columns:repeat(4,1fr)}}
+@media print{.print-only-col,.print-pares-dia{display:table-cell!important}.stat-box.print-pares-dia{display:block!important}.atelier-stats{display:grid!important;grid-template-columns:repeat(2,1fr)!important}.atelier-stats .financial-data{display:none!important}.model-table th:nth-child(1),.model-table td:nth-child(1){width:45%!important}.model-table th:nth-child(2),.model-table td:nth-child(2){width:27%!important}.model-table th:nth-child(4),.model-table td:nth-child(4){display:table-cell!important;width:28%!important}.daily-value-col{display:none!important}.atelier-grid{grid-template-columns:repeat(4,1fr)!important}.category-head .financial-data,.subcat-head .financial-data{display:none!important}}
+
+
+/* AJUSTE_LAYOUT_HISTORICO_2026-07-02 */
+.card{width:min(98vw,1880px)!important;max-width:98vw!important}
+#atelierSection{overflow:hidden!important}
+#atelierSection .table-actions{margin-bottom:6px!important}
+.atelier-grid{width:100%!important;display:grid!important;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))!important;gap:8px!important;align-items:start!important;overflow:hidden!important}
+.atelier-card{min-width:0!important;max-width:100%!important;overflow:hidden!important;padding:6px!important}
+.category-box,.subcat-box,.group-box{min-width:0!important;max-width:100%!important;overflow:hidden!important}
+.model-table{width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;font-size:9.5px!important}
+.model-table th,.model-table td{white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;padding:2px 3px!important;height:17px!important}
+.model-link{font-size:9.5px!important}
+.history-badge{font-size:10px!important;margin-left:3px!important;color:#0b5ed7!important}
+.atelier-stats{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4px!important}
+.stat-box{min-width:0!important;overflow:hidden!important;padding:4px 2px!important}
+.stat-box strong{font-size:9.5px!important}
+.stat-box small{font-size:7.5px!important}
+.category-head{font-size:10.5px!important;padding:3px 5px!important}
+.subcat-head{font-size:9.5px!important;padding:3px 5px 3px 10px!important}
+@media(min-width:1500px){.atelier-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media(max-width:1499px){.atelier-grid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))!important}}
+@media(max-width:760px){.atelier-grid{grid-template-columns:1fr!important}}
+
+
+/* AJUSTES_DIVISAO_IMPRESSAO_2026-07-02 */
+.split-notes-grid{grid-template-columns:repeat(2,minmax(180px,1fr))!important}
+.note-badge{font-size:10px;margin-left:3px;cursor:help}.diff-line{display:block;font-style:normal;font-size:7.5px;font-weight:800;margin-top:1px;line-height:1}.compare-good .diff-line{color:#14532d}.compare-bad .diff-line{color:#842029}
+.model-table th:nth-child(1),.model-table td:nth-child(1){width:34%!important}.model-table th:nth-child(2),.model-table td:nth-child(2){width:20%!important}.model-table th:nth-child(3),.model-table td:nth-child(3){width:20%!important}.model-table th:nth-child(4),.model-table td:nth-child(4){width:26%!important}
+@media print{
+  @page{size:A4 landscape;margin:4mm!important}
+  html,body{width:297mm!important;height:210mm!important;overflow:hidden!important}
+  #atelierSection{zoom:.64!important;width:156%!important;max-width:156%!important;transform-origin:top left!important}
+  .print-title{font-size:11pt!important;margin:0 0 4px!important}
+  .atelier-grid{grid-template-columns:repeat(4,1fr)!important;gap:3px!important;align-items:start!important}
+  .atelier-card{padding:3px!important;border-radius:5px!important;border-left-width:4px!important;break-inside:avoid!important;page-break-inside:avoid!important}
+  .atelier-head h3{font-size:8pt!important}.tag{display:none!important}
+  .atelier-stats{display:grid!important;grid-template-columns:1fr!important;margin:2px 0!important;gap:2px!important}
+  .atelier-stats .stat-box:not(.print-pares-dia){display:none!important}.stat-box.print-pares-dia{display:block!important;padding:2px!important}
+  .stat-box strong{font-size:7pt!important}.stat-box small{font-size:5pt!important}
+  .category-box{margin-top:2px!important;border-radius:4px!important}.category-head{font-size:6.6pt!important;padding:2px 3px!important}.subcat-box{margin-left:4px!important}.subcat-head{font-size:6pt!important;padding:1px 3px 1px 5px!important}
+  .model-table{font-size:5.6pt!important;line-height:1!important}.model-table th,.model-table td{padding:1px 2px!important;height:auto!important}
+  .financial-data,.daily-value-col,.money{display:none!important}.pares-dia-col{display:table-cell!important}.note-badge,.history-badge{display:none!important}
+}
+
+
+/* AJUSTE_PDF_PAISAGEM_COMPATIVEL_2026-07-02 */
+@media print{
+  @page{size:A4 landscape!important;margin:3.5mm!important}
+  html,body{
+    width:297mm!important;
+    height:210mm!important;
+    margin:0!important;
+    padding:0!important;
+    background:#fff!important;
+    overflow:hidden!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  body *{visibility:hidden!important}
+  .sistema-topbar,.sistema-menu-drawer,.sistema-menu-overlay,.card:not(#atelierSection),#messageBox,.no-print{
+    display:none!important;
+  }
+  #atelierSection,#atelierSection *{visibility:visible!important}
+  #atelierSection{
+    display:block!important;
+    position:absolute!important;
+    left:0!important;
+    top:0!important;
+    width:172%!important;
+    max-width:172%!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    background:#fff!important;
+    overflow:visible!important;
+    zoom:.58!important;
+    transform:none!important;
+  }
+  .print-title{
+    display:block!important;
+    visibility:visible!important;
+    margin:0 0 3mm!important;
+    padding:0!important;
+    font-size:12pt!important;
+    line-height:1.1!important;
+    font-weight:900!important;
+  }
+  #atelierSection .table-actions,#atelierInfo,.drag-hint,.tag,.btn,.history-badge,.note-badge,.financial-data,.money,.daily-value-col{
+    display:none!important;
+  }
+  .atelier-grid{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:2.2mm!important;
+    width:100%!important;
+    align-items:start!important;
+    overflow:visible!important;
+  }
+  .atelier-card{
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+    padding:2.4mm!important;
+    border-width:.35mm!important;
+    border-left-width:1.6mm!important;
+    border-radius:2mm!important;
+    min-height:0!important;
+    background:#fff!important;
+    box-shadow:none!important;
+    overflow:hidden!important;
+  }
+  .atelier-head{margin:0 0 1.2mm!important}
+  .atelier-head h3{font-size:9pt!important;line-height:1!important;margin:0!important}
+  .atelier-stats{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:1mm!important;
+    margin:0 0 1.3mm!important;
+  }
+  .atelier-stats .stat-box:not(.print-pares-dia){display:none!important}
+  .stat-box.print-pares-dia{
+    display:block!important;
+    padding:1mm!important;
+    border-radius:1.5mm!important;
+    border:1px solid #cfd8e3!important;
+    background:#f8fafc!important;
+  }
+  .stat-box.print-pares-dia strong{font-size:7.8pt!important;line-height:1!important}
+  .stat-box.print-pares-dia small{font-size:5.5pt!important;line-height:1!important}
+  .category-box{margin-top:1mm!important;border-radius:1.5mm!important;border:1px solid #cfd8e3!important;overflow:hidden!important}
+  .category-head{font-size:7.1pt!important;line-height:1!important;padding:1mm 1.3mm!important;background:#e7eef7!important}
+  .category-head .muted,.subcat-head .muted{display:none!important}
+  .subcat-box{margin-left:2.5mm!important;border-left:1px solid #d8dde5!important}
+  .subcat-head{font-size:6.4pt!important;line-height:1!important;padding:.8mm 1mm!important;background:#f4f7fb!important}
+  .model-table{font-size:5.8pt!important;line-height:1!important;width:100%!important;min-width:0!important;table-layout:fixed!important}
+  .model-table th,.model-table td{padding:.45mm .7mm!important;height:auto!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  .model-table th:nth-child(1),.model-table td:nth-child(1){width:45%!important}
+  .model-table th:nth-child(2),.model-table td:nth-child(2){width:28%!important}
+  .model-table th:nth-child(3),.model-table td:nth-child(3){display:table-cell!important;width:27%!important}
+  .model-table th:nth-child(4),.model-table td:nth-child(4){display:none!important}
+  .model-link{font-size:5.8pt!important;color:#000!important}
+}
+
+/* AJUSTES_ABRIR_SALVAS_OBSERVACOES_2026-07-02 */
+.model-main-cell{white-space:normal!important;text-align:left!important;overflow:visible!important;text-overflow:clip!important}.model-title-line{display:flex;align-items:center;gap:3px;flex-wrap:wrap}.model-note-wrap{margin-top:3px}.model-note-input{width:100%;height:21px;border:1px solid #cbd5e1;border-radius:5px;background:#fffdf4;padding:2px 5px;font-size:.62rem;color:#374151}.model-note-input::placeholder{color:#9ca3af}.model-note-print{display:none;font-size:.62rem;line-height:1.1;margin-top:2px;color:#374151;font-weight:700;white-space:normal}.model-row.has-note{background:#fffdf4}.model-row.has-note td{height:auto!important}.saved-list-table{min-width:780px}.saved-list-table td,.saved-list-table th{white-space:nowrap}.open-saved-info{background:#fff8e1;border:1px solid #ffe69c;color:#664d03;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:.86rem}
+@media print{.model-note-input{display:none!important}.model-note-print{display:block!important}.model-note-wrap{margin-top:.5mm!important}.model-main-cell{white-space:normal!important}.model-title-line{display:block!important}.model-row.has-note td{height:auto!important}.history-badge,.note-badge{display:none!important}}
+
+
+/* AJUSTES_OBSERVACOES_MEDIA_PDF_2026-07-02 */
+.atelier-head-actions{display:flex;align-items:center;gap:5px}.btn-atelier-note{border:1px solid #cbd5e1;background:#fff;border-radius:999px;width:20px;height:20px;line-height:16px;font-size:13px;font-weight:900;cursor:pointer;color:#0f172a}.btn-atelier-note:hover{background:#eaf4ff}.atelier-note-display{border:1px solid #d8dde5;background:#fffdf4;border-radius:6px;padding:3px 5px;margin:2px 0 4px;font-size:10px;line-height:1.2;color:#374151}.model-row:not(.is-split) .model-note-wrap{display:none!important}.model-row.is-split .model-note-input{display:block}.model-table th,.model-table td{vertical-align:middle}.model-note-input{height:18px;font-size:9px}.model-note-print{font-size:7pt}.atelier-grid{width:100%;max-width:100%;overflow:hidden}.atelier-card{max-width:100%;overflow:hidden}.category-box,.subcat-box,.group-box,.model-table{max-width:100%;overflow:hidden}
+@media print{
+  @page{size:A4 landscape!important;margin:4mm!important}
+  html,body{width:297mm!important;min-height:210mm!important;height:auto!important;overflow:visible!important;background:#fff!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body *{visibility:hidden!important}
+  .sistema-topbar,.sistema-menu-drawer,.sistema-menu-overlay,.card:not(#atelierSection),#messageBox,.no-print{display:none!important}
+  #atelierSection,#atelierSection *{visibility:visible!important}
+  #atelierSection{position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important;overflow:visible!important;zoom:1!important;transform:none!important}
+  .print-title{display:block!important;font-size:11pt!important;line-height:1.1!important;margin:0 0 2.5mm!important;font-weight:900!important}
+  #atelierSection .table-actions,#atelierInfo,.drag-hint,.tag,.btn,.history-badge,.note-badge,.financial-data,.money,.daily-value-col,.btn-atelier-note{display:none!important}
+  .atelier-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2.4mm!important;width:100%!important;align-items:start!important;overflow:visible!important}
+  .atelier-card{break-inside:avoid!important;page-break-inside:avoid!important;padding:2mm!important;border-width:.25mm!important;border-left-width:1.3mm!important;border-radius:1.8mm!important;min-height:0!important;background:#fff!important;box-shadow:none!important;overflow:hidden!important}
+  .atelier-head{margin:0 0 1mm!important}.atelier-head h3{font-size:8.5pt!important;line-height:1!important;margin:0!important}
+  .atelier-note-display{font-size:6.5pt!important;padding:.8mm!important;margin:.7mm 0!important;border:1px solid #d8dde5!important;background:#fffdf4!important}
+  .atelier-stats{display:grid!important;grid-template-columns:1fr!important;gap:.7mm!important;margin:0 0 1mm!important}.atelier-stats .stat-box:not(.print-pares-dia){display:none!important}.stat-box.print-pares-dia{display:block!important;padding:.8mm!important;border-radius:1.2mm!important;border:1px solid #cfd8e3!important;background:#f8fafc!important}.stat-box.print-pares-dia strong{font-size:7.2pt!important;line-height:1!important}.stat-box.print-pares-dia small{font-size:5pt!important;line-height:1!important}
+  .category-box{margin-top:.9mm!important;border-radius:1.2mm!important;border:1px solid #cfd8e3!important;overflow:hidden!important}.category-head{font-size:6.8pt!important;line-height:1!important;padding:.8mm 1mm!important;background:#e7eef7!important}.category-head .muted,.subcat-head .muted{display:none!important}.subcat-box{margin-left:1.8mm!important;border-left:1px solid #d8dde5!important}.subcat-head{font-size:6.2pt!important;line-height:1!important;padding:.65mm .9mm!important;background:#f4f7fb!important}
+  .model-table{font-size:6pt!important;line-height:1!important;width:100%!important;min-width:0!important;table-layout:fixed!important}.model-table th,.model-table td{padding:.45mm .6mm!important;height:auto!important;white-space:normal!important;overflow:hidden!important;text-overflow:clip!important}.model-table th:nth-child(1),.model-table td:nth-child(1){width:52%!important}.model-table th:nth-child(2),.model-table td:nth-child(2){width:24%!important}.model-table th:nth-child(3),.model-table td:nth-child(3){display:table-cell!important;width:24%!important}.model-table th:nth-child(4),.model-table td:nth-child(4){display:none!important}.model-link{font-size:6pt!important;color:#000!important}.model-note-input{display:none!important}.model-note-print{display:block!important;font-size:5.8pt!important;line-height:1.1!important;margin-top:.3mm!important;color:#333!important;font-weight:700!important}.model-main-cell{white-space:normal!important;text-align:left!important}
+}
+
+
+
+/* AJUSTES_FINAIS_MODELOS_DIVIDIDOS_OBS_PDF_2026-07-02 */
+.print-only{display:none!important}
+.atelier-head{position:relative;justify-content:center!important;align-items:center!important;min-height:24px}.atelier-head h3{text-align:center!important;width:100%!important;font-size:16px!important;line-height:1.1!important}.atelier-head-actions{position:absolute;right:0;top:0}
+.atelier-note-block{cursor:grab;display:flex;align-items:center;justify-content:space-between;gap:6px}.atelier-note-block:active{cursor:grabbing}.btn-atelier-note-remove{border:0;background:#fee2e2;color:#991b1b;border-radius:999px;width:18px;height:18px;line-height:16px;font-size:12px;font-weight:900;cursor:pointer;flex:0 0 auto}.btn-atelier-note-remove:hover{background:#fecaca}.category-box.note-drop-target{outline:2px dashed #93c5fd;outline-offset:2px}.split-info-text{font-size:.64rem;color:#64748b;margin-left:3px}
+@media print{
+  .print-only{display:block!important}
+  #atelierSection{zoom:.86!important;width:116%!important;max-width:116%!important}
+  .atelier-head h3{font-size:12pt!important;text-align:center!important;width:100%!important}
+  .atelier-head-actions,.btn-atelier-note,.btn-atelier-note-remove{display:none!important}
+  .atelier-stats{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:.8mm!important;margin:0 0 1mm!important}
+  .atelier-stats .stat-box{display:none!important}
+  .atelier-stats .stat-box.print-modelos,.atelier-stats .stat-box.print-total-pares,.atelier-stats .stat-box.print-pares-dia{display:block!important;padding:.75mm!important;border-radius:1.2mm!important;border:1px solid #cfd8e3!important;background:#f8fafc!important}
+  .stat-box.print-modelos strong,.stat-box.print-total-pares strong,.stat-box.print-pares-dia strong{font-size:7pt!important;line-height:1!important}
+  .stat-box.print-modelos small,.stat-box.print-total-pares small,.stat-box.print-pares-dia small{font-size:4.7pt!important;line-height:1!important}
+  .atelier-note-block{display:flex!important;font-size:6.2pt!important;padding:.7mm!important;margin:.5mm 0!important}
+  .model-table{font-size:5.6pt!important}.model-link{font-size:5.6pt!important}
+}
+
+
+
+/* AJUSTE_IMPRESSAO_A4_UMA_FOLHA_2026-07-02 */
+@media print{
+  @page{size:A4 landscape!important;margin:3mm!important}
+  html,body{
+    width:297mm!important;
+    height:210mm!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    background:#fff!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  body *{visibility:hidden!important}
+  .sistema-topbar,.sistema-menu-drawer,.sistema-menu-overlay,.card:not(#atelierSection),#messageBox,.no-print{display:none!important}
+  #atelierSection,#atelierSection *{visibility:visible!important}
+  #atelierSection{
+    position:absolute!important;
+    left:0!important;
+    top:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    background:#fff!important;
+    overflow:visible!important;
+    zoom:.82!important;
+    transform:none!important;
+  }
+  .print-title{
+    display:block!important;
+    visibility:visible!important;
+    font-size:10pt!important;
+    line-height:1.05!important;
+    margin:0 0 2mm!important;
+    font-weight:900!important;
+  }
+  #atelierSection .table-actions,#atelierInfo,.drag-hint,.tag,.btn,.history-badge,.note-badge,.financial-data,.money,.daily-value-col,.btn-atelier-note,.btn-atelier-note-remove,.atelier-head-actions{display:none!important}
+  .atelier-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:2mm!important;
+    width:100%!important;
+    max-width:100%!important;
+    align-items:start!important;
+    overflow:visible!important;
+  }
+  .atelier-card{
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+    padding:1.5mm!important;
+    border-width:.25mm!important;
+    border-left-width:1.1mm!important;
+    border-radius:1.4mm!important;
+    min-height:0!important;
+    max-width:100%!important;
+    background:#fff!important;
+    box-shadow:none!important;
+    overflow:hidden!important;
+  }
+  .atelier-head{margin:0 0 .8mm!important;min-height:0!important;display:block!important}
+  .atelier-head h3{
+    font-size:9.5pt!important;
+    line-height:1!important;
+    margin:0!important;
+    text-align:center!important;
+    width:100%!important;
+  }
+  .atelier-stats{
+    display:grid!important;
+    grid-template-columns:repeat(3,1fr)!important;
+    gap:.65mm!important;
+    margin:0 0 .8mm!important;
+  }
+  .atelier-stats .stat-box{display:none!important}
+  .atelier-stats .stat-box.print-modelos,.atelier-stats .stat-box.print-total-pares,.atelier-stats .stat-box.print-pares-dia{
+    display:block!important;
+    padding:.55mm!important;
+    border-radius:1mm!important;
+    border:1px solid #cfd8e3!important;
+    background:#f8fafc!important;
+  }
+  .stat-box.print-modelos strong,.stat-box.print-total-pares strong,.stat-box.print-pares-dia strong{font-size:6.5pt!important;line-height:1!important}
+  .stat-box.print-modelos small,.stat-box.print-total-pares small,.stat-box.print-pares-dia small{font-size:4.3pt!important;line-height:1!important}
+  .atelier-note-display,.atelier-note-block{
+    display:flex!important;
+    font-size:5.8pt!important;
+    line-height:1.05!important;
+    padding:.55mm!important;
+    margin:.35mm 0!important;
+    border:1px solid #d8dde5!important;
+    background:#fffdf4!important;
+  }
+  .category-box{
+    margin-top:.7mm!important;
+    border-radius:1mm!important;
+    border:1px solid #cfd8e3!important;
+    overflow:hidden!important;
+    background:#fff!important;
+  }
+  .category-head{
+    font-size:6.4pt!important;
+    line-height:1!important;
+    padding:.55mm .8mm!important;
+    background:#e7eef7!important;
+  }
+  .category-head .muted,.subcat-head .muted{display:none!important}
+  .subcat-box{margin-left:1.2mm!important;border-left:1px solid #d8dde5!important}
+  .subcat-head{
+    font-size:5.9pt!important;
+    line-height:1!important;
+    padding:.45mm .75mm!important;
+    background:#f4f7fb!important;
+  }
+  .model-table{
+    font-size:5.4pt!important;
+    line-height:1!important;
+    width:100%!important;
+    min-width:0!important;
+    table-layout:fixed!important;
+  }
+  .model-table th,.model-table td{
+    padding:.32mm .5mm!important;
+    height:auto!important;
+    white-space:normal!important;
+    overflow:hidden!important;
+    text-overflow:clip!important;
+  }
+  .model-table th:nth-child(1),.model-table td:nth-child(1){width:54%!important}
+  .model-table th:nth-child(2),.model-table td:nth-child(2){width:23%!important}
+  .model-table th:nth-child(3),.model-table td:nth-child(3){display:table-cell!important;width:23%!important}
+  .model-table th:nth-child(4),.model-table td:nth-child(4){display:none!important}
+  .model-link{font-size:5.4pt!important;color:#000!important}
+  .model-note-input{display:none!important}
+  .model-note-print{display:block!important;font-size:5.1pt!important;line-height:1.05!important;margin-top:.2mm!important;color:#333!important;font-weight:700!important}
+  .model-main-cell{white-space:normal!important;text-align:left!important}
+}
+
+
+/* AJUSTE_IMPRESSAO_TABELA_FORTE_2026-07-02
+   Deixa o PDF em A4 paisagem com cards mais estreitos/altos,
+   bordas escuras e visual de tabela para facilitar a leitura. */
+@media print{
+  @page{size:A4 landscape!important;margin:4mm!important}
+
+  html,body{
+    width:297mm!important;
+    min-height:210mm!important;
+    height:auto!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+    background:#fff!important;
+    color:#000!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  body *{visibility:hidden!important}
+  .sistema-topbar,.sistema-menu-drawer,.sistema-menu-overlay,
+  .card:not(#atelierSection),#messageBox,.no-print{display:none!important}
+
+  #atelierSection,#atelierSection *{visibility:visible!important;color:#000!important;text-shadow:none!important}
+  #atelierSection{
+    position:absolute!important;
+    left:0!important;
+    top:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    background:#fff!important;
+    overflow:visible!important;
+    zoom:1!important;
+    transform:none!important;
+  }
+
+  .print-title{
+    display:block!important;
+    visibility:visible!important;
+    font-size:12pt!important;
+    line-height:1.05!important;
+    margin:0 0 2.2mm!important;
+    font-weight:900!important;
+    color:#000!important;
+  }
+
+  #atelierSection .table-actions,#atelierInfo,.drag-hint,.tag,.btn,
+  .history-badge,.note-badge,.financial-data,.money,.daily-value-col,
+  .btn-atelier-note,.btn-atelier-note-remove,.atelier-head-actions{
+    display:none!important;
+  }
+
+  .atelier-grid{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:2.2mm!important;
+    width:100%!important;
+    max-width:100%!important;
+    align-items:start!important;
+    overflow:visible!important;
+  }
+
+  .atelier-card{
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+    padding:1.4mm!important;
+    border:0.45mm solid #222!important;
+    border-left:1.4mm solid var(--att-accent,#111)!important;
+    border-radius:1.5mm!important;
+    min-height:0!important;
+    max-width:100%!important;
+    background:#fff!important;
+    box-shadow:none!important;
+    overflow:hidden!important;
+  }
+
+  .atelier-head{
+    margin:0 0 1mm!important;
+    min-height:0!important;
+    display:block!important;
+    border-bottom:0.35mm solid #222!important;
+    padding-bottom:.8mm!important;
+  }
+  .atelier-head h3{
+    font-size:11pt!important;
+    line-height:1!important;
+    margin:0!important;
+    text-align:center!important;
+    width:100%!important;
+    font-weight:900!important;
+  }
+
+  .atelier-stats{
+    display:grid!important;
+    grid-template-columns:repeat(3,1fr)!important;
+    gap:.8mm!important;
+    margin:0 0 1.1mm!important;
+  }
+  .atelier-stats .stat-box{display:none!important}
+  .atelier-stats .stat-box.print-modelos,
+  .atelier-stats .stat-box.print-total-pares,
+  .atelier-stats .stat-box.print-pares-dia{
+    display:block!important;
+    padding:.9mm .6mm!important;
+    border-radius:.8mm!important;
+    border:0.35mm solid #333!important;
+    background:#f1f3f5!important;
+  }
+  .stat-box.print-modelos strong,
+  .stat-box.print-total-pares strong,
+  .stat-box.print-pares-dia strong{
+    font-size:7.4pt!important;
+    line-height:1!important;
+    font-weight:900!important;
+  }
+  .stat-box.print-modelos small,
+  .stat-box.print-total-pares small,
+  .stat-box.print-pares-dia small{
+    font-size:4.9pt!important;
+    line-height:1!important;
+    font-weight:900!important;
+  }
+
+  .atelier-note-display,.atelier-note-block{
+    display:flex!important;
+    font-size:6.3pt!important;
+    line-height:1.1!important;
+    padding:.65mm!important;
+    margin:.5mm 0!important;
+    border:0.3mm solid #555!important;
+    background:#fff7d6!important;
+    font-weight:700!important;
+  }
+
+  .category-box{
+    margin-top:1mm!important;
+    border-radius:.8mm!important;
+    border:0.35mm solid #222!important;
+    overflow:hidden!important;
+    background:#fff!important;
+  }
+  .category-head{
+    font-size:7.8pt!important;
+    line-height:1!important;
+    padding:.75mm .95mm!important;
+    background:#d9e2ef!important;
+    border-bottom:0.35mm solid #222!important;
+    font-weight:900!important;
+  }
+  .category-head .muted,.subcat-head .muted{display:none!important}
+
+  .subcat-box{
+    margin:0!important;
+    border:0!important;
+    border-top:0.35mm solid #333!important;
+  }
+  .subcat-head{
+    font-size:7.1pt!important;
+    line-height:1!important;
+    padding:.65mm .95mm!important;
+    background:#edf1f6!important;
+    border-bottom:0.28mm solid #444!important;
+    font-weight:900!important;
+    padding-left:2.4mm!important;
+  }
+
+  .model-table{
+    font-size:6.6pt!important;
+    line-height:1.05!important;
+    width:100%!important;
+    min-width:0!important;
+    table-layout:fixed!important;
+    border-collapse:collapse!important;
+    background:#fff!important;
+  }
+  .model-table th,.model-table td{
+    border:0.28mm solid #444!important;
+    padding:.55mm .65mm!important;
+    height:auto!important;
+    white-space:normal!important;
+    overflow:hidden!important;
+    text-overflow:clip!important;
+    background:#fff!important;
+    color:#000!important;
+  }
+  .model-table th{
+    background:#e5e7eb!important;
+    font-weight:900!important;
+    font-size:6.2pt!important;
+  }
+  .model-table th:nth-child(1),.model-table td:nth-child(1){width:51%!important;text-align:left!important}
+  .model-table th:nth-child(2),.model-table td:nth-child(2){width:24%!important;text-align:center!important}
+  .model-table th:nth-child(3),.model-table td:nth-child(3){display:table-cell!important;width:25%!important;text-align:center!important}
+  .model-table th:nth-child(4),.model-table td:nth-child(4){display:none!important}
+  .model-link{font-size:6.8pt!important;color:#000!important;font-weight:900!important;text-decoration:none!important}
+  .model-note-input{display:none!important}
+  .model-note-print{
+    display:block!important;
+    font-size:6.1pt!important;
+    line-height:1.1!important;
+    margin-top:.25mm!important;
+    color:#000!important;
+    font-weight:800!important;
+    background:#fff7d6!important;
+  }
+  .model-main-cell{white-space:normal!important;text-align:left!important}
+}
+
+
+
+/* AJUSTE_FINAL_IMPRESSAO_UMA_PAGINA_2026-07-02
+   Troca o grid por flex na impressão e aplica zoom proporcional.
+   Isso evita quebrar os cards em 2 páginas e mantém tudo em A4 paisagem. */
+@media print{
+  @page{size:A4 landscape!important;margin:3mm!important}
+  html,body{
+    width:297mm!important;
+    height:210mm!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    background:#fff!important;
+    color:#000!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+  body *{visibility:hidden!important}
+  .sistema-topbar,.sistema-menu-drawer,.sistema-menu-overlay,
+  .card:not(#atelierSection),#messageBox,.no-print{display:none!important}
+  #atelierSection,#atelierSection *{visibility:visible!important;color:#000!important;text-shadow:none!important}
+  #atelierSection{
+    position:absolute!important;
+    left:0!important;
+    top:0!important;
+    width:128%!important;
+    max-width:128%!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    background:#fff!important;
+    overflow:visible!important;
+    zoom:.78!important;
+    transform:none!important;
+  }
+  .print-title{
+    display:block!important;
+    visibility:visible!important;
+    font-size:12pt!important;
+    line-height:1.05!important;
+    margin:0 0 1.5mm!important;
+    font-weight:900!important;
+    color:#000!important;
+  }
+  #atelierSection .table-actions,#atelierInfo,.drag-hint,.tag,.btn,
+  .history-badge,.note-badge,.financial-data,.money,.daily-value-col,
+  .btn-atelier-note,.btn-atelier-note-remove,.atelier-head-actions{
+    display:none!important;
+  }
+  .atelier-grid{
+    display:flex!important;
+    flex-wrap:wrap!important;
+    gap:1.6mm!important;
+    width:100%!important;
+    max-width:100%!important;
+    align-items:flex-start!important;
+    align-content:flex-start!important;
+    overflow:visible!important;
+  }
+  .atelier-card{
+    flex:0 0 calc(25% - 1.25mm)!important;
+    width:calc(25% - 1.25mm)!important;
+    max-width:calc(25% - 1.25mm)!important;
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+    padding:1.05mm!important;
+    border:0.42mm solid #111!important;
+    border-left:1.25mm solid var(--att-accent,#111)!important;
+    border-radius:1.3mm!important;
+    min-height:0!important;
+    background:#fff!important;
+    box-shadow:none!important;
+    overflow:hidden!important;
+  }
+  .atelier-head{
+    margin:0 0 .65mm!important;
+    min-height:0!important;
+    display:block!important;
+    border-bottom:0.32mm solid #111!important;
+    padding-bottom:.55mm!important;
+  }
+  .atelier-head h3{
+    font-size:10pt!important;
+    line-height:1!important;
+    margin:0!important;
+    text-align:center!important;
+    width:100%!important;
+    font-weight:900!important;
+  }
+  .atelier-stats{
+    display:grid!important;
+    grid-template-columns:repeat(3,1fr)!important;
+    gap:.55mm!important;
+    margin:0 0 .75mm!important;
+  }
+  .atelier-stats .stat-box{display:none!important}
+  .atelier-stats .stat-box.print-modelos,
+  .atelier-stats .stat-box.print-total-pares,
+  .atelier-stats .stat-box.print-pares-dia{
+    display:block!important;
+    padding:.58mm .35mm!important;
+    border-radius:.7mm!important;
+    border:0.3mm solid #222!important;
+    background:#f1f3f5!important;
+  }
+  .stat-box.print-modelos strong,
+  .stat-box.print-total-pares strong,
+  .stat-box.print-pares-dia strong{
+    font-size:6.5pt!important;
+    line-height:1!important;
+    font-weight:900!important;
+  }
+  .stat-box.print-modelos small,
+  .stat-box.print-total-pares small,
+  .stat-box.print-pares-dia small{
+    font-size:4.2pt!important;
+    line-height:1!important;
+    font-weight:900!important;
+  }
+  .atelier-note-display,.atelier-note-block{
+    display:flex!important;
+    font-size:5.5pt!important;
+    line-height:1.05!important;
+    padding:.45mm!important;
+    margin:.35mm 0!important;
+    border:0.25mm solid #555!important;
+    background:#fff7d6!important;
+    font-weight:700!important;
+  }
+  .category-box{
+    margin-top:.65mm!important;
+    border-radius:.7mm!important;
+    border:0.3mm solid #111!important;
+    overflow:hidden!important;
+    background:#fff!important;
+  }
+  .category-head{
+    font-size:6.8pt!important;
+    line-height:1!important;
+    padding:.55mm .7mm!important;
+    background:#d9e2ef!important;
+    border-bottom:0.3mm solid #111!important;
+    font-weight:900!important;
+  }
+  .category-head .muted,.subcat-head .muted{display:none!important}
+  .subcat-box{
+    margin:0!important;
+    border:0!important;
+    border-top:0.3mm solid #222!important;
+  }
+  .subcat-head{
+    font-size:6.1pt!important;
+    line-height:1!important;
+    padding:.45mm .7mm!important;
+    background:#edf1f6!important;
+    border-bottom:0.25mm solid #333!important;
+    font-weight:900!important;
+    padding-left:1.8mm!important;
+  }
+  .model-table{
+    font-size:5.8pt!important;
+    line-height:1!important;
+    width:100%!important;
+    min-width:0!important;
+    table-layout:fixed!important;
+    border-collapse:collapse!important;
+    background:#fff!important;
+  }
+  .model-table th,.model-table td{
+    border:0.24mm solid #333!important;
+    padding:.36mm .42mm!important;
+    height:auto!important;
+    white-space:normal!important;
+    overflow:hidden!important;
+    text-overflow:clip!important;
+    background:#fff!important;
+    color:#000!important;
+  }
+  .model-table th{
+    background:#e5e7eb!important;
+    font-weight:900!important;
+    font-size:5.6pt!important;
+  }
+  .model-table th:nth-child(1),.model-table td:nth-child(1){width:52%!important;text-align:left!important}
+  .model-table th:nth-child(2),.model-table td:nth-child(2){width:23%!important;text-align:center!important}
+  .model-table th:nth-child(3),.model-table td:nth-child(3){display:table-cell!important;width:25%!important;text-align:center!important}
+  .model-table th:nth-child(4),.model-table td:nth-child(4){display:none!important}
+  .model-link{font-size:5.8pt!important;color:#000!important;font-weight:900!important;text-decoration:none!important}
+  .model-note-input{display:none!important}
+  .model-note-print{
+    display:block!important;
+    font-size:5.2pt!important;
+    line-height:1.05!important;
+    margin-top:.15mm!important;
+    color:#000!important;
+    font-weight:800!important;
+    background:#fff7d6!important;
+  }
+  .model-main-cell{white-space:normal!important;text-align:left!important}
+}
+
+
+
+/* AJUSTE_IMPRESSAO_MESMO_TAMANHO_CARDS_NA_FOLHA_2026-07-02
+   Mantém o tamanho legível dos cards e corrige o encaixe lateral em uma folha A4 paisagem. */
+@media print{
+  @page{size:A4 landscape!important;margin:4mm!important}
+
+  html,body{
+    width:297mm!important;
+    height:210mm!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    background:#fff!important;
+    color:#000!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  body *{visibility:hidden!important}
+  .sistema-topbar,.sistema-menu-drawer,.sistema-menu-overlay,
+  .card:not(#atelierSection),#messageBox,.no-print{display:none!important}
+
+  #atelierSection,#atelierSection *{visibility:visible!important;color:#000!important;text-shadow:none!important}
+  #atelierSection{
+    position:absolute!important;
+    left:0!important;
+    top:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    box-shadow:none!important;
+    background:#fff!important;
+    overflow:visible!important;
+    zoom:1!important;
+    transform:none!important;
+  }
+
+  .print-title{
+    display:block!important;
+    visibility:visible!important;
+    font-size:12pt!important;
+    line-height:1.05!important;
+    margin:0 0 2mm!important;
+    font-weight:900!important;
+    color:#000!important;
+  }
+
+  #atelierSection .table-actions,#atelierInfo,.drag-hint,.tag,.btn,
+  .history-badge,.note-badge,.financial-data,.money,.daily-value-col,
+  .btn-atelier-note,.btn-atelier-note-remove,.atelier-head-actions{
+    display:none!important;
+  }
+
+  .atelier-grid{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:2mm!important;
+    width:100%!important;
+    max-width:100%!important;
+    align-items:start!important;
+    align-content:start!important;
+    overflow:visible!important;
+  }
+
+  .atelier-card{
+    width:auto!important;
+    max-width:100%!important;
+    min-width:0!important;
+    flex:unset!important;
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+    padding:1.35mm!important;
+    border:0.42mm solid #222!important;
+    border-left:1.35mm solid var(--att-accent,#111)!important;
+    border-radius:1.4mm!important;
+    min-height:0!important;
+    background:#fff!important;
+    box-shadow:none!important;
+    overflow:hidden!important;
+  }
+
+  .atelier-head{
+    margin:0 0 .9mm!important;
+    min-height:0!important;
+    display:block!important;
+    border-bottom:0.32mm solid #111!important;
+    padding-bottom:.65mm!important;
+  }
+  .atelier-head h3{
+    font-size:10.5pt!important;
+    line-height:1!important;
+    margin:0!important;
+    text-align:center!important;
+    width:100%!important;
+    font-weight:900!important;
+  }
+
+  .atelier-stats{
+    display:grid!important;
+    grid-template-columns:repeat(3,1fr)!important;
+    gap:.65mm!important;
+    margin:0 0 .9mm!important;
+  }
+  .atelier-stats .stat-box{display:none!important}
+  .atelier-stats .stat-box.print-modelos,
+  .atelier-stats .stat-box.print-total-pares,
+  .atelier-stats .stat-box.print-pares-dia{
+    display:block!important;
+    padding:.70mm .45mm!important;
+    border-radius:.8mm!important;
+    border:0.3mm solid #222!important;
+    background:#f1f3f5!important;
+  }
+  .stat-box.print-modelos strong,
+  .stat-box.print-total-pares strong,
+  .stat-box.print-pares-dia strong{
+    font-size:6.8pt!important;
+    line-height:1!important;
+    font-weight:900!important;
+  }
+  .stat-box.print-modelos small,
+  .stat-box.print-total-pares small,
+  .stat-box.print-pares-dia small{
+    font-size:4.4pt!important;
+    line-height:1!important;
+    font-weight:900!important;
+  }
+
+  .atelier-note-display,.atelier-note-block{
+    display:flex!important;
+    font-size:5.7pt!important;
+    line-height:1.05!important;
+    padding:.45mm!important;
+    margin:.35mm 0!important;
+    border:0.25mm solid #555!important;
+    background:#fff7d6!important;
+    font-weight:700!important;
+  }
+
+  .category-box{
+    margin-top:.8mm!important;
+    border-radius:.8mm!important;
+    border:0.30mm solid #222!important;
+    overflow:hidden!important;
+    background:#fff!important;
+  }
+  .category-head{
+    font-size:7.2pt!important;
+    line-height:1!important;
+    padding:.60mm .75mm!important;
+    background:#d9e2ef!important;
+    border-bottom:0.30mm solid #111!important;
+    font-weight:900!important;
+  }
+  .category-head .muted,.subcat-head .muted{display:none!important}
+
+  .subcat-box{
+    margin:0!important;
+    border:0!important;
+    border-top:0.28mm solid #222!important;
+  }
+  .subcat-head{
+    font-size:6.4pt!important;
+    line-height:1!important;
+    padding:.48mm .75mm!important;
+    background:#edf1f6!important;
+    border-bottom:0.24mm solid #333!important;
+    font-weight:900!important;
+    padding-left:1.8mm!important;
+  }
+
+  .model-table{
+    font-size:6.05pt!important;
+    line-height:1!important;
+    width:100%!important;
+    min-width:0!important;
+    table-layout:fixed!important;
+    border-collapse:collapse!important;
+    background:#fff!important;
+  }
+  .model-table th,.model-table td{
+    border:0.24mm solid #333!important;
+    padding:.34mm .42mm!important;
+    height:auto!important;
+    white-space:normal!important;
+    overflow:hidden!important;
+    text-overflow:clip!important;
+    background:#fff!important;
+    color:#000!important;
+  }
+  .model-table th{
+    background:#e5e7eb!important;
+    font-weight:900!important;
+    font-size:5.8pt!important;
+  }
+  .model-table th:nth-child(1),.model-table td:nth-child(1){width:52%!important;text-align:left!important}
+  .model-table th:nth-child(2),.model-table td:nth-child(2){width:23%!important;text-align:center!important}
+  .model-table th:nth-child(3),.model-table td:nth-child(3){display:table-cell!important;width:25%!important;text-align:center!important}
+  .model-table th:nth-child(4),.model-table td:nth-child(4){display:none!important}
+
+  .model-link{font-size:6.05pt!important;color:#000!important;font-weight:900!important;text-decoration:none!important}
+  .model-note-input{display:none!important}
+  .model-note-print{
+    display:block!important;
+    font-size:5.4pt!important;
+    line-height:1.05!important;
+    margin-top:.15mm!important;
+    color:#000!important;
+    font-weight:800!important;
+    background:#fff7d6!important;
+  }
+  .model-main-cell{white-space:normal!important;text-align:left!important}
+}
+
+
+
+/* AJUSTE TESTE IMPRESSAO: tabela única por ateliê, sem categoria/subcategoria */
+.print-flat-table,.print-card-date{display:none}
+@media print{
+  .print-card-date{display:block!important;font-size:8.5pt!important;font-weight:900!important;text-align:right!important;color:#111!important;white-space:nowrap!important}
+  .atelier-head{display:flex!important;justify-content:space-between!important;align-items:center!important;border-bottom:.35mm solid #111!important;margin:0 0 1mm!important;padding:0 0 .8mm!important}
+  .atelier-head h3{font-size:12pt!important;text-align:left!important;margin:0!important;line-height:1!important;color:#000!important}
+  .category-box,.subcat-box,.group-box{display:none!important}
+  .print-flat-table{display:block!important;margin-top:1mm!important}
+  .print-flat-table table{display:table!important;width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;font-size:7.6pt!important;line-height:1.08!important}
+  .print-flat-table th,.print-flat-table td{border:.32mm solid #111!important;padding:.7mm .9mm!important;background:#fff!important;color:#000!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+  .print-flat-table th{background:#e9ecef!important;font-weight:900!important;text-align:center!important}
+  .print-flat-table th:nth-child(1),.print-flat-table td:nth-child(1){width:56%!important;text-align:left!important;font-weight:800!important}
+  .print-flat-table th:nth-child(2),.print-flat-table td:nth-child(2){width:22%!important;text-align:center!important}
+  .print-flat-table th:nth-child(3),.print-flat-table td:nth-child(3){width:22%!important;text-align:center!important}
+  .print-flat-note{display:block!important;font-size:6.5pt!important;line-height:1.05!important;margin-top:.4mm!important;background:#fff8d8!important;padding:.3mm .5mm!important;border-left:.5mm solid #d97706!important;font-weight:700!important;color:#111!important}
+  .atelier-note-display{border:.25mm solid #111!important;background:#fff8d8!important;color:#000!important;font-size:7.2pt!important;line-height:1.1!important;padding:.8mm 1mm!important;margin:1mm 0!important}
+}
+
+
+/* AJUSTE_FINAL_PRINT_1_FOLHA_2026-07-02 */
+@media print{
+  @page{size:A4 landscape!important;margin:4mm!important}
+  html,body{width:297mm!important;min-height:210mm!important;background:#fff!important;overflow:visible!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body *{visibility:hidden!important}
+  .sistema-topbar,.sistema-menu-drawer,.sistema-menu-overlay,.card:not(#atelierSection),#messageBox,.no-print{display:none!important}
+  #atelierSection,#atelierSection *{visibility:visible!important}
+  #atelierSection{position:absolute!important;left:0!important;top:0!important;width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important;overflow:visible!important;zoom:1!important;transform:none!important}
+  .print-title{display:block!important;font-size:10.5pt!important;line-height:1.05!important;margin:0 0 2.2mm!important;font-weight:900!important;color:#000!important}
+  #atelierSection .table-actions,#atelierInfo,.drag-hint,.tag,.btn,.history-badge,.note-badge,.financial-data,.money,.daily-value-col,.btn-atelier-note,.btn-atelier-note-remove{display:none!important}
+  .atelier-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:2.4mm!important;width:100%!important;max-width:100%!important;align-items:start!important;overflow:visible!important}
+  .atelier-card{break-inside:avoid!important;page-break-inside:avoid!important;width:100%!important;max-width:100%!important;min-width:0!important;min-height:0!important;padding:1.5mm!important;border:.25mm solid #111!important;border-left:1.2mm solid var(--att-accent,#111)!important;border-radius:1.4mm!important;background:#fff!important;box-shadow:none!important;overflow:hidden!important}
+  .atelier-head{display:flex!important;justify-content:space-between!important;align-items:flex-end!important;border-bottom:.28mm solid #111!important;margin:0 0 .8mm!important;padding:0 0 .55mm!important;min-height:0!important}
+  .atelier-head h3{font-size:11pt!important;text-align:left!important;margin:0!important;line-height:1!important;color:#000!important;font-weight:900!important}
+  .print-card-date{display:block!important;font-size:7.2pt!important;font-weight:900!important;text-align:right!important;color:#000!important;white-space:nowrap!important}
+  .atelier-stats{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:.7mm!important;margin:0 0 1mm!important}
+  .atelier-stats .stat-box{display:none!important}
+  .atelier-stats .stat-box.print-modelos,.atelier-stats .stat-box.print-total-pares,.atelier-stats .stat-box.print-pares-dia{display:block!important;padding:.65mm!important;border:.25mm solid #111!important;border-radius:1mm!important;background:#f1f3f5!important;color:#000!important}
+  .stat-box.print-modelos strong,.stat-box.print-total-pares strong,.stat-box.print-pares-dia strong{font-size:7pt!important;line-height:1!important;font-weight:900!important}
+  .stat-box.print-modelos small,.stat-box.print-total-pares small,.stat-box.print-pares-dia small{font-size:4.5pt!important;line-height:1!important;font-weight:900!important}
+  .category-box,.subcat-box,.group-box{display:none!important}
+  .print-flat-table{display:block!important;margin-top:.8mm!important;width:100%!important}
+  .print-flat-table table{display:table!important;width:100%!important;max-width:100%!important;border-collapse:collapse!important;table-layout:fixed!important;font-size:7pt!important;line-height:1.05!important}
+  .print-flat-table th,.print-flat-table td{border:.25mm solid #111!important;padding:.45mm .55mm!important;background:#fff!important;color:#000!important;white-space:normal!important;overflow:hidden!important;text-overflow:clip!important}
+  .print-flat-table th{background:#e5e7eb!important;font-weight:900!important;text-align:center!important}
+  .print-flat-table th:nth-child(1),.print-flat-table td:nth-child(1){width:56%!important;text-align:left!important;font-weight:900!important}
+  .print-flat-table th:nth-child(2),.print-flat-table td:nth-child(2){width:22%!important;text-align:center!important}
+  .print-flat-table th:nth-child(3),.print-flat-table td:nth-child(3){width:22%!important;text-align:center!important}
+  .print-flat-note{display:block!important;font-size:5.8pt!important;line-height:1.05!important;margin-top:.2mm!important;background:#fff7d6!important;padding:.15mm .35mm!important;border-left:.45mm solid #d97706!important;font-weight:800!important;color:#000!important}
+  .atelier-note-display{border:.25mm solid #111!important;background:#fff8d8!important;color:#000!important;font-size:6.6pt!important;line-height:1.05!important;padding:.5mm .7mm!important;margin:.7mm 0!important}
+}
+
+
+
+/* CORRECAO_IMPRESSAO_PARES_PARES_DIA_2026-07-02
+   Usa uma grade própria no PDF para garantir que Pares e Pares/dia apareçam. */
+.print-flat-grid-wrap{display:none}
+@media print{
+  .print-flat-grid-wrap{display:block!important;margin-top:.8mm!important;width:100%!important}
+  .print-flat-grid{display:grid!important;grid-template-columns:52% 24% 24%!important;width:100%!important;border-left:.28mm solid #111!important;border-top:.28mm solid #111!important;background:#fff!important}
+  .print-cell{display:block!important;visibility:visible!important;border-right:.28mm solid #111!important;border-bottom:.28mm solid #111!important;padding:.45mm .55mm!important;min-height:3.6mm!important;font-size:7pt!important;line-height:1.05!important;color:#000!important;background:#fff!important;overflow:visible!important;text-overflow:clip!important;white-space:normal!important}
+  .print-head{background:#e5e7eb!important;font-weight:900!important;text-align:center!important;font-size:6.6pt!important}
+  .print-model{text-align:left!important;font-weight:900!important}
+  .print-num{text-align:center!important;font-weight:800!important}
+  .print-flat-note{display:block!important;font-size:5.8pt!important;line-height:1.05!important;margin-top:.2mm!important;background:#fff7d6!important;padding:.15mm .35mm!important;border-left:.45mm solid #d97706!important;font-weight:800!important;color:#000!important}
+}
+
+</style>
+<script src="navegacao.js"></script>
+</head>
+<body class="auth-loading">
+<main>
+<section class="card">
+  <div class="page-head">
+    <div>
+      <h2 class="page-title">Distribuição dos Ateliês</h2>
+      <p class="page-subtitle">Selecione as duas distribuições da semana. O sistema busca o último ateliê que produziu cada modelo, calcula o faturamento de costura previsto e permite arrastar, trocar ou dividir modelos entre ateliês.</p>
+    </div>
+    <div class="top-actions no-print">
+      <button class="btn btn-secondary" id="selectDistributionsButton" type="button">Selecionar distribuição</button>
+      <button class="btn btn-secondary" id="openSavedButton" type="button">Abrir salvas</button>
+      <button class="btn btn-primary" id="generateButton" type="button">Montar distribuição</button>
+      <button class="btn btn-secondary" id="addAtelierButton" type="button">+ Ateliê</button>
+      <button class="btn btn-success" id="saveButton" type="button" disabled>Salvar distribuição</button>
+      <button class="btn btn-warning" id="launchButton" type="button">Lançar distribuição</button>
+      <button class="btn btn-secondary" id="printButton" type="button" disabled>Imprimir / PDF</button>
+      <button class="btn btn-secondary" id="clearButton" type="button">Limpar</button>
+    </div>
+  </div>
+  <div class="date-filter-row no-print">
+    <div class="form-group"><label for="dateOneInput">Corte 1</label><input type="date" id="dateOneInput" /></div>
+    <div class="form-group"><label for="dateTwoInput">Corte 2</label><input type="date" id="dateTwoInput" /></div>
+    <div class="form-group"><label for="atelierFilterInput">Filtrar ateliê</label><input type="text" id="atelierFilterInput" placeholder="Ex: Michel" autocomplete="off" /></div>
+  </div>
+  <div id="messageBox" class="message"></div>
+</section>
+
+<section class="card hidden" id="summaryCard">
+  <div class="table-actions"><h3 class="section-title">Resumo da programação</h3><span class="mini-help" id="periodInfo"></span></div>
+  <div class="summary-grid" id="summaryGrid"></div>
+</section>
+
+<section class="card hidden" id="atelierSection">
+  <h2 class="print-title" id="printTitle">Distribuição dos Ateliês</h2>
+  <div class="table-actions no-print">
+    <div><h3 class="section-title">Distribuição lógica por ateliê</h3><span class="mini-help" id="atelierInfo">Arraste os modelos. Segure SHIFT ao soltar para dividir.</span></div>
+    <span class="tag info">Faturamento diário = valor da programação ÷ 5</span>
+  </div>
+  <div class="atelier-grid" id="atelierGrid"></div>
+</section>
+</main>
+
+<div class="modal-backdrop" id="distributionsModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Selecionar duas distribuições</h3><button class="modal-close" id="closeDistributionsModalButton" type="button">Fechar</button></div>
+    <div class="modal-body">
+      <p class="mini-help">Selecione exatamente duas datas de corte para montar a distribuição semanal dos ateliês.</p>
+      <div class="table-wrap"><table><thead><tr><th>Selecionar</th><th>Data corte</th><th>Total pares</th><th>Modelos</th><th>Arquivo</th></tr></thead><tbody id="distributionsTableBody"></tbody></table></div>
+      <div class="actions" style="margin-top:12px"><button class="btn btn-primary" id="confirmDistributionsButton" type="button">Usar selecionadas</button></div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-backdrop" id="savedModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3>Distribuições de ateliês salvas</h3><button class="modal-close" id="closeSavedModalButton" type="button">Fechar</button></div>
+    <div class="modal-body">
+      <div class="open-saved-info">Clique em <strong>Abrir</strong> para carregar uma distribuição já salva com todas as movimentações, divisões e observações.</div>
+      <div class="table-wrap"><table class="saved-list-table"><thead><tr><th>Distribuição</th><th>Datas de corte</th><th>Total pares</th><th>Valor total</th><th>Atualizado por</th><th>Ação</th></tr></thead><tbody id="savedTableBody"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="splitModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-header"><h3 id="splitModalTitle">Dividir modelo</h3><button class="modal-close" id="closeSplitModalButton" type="button">Fechar</button></div>
+    <div class="modal-body">
+      <div class="summary-grid" id="splitSummary"></div>
+      <div class="modal-grid" style="margin-top:12px">
+        <div class="form-group"><label for="splitPairsInput">Pares para transferir</label><input type="number" id="splitPairsInput" min="1" step="1" /></div>
+        <div class="form-group"><label for="splitDestinationSelect">Destino</label><select id="splitDestinationSelect"></select></div>
+        <div class="form-group"><label for="splitNewAtelierInput">Ou novo ateliê</label><input type="text" id="splitNewAtelierInput" placeholder="Nome do ateliê" /></div>
+      </div>
+      <div class="modal-grid split-notes-grid" style="margin-top:10px">
+        <div class="form-group"><label for="splitOriginNoteInput">Observação no ateliê atual</label><input type="text" id="splitOriginNoteInput" placeholder="Ex: somente cor preta" /></div>
+        <div class="form-group"><label for="splitDestinationNoteInput">Observação no ateliê destino</label><input type="text" id="splitDestinationNoteInput" placeholder="Ex: remessa 34-000000" /></div>
+      </div>
+      <div class="actions" style="margin-top:12px"><button class="btn btn-success" id="confirmSplitButton" type="button">Confirmar divisão</button></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+const firebaseConfig={apiKey:"AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",authDomain:"sistemataloes.firebaseapp.com",projectId:"sistemataloes",storageBucket:"sistemataloes.appspot.com",messagingSenderId:"684534379685",appId:typeof __app_id!=="undefined"?__app_id:"default-app-id"};
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+import{getFirestore,doc,getDoc,setDoc,collection,getDocs,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const FULL_ACCESS_LEVELS=new Set(["07","08"]);
+let currentUser=null,currentUserLevel="",currentUserName="",modelsMap=new Map(),taloesCache=[],lastAtelierMap=new Map(),atelierHistoryMap=new Map(),allocation=[],manualAteliers=new Set(),selectedDocs=[],currentSplitId=null,modelHistoryMap=new Map(),atelierNotes=new Map(),atelierNotePositions=new Map(),undoStack=[],redoStack=[];
+const $=id=>document.getElementById(id);
+const els={dateOneInput:$("dateOneInput"),dateTwoInput:$("dateTwoInput"),atelierFilterInput:$("atelierFilterInput"),selectDistributionsButton:$("selectDistributionsButton"),generateButton:$("generateButton"),addAtelierButton:$("addAtelierButton"),saveButton:$("saveButton"),printButton:$("printButton"),launchButton:$("launchButton"),clearButton:$("clearButton"),openSavedButton:$("openSavedButton"),savedModalBackdrop:$("savedModalBackdrop"),closeSavedModalButton:$("closeSavedModalButton"),savedTableBody:$("savedTableBody"),messageBox:$("messageBox"),summaryCard:$("summaryCard"),summaryGrid:$("summaryGrid"),periodInfo:$("periodInfo"),atelierSection:$("atelierSection"),atelierGrid:$("atelierGrid"),atelierInfo:$("atelierInfo"),distributionsModalBackdrop:$("distributionsModalBackdrop"),closeDistributionsModalButton:$("closeDistributionsModalButton"),distributionsTableBody:$("distributionsTableBody"),confirmDistributionsButton:$("confirmDistributionsButton"),splitModalBackdrop:$("splitModalBackdrop"),splitModalTitle:$("splitModalTitle"),closeSplitModalButton:$("closeSplitModalButton"),splitSummary:$("splitSummary"),splitPairsInput:$("splitPairsInput"),splitDestinationSelect:$("splitDestinationSelect"),splitNewAtelierInput:$("splitNewAtelierInput"),splitOriginNoteInput:$("splitOriginNoteInput"),splitDestinationNoteInput:$("splitDestinationNoteInput"),confirmSplitButton:$("confirmSplitButton")};
+function redirectUnauthorized(){alert("Seu nível de acesso não permite abrir esta página. Você será redirecionado para o início.");window.location.replace("index.html");}
+onAuthStateChanged(auth,async user=>{if(!user){window.location.href="login.html";return}currentUser=user;try{const userSnap=await getDoc(doc(db,"Usuario",user.email));if(!userSnap.exists()){alert("Dados do usuário não encontrados. Faça login novamente.");await signOut(auth);window.location.href="login.html";return}const userData=userSnap.data();currentUserLevel=String(userData.nivelAcesso||"");currentUserName=userData.Nome||user.email||"Usuário";localStorage.setItem("userNivelAcesso",currentUserLevel);localStorage.setItem("userName",currentUserName);if(!FULL_ACCESS_LEVELS.has(currentUserLevel)){redirectUnauthorized();return}document.body.classList.remove("auth-loading");if(window.SistemaNavegacao){if(Array.isArray(window.SistemaNavegacao.pages)&&!window.SistemaNavegacao.pages.some(p=>String(p.href||"").toLowerCase()==="distribuicaoatt.html")){window.SistemaNavegacao.pages.push({group:"Costura",name:"Distribuição Ateliês",href:"distribuicaoatt.html",levels:["07","08"]});}window.SistemaNavegacao.init({userLevel:currentUserLevel,userName:currentUserName,title:"Distribuição Ateliês",onLogout:async()=>{await signOut(auth);localStorage.removeItem("userNivelAcesso");localStorage.removeItem("userName");window.location.href="login.html";}})}showMessage("info","Selecione as duas distribuições da semana para começar.");}catch(err){console.error(err);alert("Erro ao validar usuário: "+err.message);window.location.replace("index.html")}});
+function showMessage(type,text){els.messageBox.className=text?`message show ${type}`:"message";els.messageBox.textContent=text||""}function onlyDigits(v){return String(v||"").replace(/\D/g,"")}function normalizeText(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()}const HOLD_ATELIER="Segurar";function normalizeAtelierName(name){const n=String(name||"").trim();const norm=normalizeText(n);return(!n||norm==="sem atelie definido"||norm==="sem atelier definido"||norm==="sem ateliê definido")?HOLD_ATELIER:n}function displayAtelierName(name){return normalizeAtelierName(name)}function escapeHtml(str){return String(str??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]))}function parseNumber(value){if(value===null||value===undefined)return 0;if(typeof value==="number")return Number.isFinite(value)?value:0;let s=String(value).trim();if(!s||s==="-")return 0;s=s.replace(/R\$|\s/g,"");if(s.includes(",")&&s.includes("."))s=s.replace(/\./g,"").replace(",",".");else if(s.includes(","))s=s.replace(",",".");s=s.replace(/[^0-9.\-]/g,"");const n=parseFloat(s);return Number.isFinite(n)?n:0}function formatMoney(v){return(Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2,maximumFractionDigits:2})}function formatNumber(v){return(Number(v)||0).toLocaleString("pt-BR",{maximumFractionDigits:0})}function round2(n){return Math.round((Number(n)||0)*100)/100}function pad2(n){return String(n).padStart(2,"0")}function toISODate(date){return`${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`}function isoToBR(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}/${m}/${y}`}function isoToShortBR(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}/${m}`}function isoToDocId(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}-${m}-${y}`}function docIdToISO(docId){if(!docId)return"";const[d,m,y]=String(docId).split("-");return`${y}-${m}-${d}`}function docIdToBR(docId){return docId?String(docId).replaceAll("-","/"):""}function normalizeDate(value){if(!value)return"";try{if(value.toDate)return toISODate(value.toDate())}catch{}if(value instanceof Date&&!isNaN(value))return toISODate(value);const s=String(value).trim();if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);const br=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(br)return`${br[3]}-${br[2]}-${br[1]}`;const brShort=s.match(/^(\d{2})\/(\d{2})$/);if(brShort){const y=new Date().getFullYear();return`${y}-${brShort[2]}-${brShort[1]}`}return""}function modelKey(linha,modelo){return`${onlyDigits(linha)}.${onlyDigits(modelo)}`}function fallbackModelKeys(linha,modelo){const l=onlyDigits(linha),m=onlyDigits(modelo);return[`${l}.${m}`,`${l}-${m}`,`${l}_${m}`]}function getModel(linha,modelo){for(const key of fallbackModelKeys(linha,modelo)){if(modelsMap.has(key))return modelsMap.get(key)}return null}function getCosturaValue(model){const setores=model?.preco?.setores||{};const found=Object.entries(setores).find(([name])=>normalizeText(name)==="costura");return Number(found?.[1]||0)}function firstNonEmpty(data,fields){for(const f of fields){const v=data?.[f];if(v!==undefined&&v!==null&&String(v).trim()!=="")return v}return""}function getTalaoDate(data){return normalizeDate(firstNonEmpty(data,["dataSaidaCostura","dataProducaoCostura","dataBaixaCostura","saidaCostura","dataEntradaDistribuicao"]))}function getAtelier(data){return String(firstNonEmpty(data,["idAtelieResponsavel","idAtelierResponsavel","atelieResponsavel","atelierResponsavel","nomeAtelie","nomeAtelier","atelie","atelier","Atelie","Atelier"])||"Sem ateliê").trim()}function getLinha(data){return String(firstNonEmpty(data,["linha","Linha","codLinha"]))}function getModelo(data){return String(firstNonEmpty(data,["modelo","Modelo","codModelo"]))}function getPares(data){return parseNumber(firstNonEmpty(data,["pares","Pares","quantidadePares","qtdPares"]))}
+function getMonday(iso){const d=new Date(`${iso}T12:00:00`);const day=d.getDay();const diff=(day===0?-6:1-day);d.setDate(d.getDate()+diff);return d}function addDays(date,days){const d=new Date(date.getTime());d.setDate(d.getDate()+days);return d}function buildWeeks(referenceISO=toISODate(new Date())){const monday=getMonday(referenceISO);const weeks=[];for(let i=2;i>=0;i--){const start=addDays(monday,-7*i),end=addDays(start,4);const startISO=toISODate(start),endISO=toISODate(end);weeks.push({index:weeks.length+1,startISO,endISO,dates:Array.from({length:5},(_,d)=>toISODate(addDays(start,d)))});}return weeks}
+async function loadModels(){const snap=await getDocs(collection(db,"modelos"));modelsMap=new Map();snap.docs.forEach(d=>{const data={id:d.id,...d.data()};modelsMap.set(d.id,data);if(data.linha&&data.modelo)modelsMap.set(modelKey(data.linha,data.modelo),data)})}async function loadTaloes(){if(taloesCache.length)return taloesCache;const snap=await getDocs(collection(db,"taloes"));taloesCache=snap.docs.map(d=>({id:d.id,...d.data()}));return taloesCache}
+function previousBusinessDayISO(baseISO=toISODate(new Date())){let d=new Date(`${baseISO}T12:00:00`);d.setDate(d.getDate()-1);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);return toISODate(d)}
+function businessDatesUntilYesterday(){const yesterdayISO=previousBusinessDayISO();const weeks=buildWeeks(yesterdayISO);const dates=weeks.flatMap(w=>w.dates).filter(dateISO=>dateISO<=yesterdayISO);return{weeks,dates,startISO:dates[0]||weeks[0].startISO,endISO:yesterdayISO,diasUteis:dates.length||1}}
+function calculateHistory(taloes){const periodo=businessDatesUntilYesterday(),weekDateSet=new Set(periodo.dates),diasUteis=periodo.diasUteis;const hist=new Map(),last=new Map(),modelHist=new Map();taloes.forEach(t=>{const dateISO=getTalaoDate(t);const corteISO=getTalaoCorteDate(t)||dateISO;const linha=getLinha(t),modelo=getModelo(t),pares=getPares(t);if(!dateISO||!linha||!modelo||pares<=0)return;const atelier=getAtelier(t);const key=modelKey(linha,modelo);if(!modelHist.has(key))modelHist.set(key,[]);const mh=modelHist.get(key);const existingHist=mh.find(x=>x.atelier===atelier&&x.dateISO===dateISO&&x.corteISO===corteISO);if(existingHist){existingHist.pares=Number(existingHist.pares||0)+pares}else{mh.push({atelier,dateISO,corteISO,pares})};const current=last.get(key);if(!current||dateISO>current.dateISO)last.set(key,{atelier,dateISO,corteISO});if(dateISO<periodo.startISO||dateISO>periodo.endISO||!weekDateSet.has(dateISO))return;const model=getModel(linha,modelo);const costura=getCosturaValue(model);const valor=round2(pares*costura);if(!hist.has(atelier))hist.set(atelier,{atelier,total:0,pares:0,dias:new Set()});const h=hist.get(atelier);h.total=round2(h.total+valor);h.pares+=pares;h.dias.add(dateISO)});hist.forEach(h=>{h.mediaDia=round2(h.total/diasUteis);h.mediaDiaProduzido=round2(h.total/(h.dias.size||1));h.diasUteis=diasUteis});modelHist.forEach(list=>list.sort((a,b)=>a.dateISO.localeCompare(b.dateISO)));lastAtelierMap=last;atelierHistoryMap=hist;modelHistoryMap=modelHist}
+async function loadDistribution(docId){const snap=await getDoc(doc(db,"Distribuicao",docId));if(!snap.exists())throw new Error(`Distribuição ${docIdToBR(docId)} não encontrada.`);return{docId,data:snap.data()}}
+function distributionItems(data,docId){if(Array.isArray(data.itens)&&data.itens.length){return data.itens.map(i=>({linha:String(i.linha||""),modelo:String(i.modelo||""),pares:Number(i.pares||0),origem:docId}))}const out=[];Object.entries(data.linhas||{}).forEach(([linha,line])=>{Object.entries(line.modelos||{}).forEach(([modelo,pares])=>out.push({linha,modelo,pares:Number(pares||0),origem:docId}))});return out}
+function makeAllocation(combined){allocation=combined.map((item,index)=>{const model=getModel(item.linha,item.modelo);const costura=getCosturaValue(model);const last=lastAtelierMap.get(modelKey(item.linha,item.modelo));const atelier=normalizeAtelierName(last?.atelier||HOLD_ATELIER);return calcItem({...item,id:`${modelKey(item.linha,item.modelo)}-${index}-${Date.now()}`,key:modelKey(item.linha,item.modelo),atelier,lastDate:last?.dateISO||"",categoria:model?.categoria||"Sem categoria",subcategoria:model?.subcategoria||"Sem subcategoria",costuraUnit:costura,semModelo:!model,semCostura:!!model&&costura<=0})})}
+function calcItem(item){item.pares=Number(item.pares||0);item.costuraUnit=Number(item.costuraUnit||0);item.valor=round2(item.pares*item.costuraUnit);item.valorDia=round2(item.valor/5);item.paresDia=round2(item.pares/5);return item}
+function cloneState(){return JSON.parse(JSON.stringify({allocation,manualAteliers:[...manualAteliers],atelierNotes:[...atelierNotes.entries()],atelierNotePositions:[...atelierNotePositions.entries()]}))}
+function restoreState(state){allocation=(state&&state.allocation)||[];manualAteliers=new Set((state&&state.manualAteliers)||[]);atelierNotes=new Map((state&&state.atelierNotes)||[]);atelierNotePositions=new Map((state&&state.atelierNotePositions)||[]);renderAll()}
+function pushUndo(){undoStack.push(cloneState());if(undoStack.length>80)undoStack.shift();redoStack=[]}
+function undoMove(){if(!undoStack.length)return;redoStack.push(cloneState());restoreState(undoStack.pop());showMessage("info","Movimento desfeito.")}
+function redoMove(){if(!redoStack.length)return;undoStack.push(cloneState());restoreState(redoStack.pop());showMessage("info","Movimento refeito.")}
+function compareClass(previsto,hist){if(!hist||!hist.mediaDia)return"";return Number(previsto||0)>=Number(hist.mediaDia||0)?"compare-good":"compare-bad"}
+function compareSymbol(previsto,hist){if(!hist||!hist.mediaDia)return"";return Number(previsto||0)>=Number(hist.mediaDia||0)?"▲":"▼"}
+function compareDiff(previsto,hist){if(!hist||!hist.mediaDia)return 0;return round2(Number(previsto||0)-Number(hist.mediaDia||0))}
+function getTalaoCorteDate(data){return normalizeDate(firstNonEmpty(data,["dataCorte","DataCorte","dataDeCorte","data_corte","corte"]))}
+function historyTooltip(item){const list=modelHistoryMap.get(item.key)||[];const totals=new Map();list.forEach(h=>{const atelier=String(h.atelier||"").trim();if(!atelier||normalizeText(atelier)===normalizeText(item.atelier))return;totals.set(atelier,(totals.get(atelier)||0)+Number(h.pares||0))});const rows=Array.from(totals.entries()).filter(([,pares])=>pares>0).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR",{numeric:true}));if(!rows.length)return"";return rows.map(([atelier,pares])=>`${atelier} • ${formatNumber(pares)} pares`).join("\n")}
+function historyBadge(item){const title=historyTooltip(item);return title?`<span class="history-badge" title="${escapeHtml(title)}">👥</span>`:""}
+function noteBadge(item){return item.observacaoDivisao?`<span class="note-badge" title="${escapeHtml(item.observacaoDivisao)}">📝</span>`:""}
+function isSplitItem(item){return !!(item&&((item.dividido===true)||item.splitGroup||item.observacaoDivisao))}
+function atelierNoteValue(name){const raw=atelierNotes.get(name);if(raw&&typeof raw==="object")return String(raw.texto||raw.text||"");return String(raw||"")}
+function atelierNotePosition(name){return Number(atelierNotePositions.get(name)||0)}
+function setAtelierNotePosition(name,pos){if(!name)return;pushUndo();atelierNotePositions.set(name,Math.max(0,Number(pos)||0));renderAll()}
+function setAtelierNote(name,value){if(!name)return;const old=atelierNoteValue(name);const val=String(value||"").trim();if(old===val)return;pushUndo();if(val)atelierNotes.set(name,val);else{atelierNotes.delete(name);atelierNotePositions.delete(name)}renderAll()}
+function promptAtelierNote(name){const atual=atelierNoteValue(name);const novo=prompt(`Observação do ateliê ${displayAtelierName(name)}:`,atual);if(novo===null)return;setAtelierNote(name,novo)}
+function renderAtelierNoteBlock(name){const note=atelierNoteValue(name);if(!note)return"";return `<div class="atelier-note-display atelier-note-block" draggable="true" data-note-atelier="${escapeHtml(name)}"><span><strong>Obs:</strong> ${escapeHtml(note)}</span><button class="btn-atelier-note-remove no-print" type="button" data-note-remove="${escapeHtml(name)}" title="Remover observação">×</button></div>`}
+function printDistribution(){if(!allocation.length){showMessage("warning","Monte a distribuição antes de imprimir.");return}const datas=selectedDocs.length?selectedDocs.map(docIdToBR).join(" e "):[isoToBR(els.dateOneInput.value),isoToBR(els.dateTwoInput.value)].filter(Boolean).join(" e ");const title=document.getElementById("printTitle");if(title)title.textContent=`Distribuição dos Ateliês • Cortes ${datas}`;window.print()}
+
+async function generate(){const docIds=[isoToDocId(els.dateOneInput.value),isoToDocId(els.dateTwoInput.value)].filter(Boolean);if(docIds.length!==2){showMessage("warning","Selecione as duas datas de distribuição da semana.");return}if(docIds[0]===docIds[1]){showMessage("warning","Selecione duas datas diferentes.");return}try{els.generateButton.disabled=true;showMessage("info","Buscando distribuições, modelos e último ateliê dos modelos...");await loadModels();const taloes=await loadTaloes();calculateHistory(taloes);const docs=await Promise.all(docIds.map(loadDistribution));selectedDocs=docIds;const map=new Map();docs.forEach(({docId,data})=>distributionItems(data,docId).forEach(i=>{const key=modelKey(i.linha,i.modelo);if(!key||!i.pares)return;if(!map.has(key))map.set(key,{linha:i.linha,modelo:i.modelo,pares:0,origens:[]});const item=map.get(key);item.pares+=Number(i.pares||0);item.origens.push(docId)}));makeAllocation(Array.from(map.values()).sort((a,b)=>Number(a.linha)-Number(b.linha)||Number(a.modelo)-Number(b.modelo)));atelierNotes=new Map();atelierNotePositions=new Map();undoStack=[];redoStack=[];renderAll();showMessage("success",`Distribuição montada com ${formatNumber(allocation.length)} modelo(s).`)}catch(err){console.error(err);showMessage("error","Erro ao montar distribuição: "+err.message)}finally{els.generateButton.disabled=false}}
+function renderAll(){renderSummary();renderAteliers();els.saveButton.disabled=!allocation.length;if(els.printButton)els.printButton.disabled=!allocation.length}
+function getAtelierNames(){const names=new Set([...allocation.map(i=>normalizeAtelierName(i.atelier)),...[...manualAteliers].map(normalizeAtelierName)]);return Array.from(names).filter(Boolean).sort((a,b)=>{const ma=Number(atelierHistoryMap.get(a)?.mediaDia||0),mb=Number(atelierHistoryMap.get(b)?.mediaDia||0);if(mb!==ma)return mb-ma;return a.localeCompare(b,"pt-BR",{numeric:true})})}
+function renderSummary(){const totalPares=allocation.reduce((s,i)=>s+i.pares,0),totalValor=round2(allocation.reduce((s,i)=>s+i.valor,0)),semAtelier=allocation.filter(i=>normalizeAtelierName(i.atelier)===HOLD_ATELIER).length,pend=allocation.filter(i=>i.semModelo||i.semCostura).length;els.periodInfo.textContent=selectedDocs.length?`Distribuições ${selectedDocs.map(docIdToBR).join(" e ")}`:"";els.summaryGrid.innerHTML=`<div class="summary-item primary"><strong>${formatNumber(totalPares)}</strong><small>Total de pares</small></div><div class="summary-item ok"><strong>${formatMoney(totalValor)}</strong><small>Faturamento costura</small></div><div class="summary-item warn"><strong>${formatMoney(totalValor/5)}</strong><small>Faturamento diário previsto</small></div><div class="summary-item"><strong>${formatNumber(getAtelierNames().length)}</strong><small>Ateliês na distribuição</small></div><div class="summary-item danger"><strong>${formatNumber(semAtelier)}</strong><small>Segurar</small></div><div class="summary-item danger"><strong>${formatNumber(pend)}</strong><small>Pendências de preço/modelo</small></div>`;els.summaryCard.classList.remove("hidden")}
+function renderAteliers(){const term=normalizeText(els.atelierFilterInput.value||"");const names=getAtelierNames().filter(n=>!term||normalizeText(n).includes(term));els.atelierInfo.textContent=`${formatNumber(names.length)} card(s). Arraste os modelos entre ateliês ou segure SHIFT ao soltar para dividir.`;if(!names.length){els.atelierGrid.innerHTML=`<div class="empty-drop">Nenhum ateliê encontrado.</div>`}else{els.atelierGrid.innerHTML=names.map((name,index)=>renderAtelierCard(name,index)).join("");bindDragDrop()}els.atelierSection.classList.remove("hidden")}
+function printShortCortes(){
+  const docs=(selectedDocs&&selectedDocs.length?selectedDocs:[isoToDocId(els.dateOneInput.value),isoToDocId(els.dateTwoInput.value)]).filter(Boolean);
+  return docs.sort((a,b)=>docIdToISO(a).localeCompare(docIdToISO(b))).map(d=>isoToShortBR(docIdToISO(d))).join(" e ");
+}
+function renderPrintFlatTable(items){
+  const sorted=[...items].sort((a,b)=>normalizeText(a.categoria).localeCompare(normalizeText(b.categoria))||normalizeText(a.subcategoria).localeCompare(normalizeText(b.subcategoria))||Number(a.linha)-Number(b.linha)||Number(a.modelo)-Number(b.modelo));
+  if(!sorted.length){
+    return `<div class="print-flat-table print-flat-grid-wrap"><div class="print-flat-grid"><div class="print-cell print-head">Modelo</div><div class="print-cell print-head">Pares</div><div class="print-cell print-head">Pares/dia</div><div class="print-cell print-model" style="grid-column:1 / 4;text-align:center!important">Sem modelos</div></div></div>`;
+  }
+  const rows=sorted.map(i=>{
+    const note=String(i.observacaoDivisao||"").trim();
+    const noteHtml=note?`<span class="print-flat-note">Obs: ${escapeHtml(note)}</span>`:"";
+    return `<div class="print-cell print-model"><strong>${escapeHtml(i.linha)}.${escapeHtml(i.modelo)}</strong>${noteHtml}</div><div class="print-cell print-num">${formatNumber(i.pares)}</div><div class="print-cell print-num">${formatNumber(i.paresDia)}</div>`;
+  }).join("");
+  return `<div class="print-flat-table print-flat-grid-wrap"><div class="print-flat-grid"><div class="print-cell print-head">Modelo</div><div class="print-cell print-head">Pares</div><div class="print-cell print-head">Pares/dia</div>${rows}</div></div>`;
+}
+function renderAtelierCard(name,index){const items=allocation.filter(i=>i.atelier===name);const totalPares=items.reduce((sum,i)=>sum+i.pares,0),totalValor=round2(items.reduce((sum,i)=>sum+i.valor,0)),hist=atelierHistoryMap.get(name);const totalModelos=items.length;const previsto=round2(totalValor/5),paresDia=round2(totalPares/5),diff=compareDiff(previsto,hist);const diffText=hist&&hist.mediaDia?`${diff>=0?"+":""}${formatMoney(diff)}`:"—";const groupsHtml=items.length?renderCategoryGroups(items,name):`<div class="empty-drop">Solte modelos aqui.</div>`;const printFlatHtml=renderPrintFlatTable(items);const pend=items.filter(i=>i.semModelo||i.semCostura).length;const cmpClass=compareClass(previsto,hist),cmpSymbol=compareSymbol(previsto,hist);return `<div class="atelier-card color-${index%8}" data-atelier="${escapeHtml(name)}"><div class="atelier-head"><div><h3>${escapeHtml(displayAtelierName(name))}</h3></div><span class="print-card-date">${escapeHtml(printShortCortes())}</span><div class="atelier-head-actions no-print"><button class="btn-atelier-note" type="button" data-atelier-note="${escapeHtml(name)}" title="Adicionar observação do ateliê">+</button>${pend?`<span class="tag bad">${pend} pendência(s)</span>`:`<span class="tag good">OK</span>`}</div></div><div class="atelier-stats"><div class="stat-box print-modelos print-only"><strong>${formatNumber(totalModelos)}</strong><small>Modelos</small></div><div class="stat-box print-total-pares"><strong>${formatNumber(totalPares)}</strong><small>Pares</small></div><div class="stat-box financial-data"><strong>${formatMoney(totalValor)}</strong><small>Faturamento</small></div><div class="stat-box financial-data ${cmpClass}"><strong><span class="stat-symbol">${cmpSymbol}</span>${formatMoney(previsto)}</strong><small>Dia previsto</small><em class="diff-line">Dif. ${diffText}</em></div><div class="stat-box financial-data"><strong>${formatMoney(hist?.mediaDia||0)}</strong><small>Média hist.</small></div><div class="stat-box print-pares-dia"><strong>${formatNumber(paresDia)}</strong><small>Pares/dia</small></div></div>${groupsHtml}${printFlatHtml}<div class="drag-hint no-print">Arraste para trocar • SHIFT + soltar para dividir</div></div>`}
+function renderCategoryGroups(items,atelierName=""){const catMap=new Map();items.sort((a,b)=>normalizeText(a.categoria).localeCompare(normalizeText(b.categoria))||normalizeText(a.subcategoria).localeCompare(normalizeText(b.subcategoria))||Number(a.linha)-Number(b.linha)||Number(a.modelo)-Number(b.modelo)).forEach(i=>{const cat=i.categoria||"Sem categoria",sub=i.subcategoria||"Sem subcategoria";if(!catMap.has(cat))catMap.set(cat,new Map());const subMap=catMap.get(cat);if(!subMap.has(sub))subMap.set(sub,[]);subMap.get(sub).push(i)});const blocks=Array.from(catMap.entries()).map(([cat,subMap],idx)=>{const catItems=Array.from(subMap.values()).flat();const catPares=catItems.reduce((s,i)=>s+i.pares,0),catValor=round2(catItems.reduce((s,i)=>s+i.valor,0));const subs=Array.from(subMap.entries()).map(([sub,subItems])=>renderSubcategory(sub,subItems)).join("");return `<div class="category-box" data-note-drop-atelier="${escapeHtml(atelierName)}" data-note-position="${idx+1}"><div class="category-head"><span>${escapeHtml(cat)}</span><span class="muted">${formatNumber(catPares)} pares <span class="financial-data">• ${formatMoney(catValor)}</span></span></div>${subs}</div>`});const noteBlock=renderAtelierNoteBlock(atelierName);if(noteBlock){const pos=Math.min(Math.max(atelierNotePosition(atelierName),0),blocks.length);blocks.splice(pos,0,noteBlock)}return blocks.join("")}
+function renderSubcategory(label,items){const totalPares=items.reduce((s,i)=>s+i.pares,0),totalValor=round2(items.reduce((s,i)=>s+i.valor,0));return `<div class="subcat-box"><div class="subcat-head"><span>${escapeHtml(label)}</span><span class="muted">${formatNumber(totalPares)} pares <span class="financial-data">• ${formatMoney(totalValor)}</span></span></div>${renderGroup(label,items)}</div>`}
+function groupItems(items){const map=new Map();items.forEach(i=>{const key=`${i.categoria||"Sem categoria"} / ${i.subcategoria||"Sem subcategoria"}`;if(!map.has(key))map.set(key,[]);map.get(key).push(i)});return map}
+function renderGroup(label,items){const rows=items.map(i=>{const hist=historyBadge(i);const note=String(i.observacaoDivisao||"");const showNote=isSplitItem(i);const notePrint=note?`<div class="model-note-print">Obs: ${escapeHtml(note)}</div>`:"";const noteEditor=showNote?`<div class="model-note-wrap no-print"><input class="model-note-input" type="text" data-note-id="${escapeHtml(i.id)}" value="${escapeHtml(note)}" placeholder="Observação da divisão" /></div>`:"";return `<tr class="model-row ${i.semModelo||i.semCostura?"missing":""} ${note?"has-note":""} ${showNote?"is-split":""}" draggable="true" data-item-id="${escapeHtml(i.id)}" title="Arraste para outro ateliê. Segure SHIFT ao soltar para dividir."><td class="model-main-cell"><div class="model-title-line"><span class="model-link">${escapeHtml(i.linha)}.${escapeHtml(i.modelo)}</span>${hist}${i.semModelo?" ⚠":i.semCostura?" ⚠":""}</div>${noteEditor}${notePrint}</td><td>${formatNumber(i.pares)}</td><td class="pares-dia-col">${formatNumber(i.paresDia)}</td><td class="money daily-value-col financial-data"><strong>${formatMoney(i.valorDia)}</strong></td></tr>`}).join("");return `<div class="group-box"><table class="model-table"><thead><tr><th>Modelo / observação</th><th>Pares</th><th class="pares-dia-col">Pares/dia</th><th class="daily-value-col financial-data">Valor diário</th></tr></thead><tbody>${rows}</tbody></table></div>`}
+function updateItemNote(id,value){const item=allocation.find(i=>i.id===id);if(!item)return;const val=String(value||"").trim();if((item.observacaoDivisao||"")===val)return;pushUndo();item.observacaoDivisao=val;renderAll()}
+function autoScrollDuringDrag(e){const margin=90,speed=22;if(e.clientY<margin)window.scrollBy(0,-speed);else if(window.innerHeight-e.clientY<margin)window.scrollBy(0,speed)}
+function bindDragDrop(){els.atelierGrid.querySelectorAll(".btn-atelier-note").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();promptAtelierNote(btn.dataset.atelierNote||"")}));els.atelierGrid.querySelectorAll(".btn-atelier-note-remove").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();setAtelierNote(btn.dataset.noteRemove||"","")}));els.atelierGrid.querySelectorAll(".atelier-note-block").forEach(block=>{block.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",`note:${block.dataset.noteAtelier}`);e.dataTransfer.effectAllowed="move"})});els.atelierGrid.querySelectorAll(".category-box").forEach(box=>{box.addEventListener("dragover",e=>{const types=[...e.dataTransfer.types];if(types.includes("text/plain")){e.preventDefault();box.classList.add("note-drop-target")}});box.addEventListener("dragleave",()=>box.classList.remove("note-drop-target"));box.addEventListener("drop",e=>{const data=e.dataTransfer.getData("text/plain");if(data&&data.startsWith("note:")){e.preventDefault();e.stopPropagation();box.classList.remove("note-drop-target");const noteName=data.slice(5);setAtelierNotePosition(noteName,Number(box.dataset.notePosition||0))}})});els.atelierGrid.querySelectorAll(".model-note-input").forEach(input=>{input.addEventListener("click",e=>e.stopPropagation());input.addEventListener("mousedown",e=>e.stopPropagation());input.addEventListener("change",()=>updateItemNote(input.dataset.noteId,input.value));input.addEventListener("blur",()=>updateItemNote(input.dataset.noteId,input.value));});els.atelierGrid.querySelectorAll(".model-row").forEach(row=>{row.addEventListener("dragstart",e=>{if(e.target&&e.target.classList&&e.target.classList.contains("model-note-input")){e.preventDefault();return}e.dataTransfer.setData("text/plain",row.dataset.itemId);e.dataTransfer.effectAllowed="move"})});els.atelierGrid.querySelectorAll(".atelier-card").forEach(card=>{card.addEventListener("dragover",e=>{e.preventDefault();autoScrollDuringDrag(e);card.classList.add("drag-over")});card.addEventListener("dragleave",()=>card.classList.remove("drag-over"));card.addEventListener("drop",e=>{e.preventDefault();card.classList.remove("drag-over");const data=e.dataTransfer.getData("text/plain");if(data&&data.startsWith("note:")){const noteName=data.slice(5);setAtelierNotePosition(noteName,999);return}if(e.shiftKey)openSplitModal(data,card.dataset.atelier);else moveItem(data,card.dataset.atelier)})});els.atelierGrid.querySelectorAll(".btn-dividir").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();openSplitModal(btn.dataset.splitId)}))}
+
+
+function mergeItems(target,source){
+  if(!target||!source)return;
+  const sourceIndex=allocation.findIndex(i=>i.id===source.id);
+  target.pares=Number(target.pares||0)+Number(source.pares||0);
+  if(!target.splitGroup&&source.splitGroup)target.splitGroup=source.splitGroup;
+  if(source.dividido||target.dividido||source.splitGroup||target.splitGroup)target.dividido=true;
+  const targetNote=String(target.observacaoDivisao||"").trim();
+  const sourceNote=String(source.observacaoDivisao||"").trim();
+  if(sourceNote&&!targetNote)target.observacaoDivisao=sourceNote;
+  else if(sourceNote&&targetNote&&normalizeText(sourceNote)!==normalizeText(targetNote))target.observacaoDivisao=`${targetNote} | ${sourceNote}`;
+  calcItem(target);
+  if(sourceIndex>=0)allocation.splice(sourceIndex,1);
+}
+function refreshSplitFlags(){
+  const groups=new Map();
+  allocation.forEach(item=>{if(!groups.has(item.key))groups.set(item.key,[]);groups.get(item.key).push(item)});
+  groups.forEach(items=>{
+    const hasMultiple=items.length>1;
+    const groupId=items.find(i=>i.splitGroup)?.splitGroup||`${items[0]?.key||"modelo"}-split-${Date.now()}`;
+    items.forEach(item=>{
+      if(hasMultiple){item.dividido=true;item.splitGroup=groupId;}
+      else if(!String(item.observacaoDivisao||"").trim()){item.dividido=false;item.splitGroup="";}
+      calcItem(item);
+    });
+  });
+}
+function moveOrMergeItem(id,dest){
+  const item=allocation.find(i=>i.id===id);
+  const destName=normalizeAtelierName(dest);
+  if(!item||!destName)return "invalid";
+  if(item.atelier===destName)return "same";
+  const existing=allocation.find(i=>i.id!==item.id&&i.atelier===destName&&i.key===item.key);
+  if(existing){
+    mergeItems(existing,item);
+    manualAteliers.add(destName);
+    refreshSplitFlags();
+    return "merged";
+  }
+  item.atelier=destName;
+  manualAteliers.add(destName);
+  calcItem(item);
+  refreshSplitFlags();
+  return "moved";
+}
+
+function moveItem(id,dest){const item=allocation.find(i=>i.id===id);const destName=normalizeAtelierName(dest);if(!item||!destName||item.atelier===destName)return;pushUndo();const result=moveOrMergeItem(id,destName);renderAll();if(result==="merged")showMessage("success",`${item.linha}.${item.modelo} somado novamente em ${destName}.`);else showMessage("success",`${item.linha}.${item.modelo} movido para ${destName}.`)}
+function openSplitModal(id,preferredDest=""){const item=allocation.find(i=>i.id===id);if(!item)return;currentSplitId=id;els.splitModalTitle.textContent=`Dividir ${item.linha}.${item.modelo}`;els.splitSummary.innerHTML=`<div class="summary-item"><strong>${formatNumber(item.pares)}</strong><small>Pares atuais</small></div><div class="summary-item ok"><strong>${formatMoney(item.valor)}</strong><small>Valor atual</small></div><div class="summary-item"><strong>${escapeHtml(item.atelier)}</strong><small>Ateliê atual</small></div>`;els.splitPairsInput.value="";els.splitPairsInput.max=String(Math.max(0,item.pares-1));els.splitNewAtelierInput.value="";if(els.splitOriginNoteInput)els.splitOriginNoteInput.value=item.observacaoDivisao||"";if(els.splitDestinationNoteInput)els.splitDestinationNoteInput.value="";let destinos=getAtelierNames().filter(n=>n!==item.atelier);if(preferredDest&&preferredDest!==item.atelier&&!destinos.includes(preferredDest))destinos.unshift(preferredDest);els.splitDestinationSelect.innerHTML=destinos.map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");if(preferredDest&&preferredDest!==item.atelier)els.splitDestinationSelect.value=preferredDest;els.splitModalBackdrop.classList.add("show");setTimeout(()=>els.splitPairsInput.focus(),50)}
+function confirmSplit(){const item=allocation.find(i=>i.id===currentSplitId);if(!item)return;const qtd=Number(els.splitPairsInput.value||0);const dest=normalizeAtelierName((els.splitNewAtelierInput.value.trim()||els.splitDestinationSelect.value||"").trim());const obsOrigem=(els.splitOriginNoteInput?.value||"").trim();const obsDestino=(els.splitDestinationNoteInput?.value||"").trim();if(!dest){showMessage("warning","Informe o ateliê destino.");return}if(qtd<=0||qtd>=item.pares){showMessage("warning","Informe uma quantidade menor que o total de pares do modelo.");return}pushUndo();const splitGroup=item.splitGroup||`${item.key}-split-${Date.now()}`;item.pares-=qtd;item.dividido=true;item.splitGroup=splitGroup;item.observacaoDivisao=obsOrigem;calcItem(item);const clone=calcItem({...item,id:`${item.key}-split-${Date.now()}`,pares:qtd,atelier:dest,dividido:true,splitGroup,observacaoDivisao:obsDestino});const existing=allocation.find(i=>i.id!==item.id&&i.atelier===dest&&i.key===item.key);if(existing){mergeItems(existing,clone)}else{allocation.push(clone)}manualAteliers.add(dest);refreshSplitFlags();els.splitModalBackdrop.classList.remove("show");renderAll();showMessage("success",`${item.linha}.${item.modelo} dividido com ${formatNumber(qtd)} pares para ${dest}.`)}
+async function saveAllocation(){if(!allocation.length){showMessage("warning","Monte a distribuição antes de salvar.");return}try{const docId=selectedDocs.join("_")||`manual_${Date.now()}`;const totalPares=allocation.reduce((s,i)=>s+i.pares,0),totalValor=round2(allocation.reduce((s,i)=>s+i.valor,0));await setDoc(doc(db,"DistribuicaoAtelier",docId),{distribuicoes:selectedDocs,itens:allocation.map(i=>({id:i.id,key:i.key,linha:i.linha,modelo:i.modelo,pares:i.pares,atelier:i.atelier,categoria:i.categoria,subcategoria:i.subcategoria,costuraUnit:i.costuraUnit,valor:i.valor,valorDia:i.valorDia,paresDia:i.paresDia,dividido:!!i.dividido,splitGroup:i.splitGroup||"",observacaoDivisao:i.observacaoDivisao||"",origens:i.origens||[],semModelo:i.semModelo,semCostura:i.semCostura})),observacoesAtelier:Object.fromEntries(atelierNotes),observacoesAtelierPosicoes:Object.fromEntries(atelierNotePositions),resumo:{totalPares,totalValor,valorDia:round2(totalValor/5),totalAtelies:getAtelierNames().length},atualizadoEm:serverTimestamp(),atualizadoPor:currentUser.email,atualizadoPorNome:currentUserName},{merge:false});showMessage("success",`Distribuição dos ateliês salva em DistribuicaoAtelier/${docId}.`)}catch(err){console.error(err);showMessage("error","Erro ao salvar: "+err.message)}}
+async function openSavedModal(){els.savedModalBackdrop.classList.add("show");els.savedTableBody.innerHTML=`<tr><td colspan="6">Carregando distribuições salvas...</td></tr>`;try{const snap=await getDocs(collection(db,"DistribuicaoAtelier"));const rows=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>String(getTimeValue(b.data.atualizadoEm)||b.id).localeCompare(String(getTimeValue(a.data.atualizadoEm)||a.id)));if(!rows.length){els.savedTableBody.innerHTML=`<tr><td colspan="6">Nenhuma distribuição de ateliês salva ainda.</td></tr>`;return}els.savedTableBody.innerHTML=rows.map(r=>{const data=r.data||{};const cortes=Array.isArray(data.distribuicoes)?data.distribuicoes.map(docIdToBR).join(" e "):"—";const totalPares=data.resumo?.totalPares||0,totalValor=data.resumo?.totalValor||0;return `<tr><td><strong>${escapeHtml(r.id)}</strong></td><td>${escapeHtml(cortes)}</td><td>${formatNumber(totalPares)}</td><td class="money">${formatMoney(totalValor)}</td><td>${escapeHtml(data.atualizadoPorNome||data.atualizadoPor||"—")}</td><td><button class="btn btn-primary btn-small btn-open-saved" type="button" data-saved-id="${escapeHtml(r.id)}">Abrir</button></td></tr>`}).join("");els.savedTableBody.querySelectorAll(".btn-open-saved").forEach(btn=>btn.addEventListener("click",()=>loadSavedAllocation(btn.dataset.savedId)))}catch(err){console.error(err);els.savedTableBody.innerHTML=`<tr><td colspan="6">Erro ao carregar: ${escapeHtml(err.message)}</td></tr>`}}
+function getTimeValue(value){try{if(value&&value.toMillis)return value.toMillis();if(value&&value.toDate)return value.toDate().getTime();if(value)return new Date(value).getTime()||0}catch{}return 0}
+async function loadSavedAllocation(docId){if(!docId)return;try{showMessage("info","Abrindo distribuição salva...");const snap=await getDoc(doc(db,"DistribuicaoAtelier",docId));if(!snap.exists()){showMessage("warning","Distribuição salva não encontrada.");return}const data=snap.data()||{};selectedDocs=Array.isArray(data.distribuicoes)?data.distribuicoes:[];els.dateOneInput.value=selectedDocs[0]?docIdToISO(selectedDocs[0]):"";els.dateTwoInput.value=selectedDocs[1]?docIdToISO(selectedDocs[1]):"";if(!modelsMap.size)await loadModels();const taloes=await loadTaloes();calculateHistory(taloes);allocation=Array.isArray(data.itens)?data.itens.map((i,idx)=>calcItem({...i,id:i.id||`${modelKey(i.linha,i.modelo)}-saved-${idx}`,key:i.key||modelKey(i.linha,i.modelo),linha:String(i.linha||""),modelo:String(i.modelo||""),pares:Number(i.pares||0),atelier:normalizeAtelierName(i.atelier||HOLD_ATELIER),categoria:i.categoria||"Sem categoria",subcategoria:i.subcategoria||"Sem subcategoria",dividido:!!i.dividido,splitGroup:i.splitGroup||"",observacaoDivisao:i.observacaoDivisao||"",origens:i.origens||[]})):[];manualAteliers=new Set(allocation.map(i=>normalizeAtelierName(i.atelier)).filter(Boolean));atelierNotes=new Map(Object.entries(data.observacoesAtelier||{}).map(([k,v])=>[normalizeAtelierName(k),typeof v==="object"?String(v.texto||v.text||""):String(v||"")]));atelierNotePositions=new Map(Object.entries(data.observacoesAtelierPosicoes||{}).map(([k,v])=>[normalizeAtelierName(k),Number(v)||0]));undoStack=[];redoStack=[];els.savedModalBackdrop.classList.remove("show");renderAll();showMessage("success",`Distribuição salva ${docId} aberta com sucesso.`)}catch(err){console.error(err);showMessage("error","Erro ao abrir distribuição salva: "+err.message)}}
+async function openDistributionsModal(){els.distributionsModalBackdrop.classList.add("show");els.distributionsTableBody.innerHTML=`<tr><td colspan="5">Carregando...</td></tr>`;try{const snap=await getDocs(collection(db,"Distribuicao"));const docs=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>docIdToISO(b.id).localeCompare(docIdToISO(a.id)));if(!docs.length){els.distributionsTableBody.innerHTML=`<tr><td colspan="5">Nenhuma distribuição salva.</td></tr>`;return}els.distributionsTableBody.innerHTML=docs.map(d=>`<tr><td><input type="checkbox" class="dist-check" value="${escapeHtml(d.id)}"></td><td><strong>${docIdToBR(d.id)}</strong></td><td>${formatNumber(d.data.totalPares||0)}</td><td>${formatNumber(d.data.totalModelos||0)}</td><td class="cell-left">${escapeHtml(d.data.arquivoOrigem||"—")}</td></tr>`).join("");els.distributionsTableBody.querySelectorAll(".dist-check").forEach(ch=>ch.addEventListener("change",()=>{const checked=[...els.distributionsTableBody.querySelectorAll(".dist-check:checked")];if(checked.length>2){ch.checked=false;showMessage("warning","Selecione no máximo duas distribuições.")}}))}catch(err){console.error(err);els.distributionsTableBody.innerHTML=`<tr><td colspan="5">Erro ao carregar distribuições: ${escapeHtml(err.message)}</td></tr>`}}
+function confirmDistributionSelection(){const checked=[...els.distributionsTableBody.querySelectorAll(".dist-check:checked")].map(c=>c.value);if(checked.length!==2){showMessage("warning","Selecione exatamente duas distribuições.");return}els.dateOneInput.value=docIdToISO(checked[0]);els.dateTwoInput.value=docIdToISO(checked[1]);els.distributionsModalBackdrop.classList.remove("show");generate()}
+function clearAll(){allocation=[];manualAteliers=new Set();atelierNotes=new Map();atelierNotePositions=new Map();selectedDocs=[];undoStack=[];redoStack=[];els.dateOneInput.value="";els.dateTwoInput.value="";els.atelierFilterInput.value="";els.summaryCard.classList.add("hidden");els.atelierSection.classList.add("hidden");els.saveButton.disabled=true;if(els.printButton)els.printButton.disabled=true;showMessage("","")}
+els.generateButton.addEventListener("click",generate);if(els.printButton)els.printButton.addEventListener("click",printDistribution);if(els.launchButton)els.launchButton.addEventListener("click",()=>showMessage("info","O lançamento definitivo da distribuição será configurado na próxima etapa."));els.addAtelierButton.addEventListener("click",()=>{const name=prompt("Nome do ateliê:");if(name&&name.trim()){pushUndo();manualAteliers.add(normalizeAtelierName(name.trim()));renderAll()}});els.clearButton.addEventListener("click",clearAll);els.saveButton.addEventListener("click",saveAllocation);els.atelierFilterInput.addEventListener("input",()=>{if(allocation.length)renderAteliers()});els.selectDistributionsButton.addEventListener("click",openDistributionsModal);if(els.openSavedButton)els.openSavedButton.addEventListener("click",openSavedModal);if(els.closeSavedModalButton)els.closeSavedModalButton.addEventListener("click",()=>els.savedModalBackdrop.classList.remove("show"));if(els.savedModalBackdrop)els.savedModalBackdrop.addEventListener("click",e=>{if(e.target===els.savedModalBackdrop)els.savedModalBackdrop.classList.remove("show")});els.closeDistributionsModalButton.addEventListener("click",()=>els.distributionsModalBackdrop.classList.remove("show"));els.distributionsModalBackdrop.addEventListener("click",e=>{if(e.target===els.distributionsModalBackdrop)els.distributionsModalBackdrop.classList.remove("show")});els.confirmDistributionsButton.addEventListener("click",confirmDistributionSelection);els.closeSplitModalButton.addEventListener("click",()=>els.splitModalBackdrop.classList.remove("show"));els.splitModalBackdrop.addEventListener("click",e=>{if(e.target===els.splitModalBackdrop)els.splitModalBackdrop.classList.remove("show")});els.confirmSplitButton.addEventListener("click",confirmSplit);document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="z"&&!e.shiftKey){e.preventDefault();undoMove();return}if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="z"&&e.shiftKey){e.preventDefault();redoMove();return}if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="y"){e.preventDefault();redoMove();return}if(e.key==="Escape"){els.distributionsModalBackdrop.classList.remove("show");if(els.savedModalBackdrop)els.savedModalBackdrop.classList.remove("show");els.splitModalBackdrop.classList.remove("show")}});
+</script>
+</body>
+</html>
