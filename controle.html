@@ -746,6 +746,158 @@
     }
 
 
+    /* Modal de detalhamento dos modelos produzidos */
+    .click-detail {
+      cursor: pointer;
+      transition: outline-color .12s ease, box-shadow .12s ease, filter .12s ease;
+    }
+
+    .click-detail:hover {
+      outline: 2px solid rgba(13, 110, 253, .42);
+      outline-offset: -2px;
+      filter: brightness(.98);
+    }
+
+    .summary-value.click-detail:hover,
+    .turno-total.click-detail:hover {
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, .18);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .62);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 5000;
+    }
+
+    .modal-overlay[hidden] { display: none !important; }
+
+    .modelos-modal {
+      width: min(760px, 100%);
+      max-height: min(86vh, 760px);
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.28);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(15, 23, 42, .18);
+    }
+
+    .modelos-modal-head {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      background: #f8fafc;
+    }
+
+    .modelos-modal-head h3 {
+      margin: 0 0 4px;
+      font-size: 22px;
+      line-height: 1.15;
+    }
+
+    .modelos-modal-head small {
+      display: block;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .modelos-modal-close {
+      background: #e5e7eb;
+      color: #111827;
+      border-radius: 999px;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      font-size: 20px;
+      line-height: 1;
+      flex: 0 0 auto;
+    }
+
+    .modelos-modal-body {
+      padding: 14px 18px 18px;
+      overflow: auto;
+    }
+
+    .modelos-modal-info {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .modelos-modal-info .info-box {
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      background: #fbfdff;
+      padding: 10px 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    .modelos-modal-info .info-box strong {
+      display: block;
+      color: var(--text);
+      font-size: 22px;
+      margin-top: 4px;
+      letter-spacing: -.03em;
+      text-transform: none;
+    }
+
+    .modelos-table-wrap { overflow-x: auto; }
+
+    .modelos-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .modelos-table th,
+    .modelos-table td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    .modelos-table th {
+      background: #f8f9fa;
+      font-weight: 900;
+      text-align: left;
+    }
+
+    .modelos-table .modal-num { text-align: right; font-weight: 900; }
+    .modelos-table tfoot td { background: #f8fafc; font-weight: 950; }
+
+    .empty-modelos {
+      border: 1px dashed var(--border-soft);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      color: var(--muted);
+      background: #fbfdff;
+      font-weight: 800;
+    }
+
+    @media (max-width: 650px) {
+      .modelos-modal-info { grid-template-columns: 1fr; }
+      .modelos-modal-head h3 { font-size: 18px; }
+      .modelos-modal-body { padding: 12px; }
+    }
+
+
     /* Ajuste para o menu padrão novo: evita que o CSS antigo do <nav> esconda a lista do drawer */
     .sistema-menu-lista {
       max-height: none !important;
@@ -776,17 +928,17 @@
     <section class="summary-grid">
       <div class="summary-card">
         <div class="summary-label">Total fábrica</div>
-        <div class="summary-value" id="totalFabricaCard">0</div>
+        <div class="summary-value click-detail" id="totalFabricaCard" data-detail-type="dia" title="Clique para ver os modelos produzidos">0</div>
         <div class="summary-sub">Produção do dia selecionado</div>
       </div>
       <div class="summary-card">
         <div class="summary-label">Total manhã</div>
-        <div class="summary-value" id="totalManhaCard">0</div>
+        <div class="summary-value click-detail" id="totalManhaCard" data-detail-type="turno" data-turno="manha" title="Clique para ver os modelos da manhã">0</div>
         <div class="summary-sub">08:00 até 11:18</div>
       </div>
       <div class="summary-card">
         <div class="summary-label">Total tarde</div>
-        <div class="summary-value" id="totalTardeCard">0</div>
+        <div class="summary-value click-detail" id="totalTardeCard" data-detail-type="turno" data-turno="tarde" title="Clique para ver os modelos da tarde">0</div>
         <div class="summary-sub">14:00 até 16:00</div>
       </div>
       <div class="summary-card">
@@ -857,6 +1009,23 @@
     </section>
   </main>
 
+  <div class="modal-overlay" id="modelosModal" hidden>
+    <div class="modelos-modal" role="dialog" aria-modal="true" aria-labelledby="modelosModalTitle">
+      <div class="modelos-modal-head">
+        <div>
+          <h3 id="modelosModalTitle">Modelos produzidos</h3>
+          <small id="modelosModalSubtitle"></small>
+        </div>
+        <button type="button" class="modelos-modal-close" id="closeModelosModal" aria-label="Fechar modal">×</button>
+      </div>
+      <div class="modelos-modal-body">
+        <div class="modelos-modal-info" id="modelosModalInfo"></div>
+        <div class="modelos-table-wrap" id="modelosModalContent"></div>
+      </div>
+    </div>
+  </div>
+
+
   <script src="navegacao.js"></script>
   <script type="module">
     const firebaseConfig = {
@@ -908,6 +1077,12 @@
     const totalTardeCard = document.getElementById('totalTardeCard');
     const qtdTaloesCard = document.getElementById('qtdTaloesCard');
     const semHorarioInfo = document.getElementById('semHorarioInfo');
+    const modelosModal = document.getElementById('modelosModal');
+    const modelosModalTitle = document.getElementById('modelosModalTitle');
+    const modelosModalSubtitle = document.getElementById('modelosModalSubtitle');
+    const modelosModalInfo = document.getElementById('modelosModalInfo');
+    const modelosModalContent = document.getElementById('modelosModalContent');
+    const closeModelosModal = document.getElementById('closeModelosModal');
 
     const nivelNomes = {
       '01': 'Cadastro',
@@ -1344,6 +1519,213 @@
       return applyTaloesToResumo(taloesDia, selectedDateInput.value || todayISO());
     }
 
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function cleanText(value) {
+      return String(value ?? '').trim();
+    }
+
+    function getLinhaModeloLabel(talao) {
+      const linha = cleanText(talao.linha || talao.Linha || talao.codLinha || talao.codigoLinha || talao.linhaModelo);
+      const modelo = cleanText(talao.modelo || talao.Modelo || talao.referencia || talao.modeloReferencia || talao.nomeModelo);
+
+      if (linha && modelo) {
+        const modeloLower = modelo.toLowerCase();
+        const linhaLower = linha.toLowerCase();
+        if (modeloLower.startsWith(`${linhaLower}.`) || modeloLower.startsWith(`${linhaLower}-`) || modeloLower === linhaLower) {
+          return modelo;
+        }
+        return `${linha}.${modelo}`;
+      }
+
+      return modelo || linha || 'Sem modelo informado';
+    }
+
+    function findPeriodoFromTalao(talao, dateISO) {
+      const dataProducao = toDate(talao.dataProducao);
+      if (!dataProducao) return null;
+      return PERIODOS.find(p => {
+        const inicio = makeLocalDate(dateISO, p.leituraInicio);
+        const fim = makeLocalDate(dateISO, p.leituraFim);
+        return dataProducao >= inicio && dataProducao < fim;
+      }) || null;
+    }
+
+    function talaoPertenceAoTrilho(talao, trilhoKey) {
+      if (!trilhoKey) return true;
+      return normalizeTrilhoKey(talao.trilhoProduzido) === trilhoKey;
+    }
+
+    function getTrilhoLabel(trilhoKey) {
+      if (!trilhoKey) return 'Todos os trilhos';
+      const cfg = getConfigByKey(trilhoKey);
+      return cfg?.supervisor || trilhoKey;
+    }
+
+    function getTaloesForDetail(dataset) {
+      const tipo = dataset.detailType;
+      const trilhoKey = dataset.trilhoKey || '';
+      const turno = dataset.turno || '';
+      const periodoLabel = dataset.periodLabel || '';
+      const dateISO = selectedDateInput.value || todayISO();
+
+      if (tipo === 'media') {
+        return taloesMes.filter(talao => talaoPertenceAoTrilho(talao, trilhoKey));
+      }
+
+      return taloesDia.filter(talao => {
+        if (!talaoPertenceAoTrilho(talao, trilhoKey)) return false;
+
+        if (tipo === 'hora') {
+          const periodo = findPeriodoFromTalao(talao, dateISO);
+          return periodo?.label === periodoLabel;
+        }
+
+        if (tipo === 'turno') {
+          const periodo = findPeriodoFromTalao(talao, dateISO);
+          return periodo?.turno === turno;
+        }
+
+        return true;
+      });
+    }
+
+    function groupModelos(taloes, mostrarTrilho) {
+      const map = new Map();
+
+      taloes.forEach(talao => {
+        const modelo = getLinhaModeloLabel(talao);
+        const trilhoKey = normalizeTrilhoKey(talao.trilhoProduzido);
+        const trilhoNome = trilhoKey ? getTrilhoLabel(trilhoKey) : 'Sem trilho';
+        const key = mostrarTrilho ? `${modelo}||${trilhoKey || 'sem-trilho'}` : modelo;
+
+        if (!map.has(key)) {
+          map.set(key, { modelo, trilhoNome, pares: 0, taloes: 0 });
+        }
+
+        const item = map.get(key);
+        item.pares += cleanNumber(talao.pares);
+        item.taloes += 1;
+      });
+
+      return [...map.values()].sort((a, b) => {
+        const diff = cleanNumber(b.pares) - cleanNumber(a.pares);
+        if (diff !== 0) return diff;
+        return String(a.modelo).localeCompare(String(b.modelo), 'pt-BR');
+      });
+    }
+
+    function getDetailTitleAndSubtitle(dataset, taloes) {
+      const tipo = dataset.detailType;
+      const trilhoKey = dataset.trilhoKey || '';
+      const dateISO = selectedDateInput.value || todayISO();
+      const trilhoNome = getTrilhoLabel(trilhoKey);
+      const prefixTrilho = trilhoKey ? ` - ${trilhoNome}` : '';
+
+      if (tipo === 'hora') {
+        const periodo = PERIODOS.find(p => p.label === dataset.periodLabel);
+        return {
+          title: `Produção ${periodo?.label || ''}${prefixTrilho}`,
+          subtitle: `Data ${formatDateBR(dateISO)} • Prod. ${periodo?.producaoRef || ''} • baixados ${periodo?.leituraInicio || ''} às ${periodo?.leituraFim || ''}`
+        };
+      }
+
+      if (tipo === 'turno') {
+        const turnoNome = dataset.turno === 'manha' ? 'Manhã' : 'Tarde';
+        return {
+          title: `Produção total da ${turnoNome.toLowerCase()}${prefixTrilho}`,
+          subtitle: `Data ${formatDateBR(dateISO)} • Modelos produzidos no turno selecionado`
+        };
+      }
+
+      if (tipo === 'media') {
+        const diasComProducao = [...monthlyResumo.values()].filter(r => cleanNumber(r.totalFabrica) > 0).length;
+        const media = trilhoKey ? (mediasMes[trilhoKey] || 0) : (mediasMes.totalFabrica || 0);
+        return {
+          title: `Média do mês${prefixTrilho}`,
+          subtitle: `Mês de ${dateISO.slice(5, 7)}/${dateISO.slice(0, 4)} • A tabela mostra os modelos produzidos no mês. Média: ${fmt(media)} pares/dia em ${fmt(diasComProducao)} dia(s) com produção.`
+        };
+      }
+
+      return {
+        title: `Produção diária${prefixTrilho}`,
+        subtitle: `Data ${formatDateBR(dateISO)} • Modelos produzidos no dia selecionado`
+      };
+    }
+
+    function openModelosModalFromElement(element) {
+      const dataset = element.dataset || {};
+      const taloes = getTaloesForDetail(dataset);
+      const mostrarTrilho = !dataset.trilhoKey;
+      const rows = groupModelos(taloes, mostrarTrilho);
+      const totalPares = rows.reduce((sum, item) => sum + cleanNumber(item.pares), 0);
+      const totalTaloes = rows.reduce((sum, item) => sum + cleanNumber(item.taloes), 0);
+      const { title, subtitle } = getDetailTitleAndSubtitle(dataset, taloes);
+
+      modelosModalTitle.textContent = title;
+      modelosModalSubtitle.textContent = subtitle;
+      modelosModalInfo.innerHTML = `
+        <div class="info-box">Total de pares<strong>${fmt(totalPares)}</strong></div>
+        <div class="info-box">Modelos<strong>${fmt(rows.length)}</strong></div>
+        <div class="info-box">Talões<strong>${fmt(totalTaloes)}</strong></div>
+      `;
+
+      if (!rows.length) {
+        modelosModalContent.innerHTML = '<div class="empty-modelos">Nenhum modelo encontrado para este filtro.</div>';
+      } else {
+        const trilhoHeader = mostrarTrilho ? '<th>Trilho</th>' : '';
+        const trilhoFooter = mostrarTrilho ? '<td></td>' : '';
+        const body = rows.map((item, index) => `
+          <tr>
+            <td class="modal-num">${index + 1}</td>
+            <td>${escapeHtml(item.modelo)}</td>
+            ${mostrarTrilho ? `<td>${escapeHtml(item.trilhoNome)}</td>` : ''}
+            <td class="modal-num">${fmt(item.pares)}</td>
+            <td class="modal-num">${fmt(item.taloes)}</td>
+          </tr>
+        `).join('');
+
+        modelosModalContent.innerHTML = `
+          <table class="modelos-table">
+            <thead>
+              <tr>
+                <th style="width:56px; text-align:right;">#</th>
+                <th>Modelo</th>
+                ${trilhoHeader}
+                <th style="width:150px; text-align:right;">Total de pares</th>
+                <th style="width:110px; text-align:right;">Talões</th>
+              </tr>
+            </thead>
+            <tbody>${body}</tbody>
+            <tfoot>
+              <tr>
+                <td></td>
+                <td>Total</td>
+                ${trilhoFooter}
+                <td class="modal-num">${fmt(totalPares)}</td>
+                <td class="modal-num">${fmt(totalTaloes)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        `;
+      }
+
+      modelosModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModelosModalHandler() {
+      modelosModal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
     function renderDashboard() {
       if (!selectedDateInput.value) return;
       const resumo = computeResumo();
@@ -1374,7 +1756,7 @@
             <tr>
               <td class="supervisor-name">${item.supervisor}</td>
               <td>${fmt(meta)}</td>
-              <td class="prod-cell ${cellClass}">
+              <td class="prod-cell ${cellClass} click-detail" data-detail-type="hora" data-trilho-key="${t.key}" data-period-label="${p.label}" title="Clique para ver os modelos produzidos">
                 <span class="main-number">${fmt(prod)}</span>
                 <span class="mini-falta">${falta > 0 ? 'Falta ' + fmt(falta) : 'OK'}</span>
               </td>
@@ -1411,12 +1793,12 @@
         <div class="turno-section">
           <div class="turno-heading"><span>Manhã</span></div>
           <div class="period-grid manha-grid">${manha}</div>
-          <div class="turno-total ${manhaCls}"><div>Produção total da manhã</div><div>${fmt(resumo.totalManha)}</div></div>
+          <div class="turno-total ${manhaCls} click-detail" data-detail-type="turno" data-turno="manha" title="Clique para ver os modelos produzidos na manhã"><div>Produção total da manhã</div><div>${fmt(resumo.totalManha)}</div></div>
         </div>
         <div class="turno-section">
           <div class="turno-heading"><span>Tarde</span></div>
           <div class="period-grid tarde-grid">${tarde}</div>
-          <div class="turno-total ${tardeCls}"><div>Produção total da tarde</div><div>${fmt(resumo.totalTarde)}</div></div>
+          <div class="turno-total ${tardeCls} click-detail" data-detail-type="turno" data-turno="tarde" title="Clique para ver os modelos produzidos na tarde"><div>Produção total da tarde</div><div>${fmt(resumo.totalTarde)}</div></div>
         </div>
       `;
     }
@@ -1429,13 +1811,13 @@
         const metaEsperada = metaEsperadaAteAgora(item.metaDia, resumo.data);
         const faltaDia = Math.max(0, item.metaDia - item.total);
         const ok = metaEsperada <= 0 ? item.total > 0 : item.total >= metaEsperada;
-        return `<td class="big daily-prod-cell ${ok ? 'media-ok' : 'media-bad'}"><span>${fmt(item.total)}</span><span class="corner-missing">${faltaDia > 0 ? 'Falta ' + fmt(faltaDia) : 'Meta batida'}</span></td>`;
+        return `<td class="big daily-prod-cell ${ok ? 'media-ok' : 'media-bad'} click-detail" data-detail-type="dia" data-trilho-key="${t.key}" title="Clique para ver os modelos produzidos no dia"><span>${fmt(item.total)}</span><span class="corner-missing">${faltaDia > 0 ? 'Falta ' + fmt(faltaDia) : 'Meta batida'}</span></td>`;
       }).join('');
       const mediaRow = trilhosConfig.map(t => {
         const item = resumo.trilhos[t.key];
         const media = mediasMes[t.key] || 0;
         const ok = media >= item.metaDia;
-        return `<td class="big ${ok ? 'media-ok' : 'media-bad'}">${fmt(media)}</td>`;
+        return `<td class="big ${ok ? 'media-ok' : 'media-bad'} click-detail" data-detail-type="media" data-trilho-key="${t.key}" title="Clique para ver os modelos produzidos no mês">${fmt(media)}</td>`;
       }).join('');
 
       const metaFabricaEsperada = trilhosConfig.reduce((sum, t) => {
@@ -1451,8 +1833,8 @@
           <tr><td>Meta por esteira</td>${metaRow}</tr>
           <tr><td>Produção diária</td>${prodRow}</tr>
           <tr><td>Média Mês</td>${mediaRow}</tr>
-          <tr><td>Total Fábrica</td><td colspan="${trilhosConfig.length}" class="red-total ${totalFabricaOk ? 'media-ok' : 'media-bad'}">${fmt(resumo.totalFabrica)}</td></tr>
-          <tr><td>Média Fábrica</td><td colspan="${trilhosConfig.length}" class="red-total ${mediaFabricaOk ? 'media-ok' : 'media-bad'}">${fmt(mediasMes.totalFabrica || 0)}</td></tr>
+          <tr><td>Total Fábrica</td><td colspan="${trilhosConfig.length}" class="red-total ${totalFabricaOk ? 'media-ok' : 'media-bad'} click-detail" data-detail-type="dia" title="Clique para ver todos os modelos do dia">${fmt(resumo.totalFabrica)}</td></tr>
+          <tr><td>Média Fábrica</td><td colspan="${trilhosConfig.length}" class="red-total ${mediaFabricaOk ? 'media-ok' : 'media-bad'} click-detail" data-detail-type="media" title="Clique para ver todos os modelos do mês">${fmt(mediasMes.totalFabrica || 0)}</td></tr>
         </tbody>
       `;
     }
@@ -1725,6 +2107,20 @@
       }
     });
 
+
+    document.addEventListener('click', (event) => {
+      const target = event.target.closest('[data-detail-type]');
+      if (!target || target.closest('#modelosModal')) return;
+      openModelosModalFromElement(target);
+    });
+
+    closeModelosModal.addEventListener('click', closeModelosModalHandler);
+    modelosModal.addEventListener('click', (event) => {
+      if (event.target === modelosModal) closeModelosModalHandler();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !modelosModal.hidden) closeModelosModalHandler();
+    });
 
     selectedDateInput.addEventListener('change', () => changeDate(selectedDateInput.value));
     todayButton.addEventListener('click', () => changeDate(todayISO()));
