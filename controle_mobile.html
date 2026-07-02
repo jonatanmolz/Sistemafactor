@@ -526,22 +526,28 @@
       text-transform: none;
     }
 
-    .modelos-table-wrap { overflow-x: auto; }
+    .modelos-table-wrap {
+      width: 100%;
+      overflow-x: hidden;
+    }
 
     .modelos-table {
       width: 100%;
+      max-width: 100%;
       border-collapse: collapse;
       border: 1px solid var(--border);
       background: #fff;
-      min-width: 430px;
+      table-layout: fixed;
     }
 
     .modelos-table th,
     .modelos-table td {
       border: 1px solid var(--border);
-      padding: 8px;
-      font-size: 14px;
+      padding: 7px 6px;
+      font-size: 13px;
       background: #fff;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .modelos-table th {
@@ -550,6 +556,10 @@
       text-align: left;
     }
 
+    .modelos-table .col-index { width: 34px; text-align: right; }
+    .modelos-table .col-trilho { width: 68px; }
+    .modelos-table .col-pares { width: 72px; text-align: right; }
+    .modelos-table .col-taloes { width: 58px; text-align: right; }
     .modelos-table .modal-num { text-align: right; font-weight: 950; }
     .modelos-table tfoot td { background: #f8fafc; font-weight: 950; }
 
@@ -764,6 +774,23 @@
     .factory-number {
       padding: 8px;
       font-size: 24px;
+    }
+
+
+    @media (max-width: 430px) {
+      .modal-overlay { padding: 7px; }
+      .modelos-modal { width: 100%; max-height: 86vh; }
+      .modelos-modal-head { padding: 12px 12px 8px; }
+      .modelos-modal-head h3 { font-size: 18px; }
+      .modelos-modal-body { padding: 9px; }
+      .info-box { padding: 8px; font-size: 9px; }
+      .info-box strong { font-size: 16px; }
+      .modelos-table th,
+      .modelos-table td { padding: 6px 5px; font-size: 12px; }
+      .modelos-table .col-index { width: 30px; }
+      .modelos-table .col-trilho { width: 62px; }
+      .modelos-table .col-pares { width: 64px; }
+      .modelos-table .col-taloes { width: 50px; }
     }
 
     @media (max-width: 380px) {
@@ -1377,7 +1404,7 @@
       if (!rows.length) {
         modelosModalContent.innerHTML = '<div class="empty-modelos">Nenhum modelo encontrado para este filtro.</div>';
       } else {
-        const trilhoHeader = mostrarTrilho ? '<th>Trilho</th>' : '';
+        const trilhoHeader = mostrarTrilho ? '<th class="col-trilho">Trilho</th>' : '';
         const trilhoFooter = mostrarTrilho ? '<td></td>' : '';
         const body = rows.map((item, index) => `
           <tr>
@@ -1393,11 +1420,11 @@
           <table class="modelos-table">
             <thead>
               <tr>
-                <th style="width:48px; text-align:right;">#</th>
+                <th class="col-index">#</th>
                 <th>Modelo</th>
                 ${trilhoHeader}
-                <th style="width:120px; text-align:right;">Pares</th>
-                <th style="width:85px; text-align:right;">Talões</th>
+                <th class="col-pares">Pares</th>
+                <th class="col-taloes">Talões</th>
               </tr>
             </thead>
             <tbody>${body}</tbody>
