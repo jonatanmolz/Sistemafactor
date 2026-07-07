@@ -46,7 +46,7 @@
     .preview tr.divergente{box-shadow:inset 4px 0 0 #ff9800}
     .preview tr.nao-encontrada{box-shadow:inset 4px 0 0 #dc3545}
     .preview input,.preview select{width:100%;padding:5px;border-radius:5px;font-size:12px}
-    .preview .col-tipo{width:130px}.preview .col-linha{width:60px}.preview .col-modelo{width:75px}.preview .col-remessa{width:90px}.preview .col-pares{width:75px}.preview .col-data{width:90px}.preview .col-fab{width:65px}.preview .col-cliente{width:180px}.preview .col-norm{width:300px}.preview .col-taloes{width:70px}.preview .col-conf{width:175px}.preview .col-act{width:70px}
+    .preview .col-tipo{width:130px}.preview .col-linha{width:60px}.preview .col-modelo{width:95px}.preview .col-atelier{width:130px}.preview .col-remessa{width:90px}.preview .col-pares{width:75px}.preview .col-data{width:90px}.preview .col-fab{width:65px}.preview .col-cliente{width:180px}.preview .col-norm{width:300px}.preview .col-taloes{width:70px}.preview .col-conf{width:175px}.preview .col-act{width:70px}
     .conf-ok{font-weight:700;color:#167a31}.conf-warn{font-weight:700;color:#9a6500}.conf-bad{font-weight:700;color:#b00020}
     .empty{padding:22px;text-align:center;color:var(--muted);font-size:14px}
     .line-chip{display:inline-flex;border:1px solid var(--bd);background:#fff;border-radius:999px;padding:5px 10px;margin:4px;font-size:12px;gap:5px;align-items:center}
@@ -72,6 +72,7 @@
       .print-table{width:100%;border-collapse:collapse;font-size:8.5px;table-layout:fixed}
       .print-table th,.print-table td{border:1px solid #000;padding:4px 3px;vertical-align:middle;word-break:break-word}
       .print-table th{background:#d9d9d9;text-align:center;font-weight:700}
+      .print-table .modelo-print{font-size:8.7px;font-weight:400;line-height:1.18;white-space:pre-line}
       .print-table .section{background:#d9d9d9;font-weight:700;text-align:center}
       .print-table .tipo{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-weight:700;background:#f2f2f2;width:6.8mm;min-width:6.8mm;max-width:6.8mm;overflow:hidden;padding:0!important;font-size:5.2px;line-height:1}
       .print-table .total-row td{background:#d9d9d9;font-weight:700}
@@ -394,7 +395,7 @@
       const normativa = cleanNormativa(record.normativaParts.join(' '));
       const entregaNormativa = extractFirstDateDM(normativa);
       return {
-        tipoCliente: '', tipoOrigem:'', linha: record.linha || '', modelo: record.modelo || 'VARIOS', remessa: record.remessa || '', pares: parseNumberBR(record.pares), taloes:'',
+        tipoCliente: '', tipoOrigem:'', linha: record.linha || '', modelo: record.modelo || 'VARIOS', atelieResponsavel:'', remessa: record.remessa || '', pares: parseNumberBR(record.pares), taloes:'',
         corte: record.corte || '', entregaCronograma: record.entregaCronograma || '', entregaNormativa, entrega: record.entregaCronograma || '', fabrica: record.fabrica || '',
         cliente, normativa, conferencia: { status:'Sem banco', detalhe:'Aguardando conferência' }, page:record.page || 0
       };
@@ -488,6 +489,76 @@
       }
     }
 
+    function extractAtelieResponsavel(t){
+      const value = t?.idAtelieResponsavel ?? t?.atelieResponsavel ?? t?.nomeAtelieResponsavel ?? t?.atelierResponsavel ?? t?.atelier ?? t?.atelie ?? '';
+      if(Array.isArray(value)) return value.map(v => String(v || '').trim()).filter(Boolean).join(' / ');
+      if(value && typeof value === 'object'){
+        return String(value.nome || value.name || value.id || value.codigo || '').trim();
+      }
+      return String(value || '').trim();
+    }
+
+    function splitCompoundValues(value){
+      return String(value || '')
+        .split(/\s*\/\s*|\s*\|\s*|\s*;\s*|\s*,\s*|\n+/)
+        .map(v => String(v || '').trim())
+        .filter(Boolean);
+    }
+
+    function joinNamesHumanized(names){
+      const cleaned = uniqueValues((names || []).map(v => String(v || '').trim()).filter(Boolean));
+      if(!cleaned.length) return '';
+      if(cleaned.length === 1) return cleaned[0];
+      if(cleaned.length === 2) return `${cleaned[0]} e ${cleaned[1]}`;
+      return `${cleaned.slice(0, -1).join(', ')} e ${cleaned[cleaned.length - 1]}`;
+    }
+
+    function formatModeloAtelieEntry(modelo, atelies){
+      const modeloTxt = String(modelo || '').trim() || 'VARIOS';
+      const nomes = uniqueValues((atelies || []).map(v => String(v || '').trim()).filter(Boolean));
+      if(!nomes.length) return modeloTxt;
+      return `${modeloTxt} ${joinNamesHumanized(nomes)}`;
+    }
+
+    function wrapModeloAtelieEntries(entries, maxCharsPerLine = 38){
+      const lines = [];
+      let current = '';
+      (entries || []).forEach(entry => {
+        const token = String(entry || '').trim();
+        if(!token) return;
+        const candidate = current ? `${current} / ${token}` : token;
+        if(current && candidate.length > maxCharsPerLine){
+          lines.push(current);
+          current = token;
+        }else{
+          current = candidate;
+        }
+      });
+      if(current) lines.push(current);
+      return lines.join('\n');
+    }
+
+    function buildModeloAtelieDisplay(record){
+      const rawEntries = Array.isArray(record?.modeloAtelieEntries) ? record.modeloAtelieEntries : [];
+      if(rawEntries.length){
+        const entries = rawEntries
+          .map(entry => formatModeloAtelieEntry(entry?.modelo, Array.isArray(entry?.atelies) ? entry.atelies : []))
+          .filter(Boolean);
+        return wrapModeloAtelieEntries(entries, 38);
+      }
+      const modelo = String(record?.modelo || 'VARIOS').trim();
+      const atelie = String(record?.atelieResponsavel || record?.idAtelieResponsavel || '').trim();
+      return atelie ? `${modelo} ${atelie}` : modelo;
+    }
+
+    function modeloAteliePrint(record){
+      return buildModeloAtelieDisplay(record);
+    }
+
+    function modeloAtelieHtml(record){
+      return buildModeloAtelieDisplay(record);
+    }
+
     async function fetchBancoResumo(dataCorteParsed){
       const qRef = query(collection(db,'taloes'), where('dataCorte','==', dataCorteParsed.iso));
       const snap = await getDocs(qRef);
@@ -497,7 +568,7 @@
         const rem = String(t.numeroRemessa || '').trim();
         if(!rem) return;
         if(!map.has(rem)){
-          map.set(rem, { remessa:rem, pares:0, taloes:0, tipos:new Set(), linhas:new Set(), modelos:new Set(), docs:[] });
+          map.set(rem, { remessa:rem, pares:0, taloes:0, tipos:new Set(), linhas:new Set(), modelos:new Set(), atelies:new Set(), modelAtelieMap:new Map(), docs:[] });
         }
         const item = map.get(rem);
         item.pares += Number(t.pares || 0);
@@ -505,6 +576,13 @@
         item.tipos.add(t.tipoCliente || '');
         item.linhas.add(t.linha || '');
         item.modelos.add(t.modelo || '');
+        const atelieNome = extractAtelieResponsavel(t);
+        item.atelies.add(atelieNome);
+        const modeloKey = String(t.modelo || '').trim();
+        if(modeloKey){
+          if(!item.modelAtelieMap.has(modeloKey)) item.modelAtelieMap.set(modeloKey, new Set());
+          splitCompoundValues(atelieNome).forEach(nome => item.modelAtelieMap.get(modeloKey).add(nome));
+        }
         item.docs.push({ id:docSnap.id, ref:docSnap.ref, data:t });
       });
       state.bancoResumo = map;
@@ -522,6 +600,8 @@
           record.tipoCliente = fallbackTipo;
           record.tipoOrigem = fallbackTipo ? 'normativa' : '';
           record.taloes = '';
+          record.atelieResponsavel = '';
+          record.modeloAtelieEntries = [];
           record.conferencia = { status:'Não encontrada', detalhe:'Remessa não encontrada no banco nesta data de corte.' };
           applyEntregaRule(record);
           return;
@@ -529,12 +609,22 @@
         const tipos = uniqueValues([...b.tipos]);
         const modelosBanco = uniqueValues([...b.modelos]).sort(sortNumericText);
         const linhasBanco = uniqueValues([...b.linhas]).sort(sortNumericText);
+        const ateliesBanco = uniqueValues([...b.atelies]).sort(sortNumericText);
+        const modeloAtelieEntries = [...(b.modelAtelieMap || new Map()).entries()]
+          .sort((a,b) => sortNumericText(a[0], b[0]))
+          .map(([modelo, ateliesSet]) => ({
+            modelo,
+            atelies: uniqueValues([...(ateliesSet || [])]).sort(sortNumericText)
+          }));
         record.tipoCliente = tipos[0] || (/\bFAT\b/i.test(record.normativa) ? 'Exportacao' : '');
         record.tipoOrigem = tipos[0] ? 'banco' : (record.tipoCliente ? 'normativa' : '');
         record.bancoPares = b.pares;
         record.bancoTaloes = b.taloes;
         record.taloes = b.taloes || '';
         record.bancoTipos = tipos;
+        record.bancoAtelies = ateliesBanco;
+        record.modeloAtelieEntries = modeloAtelieEntries;
+        record.atelieResponsavel = ateliesBanco.join(' / ');
         if(modelosBanco.length){ record.modelo = modelosBanco.join(' '); }
         if(linhasBanco.length && !linhasBanco.includes(record.linha)){ record.linha = linhasBanco[0] || record.linha; }
         if(parseNumberBR(record.pares) !== parseNumberBR(b.pares)){
@@ -671,9 +761,9 @@
           <td class="col-tipo"><select data-field="tipoCliente">${tipoOptions(r.tipoCliente)}</select><small>${r.tipoOrigem === 'banco' ? 'Banco' : r.tipoOrigem === 'normativa' ? 'Normativa' : ''}</small></td>
           <td class="col-linha"><input data-field="linha" value="${escapeHtml(r.linha)}"></td>
           <td class="col-modelo"><input data-field="modelo" value="${escapeHtml(r.modelo)}" title="${escapeHtml(r.modelo)}"></td>
+          <td class="col-atelier"><input data-field="atelieResponsavel" value="${escapeHtml(r.atelieResponsavel || '')}" title="Ateliê responsável do banco"></td>
           <td class="col-remessa"><input data-field="remessa" value="${escapeHtml(r.remessa)}"></td>
           <td class="col-pares"><input data-field="pares" value="${escapeHtml(formatNumberBR(r.pares))}"></td>
-          <td class="col-data"><input data-field="corte" value="${escapeHtml(r.corte)}"></td>
           <td class="col-data"><input data-field="entrega" value="${escapeHtml(r.entrega)}" title="Entr: ${escapeHtml(r.entregaCronograma)} | Normativa: ${escapeHtml(r.entregaNormativa || '-')}"></td>
           <td class="col-fab"><input data-field="fabrica" value="${escapeHtml(r.fabrica)}"></td>
           <td class="col-cliente"><input data-field="cliente" value="${escapeHtml(r.cliente)}"></td>
@@ -682,7 +772,7 @@
           <td class="col-conf"><span class="${confClass(r.conferencia?.status)}">${escapeHtml(r.conferencia?.status || '')}</span><br><small>${escapeHtml(r.conferencia?.detalhe || '')}</small></td>
           <td class="col-act"><button class="btn btn-danger btn-mini" type="button" data-action="delete">Excluir</button></td>
         </tr>`).join('');
-      wrap.innerHTML = `<table class="preview"><thead><tr><th class="col-tipo">Tipo Cliente</th><th>Linha</th><th>Modelo(s)</th><th>Remessa</th><th>Pares</th><th>Corte</th><th>Entrega</th><th>Fábrica</th><th>Cliente</th><th>Normativas</th><th>Talões</th><th>Conferência</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table>`;
+      wrap.innerHTML = `<table class="preview"><thead><tr><th class="col-tipo">Tipo Cliente</th><th>Linha</th><th>Modelo(s)</th><th>Ateliê</th><th>Remessa</th><th>Pares</th><th>Entrega</th><th>Fábrica</th><th>Cliente</th><th>Normativas</th><th>Talões</th><th>Conferência</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table>`;
       wrap.querySelectorAll('input,select').forEach(el => el.addEventListener('input', updateRecordFromElement));
       wrap.querySelectorAll('[data-action="delete"]').forEach(btn => btn.addEventListener('click', deletePreviewRow));
     }
@@ -847,12 +937,12 @@
 
     function buildAutoTableBody(pageGroups, includeEmptyExportBlock=true){
       const body = [];
-      const header = ['', 'LINHA', 'MODELO', 'REMESSA', 'PARES', 'CORTE', 'ENTREGA', 'Fabrica', 'CLIENTE', 'NORMATIVAS', 'TALÕES', 'COSTURA', 'PALMILHA', 'SOLA', 'EMBARQUE'];
+      const header = ['', 'LINHA', 'MODELO / ATELIÊ', 'REMESSA', 'PARES', 'ENTREGA', 'FAB', 'CLIENTE', 'NORMATIVAS', 'TAL.', 'COSTURA', 'PALMILHA', 'SOLA', 'EMBARQUE'];
 
       function addLineHeader(group){
         const totalLinha = group.rows.reduce((s,r)=>s+parseNumberBR(r.pares),0);
         const expLinha = rowsByType(group.rows,true).reduce((s,r)=>s+parseNumberBR(r.pares),0);
-        body.push([{content:`LINHA ${group.linha}${group.parte ? ' - PARTE ' + group.parte : ''}  |  TOTAL ${formatNumberBR(totalLinha)} pares  |  EXP. ${formatNumberBR(expLinha)} pares`, colSpan:15, styles:{halign:'left', fontStyle:'bold', fillColor:[235,235,235], minCellHeight:5.4}}]);
+        body.push([{content:`LINHA ${group.linha}${group.parte ? ' - PARTE ' + group.parte : ''}  |  TOTAL ${formatNumberBR(totalLinha)} pares  |  EXP. ${formatNumberBR(expLinha)} pares`, colSpan:14, styles:{halign:'left', fontStyle:'bold', fillColor:[235,235,235], minCellHeight:5.4}}]);
       }
 
       function addColumnHeader(){
@@ -868,10 +958,9 @@
               : null;
             const row = [
               r.linha || '',
-              r.modelo || 'VARIOS',
+              modeloAteliePrint(r),
               r.remessa || '',
               formatNumberBR(r.pares),
-              dmToDisplay(r.corte),
               dmToDisplay(r.entrega),
               r.fabrica || '',
               cleanCliente(r.cliente || ''),
@@ -882,13 +971,13 @@
             body.push(tipoCell ? [tipoCell, ...row] : row);
           });
         }else if(forceEmpty){
-          body.push([{content:label, styles:{halign:'center', valign:'middle', fillColor:[242,242,242], fontStyle:'bold', cellPadding:0, minCellHeight:13}},'','','','','','','','','','','','','','']);
+          body.push([{content:label, styles:{halign:'center', valign:'middle', fillColor:[242,242,242], fontStyle:'bold', cellPadding:0, minCellHeight:14}},'','','','','','','','','','','','','']);
         }
-        body.push(['','','','TOTAL',formatNumberBR(total),'','','','','','','','','','']);
+        body.push(['','','','TOTAL',formatNumberBR(total),'','','','','','','','','']);
       }
 
       function addSpacer(){
-        body.push([{content:'', colSpan:15, styles:{fillColor:[255,255,255], lineColor:[255,255,255], textColor:[255,255,255], minCellHeight:5.5, cellPadding:0}}]);
+        body.push([{content:'', colSpan:14, styles:{fillColor:[255,255,255], lineColor:[255,255,255], textColor:[255,255,255], minCellHeight:5.5, cellPadding:0}}]);
       }
 
       pageGroups.forEach((group, groupIndex) => {
@@ -928,7 +1017,7 @@
       const pageW = doc.internal.pageSize.getWidth();
       const pageH = doc.internal.pageSize.getHeight();
       const margin = 8;
-      const corteTitulo = `Corte ${target.day}/${target.month}`;
+      const corteTitulo = `Corte ${pad2(target.day)}/${pad2(target.month)}`;
 
       function drawResumoCardsAtBottom(){
         const cards = [
@@ -971,9 +1060,9 @@
 
         doc.setFont('helvetica','bold');
         doc.setFontSize(12);
-        doc.text('Planejamento FactorShoes', pageW/2, 9, {align:'center'});
+        doc.text(`Planejamento FactorShoes - ${corteTitulo}`, pageW/2, 9, {align:'center'});
         doc.setFontSize(8);
-        doc.text(`${summarizePageLines(pageGroups)} - ${corteTitulo}`, margin, 16);
+        doc.text(`${summarizePageLines(pageGroups)}`, margin, 16);
         doc.setFont('helvetica','normal');
         doc.text(pageHeaderText(index, pages.length), pageW - margin, 16, {align:'right'});
         doc.setFont('helvetica','bold');
@@ -985,31 +1074,30 @@
           tableWidth: pageW - margin * 2,
           body: buildAutoTableBody(pageGroups, true),
           theme:'grid',
-          styles:{font:'helvetica',fontSize:6.1,cellPadding:1.0,valign:'middle',textColor:[0,0,0],lineColor:[0,0,0],lineWidth:0.1,overflow:'linebreak',minCellHeight:8.6},
+          styles:{font:'helvetica',fontSize:5.9,cellPadding:0.9,valign:'middle',textColor:[0,0,0],lineColor:[0,0,0],lineWidth:0.1,overflow:'linebreak',minCellHeight:9.4},
           headStyles:{fillColor:[217,217,217],textColor:[0,0,0],fontStyle:'bold',halign:'center',valign:'middle',fontSize:6.0,minCellHeight:7},
           columnStyles:{
             0:{cellWidth:6.8,halign:'center',valign:'middle',cellPadding:0},
             1:{cellWidth:9,halign:'center'},
-            2:{cellWidth:14,halign:'center',fontSize:3.8,cellPadding:0.25},
-            3:{cellWidth:16,halign:'center'},
-            4:{cellWidth:12,halign:'right'},
-            5:{cellWidth:16,halign:'center'},
-            6:{cellWidth:16,halign:'center'},
-            7:{cellWidth:8,halign:'center'},
-            8:{cellWidth:46,halign:'left'},
-            9:{cellWidth:59,halign:'left'},
-            10:{cellWidth:12,halign:'center'},
-            11:{cellWidth:16,halign:'center'},
-            12:{cellWidth:16,halign:'center'},
-            13:{cellWidth:15,halign:'center'},
-            14:{cellWidth:16,halign:'center'}
+            2:{cellWidth:38,halign:'center',fontSize:4.9,cellPadding:0.4},
+            3:{cellWidth:12,halign:'center'},
+            4:{cellWidth:9,halign:'right'},
+            5:{cellWidth:14,halign:'center'},
+            6:{cellWidth:6,halign:'center'},
+            7:{cellWidth:42,halign:'left'},
+            8:{cellWidth:59,halign:'left'},
+            9:{cellWidth:8,halign:'center'},
+            10:{cellWidth:17,halign:'center'},
+            11:{cellWidth:17,halign:'center'},
+            12:{cellWidth:15,halign:'center'},
+            13:{cellWidth:17,halign:'center'}
           },
           didParseCell:function(data){
             if(data.section !== 'body') return;
             const raw = data.row.raw || [];
             const getRaw = (idx) => typeof raw[idx] === 'object' ? raw[idx].content : raw[idx];
             const first = getRaw(0);
-            const isColumnHeader = getRaw(1) === 'LINHA' && getRaw(2) === 'MODELO' && getRaw(3) === 'REMESSA';
+            const isColumnHeader = getRaw(1) === 'LINHA' && String(getRaw(2)).startsWith('MODELO') && getRaw(3) === 'REMESSA';
             const isTotal = getRaw(3) === 'TOTAL';
             const isLineHeader = typeof first === 'string' && first.startsWith('LINHA ');
             if(isColumnHeader){
@@ -1032,7 +1120,7 @@
               data.cell.styles.minCellHeight = 5.8;
             }
             const cellRaw = typeof data.cell.raw === 'object' ? data.cell.raw.content : data.cell.raw;
-            if(data.column.index === 0 && (cellRaw === 'EXPORTAÇÃO' || cellRaw === 'NORMAL')){
+            if(data.column.index === 0 && (cellRaw === 'EXP' || cellRaw === 'NOR' || cellRaw === 'EXPORTAÇÃO' || cellRaw === 'NORMAL')){
               data.cell.text = [''];
               data.cell.styles.fillColor = [242,242,242];
               data.cell.styles.fontStyle = 'bold';
@@ -1042,14 +1130,17 @@
               data.cell.styles.valign = 'middle';
             }
             if(data.column.index === 2 && !isTotal && !isLineHeader && !isColumnHeader){
-              data.cell.styles.fontSize = 3.8;
-              data.cell.styles.cellPadding = 0.25;
+              data.cell.styles.fontSize = 4.7;
+              data.cell.styles.cellPadding = 0.38;
+              data.cell.styles.fontStyle = 'normal';
+              data.cell.styles.lineHeight = 1.1;
+              data.cell.styles.valign = 'middle';
             }
           },
           didDrawCell:function(data){
             if(data.section !== 'body' || data.column.index !== 0) return;
             const rawValue = typeof data.cell.raw === 'object' ? data.cell.raw.content : data.cell.raw;
-            if(rawValue !== 'EXPORTAÇÃO' && rawValue !== 'NORMAL') return;
+            if(rawValue !== 'EXP' && rawValue !== 'NOR' && rawValue !== 'EXPORTAÇÃO' && rawValue !== 'NORMAL') return;
 
             doc.setFont('helvetica','bold');
             doc.setTextColor(0,0,0);
@@ -1079,7 +1170,7 @@
     }
 
     function printableColumnHeader(){
-      return `<tr><th></th><th>LINHA</th><th>MODELO</th><th>REMESSA</th><th>PARES</th><th>CORTE</th><th>ENTREGA</th><th>Fabrica</th><th>CLIENTE</th><th>NORMATIVAS</th><th>TALÕES</th><th>COSTURA</th><th>PALMILHA</th><th>SOLA</th><th>EMBARQUE</th></tr>`;
+      return `<tr><th></th><th>LINHA</th><th>MODELO / ATELIÊ</th><th>REMESSA</th><th>PARES</th><th>ENTREGA</th><th>FAB</th><th>CLIENTE</th><th>NORMATIVAS</th><th>TAL.</th><th>COSTURA</th><th>PALMILHA</th><th>SOLA</th><th>EMBARQUE</th></tr>`;
     }
 
     function printableGroupRows(label, rows, forceEmpty){
@@ -1090,10 +1181,9 @@
         rows.forEach((r, idx) => {
           html += `<tr><td class="tipo">${idx === labelIndex ? escapeHtml(label) : ''}</td>
             <td class="text-center">${escapeHtml(r.linha)}</td>
-            <td class="text-center modelo-print">${escapeHtml(r.modelo || 'VARIOS')}</td>
+            <td class="text-center modelo-print">${escapeHtml(modeloAtelieHtml(r))}</td>
             <td class="text-center">${escapeHtml(r.remessa)}</td>
             <td class="text-right">${formatNumberBR(r.pares)}</td>
-            <td class="text-center">${dmToDisplay(r.corte)}</td>
             <td class="text-center">${dmToDisplay(r.entrega)}</td>
             <td class="text-center">${escapeHtml(r.fabrica)}</td>
             <td class="text-left">${escapeHtml(r.cliente)}</td>
@@ -1102,25 +1192,25 @@
           </tr>`;
         });
       }else if(forceEmpty){
-        html += `<tr><td class="tipo">${escapeHtml(label)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+        html += `<tr><td class="tipo">${escapeHtml(label)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
       }
-      html += `<tr class="total-row"><td></td><td></td><td></td><td class="text-center">TOTAL</td><td class="text-right">${formatNumberBR(total)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+      html += `<tr class="total-row"><td></td><td></td><td></td><td class="text-center">TOTAL</td><td class="text-right">${formatNumberBR(total)}</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
       return html;
     }
 
     function generatePrintablePdf(target){
       const pages = paginateRecords(15);
       const totals = getTotals();
-      const corteTitulo = `Corte ${target.day}/${target.month}`;
+      const corteTitulo = `Corte ${pad2(target.day)}/${pad2(target.month)}`;
       const html = pages.map((pageGroups,index) => {
         const pageRows = pageGroups.flatMap(g => g.rows);
         const totalPagina = pageRows.reduce((s,r)=>s+parseNumberBR(r.pares),0);
         const expPagina = pageRows.filter(r=>isExportacao(r.tipoCliente)).reduce((s,r)=>s+parseNumberBR(r.pares),0);
         const summary = index === 0 ? `<table class="print-total-box"><tr><td>TOTAL DE EXPORTAÇÃO</td><td>${formatNumberBR(totals.totalExp)}</td></tr><tr><td>TOTAL DE NORMAL</td><td>${formatNumberBR(totals.totalNormal)}</td></tr><tr><td>TOTAL DE PARES</td><td>${formatNumberBR(totals.total)}</td></tr></table>` : '';
-        const groupsHtml = pageGroups.map((group, groupIndex) => `${pageGroups.length > 1 ? `<tr class="line-title"><td colspan="15">LINHA ${escapeHtml(group.linha)}${group.parte ? ' - PARTE ' + group.parte : ''}</td></tr>` : ''}${printableColumnHeader()}${printableGroupRows('EXPORTAÇÃO', rowsByType(group.rows,true), true)}${printableGroupRows('NORMAL', rowsByType(group.rows,false), false)}${pageGroups.length > 1 && groupIndex < pageGroups.length - 1 ? '<tr class="line-spacer"><td colspan="15"></td></tr>' : ''}`).join('');
+        const groupsHtml = pageGroups.map((group, groupIndex) => `${pageGroups.length > 1 ? `<tr class="line-title"><td colspan="14">LINHA ${escapeHtml(group.linha)}${group.parte ? ' - PARTE ' + group.parte : ''}</td></tr>` : ''}${printableColumnHeader()}${printableGroupRows('EXPORTAÇÃO', rowsByType(group.rows,true), true)}${printableGroupRows('NORMAL', rowsByType(group.rows,false), false)}${pageGroups.length > 1 && groupIndex < pageGroups.length - 1 ? '<tr class="line-spacer"><td colspan="14"></td></tr>' : ''}`).join('');
         return `<section class="print-page">
-          <div class="print-title">Planejamento FactorShoes</div>
-          <div class="print-head"><div><h2>${escapeHtml(summarizePageLines(pageGroups))} - ${escapeHtml(corteTitulo)}</h2><strong>Total da página:</strong> ${formatNumberBR(totalPagina)} pares &nbsp; | &nbsp; <strong>Exportação da página:</strong> ${formatNumberBR(expPagina)} pares</div><div>${pageHeaderText(index, pages.length)}</div></div>
+          <div class="print-title">Planejamento FactorShoes - ${escapeHtml(corteTitulo)}</div>
+          <div class="print-head"><div><h2>${escapeHtml(summarizePageLines(pageGroups))}</h2><strong>Total da página:</strong> ${formatNumberBR(totalPagina)} pares &nbsp; | &nbsp; <strong>Exportação da página:</strong> ${formatNumberBR(expPagina)} pares</div><div>${pageHeaderText(index, pages.length)}</div></div>
           <table class="print-table"><tbody>${groupsHtml}</tbody></table>
           ${summary}
         </section>`;
