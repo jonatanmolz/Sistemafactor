@@ -46,6 +46,7 @@
     .preview tr.divergente{box-shadow:inset 4px 0 0 #ff9800}
     .preview tr.nao-encontrada{box-shadow:inset 4px 0 0 #dc3545}
     .preview input,.preview select{width:100%;padding:5px;border-radius:5px;font-size:12px}
+    .preview .col-modelo input{font-size:14px;font-weight:400;line-height:1.25}
     .preview .col-tipo{width:130px}.preview .col-linha{width:60px}.preview .col-modelo{width:95px}.preview .col-atelier{width:130px}.preview .col-remessa{width:90px}.preview .col-pares{width:75px}.preview .col-data{width:90px}.preview .col-fab{width:65px}.preview .col-cliente{width:180px}.preview .col-norm{width:300px}.preview .col-taloes{width:70px}.preview .col-conf{width:175px}.preview .col-act{width:70px}
     .conf-ok{font-weight:700;color:#167a31}.conf-warn{font-weight:700;color:#9a6500}.conf-bad{font-weight:700;color:#b00020}
     .empty{padding:22px;text-align:center;color:var(--muted);font-size:14px}
@@ -72,7 +73,7 @@
       .print-table{width:100%;border-collapse:collapse;font-size:8.5px;table-layout:fixed}
       .print-table th,.print-table td{border:1px solid #000;padding:4px 3px;vertical-align:middle;word-break:break-word}
       .print-table th{background:#d9d9d9;text-align:center;font-weight:700}
-      .print-table .modelo-print{font-size:8.7px;font-weight:400;line-height:1.18;white-space:pre-line}
+      .print-table .modelo-print{font-size:10px;font-weight:400;line-height:1.15;white-space:pre-line}
       .print-table .section{background:#d9d9d9;font-weight:700;text-align:center}
       .print-table .tipo{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;font-weight:700;background:#f2f2f2;width:6.8mm;min-width:6.8mm;max-width:6.8mm;overflow:hidden;padding:0!important;font-size:5.2px;line-height:1}
       .print-table .total-row td{background:#d9d9d9;font-weight:700}
@@ -1079,7 +1080,7 @@
           columnStyles:{
             0:{cellWidth:6.8,halign:'center',valign:'middle',cellPadding:0},
             1:{cellWidth:9,halign:'center'},
-            2:{cellWidth:38,halign:'center',fontSize:4.9,cellPadding:0.4},
+            2:{cellWidth:38,halign:'center',fontSize:5.8,cellPadding:0.35,fontStyle:'normal'},
             3:{cellWidth:12,halign:'center'},
             4:{cellWidth:9,halign:'right'},
             5:{cellWidth:14,halign:'center'},
@@ -1130,10 +1131,10 @@
               data.cell.styles.valign = 'middle';
             }
             if(data.column.index === 2 && !isTotal && !isLineHeader && !isColumnHeader){
-              data.cell.styles.fontSize = 4.7;
-              data.cell.styles.cellPadding = 0.38;
+              data.cell.styles.fontSize = 5.8;
+              data.cell.styles.cellPadding = 0.35;
               data.cell.styles.fontStyle = 'normal';
-              data.cell.styles.lineHeight = 1.1;
+              data.cell.styles.lineHeight = 1.05;
               data.cell.styles.valign = 'middle';
             }
           },
