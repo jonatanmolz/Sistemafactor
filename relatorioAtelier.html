@@ -1011,6 +1011,13 @@
           </select>
         </div>
 
+        <div class="form-group span-2" id="atelieFilterGroup" style="display:none;">
+          <label for="filterAtelie">Filtrar por ateliê responsável:</label>
+          <select id="filterAtelie">
+            <option value="">Todos os ateliês</option>
+          </select>
+        </div>
+
         <div class="filters-actions">
           <button class="btn btn-primary" id="searchButton" type="button">Gerar Relatório</button>
           <button class="btn btn-secondary" id="quickFiltersButton" type="button">Filtros rápidos</button>
@@ -1226,6 +1233,8 @@
     const filterDataEntrega = document.getElementById("filterDataEntrega");
     const filterDataEntregaFim = document.getElementById("filterDataEntregaFim");
     const filterTipoCliente = document.getElementById("filterTipoCliente");
+    const filterAtelie = document.getElementById("filterAtelie");
+    const atelieFilterGroup = document.getElementById("atelieFilterGroup");
 
     const corteRangeButton = document.getElementById("corteRangeButton");
     const saidaRangeButton = document.getElementById("saidaRangeButton");
@@ -1580,7 +1589,77 @@
       return String(status).toLowerCase().replace(/\s+/g, "-");
     }
 
-    async function loadAtelies() { return; }
+    function canSelectAtelie() {
+      return ["07", "08"].includes(String(currentUserLevel || ""));
+    }
+
+    function normalizeAtelieText(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function getAtelieResponsavelValues(talao) {
+      return [
+        talao?.idAtelieResponsavel,
+        talao?.atelieResponsavel,
+        talao?.atelierResponsavel,
+        talao?.nomeAtelieResponsavel,
+        talao?.nomeAtelierResponsavel,
+        talao?.atelie,
+        talao?.atelier
+      ].filter(Boolean);
+    }
+
+    function talaoPertenceAoAtelie(talao, atelie) {
+      const selected = normalizeAtelieText(atelie);
+      if (!selected) return true;
+      return getAtelieResponsavelValues(talao).some((value) => normalizeAtelieText(value) === selected);
+    }
+
+    function getSelectedAtelieFilter() {
+      if (String(currentUserLevel || "") === "03") return currentUserName || "";
+      if (canSelectAtelie()) return filterAtelie?.value || "";
+      return "";
+    }
+
+    function getSelectedAtelieLabel() {
+      const selected = getSelectedAtelieFilter();
+      if (selected) return selected;
+      if (canSelectAtelie()) return "todos os ateliês";
+      return currentUserName || "ateliê atual";
+    }
+
+    async function loadAtelies() {
+      if (!atelieFilterGroup || !filterAtelie) return;
+
+      if (!canSelectAtelie()) {
+        atelieFilterGroup.style.display = "none";
+        filterAtelie.value = "";
+        return;
+      }
+
+      atelieFilterGroup.style.display = "flex";
+      filterAtelie.innerHTML = '<option value="">Todos os ateliês</option>';
+
+      try {
+        const usuariosQuery = query(collection(db, "Usuario"), where("nivelAcesso", "==", "03"));
+        const usuariosSnap = await getDocs(usuariosQuery);
+        const nomes = usuariosSnap.docs
+          .map((docSnap) => docSnap.data()?.Nome)
+          .filter(Boolean)
+          .sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true }));
+
+        filterAtelie.innerHTML = '<option value="">Todos os ateliês</option>' + nomes
+          .map((nome) => `<option value="${escapeHTML(nome)}">${escapeHTML(nome)}</option>`)
+          .join("");
+      } catch (error) {
+        console.error("Erro ao carregar ateliês:", error);
+        statusLine.textContent = "Não foi possível carregar a lista de ateliês.";
+      }
+    }
 
     function listenToTaloes() {
       // Carga otimizada: não escuta mais todos os talões do banco na abertura.
@@ -1595,9 +1674,13 @@
       const talao = filterTalao.value.trim();
 
       let conditions = [];
+      const selectedAtelie = getSelectedAtelieFilter();
 
-      if (currentUserLevel === "03") {
-        conditions.push(where("idAtelieResponsavel", "==", currentUserName));
+      if (selectedAtelie) {
+        // Quando o relatório está filtrado por ateliê, buscamos a base do ateliê
+        // e aplicamos os demais filtros localmente. Isso evita divergência quando
+        // datas foram gravadas como string, Timestamp ou em campos alternativos.
+        conditions.push(where("idAtelieResponsavel", "==", selectedAtelie));
         return query(collection(db, "taloes"), ...conditions);
       }
 
@@ -1763,7 +1846,7 @@
       renderDatePicker();
     }
 
-    function clearFilterValues() {
+    function clearFilterValues(clearAtelie = false) {
       filterLinha.value = "";
       filterModelo.value = "";
       filterRemessa.value = "";
@@ -1775,6 +1858,7 @@
       filterDataEntrega.value = "";
       filterDataEntregaFim.value = "";
       filterTipoCliente.value = "";
+      if (clearAtelie && filterAtelie) filterAtelie.value = "";
       updateRangeButton(corteRangeButton, "", "");
       updateRangeButton(saidaRangeButton, "", "");
       updateRangeButton(entregaRangeButton, "", "");
@@ -1906,6 +1990,8 @@
       if (remessa) currentFiltered = currentFiltered.filter((t) => String(t.numeroRemessa || "").toLowerCase().includes(remessa));
       if (talao) currentFiltered = currentFiltered.filter((t) => String(t.numeroTalaoSequencial || "").toLowerCase().includes(talao));
       if (tipoCliente) currentFiltered = currentFiltered.filter((t) => normalizeTipoCliente(t.tipoCliente) === normalizeTipoCliente(tipoCliente));
+      const selectedAtelie = getSelectedAtelieFilter();
+      if (selectedAtelie) currentFiltered = currentFiltered.filter((t) => talaoPertenceAoAtelie(t, selectedAtelie));
       currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataCorte, filterDataCorte.value, filterDataCorteFim.value));
       currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataSaidaCostura, filterDataSaida.value, filterDataSaidaFim.value));
       currentFiltered = currentFiltered.filter((t) => passesDateRange(t.dataEntrega, filterDataEntrega.value, filterDataEntregaFim.value));
@@ -1928,6 +2014,7 @@
       const quickInfo = quickFilterMode ? getQuickFilterInfo(quickFilterMode) : null;
       const quickText = quickInfo ? `Filtro rápido: ${quickInfo.label} (${quickInfo.detail}) • ` : "";
       const breakdownText = quickFilterMode && functionNeedsBreakdown(quickFilterMode) ? ` • ${getTypeBreakdownText(filteredTaloes)}` : "";
+      statusLine.textContent = `${quickText}${filteredTaloes.length.toLocaleString("pt-BR")} talões encontrados • Total: ${total.toLocaleString("pt-BR")} pares • Ateliê: ${getSelectedAtelieLabel()}${breakdownText}`;
       
     }
 
@@ -2180,7 +2267,7 @@
     });
 
     clearFiltersButton.addEventListener("click", () => {
-      clearFilterValues();
+      clearFilterValues(true);
       filteredTaloes = [];
       taloesTableBody.innerHTML = "";
       reportContent.style.display = "none";
@@ -2189,6 +2276,12 @@
       noData.style.display = "block";
       statusLine.textContent = `${allTaloes.length.toLocaleString("pt-BR")} talões carregados.`;
     });
+
+    if (filterAtelie) {
+      filterAtelie.addEventListener("change", () => {
+        applyFilters();
+      });
+    }
 
     quickFiltersButton.addEventListener("click", openQuickModal);
     closeModalButton.addEventListener("click", closeModal);
@@ -2257,7 +2350,7 @@
       currentUserLevel = String(userData.nivelAcesso || "");
       currentUserName = userData.Nome || user.email || "Usuário";
 
-      if (window.SistemaNavegacao && !window.SistemaNavegacao.podeAcessar(currentUserLevel, "relatorioAtelier.html")) {
+      if (window.SistemaNavegacao && !window.SistemaNavegacao.podeAcessar(currentUserLevel, "relatorioAtelier.html") && String(currentUserLevel) !== "08") {
         alert("Você não tem permissão para acessar esta página.");
         window.location.href = "index.html";
         return;
