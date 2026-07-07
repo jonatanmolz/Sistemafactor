@@ -2067,6 +2067,7 @@
       let currentUserName = "";
       let currentUserLevel = "";
       let allRightDocs = [];
+      let cutSourceDocs = [];
       let dailyDocs = [];
       let modalDocs = { produced: [], delivered: [], pending: [], urgent: [], monday: [], thursday: [], exportFirst: [], exportSecond: [], cut: [] };
       let currentModal = { title: "", taloes: [], sortMode: "" };
@@ -2171,6 +2172,24 @@
         const atelie = getSelectedAtelie();
         return arr.filter(t => !isAmostra(t) && talaoPertenceAoAtelie(t, atelie));
       }
+
+      function getDataEntradaDistribuicao(talao) {
+        // Mantém a mesma regra do relatorioAtelier.html:
+        // alguns talões podem ter a entrada na fábrica salva em campos antigos/alternativos.
+        return talao?.dataEntradaDistribuicao || talao?.entradaDistribuicao || talao?.dataEntradaFabrica || "";
+      }
+
+      function isNotProduced(talao) {
+        return !hasFilledDate(talao?.dataSaidaCostura);
+      }
+
+      function isNotBippedInFactory(talao) {
+        return hasFilledDate(talao?.dataSaidaCostura) && !hasFilledDate(getDataEntradaDistribuicao(talao));
+      }
+
+      function isOpenAtelierOrFactory(talao) {
+        return isNotProduced(talao) || isNotBippedInFactory(talao);
+      }
       function getCycleDeliveryRange(baseIso) {
         const base = dateFromISO(baseIso); const day = base.getDay(); const diff = day >= 3 ? day - 3 : day + 4;
         base.setDate(base.getDate() - diff); const wed = localDateToISO(base); const monday = addDaysISO(wed, 5);
@@ -2201,7 +2220,7 @@
         return Boolean(
           dataCorte &&
           isCutDateOverdue(dataCorte, baseIso) &&
-          !hasFilledDate(talao.dataEntradaDistribuicao) &&
+          isOpenAtelierOrFactory(talao) &&
           !isAmostra(talao)
         );
       }
@@ -2254,6 +2273,17 @@
         docsByValue.forEach((docs, value) => queryCache.set(`${field}:${value}`, docs));
         return [...cachedDocs, ...fetchedDocs];
       }
+
+      async function getDocsBySelectedAtelie(atelie) {
+        const clean = String(atelie || "").trim();
+        if (!clean) return [];
+        const cacheKey = `atelieCompleto:${clean}`;
+        if (queryCache.has(cacheKey)) return queryCache.get(cacheKey);
+        const snap = await db.collection("taloes").where("idAtelieResponsavel", "==", clean).get();
+        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        queryCache.set(cacheKey, docs);
+        return docs;
+      }
       async function getDocsByFieldRange(field, startIso, endIso) {
         if (!startIso || !endIso || startIso > endIso) return [];
         const s = await db.collection("taloes").where(field, ">=", startIso).where(field, "<=", endIso).get();
@@ -2266,8 +2296,8 @@
       }
 
       function renderMetrics(el, arr) {
-        const paraProduzir = sumTotal(arr.filter(t => !hasFilledDate(t.dataSaidaCostura)));
-        const jaBipados = sumTotal(arr.filter(t => hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(t.dataEntradaDistribuicao)));
+        const paraProduzir = sumTotal(arr.filter(isNotProduced));
+        const jaBipados = sumTotal(arr.filter(isNotBippedInFactory));
         el.innerHTML = `
           <div class="metric-line"><span class="metric-label">Para produzir:</span><span class="metric-number">${paraProduzir.toLocaleString("pt-BR")} pares</span></div>
           <div class="metric-line"><span class="metric-label">Já bipados:</span><span class="metric-number">${jaBipados.toLocaleString("pt-BR")} pares</span></div>
@@ -2281,7 +2311,7 @@
         const { mondayIso, fridayIso } = getCycleDeliveryRange(baseDate);
         const targets = getExportTargetDates(baseDate);
         const cutClosing = getCutClosingRange(baseDate);
-        const base = filterBase(allRightDocs).filter(t => !hasFilledDate(t.dataEntradaDistribuicao));
+        const base = filterBase(allRightDocs).filter(isOpenAtelierOrFactory);
 
         const urgentMap = new Map();
         base.forEach(t => {
@@ -2304,7 +2334,8 @@
         modalDocs.exportFirst = exportCards[0].docs;
         modalDocs.exportSecond = exportCards[1].docs;
         const cutSet = new Set(cutClosing.cutDates);
-        modalDocs.cut = base.filter(t => cutSet.has(toISODateOnly(t.dataCorte)));
+        const cutBase = filterBase(cutSourceDocs.length ? cutSourceDocs : allRightDocs).filter(isOpenAtelierOrFactory);
+        modalDocs.cut = cutBase.filter(t => cutSet.has(toISODateOnly(t.dataCorte)));
 
         renderRightCard(els.urgentTotal, els.urgentModels, modalDocs.urgent, "Atraso Urgente", "urgent");
         renderRightCard(els.exportMondayTotal, els.exportMondayModels, modalDocs.exportFirst, els.exportMondayTitle.textContent || "Exportação", "export");
@@ -2321,8 +2352,8 @@
 
       function renderDailyHiddenCards() {
         const produced = filterBase(dailyDocs);
-        const delivered = produced.filter(t => hasFilledDate(t.dataEntradaDistribuicao));
-        const pending = filterBase(allRightDocs).filter(t => hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(t.dataEntradaDistribuicao));
+        const delivered = produced.filter(t => hasFilledDate(getDataEntradaDistribuicao(t)));
+        const pending = filterBase(allRightDocs).filter(isNotBippedInFactory);
         modalDocs.produced = produced; modalDocs.delivered = delivered; modalDocs.pending = pending;
         if (els.producedTotal) els.producedTotal.textContent = sumTotal(produced).toLocaleString("pt-BR");
         if (els.deliveredTotal) els.deliveredTotal.textContent = sumTotal(delivered).toLocaleString("pt-BR");
@@ -2364,12 +2395,15 @@
           // Isso evita a página ficar presa quando troca a data.
           const urgentDates = dateRange(windowStartIso, addDaysISO(selectedDate, -1));
 
-          const [deliveryDocs, cutDocs, urgentDocs, overdueCutDocs, dayDocs] = await Promise.all([
+          const selectedAtelie = getSelectedAtelie();
+
+          const [deliveryDocs, cutDocs, urgentDocs, overdueCutDocs, dayDocs, selectedAtelieDocs] = await Promise.all([
             getDocsByFieldIn("dataEntrega", deliveryDates),
             getDocsByFieldIn("dataCorte", cutDates),
             getDocsByFieldIn("dataEntrega", urgentDates),
             getDocsByFieldIn("dataCorte", overdueCutDates),
-            getDocsByFieldIn("dataSaidaCostura", [selectedDate])
+            getDocsByFieldIn("dataSaidaCostura", [selectedDate]),
+            selectedAtelie ? getDocsBySelectedAtelie(selectedAtelie) : Promise.resolve([])
           ]);
 
           if (token !== loadToken) return;
@@ -2377,12 +2411,18 @@
           const map = new Map();
           [...deliveryDocs, ...cutDocs, ...urgentDocs, ...overdueCutDocs].forEach(d => map.set(d.id, d));
           allRightDocs = Array.from(map.values());
+
+          // Para o card "Fechamento data de corte", usa a mesma base do relatorioAtelier.html
+          // quando há um ateliê selecionado: busca por idAtelieResponsavel e filtra as datas localmente.
+          // Isso evita divergência quando a data de corte foi gravada como string em alguns talões
+          // e como Timestamp/Date em outros.
+          cutSourceDocs = selectedAtelie ? selectedAtelieDocs : cutDocs;
           dailyDocs = dayDocs;
 
           buildReportSets();
           renderDailyHiddenCards();
           const atelieText = getSelectedAtelie() || "todos os ateliês";
-          setStatus(`Relatório atualizado: ${formatDate(selectedDate)} • Ateliê: ${atelieText} • Busca limitada e cortes atrasados dos últimos 35 dias`);
+          setStatus(`Relatório atualizado: ${formatDate(selectedDate)} • Ateliê: ${atelieText} • Fechamento de corte conferido pela base do ateliê • Atrasos limitados aos últimos 35 dias`);
         } catch (e) {
           console.error("Erro ao carregar relatório:", e);
           [els.urgentModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Erro ao carregar.</div>');
@@ -2403,12 +2443,12 @@
         });
       }
       function formatDateOrMissing(v) { const clean = toISODateOnly(v); return clean ? escapeHTML(formatDate(clean)) : '<span class="missing-date">X</span>'; }
-      function getStatusText(t) { if (hasFilledDate(t.dataEntradaDistribuicao)) return "Entregue na fábrica"; if (hasFilledDate(t.dataSaidaCostura)) return "Pendente de entrega"; return "Sem saída"; }
+      function getStatusText(t) { if (hasFilledDate(getDataEntradaDistribuicao(t))) return "Entregue na fábrica"; if (hasFilledDate(t.dataSaidaCostura)) return "Pendente de entrega"; return "Sem saída"; }
       function filteredModalDocs() {
         let arr = [...currentModal.taloes]; const extras = [];
         if (els.removeProducedCheckbox.checked) { const before = arr.length; arr = arr.filter(t => !hasFilledDate(t.dataSaidaCostura)); const removed = before - arr.length; if (removed) extras.push(`${removed.toLocaleString("pt-BR")} já produzidos removidos`); }
         if (els.onlyNoEntryCheckbox.checked) { const before = arr.length; arr = arr.filter(t => !hasFilledDate(t.costuraDataInicio)); const hidden = before - arr.length; if (hidden) extras.push(`${hidden.toLocaleString("pt-BR")} com entrada ocultados`); }
-        if (els.onlyNotBippedFactoryCheckbox.checked) { const before = arr.length; arr = arr.filter(t => hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(t.dataEntradaDistribuicao)); const hidden = before - arr.length; if (hidden) extras.push(`${hidden.toLocaleString("pt-BR")} fora do critério ocultados`); }
+        if (els.onlyNotBippedFactoryCheckbox.checked) { const before = arr.length; arr = arr.filter(isNotBippedInFactory); const hidden = before - arr.length; if (hidden) extras.push(`${hidden.toLocaleString("pt-BR")} fora do critério ocultados`); }
         return { arr, extras };
       }
       function renderDateCell(value, alertWhenMissing) {
@@ -2442,7 +2482,8 @@
           const rowClass = getTipoClienteRowClass(ref);
           const rowsHtml = taloes.map((t) => {
             const semEntradaCostura = !hasFilledDate(t.costuraDataInicio);
-            const semEntradaFabricaAposSaida = hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(t.dataEntradaDistribuicao);
+            const entradaDistribuicao = getDataEntradaDistribuicao(t);
+            const semEntradaFabricaAposSaida = hasFilledDate(t.dataSaidaCostura) && !hasFilledDate(entradaDistribuicao);
             const alertRow = semEntradaCostura || semEntradaFabricaAposSaida;
             const statusText = semEntradaCostura ? "Sem entrada" : (semEntradaFabricaAposSaida ? "No atelier" : getStatusText(t));
             return `
@@ -2453,7 +2494,7 @@
                 <td>${normalizePares(t.pares).toLocaleString("pt-BR")}</td>
                 <td class="${semEntradaCostura ? "alert-cell" : ""}">${renderDateCell(t.costuraDataInicio, true)}</td>
                 <td>${renderDateCell(t.dataSaidaCostura, false)}</td>
-                <td class="${semEntradaFabricaAposSaida ? "alert-cell" : ""}">${renderDateCell(t.dataEntradaDistribuicao, false)}</td>
+                <td class="${semEntradaFabricaAposSaida ? "alert-cell" : ""}">${renderDateCell(entradaDistribuicao, false)}</td>
                 <td class="${alertRow ? "alert-cell" : ""}">${escapeHTML(statusText)}</td>
               </tr>
             `;
@@ -2504,10 +2545,7 @@
       els.todayButton.addEventListener("click", () => { els.filterData.value = todayISO(); loadReport(); });
       els.filterData.addEventListener("change", loadReport);
       if (els.filterAtelie) els.filterAtelie.addEventListener("change", () => {
-        buildReportSets();
-        renderDailyHiddenCards();
-        const atelieText = getSelectedAtelie() || "todos os ateliês";
-        setStatus(`Relatório atualizado: ${formatDate(todayISO())} • Ateliê: ${atelieText} • Busca limitada e cortes atrasados dos últimos 35 dias`);
+        loadReport();
       });
       els.closeListModalButton.addEventListener("click", closeModal);
       els.listModal.addEventListener("click", e => { if (e.target === els.listModal) closeModal(); });
