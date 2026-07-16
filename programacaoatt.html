@@ -1865,7 +1865,7 @@
     </section>
 
     <section class="page-refresh-bar">
-      <button class="btn btn-primary" id="pageReloadButton" type="button" onclick="window.location.reload()">Atualizar dados</button>
+      <button class="btn btn-primary" id="pageReloadButton" type="button">Atualizar dados</button>
       <button class="btn btn-secondary" id="noEntryCutButton" type="button">Talões sem Entrada</button>
       <div class="form-group hide atelie-page-filter" id="atelieFilterGroup">
         <label for="filterAtelie">Filtrar por ateliê responsável:</label>
@@ -2061,7 +2061,7 @@
         urgentSubtitle: $("urgentSubtitle"), exportMondayTitle: $("exportMondayTitle"), exportMondaySubtitle: $("exportMondaySubtitle"), exportThursdayTitle: $("exportThursdayTitle"), exportThursdaySubtitle: $("exportThursdaySubtitle"), cutSubtitle: $("cutSubtitle"),
         urgentListButton: $("urgentListButton"), exportMondayListButton: $("exportMondayListButton"), exportThursdayListButton: $("exportThursdayListButton"), cutListButton: $("cutListButton"),
         producedTotal: $("producedTotal"), deliveredTotal: $("deliveredTotal"), pendingTotal: $("pendingTotal"), producedModels: $("producedModels"), deliveredModels: $("deliveredModels"), pendingModels: $("pendingModels"), detailsBody: $("detailsBody"),
-        producedListButton: $("producedListButton"), deliveredListButton: $("deliveredListButton"), pendingListButton: $("pendingListButton"), noEntryCutButton: $("noEntryCutButton")
+        producedListButton: $("producedListButton"), deliveredListButton: $("deliveredListButton"), pendingListButton: $("pendingListButton"), noEntryCutButton: $("noEntryCutButton"), pageReloadButton: $("pageReloadButton")
       };
 
       let currentUserName = "";
@@ -2073,6 +2073,8 @@
       let currentModal = { title: "", taloes: [], sortMode: "" };
       let loadToken = 0;
       const queryCache = new Map();
+      const inFlightQueries = new Map();
+      const QUERY_TIMEOUT_MS = 18000;
 
       const pad = (n) => String(n).padStart(2, "0");
       const localDateToISO = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -2236,6 +2238,59 @@
       }
       const unique = (arr) => Array.from(new Set(arr.filter(Boolean))).sort();
 
+      const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+      function dedupeDocs(docs) {
+        const map = new Map();
+        docs.forEach((doc) => {
+          if (!doc) return;
+          const key = doc.id || `${doc.numeroRemessa || ""}-${doc.numeroTalaoSequencial || ""}-${getModelKey(doc)}`;
+          map.set(key, doc);
+        });
+        return Array.from(map.values());
+      }
+
+      function isTransientFirestoreError(error) {
+        const code = String(error?.code || "").replace("firestore/", "");
+        return ["aborted", "cancelled", "deadline-exceeded", "internal", "resource-exhausted", "unavailable", "unknown"].includes(code)
+          || String(error?.message || "").includes("Tempo limite");
+      }
+
+      function withTimeout(promise, label) {
+        return new Promise((resolve, reject) => {
+          const timer = setTimeout(() => reject(new Error(`Tempo limite na consulta: ${label}`)), QUERY_TIMEOUT_MS);
+          promise.then(
+            value => { clearTimeout(timer); resolve(value); },
+            error => { clearTimeout(timer); reject(error); }
+          );
+        });
+      }
+
+      async function runFirestoreQuery(cacheKey, factory, retries = 2) {
+        if (inFlightQueries.has(cacheKey)) return inFlightQueries.get(cacheKey);
+
+        const task = (async () => {
+          let lastError;
+          for (let attempt = 0; attempt <= retries; attempt += 1) {
+            try {
+              return await withTimeout(factory(), cacheKey);
+            } catch (error) {
+              lastError = error;
+              if (attempt >= retries || !isTransientFirestoreError(error)) throw error;
+              await sleep(450 * (attempt + 1));
+            }
+          }
+          throw lastError;
+        })();
+
+        inFlightQueries.set(cacheKey, task);
+        try {
+          return await task;
+        } finally {
+          inFlightQueries.delete(cacheKey);
+        }
+      }
+
       async function getDocsByFieldIn(field, values) {
         const clean = unique(values);
         if (!clean.length) return [];
@@ -2244,19 +2299,20 @@
         const missingValues = [];
 
         clean.forEach((value) => {
-          const cacheKey = `${field}:${value}`;
+          const cacheKey = `date:${field}:${value}`;
           if (queryCache.has(cacheKey)) cachedDocs.push(...queryCache.get(cacheKey));
           else missingValues.push(value);
         });
 
-        if (!missingValues.length) return cachedDocs;
+        if (!missingValues.length) return dedupeDocs(cachedDocs);
 
         const chunks = [];
         for (let i = 0; i < missingValues.length; i += 10) chunks.push(missingValues.slice(i, i + 10));
 
-        const snaps = await Promise.all(chunks.map(chunk =>
-          db.collection("taloes").where(field, "in", chunk).get()
-        ));
+        const snaps = await Promise.all(chunks.map((chunk) => {
+          const key = `in:${field}:${chunk.join("|")}`;
+          return runFirestoreQuery(key, () => db.collection("taloes").where(field, "in", chunk).get());
+        }));
 
         const docsByValue = new Map(missingValues.map((value) => [value, []]));
         const fetchedDocs = [];
@@ -2270,29 +2326,51 @@
           });
         });
 
-        docsByValue.forEach((docs, value) => queryCache.set(`${field}:${value}`, docs));
-        return [...cachedDocs, ...fetchedDocs];
+        docsByValue.forEach((docs, value) => queryCache.set(`date:${field}:${value}`, docs));
+        return dedupeDocs([...cachedDocs, ...fetchedDocs]);
       }
 
-      async function getDocsBySelectedAtelie(atelie) {
-        const clean = String(atelie || "").trim();
-        if (!clean) return [];
-        const cacheKey = `atelieCompleto:${clean}`;
+      function timestampAtStartOfDay(iso) {
+        const date = dateFromISO(iso);
+        date.setHours(0, 0, 0, 0);
+        return firebase.firestore.Timestamp.fromDate(date);
+      }
+
+      async function getDocsByTimestampRange(field, startIso, endIso) {
+        if (!startIso || !endIso || startIso > endIso) return [];
+        const cacheKey = `timestamp-range:${field}:${startIso}:${endIso}`;
         if (queryCache.has(cacheKey)) return queryCache.get(cacheKey);
-        const snap = await db.collection("taloes").where("idAtelieResponsavel", "==", clean).get();
-        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        const endExclusiveIso = addDaysISO(endIso, 1);
+        const snap = await runFirestoreQuery(cacheKey, () => db.collection("taloes")
+          .where(field, ">=", timestampAtStartOfDay(startIso))
+          .where(field, "<", timestampAtStartOfDay(endExclusiveIso))
+          .get());
+        const docs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         queryCache.set(cacheKey, docs);
         return docs;
       }
-      async function getDocsByFieldRange(field, startIso, endIso) {
-        if (!startIso || !endIso || startIso > endIso) return [];
-        const s = await db.collection("taloes").where(field, ">=", startIso).where(field, "<=", endIso).get();
-        return s.docs.map(d => ({ id: d.id, ...d.data() }));
-      }
-      async function getDocsByFieldEqual(field, value) {
-        if (!value) return [];
-        const s = await db.collection("taloes").where(field, "==", value).get();
-        return s.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      async function getDocsByDateSetMixed(field, values) {
+        const clean = unique(values);
+        if (!clean.length) return [];
+        const wanted = new Set(clean);
+        const startIso = clean[0];
+        const endIso = clean[clean.length - 1];
+        const settled = await Promise.allSettled([
+          getDocsByFieldIn(field, clean),
+          getDocsByTimestampRange(field, startIso, endIso)
+        ]);
+
+        const fulfilled = settled.filter(result => result.status === "fulfilled");
+        if (!fulfilled.length) throw settled[0].reason;
+
+        settled.filter(result => result.status === "rejected").forEach(result => {
+          console.warn(`Consulta parcial em ${field}:`, result.reason);
+        });
+
+        return dedupeDocs(fulfilled.flatMap(result => result.value))
+          .filter(item => wanted.has(toISODateOnly(item[field])));
       }
 
       function renderMetrics(el, arr) {
@@ -2363,70 +2441,79 @@
         if (els.pendingModels) renderModelList(els.pendingModels, sumByModel(pending), pending, "Total de entrega pendente", "pending");
       }
 
-      async function loadReport() {
+      async function loadReport({ forceRefresh = false } = {}) {
         const token = ++loadToken;
         const selectedDate = todayISO();
         els.filterData.value = selectedDate;
+
+        if (forceRefresh) queryCache.clear();
+        if (els.pageReloadButton) {
+          els.pageReloadButton.disabled = true;
+          els.pageReloadButton.textContent = "Atualizando...";
+        }
+
         [els.urgentModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Carregando...</div>');
         [els.urgentTotal, els.exportMondayTotal, els.exportThursdayTotal, els.cutTotal].forEach(el => el.innerHTML = '');
-        setStatus("Buscando somente as datas necessárias...");
+        setStatus("Buscando os dados necessários...");
 
         try {
-          const { mondayIso, fridayIso } = getCycleDeliveryRange(selectedDate);
           const targets = getExportTargetDates(selectedDate);
           const cutClosing = getCutClosingRange(selectedDate);
-          const windowStartIso = addDaysISO(selectedDate, -14);
-          const windowEndIso = addDaysISO(selectedDate, 25);
-          const inside = (iso) => iso && iso >= windowStartIso && iso <= windowEndIso;
-
-          const deliveryDates = unique([
-            targets.mondayIso,
-            targets.thursdayIso
-          ].filter(inside));
-
-          const cutDates = cutClosing.cutDates.filter(inside);
+          const urgentStartIso = addDaysISO(selectedDate, -14);
+          const urgentEndIso = addDaysISO(selectedDate, -1);
           const overdueCutStartIso = addDaysISO(selectedDate, -35);
           const overdueCutEndIso = addDaysISO(selectedDate, -1);
-          const overdueCutDates = dateRange(overdueCutStartIso, overdueCutEndIso).filter((iso) => isCutDateOverdue(iso, selectedDate));
 
-          // Importante para performance:
-          // em vez de uma busca por intervalo grande em dataEntrega,
-          // busca somente os 14 dias exatos da janela de atraso, em blocos de 10.
-          // Isso evita a página ficar presa quando troca a data.
-          const urgentDates = dateRange(windowStartIso, addDaysISO(selectedDate, -1));
+          const urgentDates = dateRange(urgentStartIso, urgentEndIso);
+          const overdueCutDates = dateRange(overdueCutStartIso, overdueCutEndIso)
+            .filter((iso) => isCutDateOverdue(iso, selectedDate));
 
-          const selectedAtelie = getSelectedAtelie();
+          // Uma consulta consolidada por campo evita baixar todo o histórico do ateliê.
+          // Também busca datas em formato texto e Timestamp, pois o banco possui registros antigos nos dois formatos.
+          const deliveryQueryDates = unique([targets.mondayIso, targets.thursdayIso, ...urgentDates]);
+          const cutQueryDates = unique([...cutClosing.cutDates, ...overdueCutDates]);
 
-          const [deliveryDocs, cutDocs, urgentDocs, overdueCutDocs, dayDocs, selectedAtelieDocs] = await Promise.all([
-            getDocsByFieldIn("dataEntrega", deliveryDates),
-            getDocsByFieldIn("dataCorte", cutDates),
-            getDocsByFieldIn("dataEntrega", urgentDates),
-            getDocsByFieldIn("dataCorte", overdueCutDates),
-            getDocsByFieldIn("dataSaidaCostura", [selectedDate]),
-            selectedAtelie ? getDocsBySelectedAtelie(selectedAtelie) : Promise.resolve([])
-          ]);
+          const requests = [
+            { name: "entregas", promise: getDocsByDateSetMixed("dataEntrega", deliveryQueryDates) },
+            { name: "cortes", promise: getDocsByDateSetMixed("dataCorte", cutQueryDates) },
+            { name: "produção do dia", promise: getDocsByDateSetMixed("dataSaidaCostura", [selectedDate]) }
+          ];
+          const settled = await Promise.allSettled(requests.map(item => item.promise));
 
           if (token !== loadToken) return;
 
-          const map = new Map();
-          [...deliveryDocs, ...cutDocs, ...urgentDocs, ...overdueCutDocs].forEach(d => map.set(d.id, d));
-          allRightDocs = Array.from(map.values());
+          const failedNames = [];
+          const values = settled.map((result, index) => {
+            if (result.status === "fulfilled") return result.value;
+            failedNames.push(requests[index].name);
+            console.error(`Falha ao buscar ${requests[index].name}:`, result.reason);
+            return [];
+          });
 
-          // Para o card "Fechamento data de corte", usa a mesma base do relatorioAtelier.html
-          // quando há um ateliê selecionado: busca por idAtelieResponsavel e filtra as datas localmente.
-          // Isso evita divergência quando a data de corte foi gravada como string em alguns talões
-          // e como Timestamp/Date em outros.
-          cutSourceDocs = selectedAtelie ? selectedAtelieDocs : cutDocs;
+          if (failedNames.length === requests.length) {
+            throw new Error("Todas as consultas do relatório falharam.");
+          }
+
+          const [deliveryDocs, cutDocs, dayDocs] = values;
+          allRightDocs = dedupeDocs([...deliveryDocs, ...cutDocs]);
+          cutSourceDocs = cutDocs;
           dailyDocs = dayDocs;
 
           buildReportSets();
           renderDailyHiddenCards();
+
           const atelieText = getSelectedAtelie() || "todos os ateliês";
-          setStatus(`Relatório atualizado: ${formatDate(selectedDate)} • Ateliê: ${atelieText} • Fechamento de corte conferido pela base do ateliê • Atrasos limitados aos últimos 35 dias`);
+          const partialText = failedNames.length ? ` • Carregamento parcial: ${failedNames.join(", ")}` : "";
+          setStatus(`Relatório atualizado: ${formatDate(selectedDate)} • Ateliê: ${atelieText} • Datas em texto e Timestamp conferidas${partialText}`);
         } catch (e) {
           console.error("Erro ao carregar relatório:", e);
-          [els.urgentModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Erro ao carregar.</div>');
-          setStatus("Erro ao carregar. Veja o console para detalhes.");
+          [els.urgentModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Erro ao carregar. Clique em Atualizar dados.</div>');
+          setStatus("Não foi possível carregar os dados. Clique em Atualizar dados para tentar novamente.");
+        } finally {
+          if (token === loadToken && els.pageReloadButton) {
+            els.pageReloadButton.disabled = false;
+            els.pageReloadButton.textContent = "Atualizar dados";
+          }
         }
       }
 
@@ -2533,19 +2620,28 @@
         if (String(currentUserLevel) !== "07") return;
         if (!els.atelieFilterGroup || !els.filterAtelie) return;
         els.atelieFilterGroup.classList.remove("hide");
-        const snap = await db.collection("Usuario").where("nivelAcesso", "==", "03").get();
-        const names = snap.docs
-          .map(d => d.data().Nome)
-          .filter(Boolean)
-          .sort((a,b) => a.localeCompare(b, "pt-BR"));
-        els.filterAtelie.innerHTML = '<option value="">Todos os ateliês</option>' + names.map(n => `<option value="${escapeHTML(n)}">${escapeHTML(n)}</option>`).join("");
+
+        try {
+          const snap = await runFirestoreQuery("usuarios:atelies:nivel03", () =>
+            db.collection("Usuario").where("nivelAcesso", "==", "03").get()
+          );
+          const names = snap.docs
+            .map(d => d.data().Nome)
+            .filter(Boolean)
+            .sort((a,b) => a.localeCompare(b, "pt-BR"));
+          els.filterAtelie.innerHTML = '<option value="">Todos os ateliês</option>' + names.map(n => `<option value="${escapeHTML(n)}">${escapeHTML(n)}</option>`).join("");
+        } catch (error) {
+          console.warn("Não foi possível carregar a lista de ateliês. O relatório continuará sem o filtro:", error);
+          els.filterAtelie.innerHTML = '<option value="">Todos os ateliês</option>';
+        }
       }
 
-      els.refreshButton.addEventListener("click", loadReport);
-      els.todayButton.addEventListener("click", () => { els.filterData.value = todayISO(); loadReport(); });
-      els.filterData.addEventListener("change", loadReport);
+      els.refreshButton.addEventListener("click", () => loadReport({ forceRefresh: true }));
+      if (els.pageReloadButton) els.pageReloadButton.addEventListener("click", () => loadReport({ forceRefresh: true }));
+      els.todayButton.addEventListener("click", () => { els.filterData.value = todayISO(); loadReport({ forceRefresh: true }); });
+      els.filterData.addEventListener("change", () => loadReport({ forceRefresh: true }));
       if (els.filterAtelie) els.filterAtelie.addEventListener("change", () => {
-        loadReport();
+        loadReport({ forceRefresh: true });
       });
       els.closeListModalButton.addEventListener("click", closeModal);
       els.listModal.addEventListener("click", e => { if (e.target === els.listModal) closeModal(); });
@@ -2578,7 +2674,9 @@
       auth.onAuthStateChanged(async (user) => {
         try {
           if (!user) { window.location.href = "login.html"; return; }
-          const snap = await db.collection("Usuario").doc(user.email || "").get();
+          const snap = await runFirestoreQuery(`usuario:${user.email || ""}`, () =>
+            db.collection("Usuario").doc(user.email || "").get()
+          );
           if (!snap.exists) { alert("Dados do usuário não encontrados. Faça login novamente."); await auth.signOut(); window.location.href = "login.html"; return; }
           const data = snap.data() || {}; currentUserName = data.Nome || ""; currentUserLevel = data.nivelAcesso || "";
           if (!["03", "05", "07"].includes(String(currentUserLevel))) { alert("Você não tem permissão para acessar esta página."); window.location.href = "index.html"; return; }
