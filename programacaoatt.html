@@ -270,6 +270,7 @@
     .summary-card.delivered { background: #e2f3e8; border-color: #b8d9c5; }
     .summary-card.pending { background: #f6dddd; border-color: #e5b8b8; }
     .summary-card.urgent { background: #b63232; border-color: #ff5757; }
+    .summary-card.urgent-export { background: #ffb4a2; border-color: #ef6f51; }
     .summary-card.export { background: #92c3ff; border-color: #5fa9fe; }
     .summary-card.week { background: #e2f3e8; border-color: #b8d9c5; }
     .summary-card.cut { background: #ffe987; border-color: #ffe66b; }
@@ -1851,6 +1852,23 @@
     .remessa-card-header{ max-width:100% !important; }
   }
 </style>
+<style id="exportacoes-urgentes-layout-v20">
+  /* Cinco cards de fechamento na mesma linha em telas grandes */
+  .right-cards-grid{
+    grid-template-columns:repeat(5,minmax(205px,1fr)) !important;
+    gap:10px !important;
+  }
+  .right-cards-grid .summary-card{ min-height:330px !important; }
+  @media (max-width:1450px){
+    .right-cards-grid{ grid-template-columns:repeat(3,minmax(230px,1fr)) !important; }
+  }
+  @media (max-width:1000px){
+    .right-cards-grid{ grid-template-columns:repeat(2,minmax(240px,1fr)) !important; }
+  }
+  @media (max-width:760px){
+    .right-cards-grid{ grid-template-columns:1fr !important; }
+  }
+</style>
 </head>
 <body>
 <main class="main-content">
@@ -1958,6 +1976,19 @@
             <div class="model-list" id="urgentModels"></div>
           </article>
 
+          <article class="summary-card urgent-export">
+            <div class="summary-top">
+              <div class="summary-title-wrap">
+                <div class="summary-title">Exportações em Atraso Urgente</div>
+                <button class="list-button" id="urgentExportListButton" type="button">Talões</button>
+              </div>
+              <div class="summary-value right-metrics" id="urgentExportTotal"></div>
+            </div>
+            <div class="right-card-subtitle" id="urgentExportSubtitle">Exportações vencidas e embarques imediatos</div>
+            <div class="model-title">Modelos</div>
+            <div class="model-list" id="urgentExportModels"></div>
+          </article>
+
           <article class="summary-card export">
             <div class="summary-top">
               <div class="summary-title-wrap">
@@ -2056,10 +2087,10 @@
         refreshButton: $("refreshButton"), todayButton: $("todayButton"), statusLine: $("statusLine"),
         listModal: $("listModal"), listModalTitle: $("listModalTitle"), listModalSummary: $("listModalSummary"), listModalBody: $("listModalBody"),
         closeListModalButton: $("closeListModalButton"), removeProducedCheckbox: $("removeProducedCheckbox"), onlyNoEntryCheckbox: $("onlyNoEntryCheckbox"), onlyNotBippedFactoryCheckbox: $("onlyNotBippedFactoryCheckbox"),
-        urgentTotal: $("urgentTotal"), exportMondayTotal: $("exportMondayTotal"), exportThursdayTotal: $("exportThursdayTotal"), cutTotal: $("cutTotal"),
-        urgentModels: $("urgentModels"), exportMondayModels: $("exportMondayModels"), exportThursdayModels: $("exportThursdayModels"), cutModels: $("cutModels"),
-        urgentSubtitle: $("urgentSubtitle"), exportMondayTitle: $("exportMondayTitle"), exportMondaySubtitle: $("exportMondaySubtitle"), exportThursdayTitle: $("exportThursdayTitle"), exportThursdaySubtitle: $("exportThursdaySubtitle"), cutSubtitle: $("cutSubtitle"),
-        urgentListButton: $("urgentListButton"), exportMondayListButton: $("exportMondayListButton"), exportThursdayListButton: $("exportThursdayListButton"), cutListButton: $("cutListButton"),
+        urgentTotal: $("urgentTotal"), urgentExportTotal: $("urgentExportTotal"), exportMondayTotal: $("exportMondayTotal"), exportThursdayTotal: $("exportThursdayTotal"), cutTotal: $("cutTotal"),
+        urgentModels: $("urgentModels"), urgentExportModels: $("urgentExportModels"), exportMondayModels: $("exportMondayModels"), exportThursdayModels: $("exportThursdayModels"), cutModels: $("cutModels"),
+        urgentSubtitle: $("urgentSubtitle"), urgentExportSubtitle: $("urgentExportSubtitle"), exportMondayTitle: $("exportMondayTitle"), exportMondaySubtitle: $("exportMondaySubtitle"), exportThursdayTitle: $("exportThursdayTitle"), exportThursdaySubtitle: $("exportThursdaySubtitle"), cutSubtitle: $("cutSubtitle"),
+        urgentListButton: $("urgentListButton"), urgentExportListButton: $("urgentExportListButton"), exportMondayListButton: $("exportMondayListButton"), exportThursdayListButton: $("exportThursdayListButton"), cutListButton: $("cutListButton"),
         producedTotal: $("producedTotal"), deliveredTotal: $("deliveredTotal"), pendingTotal: $("pendingTotal"), producedModels: $("producedModels"), deliveredModels: $("deliveredModels"), pendingModels: $("pendingModels"), detailsBody: $("detailsBody"),
         producedListButton: $("producedListButton"), deliveredListButton: $("deliveredListButton"), pendingListButton: $("pendingListButton"), noEntryCutButton: $("noEntryCutButton"), pageReloadButton: $("pageReloadButton")
       };
@@ -2069,7 +2100,7 @@
       let allRightDocs = [];
       let cutSourceDocs = [];
       let dailyDocs = [];
-      let modalDocs = { produced: [], delivered: [], pending: [], urgent: [], monday: [], thursday: [], exportFirst: [], exportSecond: [], cut: [] };
+      let modalDocs = { produced: [], delivered: [], pending: [], urgent: [], urgentExport: [], monday: [], thursday: [], exportFirst: [], exportSecond: [], cut: [] };
       let currentModal = { title: "", taloes: [], sortMode: "" };
       let loadToken = 0;
       const queryCache = new Map();
@@ -2230,7 +2261,20 @@
         const base = dateFromISO(baseIso); let diff = weekday - base.getDay(); if (diff < 0) diff += 7; if (diff === 0) diff = 7;
         return addDaysISO(baseIso, diff);
       }
-      const getExportTargetDates = (baseIso) => ({ mondayIso: getNextWeekdayDate(baseIso, 1), thursdayIso: getNextWeekdayDate(baseIso, 4) });
+      function getExportTargetDates(baseIso) {
+        const tomorrowIso = addDaysISO(baseIso, 1);
+        const tomorrowDay = dateFromISO(tomorrowIso).getDay();
+        const urgentTomorrowIso = [1, 4].includes(tomorrowDay) ? tomorrowIso : "";
+        let mondayIso = getNextWeekdayDate(baseIso, 1);
+        let thursdayIso = getNextWeekdayDate(baseIso, 4);
+
+        // Um dia antes do embarque, a data passa para o card urgente.
+        // O card normal já aponta para a segunda/quinta da semana seguinte.
+        if (mondayIso === urgentTomorrowIso) mondayIso = addDaysISO(mondayIso, 7);
+        if (thursdayIso === urgentTomorrowIso) thursdayIso = addDaysISO(thursdayIso, 7);
+
+        return { mondayIso, thursdayIso, tomorrowIso, urgentTomorrowIso };
+      }
       function dateRange(startIso, endIso) {
         const out = []; let d = dateFromISO(startIso); const end = dateFromISO(endIso);
         while (d <= end) { out.push(localDateToISO(d)); d.setDate(d.getDate() + 1); }
@@ -2386,7 +2430,7 @@
       function buildReportSets() {
         const baseDate = todayISO();
         els.filterData.value = baseDate;
-        const { mondayIso, fridayIso } = getCycleDeliveryRange(baseDate);
+        const { mondayIso } = getCycleDeliveryRange(baseDate);
         const targets = getExportTargetDates(baseDate);
         const cutClosing = getCutClosingRange(baseDate);
         const base = filterBase(allRightDocs).filter(isOpenAtelierOrFactory);
@@ -2395,36 +2439,54 @@
         base.forEach(t => {
           const entrega = toISODateOnly(t.dataEntrega);
           const isExport = normalizeTipoCliente(t.tipoCliente) === "Exportacao";
-          const entregaAtrasada = Boolean(entrega && ((isExport && entrega < targets.mondayIso && entrega < targets.thursdayIso) || entrega < mondayIso));
+          const entregaAtrasada = Boolean(entrega && entrega < mondayIso);
           const corteAtrasado = isTalaoCutOverdue(t, baseDate);
 
-          if (entregaAtrasada || corteAtrasado) {
+          // O card geral não repete exportações, que agora possuem card próprio.
+          if (!isExport && (entregaAtrasada || corteAtrasado)) {
             urgentMap.set(t.id || `${t.numeroRemessa}-${t.numeroTalaoSequencial}`, t);
           }
         });
         modalDocs.urgent = Array.from(urgentMap.values());
-        modalDocs.monday = base.filter(t => normalizeTipoCliente(t.tipoCliente) === "Exportacao" && toISODateOnly(t.dataEntrega) === targets.mondayIso);
-        modalDocs.thursday = base.filter(t => normalizeTipoCliente(t.tipoCliente) === "Exportacao" && toISODateOnly(t.dataEntrega) === targets.thursdayIso);
-        const exportCards = [
-          { label: "Exportação Segunda", iso: targets.mondayIso, docs: modalDocs.monday },
-          { label: "Exportação Quinta", iso: targets.thursdayIso, docs: modalDocs.thursday }
-        ].sort((a, b) => a.iso.localeCompare(b.iso));
-        modalDocs.exportFirst = exportCards[0].docs;
-        modalDocs.exportSecond = exportCards[1].docs;
+
+        // Exportações urgentes: todas as vencidas/para hoje e, no domingo ou
+        // na quarta-feira, também os embarques do dia seguinte.
+        modalDocs.urgentExport = base.filter(t => {
+          if (normalizeTipoCliente(t.tipoCliente) !== "Exportacao") return false;
+          const entrega = toISODateOnly(t.dataEntrega);
+          if (!entrega) return false;
+          return entrega <= baseDate || Boolean(targets.urgentTomorrowIso && entrega === targets.urgentTomorrowIso);
+        });
+
+        modalDocs.monday = base.filter(t =>
+          normalizeTipoCliente(t.tipoCliente) === "Exportacao" &&
+          toISODateOnly(t.dataEntrega) === targets.mondayIso
+        );
+        modalDocs.thursday = base.filter(t =>
+          normalizeTipoCliente(t.tipoCliente) === "Exportacao" &&
+          toISODateOnly(t.dataEntrega) === targets.thursdayIso
+        );
+        modalDocs.exportFirst = modalDocs.monday;
+        modalDocs.exportSecond = modalDocs.thursday;
+
         const cutSet = new Set(cutClosing.cutDates);
         const cutBase = filterBase(cutSourceDocs.length ? cutSourceDocs : allRightDocs).filter(isOpenAtelierOrFactory);
         modalDocs.cut = cutBase.filter(t => cutSet.has(toISODateOnly(t.dataCorte)));
 
         renderRightCard(els.urgentTotal, els.urgentModels, modalDocs.urgent, "Atraso Urgente", "urgent");
-        renderRightCard(els.exportMondayTotal, els.exportMondayModels, modalDocs.exportFirst, els.exportMondayTitle.textContent || "Exportação", "export");
-        renderRightCard(els.exportThursdayTotal, els.exportThursdayModels, modalDocs.exportSecond, els.exportThursdayTitle.textContent || "Exportação", "export");
+        renderRightCard(els.urgentExportTotal, els.urgentExportModels, modalDocs.urgentExport, "Exportações em Atraso Urgente", "urgent");
+        renderRightCard(els.exportMondayTotal, els.exportMondayModels, modalDocs.monday, "Exportação Segunda", "export");
+        renderRightCard(els.exportThursdayTotal, els.exportThursdayModels, modalDocs.thursday, "Exportação Quinta", "export");
         renderRightCard(els.cutTotal, els.cutModels, modalDocs.cut, "Fechamento do corte", "cut");
 
-        els.urgentSubtitle.textContent = "Entregas e cortes em atraso";
-        els.exportMondayTitle.textContent = exportCards[0].label;
-        els.exportMondaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportCards[0].iso)}`;
-        els.exportThursdayTitle.textContent = exportCards[1].label;
-        els.exportThursdaySubtitle.textContent = `Data de entrega da montagem ${formatDate(exportCards[1].iso)}`;
+        els.urgentSubtitle.textContent = "Entregas e cortes em atraso, exceto exportações";
+        els.urgentExportSubtitle.textContent = targets.urgentTomorrowIso
+          ? `Vencidas + embarques de amanhã (${formatDate(targets.urgentTomorrowIso)})`
+          : "Exportações vencidas ou com entrega hoje";
+        els.exportMondayTitle.textContent = "Exportação Segunda";
+        els.exportMondaySubtitle.textContent = `Próxima segunda: ${formatDate(targets.mondayIso)}`;
+        els.exportThursdayTitle.textContent = "Exportação Quinta";
+        els.exportThursdaySubtitle.textContent = `Próxima quinta: ${formatDate(targets.thursdayIso)}`;
         els.cutSubtitle.textContent = `Data de Fechamento ${formatDate(cutClosing.closingTuesdayIso)} • Cortes ${formatDateShort(cutClosing.cutDates[0])} e ${formatDateShort(cutClosing.cutDates[1])}`;
       }
 
@@ -2452,15 +2514,15 @@
           els.pageReloadButton.textContent = "Atualizando...";
         }
 
-        [els.urgentModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Carregando...</div>');
-        [els.urgentTotal, els.exportMondayTotal, els.exportThursdayTotal, els.cutTotal].forEach(el => el.innerHTML = '');
+        [els.urgentModels, els.urgentExportModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Carregando...</div>');
+        [els.urgentTotal, els.urgentExportTotal, els.exportMondayTotal, els.exportThursdayTotal, els.cutTotal].forEach(el => el.innerHTML = '');
         setStatus("Buscando os dados necessários...");
 
         try {
           const targets = getExportTargetDates(selectedDate);
           const cutClosing = getCutClosingRange(selectedDate);
-          const urgentStartIso = addDaysISO(selectedDate, -14);
-          const urgentEndIso = addDaysISO(selectedDate, -1);
+          const urgentStartIso = addDaysISO(selectedDate, -35);
+          const urgentEndIso = selectedDate;
           const overdueCutStartIso = addDaysISO(selectedDate, -35);
           const overdueCutEndIso = addDaysISO(selectedDate, -1);
 
@@ -2470,7 +2532,7 @@
 
           // Uma consulta consolidada por campo evita baixar todo o histórico do ateliê.
           // Também busca datas em formato texto e Timestamp, pois o banco possui registros antigos nos dois formatos.
-          const deliveryQueryDates = unique([targets.mondayIso, targets.thursdayIso, ...urgentDates]);
+          const deliveryQueryDates = unique([targets.mondayIso, targets.thursdayIso, targets.urgentTomorrowIso, ...urgentDates]);
           const cutQueryDates = unique([...cutClosing.cutDates, ...overdueCutDates]);
 
           const requests = [
@@ -2507,7 +2569,7 @@
           setStatus(`Relatório atualizado: ${formatDate(selectedDate)} • Ateliê: ${atelieText} • Datas em texto e Timestamp conferidas${partialText}`);
         } catch (e) {
           console.error("Erro ao carregar relatório:", e);
-          [els.urgentModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Erro ao carregar. Clique em Atualizar dados.</div>');
+          [els.urgentModels, els.urgentExportModels, els.exportMondayModels, els.exportThursdayModels, els.cutModels].forEach(el => el.innerHTML = '<div class="empty-message">Erro ao carregar. Clique em Atualizar dados.</div>');
           setStatus("Não foi possível carregar os dados. Clique em Atualizar dados para tentar novamente.");
         } finally {
           if (token === loadToken && els.pageReloadButton) {
@@ -2660,6 +2722,7 @@
       });
 
       els.urgentListButton.addEventListener("click", () => openModal("Listagem - Atraso Urgente", modalDocs.urgent, "urgent"));
+      els.urgentExportListButton.addEventListener("click", () => openModal("Listagem - Exportações em Atraso Urgente", modalDocs.urgentExport, "urgent"));
       els.exportMondayListButton.addEventListener("click", () => openModal(els.exportMondayTitle.textContent || "Listagem - Exportação", modalDocs.exportFirst, "export"));
       els.exportThursdayListButton.addEventListener("click", () => openModal(els.exportThursdayTitle.textContent || "Listagem - Exportação", modalDocs.exportSecond, "export"));
       els.cutListButton.addEventListener("click", () => openModal("Listagem - Fechamento do corte", modalDocs.cut, "cut"));
