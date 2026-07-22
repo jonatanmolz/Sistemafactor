@@ -2555,7 +2555,9 @@
         // "Falta Produzir" do relatório do ateliê.
         const previousCutSet = new Set(previousCutClosing.cutDates);
         modalDocs.urgent = filterBase(allRightDocs).filter((t) =>
-          previousCutSet.has(toISODateOnly(t.dataCorte)) && isNotProduced(t)
+          previousCutSet.has(toISODateOnly(t.dataCorte)) &&
+          isNotProduced(t) &&
+          normalizeTipoCliente(t.tipoCliente) !== "Exportacao"
         );
 
         // Exportações urgentes: todas as vencidas/para hoje e, no domingo ou
@@ -2579,7 +2581,9 @@
         modalDocs.exportSecond = modalDocs.thursday;
 
         const cutSet = new Set(cutClosing.cutDates);
-        const cutBase = filterBase(cutSourceDocs.length ? cutSourceDocs : allRightDocs).filter(isOpenAtelierOrFactory);
+        const cutBase = filterBase(cutSourceDocs.length ? cutSourceDocs : allRightDocs)
+          .filter(isOpenAtelierOrFactory)
+          .filter(t => normalizeTipoCliente(t.tipoCliente) !== "Exportacao");
         modalDocs.cut = cutBase.filter(t => cutSet.has(toISODateOnly(t.dataCorte)));
 
         renderRightCard(els.urgentTotal, els.urgentModels, modalDocs.urgent, "Atraso Urgente", "urgent");
@@ -2588,7 +2592,7 @@
         renderRightCard(els.exportThursdayTotal, els.exportThursdayModels, modalDocs.thursday, "Exportação Quinta", "export");
         renderRightCard(els.cutTotal, els.cutModels, modalDocs.cut, "Fechamento do corte", "cut");
 
-        els.urgentSubtitle.textContent = `Falta produzir dos cortes ${formatDateShort(previousCutClosing.cutDates[0])} e ${formatDateShort(previousCutClosing.cutDates[1])} • Fechamento ${formatDate(previousCutClosing.closingTuesdayIso)}`;
+        els.urgentSubtitle.textContent = `Falta produzir dos cortes ${formatDateShort(previousCutClosing.cutDates[0])} e ${formatDateShort(previousCutClosing.cutDates[1])} • Sem exportações • Fechamento ${formatDate(previousCutClosing.closingTuesdayIso)}`;
         els.urgentExportSubtitle.textContent = targets.urgentTomorrowIso
           ? `Vencidas + embarques de amanhã (${formatDate(targets.urgentTomorrowIso)})`
           : "Exportações vencidas ou com entrega hoje";
@@ -2596,7 +2600,7 @@
         els.exportMondaySubtitle.textContent = `Próxima segunda: ${formatDate(targets.mondayIso)}`;
         els.exportThursdayTitle.textContent = "Exportação Quinta";
         els.exportThursdaySubtitle.textContent = `Próxima quinta: ${formatDate(targets.thursdayIso)}`;
-        els.cutSubtitle.textContent = `Data de Fechamento ${formatDate(cutClosing.closingTuesdayIso)} • Cortes ${formatDateShort(cutClosing.cutDates[0])} e ${formatDateShort(cutClosing.cutDates[1])}`;
+        els.cutSubtitle.textContent = `Data de Fechamento ${formatDate(cutClosing.closingTuesdayIso)} • Cortes ${formatDateShort(cutClosing.cutDates[0])} e ${formatDateShort(cutClosing.cutDates[1])} • Sem exportações`;
       }
 
       function renderDailyHiddenCards() {
