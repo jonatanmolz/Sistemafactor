@@ -1870,6 +1870,44 @@
   }
 </style>
 
+<style id="modal-coluna-atelie-v22">
+  .modal-overlay.atelie-column-enabled .modal-content{
+    width:min(1280px,96vw) !important;
+  }
+  .modal-overlay.atelie-column-enabled .remessa-list{
+    width:1120px !important;
+    max-width:100% !important;
+  }
+  .modal-overlay.atelie-column-enabled .remessa-card{
+    width:1120px !important;
+    max-width:100% !important;
+  }
+  .modal-overlay.atelie-column-enabled .remessa-card-table{
+    width:1050px !important;
+    min-width:1050px !important;
+    max-width:1050px !important;
+    margin-left:58px !important;
+  }
+  .remessa-card-table.with-atelie-column .atelie-cell{
+    font-weight:800 !important;
+    white-space:normal !important;
+    overflow-wrap:anywhere !important;
+    line-height:1.05 !important;
+  }
+  .remessa-card-table.with-atelie-column th:nth-child(1),.remessa-card-table.with-atelie-column td:nth-child(1){ width:50px !important; }
+  .remessa-card-table.with-atelie-column th:nth-child(2),.remessa-card-table.with-atelie-column td:nth-child(2){ width:105px !important; }
+  .remessa-card-table.with-atelie-column th:nth-child(3),.remessa-card-table.with-atelie-column td:nth-child(3){ width:72px !important; }
+  .remessa-card-table.with-atelie-column th:nth-child(4),.remessa-card-table.with-atelie-column td:nth-child(4){ width:55px !important; }
+  .remessa-card-table.with-atelie-column th:nth-child(5),.remessa-card-table.with-atelie-column td:nth-child(5){ width:125px !important; }
+  .remessa-card-table.with-atelie-column th:nth-child(6),.remessa-card-table.with-atelie-column td:nth-child(6){ width:135px !important; }
+  .remessa-card-table.with-atelie-column th:nth-child(7),.remessa-card-table.with-atelie-column td:nth-child(7){ width:125px !important; }
+  .remessa-card-table.with-atelie-column th:nth-child(8),.remessa-card-table.with-atelie-column td:nth-child(8){ width:140px !important; }
+  .remessa-card-table.with-atelie-column th:nth-child(9),.remessa-card-table.with-atelie-column td:nth-child(9){ width:105px !important; }
+  @media (max-width:1180px){
+    .modal-overlay.atelie-column-enabled .remessa-card-table{ margin-left:0 !important; }
+  }
+</style>
+
 <style id="pdf-report-controls-v21">
   .modal-pdf{
     border:1px solid rgba(127,29,29,.22);
@@ -2230,6 +2268,24 @@
         ].filter(Boolean);
       }
 
+      function getAtelieResponsavelLabel(talao) {
+        const values = [
+          talao?.nomeAtelieResponsavel,
+          talao?.nomeAtelierResponsavel,
+          talao?.atelieResponsavel,
+          talao?.atelierResponsavel,
+          talao?.atelie,
+          talao?.atelier,
+          talao?.idAtelieResponsavel
+        ];
+        const found = values.find((value) => String(value || '').trim());
+        return found ? String(found).trim() : 'Sem ateliê';
+      }
+
+      function canViewAtelieResponsavel() {
+        return ['02', '04', '07'].includes(String(currentUserLevel));
+      }
+
       function talaoPertenceAoAtelie(talao, atelie) {
         const selected = normalizeAtelieText(atelie);
         if (!selected) return true;
@@ -2237,7 +2293,9 @@
       }
 
       function getSelectedAtelie() {
-        if (String(currentUserLevel) === "07") return els.filterAtelie?.value || "";
+        const level = String(currentUserLevel);
+        if (level === '03') return currentUserName;
+        if (['02', '04', '05', '07'].includes(level)) return els.filterAtelie?.value || '';
         return currentUserName;
       }
 
@@ -2772,6 +2830,8 @@
 
       function renderModal() {
         const { arr, extras } = filteredModalDocs();
+        const showAtelieColumn = canViewAtelieResponsavel();
+        els.listModal.classList.toggle('atelie-column-enabled', showAtelieColumn);
         els.listModalTitle.textContent = currentModal.title;
         els.listModalSummary.textContent = `${arr.length.toLocaleString("pt-BR")} talões exibidos • ${sumTotal(arr).toLocaleString("pt-BR")} pares${extras.length ? " • " + extras.join(" • ") : ""}`;
         if (!arr.length) { els.listModalBody.innerHTML = '<div class="empty-message">Nenhum talão encontrado.</div>'; return; }
@@ -2795,6 +2855,7 @@
                 <td class="model-cell">${escapeHTML(getModelKey(t))}</td>
                 <td>${escapeHTML(t.corSapato || "")}</td>
                 <td>${normalizePares(t.pares).toLocaleString("pt-BR")}</td>
+                ${showAtelieColumn ? `<td class="atelie-cell">${escapeHTML(getAtelieResponsavelLabel(t))}</td>` : ''}
                 <td class="${semEntradaCostura ? "alert-cell" : ""}">${renderDateCell(t.costuraDataInicio, true)}</td>
                 <td>${renderDateCell(t.dataSaidaCostura, false)}</td>
                 <td class="${semEntradaFabricaAposSaida ? "alert-cell" : ""}">${renderDateCell(entradaDistribuicao, false)}</td>
@@ -2811,10 +2872,10 @@
                 <div><span class="remessa-info-label">Entrega</span><span class="remessa-info-value">${formatDate(toISODateOnly(ref.dataEntrega))}</span></div>
                 <div><span class="remessa-info-label">Tipo cliente</span><span class="remessa-info-value">${escapeHTML(getTipoClienteLabel(ref))}</span></div>
               </div>
-              <table class="remessa-card-table">
+              <table class="remessa-card-table ${showAtelieColumn ? 'with-atelie-column' : ''}">
                 <thead>
                   <tr>
-                    <th>Talão</th><th>Linha/Modelo</th><th>Cor</th><th>Pares</th><th>Entrada Costura</th><th>Saída Costura</th><th>Entrada Fábrica</th><th>Status</th>
+                    <th>Talão</th><th>Linha/Modelo</th><th>Cor</th><th>Pares</th>${showAtelieColumn ? '<th>Ateliê responsável</th>' : ''}<th>Entrada Costura</th><th>Saída Costura</th><th>Entrada Fábrica</th><th>Status</th>
                   </tr>
                 </thead>
                 <tbody>${rowsHtml}</tbody>
@@ -2846,6 +2907,7 @@
       function buildPrintRemessaCards(arr, sortMode) {
         const sorted = sortTaloes(arr, sortMode);
         const groups = groupByRemessa(sorted);
+        const showAtelieColumn = canViewAtelieResponsavel();
 
         return groups.map(([remessa, taloes]) => {
           const ref = taloes[0] || {};
@@ -2862,6 +2924,7 @@
                 <td class="print-model-cell">${escapeHTML(getModelKey(t))}</td>
                 <td>${escapeHTML(t.corSapato || "")}</td>
                 <td>${normalizePares(t.pares).toLocaleString("pt-BR")}</td>
+                ${showAtelieColumn ? `<td class="print-atelie-cell">${escapeHTML(getAtelieResponsavelLabel(t))}</td>` : ''}
                 <td class="${semEntradaCostura ? "print-alert-cell" : ""}">${escapeHTML(formatDate(toISODateOnly(t.costuraDataInicio)))}</td>
                 <td>${escapeHTML(formatDate(toISODateOnly(t.dataSaidaCostura)))}</td>
                 <td class="${semEntradaFabricaAposSaida ? "print-alert-cell" : ""}">${escapeHTML(formatDate(toISODateOnly(entradaDistribuicao)))}</td>
@@ -2878,13 +2941,14 @@
                 <div><span>Entrega</span><strong>${escapeHTML(formatDate(toISODateOnly(ref.dataEntrega)))}</strong></div>
                 <div><span>Tipo cliente</span><strong>${escapeHTML(getTipoClienteLabel(ref))}</strong></div>
               </div>
-              <table class="print-taloes-table">
+              <table class="print-taloes-table ${showAtelieColumn ? 'with-atelie-column' : ''}">
                 <thead>
                   <tr>
                     <th>Talão</th>
                     <th>Linha/Modelo</th>
                     <th>Cor</th>
                     <th>Pares</th>
+                    ${showAtelieColumn ? '<th>Ateliê responsável</th>' : ''}
                     <th>Entrada Costura</th>
                     <th>Saída Costura</th>
                     <th>Entrada Fábrica</th>
@@ -3035,6 +3099,15 @@
     .print-taloes-table td { font-size: 7.8px; color: #0b2f59; }
     .print-taloes-table tbody tr:last-child td { border-bottom: 0; }
     .print-model-cell { font-weight: 900; font-size: 8.2px !important; }
+    .print-atelie-cell { font-weight: 800; }
+    .print-taloes-table.with-atelie-column th,
+    .print-taloes-table.with-atelie-column td { padding-left: 2px; padding-right: 2px; font-size: 6.9px; }
+    .print-taloes-table.with-atelie-column .print-model-cell { font-size: 7.4px !important; }
+    .print-taloes-table.with-atelie-column .print-atelie-cell {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.05;
+    }
     .print-alert-cell,
     .print-alert-row td { color: #b91c1c !important; font-weight: 900 !important; }
     .tipo-exportacao .print-remessa-header,
@@ -3192,7 +3265,7 @@
           );
           if (!snap.exists) { alert("Dados do usuário não encontrados. Faça login novamente."); await auth.signOut(); window.location.href = "login.html"; return; }
           const data = snap.data() || {}; currentUserName = data.Nome || ""; currentUserLevel = data.nivelAcesso || "";
-          if (!["03", "05", "07"].includes(String(currentUserLevel))) { alert("Você não tem permissão para acessar esta página."); window.location.href = "index.html"; return; }
+          if (!["02", "03", "04", "05", "07"].includes(String(currentUserLevel))) { alert("Você não tem permissão para acessar esta página."); window.location.href = "index.html"; return; }
           localStorage.setItem("userNivelAcesso", currentUserLevel); localStorage.setItem("userName", currentUserName);
           if (window.SistemaNavegacao) window.SistemaNavegacao.init({ userLevel: currentUserLevel, userName: currentUserName, title: "Controle Ateliê", onLogout: async () => { await auth.signOut(); localStorage.removeItem("userNivelAcesso"); localStorage.removeItem("userName"); window.location.href = "login.html"; } });
           els.filterData.value = todayISO();
