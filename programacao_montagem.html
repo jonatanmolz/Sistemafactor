@@ -54,7 +54,39 @@
     .line-chip strong{font-size:13px}
     #printArea{display:none}
 
-    @media(max-width:760px){.main-content{padding:8px}.panel{padding:10px}.btn{flex:1 1 auto}.filters .form-group{min-width:calc(50% - 8px);flex:1}h1{font-size:19px}.summary-card{flex:1 1 calc(50% - 8px)}}
+    .btn:disabled{opacity:.55;cursor:not-allowed;filter:none}
+    .status-badge{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:4px 8px;font-weight:800;font-size:11px;white-space:nowrap}
+    .status-badge.ok{background:#dff5e5;color:#146c2e}.status-badge.warn{background:#fff0c2;color:#855a00}.status-badge.bad{background:#ffdede;color:#a00018}.status-badge.info{background:#e4efff;color:#1457a6}
+    .comparison-detail{font-size:11px;text-align:left;line-height:1.35;min-width:210px}.comparison-detail strong{display:block;margin-bottom:2px}
+    .comparison-value{font-size:11px;line-height:1.35;text-align:left;min-width:170px}.comparison-value .pdf-value{color:#6b4c00;margin-top:3px}
+    body.modal-open{overflow:hidden}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);display:none;align-items:center;justify-content:center;padding:12px;z-index:10050}
+    .modal-overlay.open{display:flex}
+    .modal-card{background:#fff;border-radius:12px;box-shadow:0 18px 60px rgba(0,0,0,.28);width:min(98vw,1750px);max-height:96vh;display:flex;flex-direction:column;overflow:hidden}
+    .modal-card.saved-card{width:min(94vw,980px);max-height:90vh}
+    .modal-header{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:#fafafa}
+    .modal-header h2{font-size:19px}.modal-header .hint{margin-top:2px}
+    .modal-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;padding:10px 14px;border-bottom:1px solid var(--bd);background:#fff}
+    .modal-body{padding:12px 14px;overflow:auto;flex:1}
+    .editor-title{text-align:center;font-size:17px;font-weight:800;margin:0 0 7px}
+    .editor-meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;font-weight:700;margin-bottom:8px}
+    .editor-table-wrap{overflow:auto;border:1px solid #222;border-radius:4px;background:#fff;max-height:68vh}
+    table.editor-table{width:100%;min-width:1650px;border-collapse:collapse;table-layout:fixed;font-size:11px}
+    .editor-table th,.editor-table td{border:1px solid #222;padding:3px;vertical-align:middle;text-align:center}
+    .editor-table th{position:sticky;top:0;z-index:3;background:#d9d9d9;font-size:10px}
+    .editor-table input,.editor-table select,.editor-table textarea{width:100%;min-width:0;border:1px solid #b8b8b8;border-radius:4px;padding:4px;font-size:11px;background:#fff}
+    .editor-table textarea{resize:vertical;min-height:42px;line-height:1.2}
+    .editor-table .model-pair{display:grid;grid-template-columns:1fr;gap:3px}
+    .editor-table .model-pair small{font-size:9px;color:#666;text-align:left}
+    .editor-table tr.editor-export{background:#eef6ff}.editor-table tr.editor-line-header td{background:#d9d9d9;font-weight:800;text-align:left;padding:5px 7px}
+    .editor-table .w-tipo{width:92px}.editor-table .w-linha{width:55px}.editor-table .w-modelo{width:180px}.editor-table .w-remessa{width:80px}.editor-table .w-pares{width:62px}.editor-table .w-entrega{width:82px}.editor-table .w-fab{width:48px}.editor-table .w-cliente{width:185px}.editor-table .w-norm{width:280px}.editor-table .w-tal{width:55px}.editor-table .w-prod{width:75px}.editor-table .w-act{width:58px}
+    .saved-list{display:grid;gap:9px}
+    .saved-item{border:1px solid var(--bd);border-radius:10px;padding:11px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff}
+    .saved-item h3{font-size:15px;margin:0 0 4px}.saved-item p{font-size:12px;color:var(--ink-2);margin:2px 0;line-height:1.35}
+    .saved-empty{padding:25px;text-align:center;color:var(--muted)}
+    .modal-close{border:0;background:#e9ecef;border-radius:8px;width:36px;height:34px;font-size:21px;cursor:pointer;line-height:1}
+
+    @media(max-width:760px){.main-content{padding:8px}.panel{padding:10px}.btn{flex:1 1 auto}.filters .form-group{min-width:calc(50% - 8px);flex:1}h1{font-size:19px}.summary-card{flex:1 1 calc(50% - 8px)}.modal-overlay{padding:4px}.modal-card{max-height:99vh;border-radius:7px}.modal-actions .btn{flex:1 1 calc(50% - 7px)}.saved-item{align-items:flex-start;flex-direction:column}.saved-item .btn{width:100%}}
 
     @media print{
       body.printing > *:not(#printArea){display:none!important}
@@ -92,22 +124,23 @@
       <div class="panel-title">
         <div>
           <h1>Programação por Linha</h1>
-          <div class="hint">Escolha o <strong>PDF Factor Geral</strong>. A página lê cliente e normativas do cronograma, confere as remessas com o banco pela <strong>data de corte</strong>, quantidade de remessas e pares por remessa, e gera um <strong>PDF</strong> com uma página por linha.</div>
+          <div class="hint">O <strong>PDF Factor Geral</strong> é usado somente para lançar campos vazios de cliente, normativa e fábrica (FAB), além de conferir a programação. A programação oficial é sempre criada pelos talões existentes no banco para a data de corte selecionada.</div>
         </div>
       </div>
       <div class="toolbar">
         <input type="file" id="pdfFile" class="file-picker-hidden" accept=".pdf,application/pdf" />
         <label class="btn btn-primary" for="pdfFile">Escolher PDF</label>
-        <button class="btn btn-primary" id="loadFilesButton" type="button">Carregar arquivo</button>
+        <button class="btn btn-primary" id="launchNormativasButton" type="button">Lançar normativas</button>
+        <button class="btn btn-primary" id="createProgramButton" type="button">Criar programação</button>
         <button class="btn btn-ok" id="generatePdfButton" type="button">Gerar PDF</button>
-        <button class="btn btn-ok" id="saveBancoButton" type="button">Lançar cliente e normativas no banco</button>
-        <button class="btn" id="clearButton" type="button">Limpar</button>
+        <button class="btn btn-ok" id="saveProgramButton" type="button">Salvar programação</button>
+        <button class="btn" id="openSavedButton" type="button">Abrir programações salvas</button>
       </div>
       <div id="selectedFilesLabel" class="selected-files">Nenhum PDF selecionado.</div>
       <div class="filters">
         <div class="form-group date-small">
           <label for="dataCorteInput">Data de Corte</label>
-          <input type="text" id="dataCorteInput" placeholder="Ex: 11/06 ou 11/jun" />
+          <input type="text" id="dataCorteInput" placeholder="Ex: 16/07 ou 16/jul" />
         </div>
       </div>
       <div id="status" class="status">Aguardando login e seleção do PDF.</div>
@@ -117,22 +150,58 @@
     <div class="panel">
       <div class="panel-title">
         <div>
-          <h2>Prévia editável</h2>
-          <div class="hint">As exportações ficam primeiro no PDF. A entrega usa a primeira data da normativa quando for Exportação, Cliente Especial ou embarque estratégico. Se não houver data na normativa, usa a coluna <strong>Entr</strong> do cronograma.</div>
+          <h2>Conferência da programação</h2>
+          <div class="hint">A tabela abaixo vem do banco de dados. O PDF atual aparece somente na conferência de remessas, pares, clientes e normativas. Remessas que existam apenas no PDF não entram automaticamente na programação.</div>
         </div>
       </div>
       <div id="lineSummary"></div>
       <div class="preview-wrap" id="previewWrap">
-        <div class="empty">Nenhuma programação carregada.</div>
+        <div class="empty">Selecione o PDF, informe a data de corte e clique em <strong>Criar programação</strong>.</div>
       </div>
     </div>
   </div>
-  <div id="printArea"></div>
 
-  <script type="module">
+  <div class="modal-overlay" id="editorModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="editorModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="editorModalTitle">Edição da programação</h2>
+          <div class="hint">Esta prévia usa exatamente os dados que serão enviados ao PDF. Todos os campos podem ser editados; também é possível adicionar e excluir linhas.</div>
+        </div>
+        <button class="modal-close" id="closeEditorButton" type="button" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="addEditorRowButton" type="button">Adicionar linha</button>
+        <button class="btn btn-ok" id="saveProgramModalButton" type="button">Salvar programação</button>
+        <button class="btn btn-ok" id="printPdfButton" type="button">Gerar PDF para impressão</button>
+        <button class="btn" id="closeEditorFooterButton" type="button">Fechar</button>
+      </div>
+      <div class="modal-body">
+        <div class="editor-title" id="editorDocumentTitle">Planejamento FactorShoes</div>
+        <div class="editor-meta" id="editorSummary"></div>
+        <div class="editor-table-wrap" id="editorTableWrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="savedModal" aria-hidden="true">
+    <div class="modal-card saved-card" role="dialog" aria-modal="true" aria-labelledby="savedModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="savedModalTitle">Programações salvas</h2>
+          <div class="hint">Abra uma programação para revisar, editar, salvar novamente ou gerar o PDF.</div>
+        </div>
+        <button class="modal-close" id="closeSavedButton" type="button" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-body"><div id="savedProgramsList" class="saved-list"><div class="saved-empty">Carregando...</div></div></div>
+    </div>
+  </div>
+
+  <div id="printArea"></div>
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs, writeBatch, setDoc, serverTimestamp, orderBy, limit as firestoreLimit } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",
@@ -149,13 +218,22 @@
 
     const state = {
       selectedPdfFile: null,
+      pdfParsePromise: null,
+      pdfReady: false,
       records: [],
       allPdfRecords: [],
+      pdfMapAll: new Map(),
+      pdfMapSelected: new Map(),
+      pdfOnly: [],
       reportYear: new Date().getFullYear(),
       bancoResumo: new Map(),
-      bancoSomente: [],
       authReady: false,
       currentUser: null,
+      currentTarget: null,
+      currentProgramId: null,
+      currentProgramName: '',
+      comparison: { ok:0, divergentes:0, somenteBanco:0, somentePdf:0, pdfRemessas:0, pdfPares:0 },
+      savedPrograms: new Map(),
       lineOrder: []
     };
 
@@ -188,10 +266,32 @@
       return `${pad2(m[1])}/${pad2(m[2])}/${state.reportYear}`;
     }
 
+    function isoToDM(value){
+      const m = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      return m ? `${m[3]}/${m[2]}` : String(value || '');
+    }
+    function hasValue(value){ return String(value ?? '').trim() !== ''; }
+    function normalizeRemessa(value){ return String(value ?? '').trim().replace(/\.0+$/,''); }
+    function closeAllModals(){
+      document.querySelectorAll('.modal-overlay.open').forEach(el => { el.classList.remove('open'); el.setAttribute('aria-hidden','true'); });
+      document.body.classList.remove('modal-open');
+    }
+    function openModal(id){
+      const modal = $(id); if(!modal) return;
+      modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open');
+    }
+    function setBusy(buttonId, busy, busyText){
+      const button = $(buttonId); if(!button) return;
+      if(busy){ button.dataset.originalText = button.textContent; button.textContent = busyText || 'Aguarde...'; button.disabled = true; }
+      else{ button.textContent = button.dataset.originalText || button.textContent; button.disabled = false; delete button.dataset.originalText; }
+    }
+
     function parseDateInput(value){
       let s = String(value || '').trim().toLowerCase();
       if(!s) return null;
       s = s.replace(/-/g,'/').replace(/\s+/g,'');
+      let compact = s.match(/^(\d{2})(\d{2})$/);
+      if(compact) s = `${compact[1]}/${compact[2]}`;
       let m = s.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);
       if(m){
         let y = m[3] ? parseInt(m[3],10) : state.reportYear;
@@ -223,14 +323,47 @@
       return `${pad2(m[1])}/${pad2(m[2])}`;
     }
 
-    function handlePdfFile(){
+    async function handlePdfFile(){
       const file = $('pdfFile').files?.[0] || null;
       state.selectedPdfFile = file && (/\.pdf$/i.test(file.name) || file.type === 'application/pdf') ? file : null;
-      $('selectedFilesLabel').innerHTML = state.selectedPdfFile ? `PDF: ${escapeHtml(state.selectedPdfFile.name)}` : 'Nenhum PDF válido selecionado.';
-      const guessed = inferDateFromFileName(state.selectedPdfFile?.name || '');
+      state.pdfReady = false;
+      state.pdfParsePromise = null;
+      state.allPdfRecords = [];
+      state.pdfMapAll = new Map();
+      state.pdfMapSelected = new Map();
+      if(!state.selectedPdfFile){
+        $('selectedFilesLabel').textContent = 'Nenhum PDF válido selecionado.';
+        setStatus('Selecione o PDF Factor Geral.');
+        return;
+      }
+      $('selectedFilesLabel').innerHTML = `PDF selecionado: <strong>${escapeHtml(state.selectedPdfFile.name)}</strong> — lendo o arquivo...`;
+      const guessed = inferDateFromFileName(state.selectedPdfFile.name);
       if(guessed && !$('dataCorteInput').value) $('dataCorteInput').value = guessed;
-      if(state.selectedPdfFile) setStatus('PDF selecionado. Clique em <strong>Carregar arquivo</strong>.');
-      else setStatus('Selecione o PDF Factor Geral.');
+      try{
+        state.pdfParsePromise = parseFactorGeralPdf(state.selectedPdfFile);
+        const records = await state.pdfParsePromise;
+        state.allPdfRecords = records;
+        state.pdfMapAll = buildPdfMap(records);
+        state.pdfReady = true;
+        const pares = [...state.pdfMapAll.values()].reduce((sum,item)=>sum+parseNumberBR(item.pares),0);
+        $('selectedFilesLabel').innerHTML = `PDF: <strong>${escapeHtml(state.selectedPdfFile.name)}</strong> — ${state.pdfMapAll.size} remessa(s), ${formatNumberBR(pares)} pares.`;
+        setStatus('PDF lido. Agora você pode <strong>Lançar normativas</strong> ou escolher a data e <strong>Criar programação</strong>.');
+      }catch(err){
+        console.error(err);
+        state.pdfReady = false;
+        $('selectedFilesLabel').innerHTML = `PDF: <strong>${escapeHtml(state.selectedPdfFile.name)}</strong> — erro na leitura.`;
+        setStatus('Erro ao ler o PDF: ' + escapeHtml(err.message || String(err)));
+      }finally{
+        state.pdfParsePromise = null;
+      }
+    }
+
+    async function ensurePdfReady(){
+      if(state.pdfReady && state.allPdfRecords.length) return true;
+      if(state.pdfParsePromise){ await state.pdfParsePromise; return state.pdfReady; }
+      if(!state.selectedPdfFile){ setStatus('Selecione primeiro o <strong>PDF Factor Geral</strong>.'); return false; }
+      await handlePdfFile();
+      return state.pdfReady;
     }
 
     onAuthStateChanged(auth, async (user) => {
@@ -402,6 +535,30 @@
       };
     }
 
+    function buildPdfMap(records){
+      const map = new Map();
+      (records || []).forEach(record => {
+        const remessa = normalizeRemessa(record.remessa);
+        if(!remessa) return;
+        if(!map.has(remessa)){
+          map.set(remessa, { remessa, pares:0, clientes:[], normativas:[], fabricas:[], cortes:[], linhas:[] });
+        }
+        const item = map.get(remessa);
+        item.pares += parseNumberBR(record.pares);
+        item.clientes = uniqueValues([...item.clientes, cleanCliente(record.cliente || '')]);
+        item.normativas = uniqueValues([...item.normativas, cleanNormativa(record.normativa || '')]);
+        item.fabricas = uniqueValues([...item.fabricas, record.fabrica || '']);
+        item.cortes = uniqueValues([...item.cortes, record.corte || '']);
+        item.linhas = uniqueValues([...item.linhas, record.linha || '']);
+      });
+      map.forEach(item => {
+        item.cliente = item.clientes.join(' / ');
+        item.normativa = item.normativas.join(' | ');
+        item.fabrica = item.fabricas.join(' / ');
+      });
+      return map;
+    }
+
     function cleanCliente(value){
       let s = String(value || '').replace(/\s+/g,' ').trim();
       if(/^0+$/.test(s)) return '';
@@ -499,6 +656,20 @@
       return String(value || '').trim();
     }
 
+    function extractFabricaValue(t){
+      const candidates = [t?.fabrica, t?.fab, t?.numeroFabrica, t?.codigoFabrica, t?.codFabrica, t?.idFabrica];
+      const value = candidates.find(candidate => {
+        if(Array.isArray(candidate)) return candidate.some(v => String(v ?? '').trim());
+        if(candidate && typeof candidate === 'object') return Object.values(candidate).some(v => String(v ?? '').trim());
+        return String(candidate ?? '').trim() !== '';
+      });
+      if(Array.isArray(value)) return uniqueValues(value.map(v => String(v ?? '').trim())).join(' / ');
+      if(value && typeof value === 'object'){
+        return String(value.numero ?? value.codigo ?? value.id ?? value.nome ?? value.name ?? '').trim();
+      }
+      return String(value ?? '').trim();
+    }
+
     function splitCompoundValues(value){
       return String(value || '')
         .split(/\s*\/\s*|\s*\|\s*|\s*;\s*|\s*,\s*|\n+/)
@@ -566,19 +737,27 @@
       const map = new Map();
       snap.docs.forEach(docSnap => {
         const t = docSnap.data();
-        const rem = String(t.numeroRemessa || '').trim();
+        const rem = normalizeRemessa(t.numeroRemessa);
         if(!rem) return;
         if(!map.has(rem)){
-          map.set(rem, { remessa:rem, pares:0, taloes:0, tipos:new Set(), linhas:new Set(), modelos:new Set(), atelies:new Set(), modelAtelieMap:new Map(), docs:[] });
+          map.set(rem, {
+            remessa:rem, pares:0, taloes:0, tipos:new Set(), linhas:new Set(), modelos:new Set(), atelies:new Set(),
+            modelAtelieMap:new Map(), clientes:new Set(), normativas:new Set(), fabricas:new Set(), entregas:new Set(), docs:[]
+          });
         }
         const item = map.get(rem);
         item.pares += Number(t.pares || 0);
         item.taloes += 1;
-        item.tipos.add(t.tipoCliente || '');
-        item.linhas.add(t.linha || '');
-        item.modelos.add(t.modelo || '');
+        if(hasValue(t.tipoCliente)) item.tipos.add(String(t.tipoCliente).trim());
+        if(hasValue(t.linha)) item.linhas.add(String(t.linha).trim());
+        if(hasValue(t.modelo)) item.modelos.add(String(t.modelo).trim());
+        if(hasValue(t.cliente)) item.clientes.add(String(t.cliente).trim());
+        if(hasValue(t.normativa)) item.normativas.add(String(t.normativa).trim());
+        const fabricaBanco = extractFabricaValue(t);
+        if(hasValue(fabricaBanco)) item.fabricas.add(fabricaBanco);
+        if(hasValue(t.dataEntrega)) item.entregas.add(String(t.dataEntrega).trim());
         const atelieNome = extractAtelieResponsavel(t);
-        item.atelies.add(atelieNome);
+        if(atelieNome) item.atelies.add(atelieNome);
         const modeloKey = String(t.modelo || '').trim();
         if(modeloKey){
           if(!item.modelAtelieMap.has(modeloKey)) item.modelAtelieMap.set(modeloKey, new Set());
@@ -590,121 +769,111 @@
       return map;
     }
 
-    function mergeBancoInfo(records, bancoMap){
-      const pdfRemessas = new Set(records.map(r => r.remessa));
-      state.bancoSomente = [...bancoMap.keys()].filter(rem => !pdfRemessas.has(rem)).sort((a,b)=>Number(a)-Number(b));
-
-      records.forEach(record => {
-        const b = bancoMap.get(record.remessa);
-        if(!b){
-          const fallbackTipo = /\bFAT\b/i.test(record.normativa) ? 'Exportacao' : '';
-          record.tipoCliente = fallbackTipo;
-          record.tipoOrigem = fallbackTipo ? 'normativa' : '';
-          record.taloes = '';
-          record.atelieResponsavel = '';
-          record.modeloAtelieEntries = [];
-          record.conferencia = { status:'Não encontrada', detalhe:'Remessa não encontrada no banco nesta data de corte.' };
-          applyEntregaRule(record);
-          return;
-        }
-        const tipos = uniqueValues([...b.tipos]);
-        const modelosBanco = uniqueValues([...b.modelos]).sort(sortNumericText);
-        const linhasBanco = uniqueValues([...b.linhas]).sort(sortNumericText);
-        const ateliesBanco = uniqueValues([...b.atelies]).sort(sortNumericText);
-        const modeloAtelieEntries = [...(b.modelAtelieMap || new Map()).entries()]
-          .sort((a,b) => sortNumericText(a[0], b[0]))
-          .map(([modelo, ateliesSet]) => ({
-            modelo,
-            atelies: uniqueValues([...(ateliesSet || [])]).sort(sortNumericText)
-          }));
-        record.tipoCliente = tipos[0] || (/\bFAT\b/i.test(record.normativa) ? 'Exportacao' : '');
-        record.tipoOrigem = tipos[0] ? 'banco' : (record.tipoCliente ? 'normativa' : '');
-        record.bancoPares = b.pares;
-        record.bancoTaloes = b.taloes;
-        record.taloes = b.taloes || '';
-        record.bancoTipos = tipos;
-        record.bancoAtelies = ateliesBanco;
-        record.modeloAtelieEntries = modeloAtelieEntries;
-        record.atelieResponsavel = ateliesBanco.join(' / ');
-        if(modelosBanco.length){ record.modelo = modelosBanco.join(' '); }
-        if(linhasBanco.length && !linhasBanco.includes(record.linha)){ record.linha = linhasBanco[0] || record.linha; }
-        if(parseNumberBR(record.pares) !== parseNumberBR(b.pares)){
-          record.conferencia = { status:'Divergente', detalhe:`PDF ${formatNumberBR(record.pares)} x Banco ${formatNumberBR(b.pares)} pares. Talões: ${b.taloes}.` };
-        }else{
-          record.conferencia = { status:'OK', detalhe:`Banco OK: ${formatNumberBR(b.pares)} pares em ${b.taloes} talão(ões).` };
-        }
-        applyEntregaRule(record);
-      });
+    function recordFromBancoItem(item, target, index){
+      const tipos = uniqueValues([...item.tipos]);
+      const linhas = uniqueValues([...item.linhas]).sort(sortNumericText);
+      const modelos = uniqueValues([...item.modelos]).sort(sortNumericText);
+      const atelies = uniqueValues([...item.atelies]).sort(sortNumericText);
+      const clientes = uniqueValues([...item.clientes]);
+      const normativas = uniqueValues([...item.normativas]);
+      const fabricas = uniqueValues([...item.fabricas]);
+      const entregas = uniqueValues([...item.entregas]).sort();
+      const modeloAtelieEntries = [...item.modelAtelieMap.entries()]
+        .sort((a,b)=>sortNumericText(a[0],b[0]))
+        .map(([modelo, nomes]) => ({modelo, atelies:uniqueValues([...nomes]).sort(sortNumericText)}));
+      return {
+        id:`banco_${item.remessa}_${index}`,
+        origem:'banco',
+        tipoCliente:tipos[0] || '',
+        linha:linhas[0] || '',
+        modelo:modelos.join(' / ') || 'VARIOS',
+        atelieResponsavel:atelies.join(' / '),
+        modeloAtelieEntries,
+        remessa:item.remessa,
+        pares:item.pares,
+        taloes:item.taloes,
+        corte:target.dm,
+        dataCorteIso:target.iso,
+        dataEntregaIso:entregas[0] || '',
+        entrega:isoToDM(entregas[0] || ''),
+        fabrica:fabricas.join(' / '),
+        cliente:clientes.join(' / '),
+        normativa:normativas.join(' | '),
+        costura:'', palmilha:'', sola:'', embarque:'',
+        conferencia:{status:'Aguardando', detalhe:'Ainda não comparado com o PDF.'},
+        pdfPares:0, pdfCliente:'', pdfNormativa:''
+      };
     }
 
-    async function loadFiles(){
-      const pdfFile = state.selectedPdfFile;
-      if(!pdfFile){ setStatus('Selecione o PDF Factor Geral.'); return; }
-      if(!$('dataCorteInput').value){
-        const guessed = inferDateFromFileName(pdfFile.name);
-        if(guessed) $('dataCorteInput').value = guessed;
-      }
+    function compareProgramacaoComPdf(records, pdfMap){
+      let ok = 0, divergentes = 0, somenteBanco = 0;
+      const bancoRemessas = new Set(records.map(r=>normalizeRemessa(r.remessa)));
+      records.forEach(record => {
+        const pdf = pdfMap.get(normalizeRemessa(record.remessa));
+        record.pdfPares = pdf ? pdf.pares : 0;
+        record.pdfCliente = pdf ? pdf.cliente : '';
+        record.pdfNormativa = pdf ? pdf.normativa : '';
+        if(!pdf){
+          record.conferencia = {status:'Somente no banco', detalhe:'Remessa não encontrada no PDF atual.'};
+          somenteBanco++;
+          return;
+        }
+        const diferencas = [];
+        if(parseNumberBR(record.pares) !== parseNumberBR(pdf.pares)) diferencas.push(`Pares: banco ${formatNumberBR(record.pares)} × PDF ${formatNumberBR(pdf.pares)}`);
+        if(normalizeText(cleanCliente(record.cliente)) !== normalizeText(cleanCliente(pdf.cliente))) diferencas.push('Cliente diferente');
+        if(normalizeText(cleanNormativa(record.normativa)) !== normalizeText(cleanNormativa(pdf.normativa))) diferencas.push('Normativa diferente');
+        if(diferencas.length){
+          record.conferencia = {status:'Divergente', detalhe:diferencas.join(' • ')};
+          divergentes++;
+        }else{
+          record.conferencia = {status:'OK', detalhe:'Remessa, pares, cliente e normativa conferidos.'};
+          ok++;
+        }
+      });
+      state.pdfOnly = [...pdfMap.values()].filter(item=>!bancoRemessas.has(normalizeRemessa(item.remessa))).sort((a,b)=>sortNumericText(a.remessa,b.remessa));
+      const pdfPares = [...pdfMap.values()].reduce((sum,item)=>sum+parseNumberBR(item.pares),0);
+      state.comparison = {
+        ok, divergentes, somenteBanco, somentePdf:state.pdfOnly.length,
+        pdfRemessas:pdfMap.size, pdfPares
+      };
+    }
+
+    async function createProgramacao(){
       const target = parseDateInput($('dataCorteInput').value);
-      if(!target){ setStatus('Informe a Data de Corte. Exemplo: <strong>11/06</strong> ou <strong>11/jun</strong>.'); return; }
+      if(!target){ setStatus('Informe uma Data de Corte válida. Exemplo: <strong>16/07</strong>.'); return; }
+      if(!state.authReady){ setStatus('Aguarde a confirmação do login antes de consultar o banco.'); return; }
+      if(!(await ensurePdfReady())) return;
+      setBusy('createProgramButton', true, 'Criando...');
       try{
-        setStatus('Lendo PDF Factor Geral...');
-        const all = await parseFactorGeralPdf(pdfFile);
-        state.allPdfRecords = all;
-        const filtered = all.filter(r => r.corte === target.dm).map((r, idx) => ({...r, id:`r${Date.now()}_${idx}`, originalOrder:idx}));
-        state.lineOrder = [...new Set(filtered.map(r=>r.linha).filter(Boolean))];
-        filtered.sort(sortRecordsForPreview);
-
-        let bancoMap = new Map();
-        if(state.authReady){
-          setStatus('PDF lido. Conferindo remessas com o banco de dados...');
-          try{
-            bancoMap = await fetchBancoResumo(target);
-            mergeBancoInfo(filtered, bancoMap);
-          }catch(dbErr){
-            console.error(dbErr);
-            filtered.forEach(r => {
-              r.tipoCliente = /\bFAT\b/i.test(r.normativa) ? 'Exportacao' : '';
-              r.tipoOrigem = r.tipoCliente ? 'normativa' : '';
-              r.conferencia = {status:'Sem banco', detalhe:'Não foi possível conferir com o banco.'};
-              applyEntregaRule(r);
-            });
-            setStatus('PDF carregado, mas não foi possível conferir com o banco: ' + escapeHtml(dbErr.message || String(dbErr)) + '<br>Verifique se você está logado e se abriu a página pelo sistema.');
-          }
-        }else{
-          filtered.forEach(r => {
-            r.tipoCliente = /\bFAT\b/i.test(r.normativa) ? 'Exportacao' : '';
-            r.tipoOrigem = r.tipoCliente ? 'normativa' : '';
-            r.conferencia = {status:'Sem banco', detalhe:'Usuário ainda não autenticado.'};
-            applyEntregaRule(r);
-          });
+        setStatus(`Buscando no banco todos os talões do corte <strong>${escapeHtml(target.dm)}</strong>...`);
+        const bancoMap = await fetchBancoResumo(target);
+        if(!bancoMap.size){
+          state.records = [];
+          state.currentTarget = target;
+          state.currentProgramId = null;
+          renderPreview(); updateSummary(); renderLineSummary();
+          setStatus(`Nenhum talão encontrado no banco para o corte <strong>${escapeHtml(target.dm)}</strong>.`);
+          return;
         }
-
-        state.records = filtered.sort(sortRecordsForPreview);
-        renderPreview();
-        updateSummary();
-        renderLineSummary();
-        if(!filtered.length){
-          setStatus(`Nenhuma remessa encontrada no PDF para a Data de Corte <strong>${escapeHtml(target.dm)}</strong>. O PDF foi lido com ${all.length} remessa(s); confira se a data está correta.`);
-        }else{
-          const qtdPdf = new Set(filtered.map(r=>r.remessa)).size;
-          const qtdBanco = bancoMap.size;
-          const divergentes = filtered.filter(r=>r.conferencia.status === 'Divergente').length;
-          const naoEncontradas = filtered.filter(r=>r.conferencia.status === 'Não encontrada').length;
-          const soBanco = state.bancoSomente.length;
-          const totalPdfPares = state.records.reduce((sum,r)=>sum+parseNumberBR(r.pares),0);
-      const totalBancoPares = bancoMap ? [...bancoMap.values()].reduce((sum,b)=>sum+parseNumberBR(b.pares),0) : 0;
-      let msg = `Programação carregada para <strong>${escapeHtml(target.dm)}</strong>. PDF: <strong>${qtdPdf}</strong> remessa(s), <strong>${formatNumberBR(totalPdfPares)}</strong> pares. Banco: <strong>${qtdBanco || 0}</strong> remessa(s), <strong>${formatNumberBR(totalBancoPares)}</strong> pares.`;
-          if(divergentes || naoEncontradas || soBanco){
-            msg += ` Conferência: <strong>${divergentes}</strong> divergente(s), <strong>${naoEncontradas}</strong> não encontrada(s), <strong>${soBanco}</strong> só no banco.`;
-            if(soBanco) msg += ` Só no banco: ${escapeHtml(state.bancoSomente.slice(0,12).join(', '))}${soBanco>12?'...':''}.`;
-          }else if(bancoMap.size){
-            msg += ' Conferência com o banco: <strong>OK</strong>.';
-          }
-          setStatus(msg);
-        }
+        const pdfSelecionado = state.allPdfRecords.filter(r => String(r.corte || '') === target.dm);
+        state.pdfMapSelected = buildPdfMap(pdfSelecionado);
+        const records = [...bancoMap.values()].map((item,index)=>recordFromBancoItem(item,target,index));
+        state.currentTarget = target;
+        state.currentProgramId = null;
+        state.currentProgramName = '';
+        state.lineOrder = uniqueValues(records.map(r=>r.linha)).sort(sortNumericText);
+        compareProgramacaoComPdf(records, state.pdfMapSelected);
+        state.records = records.sort(sortRecordsForPreview);
+        renderPreview(); updateSummary(); renderLineSummary();
+        const totals = getTotals();
+        let msg = `Programação criada pelo banco para <strong>${escapeHtml(target.dm)}</strong>: <strong>${totals.qtdRemessas}</strong> remessa(s), <strong>${formatNumberBR(totals.total)}</strong> pares e <strong>${formatNumberBR(totals.totalTaloes)}</strong> talões.`;
+        msg += ` Conferência: <strong>${state.comparison.ok}</strong> OK, <strong>${state.comparison.divergentes}</strong> divergente(s), <strong>${state.comparison.somenteBanco}</strong> somente no banco e <strong>${state.comparison.somentePdf}</strong> somente no PDF.`;
+        setStatus(msg);
       }catch(err){
         console.error(err);
-        setStatus('Erro ao carregar PDF: ' + escapeHtml(err.message || String(err)));
+        setStatus('Erro ao criar a programação: ' + escapeHtml(err.message || String(err)));
+      }finally{
+        setBusy('createProgramButton', false);
       }
     }
 
@@ -722,9 +891,19 @@
     }
 
     function sortRecordsForPdf(a,b){
-      const t = typePriority(a.tipoCliente) - typePriority(b.tipoCliente);
-      if(t) return t;
-      return Number(a.remessa || 0) - Number(b.remessa || 0);
+      const grupoA = isExportacao(a.tipoCliente) ? 0 : 1;
+      const grupoB = isExportacao(b.tipoCliente) ? 0 : 1;
+      if(grupoA !== grupoB) return grupoA - grupoB;
+
+      const fabricaA = String(a.fabrica || '').trim();
+      const fabricaB = String(b.fabrica || '').trim();
+      if(fabricaA && !fabricaB) return -1;
+      if(!fabricaA && fabricaB) return 1;
+      if(fabricaA || fabricaB){
+        const fabricaSort = sortNumericText(fabricaA, fabricaB);
+        if(fabricaSort) return fabricaSort;
+      }
+      return sortNumericText(a.remessa || '', b.remessa || '');
     }
 
     function tipoOptions(selected){
@@ -739,85 +918,153 @@
     }
 
     function confClass(status){
-      if(status === 'OK') return 'conf-ok';
-      if(status === 'Divergente' || status === 'Sem banco') return 'conf-warn';
-      return 'conf-bad';
+      if(status === 'OK') return 'ok';
+      if(status === 'Divergente') return 'warn';
+      if(status === 'Somente no banco') return 'bad';
+      return 'info';
     }
 
     function rowClass(record){
       const classes = [isExportacao(record.tipoCliente) ? 'exportacao' : 'normal'];
       if(record.conferencia?.status === 'Divergente') classes.push('divergente');
-      if(record.conferencia?.status === 'Não encontrada') classes.push('nao-encontrada');
+      if(record.conferencia?.status === 'Somente no banco') classes.push('nao-encontrada');
       return classes.join(' ');
     }
 
     function renderPreview(){
       const wrap = $('previewWrap');
       if(!state.records.length){
-        wrap.innerHTML = '<div class="empty">Nenhuma programação carregada.</div>';
+        wrap.innerHTML = '<div class="empty">Nenhuma programação criada ou aberta.</div>';
         return;
       }
-      const rows = state.records.map((r, idx) => `
-        <tr class="${rowClass(r)}" data-index="${idx}">
-          <td class="col-tipo"><select data-field="tipoCliente">${tipoOptions(r.tipoCliente)}</select><small>${r.tipoOrigem === 'banco' ? 'Banco' : r.tipoOrigem === 'normativa' ? 'Normativa' : ''}</small></td>
-          <td class="col-linha"><input data-field="linha" value="${escapeHtml(r.linha)}"></td>
-          <td class="col-modelo"><input data-field="modelo" value="${escapeHtml(r.modelo)}" title="${escapeHtml(r.modelo)}"></td>
-          <td class="col-atelier"><input data-field="atelieResponsavel" value="${escapeHtml(r.atelieResponsavel || '')}" title="Ateliê responsável do banco"></td>
-          <td class="col-remessa"><input data-field="remessa" value="${escapeHtml(r.remessa)}"></td>
-          <td class="col-pares"><input data-field="pares" value="${escapeHtml(formatNumberBR(r.pares))}"></td>
-          <td class="col-data"><input data-field="entrega" value="${escapeHtml(r.entrega)}" title="Entr: ${escapeHtml(r.entregaCronograma)} | Normativa: ${escapeHtml(r.entregaNormativa || '-')}"></td>
-          <td class="col-fab"><input data-field="fabrica" value="${escapeHtml(r.fabrica)}"></td>
-          <td class="col-cliente"><input data-field="cliente" value="${escapeHtml(r.cliente)}"></td>
-          <td class="col-norm"><input data-field="normativa" value="${escapeHtml(r.normativa)}"></td>
-          <td class="col-taloes"><input data-field="taloes" value="${escapeHtml(r.taloes || '')}" title="Total de talões no banco para esta remessa"></td>
-          <td class="col-conf"><span class="${confClass(r.conferencia?.status)}">${escapeHtml(r.conferencia?.status || '')}</span><br><small>${escapeHtml(r.conferencia?.detalhe || '')}</small></td>
-          <td class="col-act"><button class="btn btn-danger btn-mini" type="button" data-action="delete">Excluir</button></td>
-        </tr>`).join('');
-      wrap.innerHTML = `<table class="preview"><thead><tr><th class="col-tipo">Tipo Cliente</th><th>Linha</th><th>Modelo(s)</th><th>Ateliê</th><th>Remessa</th><th>Pares</th><th>Entrega</th><th>Fábrica</th><th>Cliente</th><th>Normativas</th><th>Talões</th><th>Conferência</th><th>Ação</th></tr></thead><tbody>${rows}</tbody></table>`;
-      wrap.querySelectorAll('input,select').forEach(el => el.addEventListener('input', updateRecordFromElement));
-      wrap.querySelectorAll('[data-action="delete"]').forEach(btn => btn.addEventListener('click', deletePreviewRow));
-    }
-
-    function updateRecordFromElement(event){
-      const tr = event.target.closest('tr');
-      const idx = Number(tr.dataset.index);
-      const field = event.target.dataset.field;
-      if(!state.records[idx] || !field) return;
-      let value = event.target.value;
-      if(field === 'pares') value = parseNumberBR(value);
-      state.records[idx][field] = value;
-      if(field === 'tipoCliente') state.records[idx].tipoOrigem = 'manual';
-      if(field === 'tipoCliente' || field === 'normativa'){
-        state.records[idx].entregaNormativa = extractFirstDateDM(state.records[idx].normativa);
-        applyEntregaRule(state.records[idx]);
-        const entregaInput = tr.querySelector('[data-field="entrega"]');
-        if(entregaInput) entregaInput.value = state.records[idx].entrega;
+      const rows = state.records.map(r => {
+        const status = r.conferencia?.status || 'Sem conferência';
+        const paresPdf = r.pdfPares ? formatNumberBR(r.pdfPares) : '-';
+        return `<tr class="${rowClass(r)}">
+          <td><span class="status-badge ${confClass(status)}">${escapeHtml(status)}</span></td>
+          <td>${escapeHtml(r.linha)}</td>
+          <td class="text-left">${escapeHtml(modeloAtelieHtml(r)).replace(/\n/g,'<br>')}</td>
+          <td>${escapeHtml(r.remessa)}</td>
+          <td><strong>${formatNumberBR(r.pares)}</strong><br><small>PDF: ${paresPdf}</small></td>
+          <td>${formatNumberBR(r.taloes)}</td>
+          <td>${escapeHtml(r.entrega || '-')}</td>
+          <td><div class="comparison-value"><strong>Banco:</strong> ${escapeHtml(r.cliente || '-')}<div class="pdf-value"><strong>PDF:</strong> ${escapeHtml(r.pdfCliente || '-')}</div></div></td>
+          <td><div class="comparison-value"><strong>Banco:</strong> ${escapeHtml(r.normativa || '-')}<div class="pdf-value"><strong>PDF:</strong> ${escapeHtml(r.pdfNormativa || '-')}</div></div></td>
+          <td><div class="comparison-detail"><strong>${escapeHtml(r.conferencia?.detalhe || '')}</strong></div></td>
+        </tr>`;
+      }).join('');
+      let onlyPdfHtml = '';
+      if(state.pdfOnly.length){
+        const linhas = state.pdfOnly.map(item=>`<tr class="nao-encontrada"><td><span class="status-badge info">Somente no PDF</span></td><td>${escapeHtml((item.linhas||[]).join(' / '))}</td><td>-</td><td>${escapeHtml(item.remessa)}</td><td><strong>-</strong><br><small>PDF: ${formatNumberBR(item.pares)}</small></td><td>-</td><td>-</td><td><div class="comparison-value"><strong>Banco:</strong> -<div class="pdf-value"><strong>PDF:</strong> ${escapeHtml(item.cliente || '-')}</div></div></td><td><div class="comparison-value"><strong>Banco:</strong> -<div class="pdf-value"><strong>PDF:</strong> ${escapeHtml(item.normativa || '-')}</div></div></td><td><div class="comparison-detail"><strong>Não entra na programação porque não foi encontrada no banco para este corte.</strong></div></td></tr>`).join('');
+        onlyPdfHtml = linhas;
       }
-      tr.className = rowClass(state.records[idx]);
-      updateSummary();
-      renderLineSummary();
+      wrap.innerHTML = `<table class="preview"><thead><tr><th>Status</th><th>Linha</th><th>Modelo / Ateliê</th><th>Remessa</th><th>Pares</th><th>Talões</th><th>Entrega</th><th>Cliente</th><th>Normativa</th><th>Conferência</th></tr></thead><tbody>${rows}${onlyPdfHtml}</tbody></table>`;
     }
 
-    function deletePreviewRow(event){
-      const tr = event.target.closest('tr');
-      const idx = Number(tr.dataset.index);
-      state.records.splice(idx,1);
-      renderPreview();
+    function editorRecordRow(record, index){
+      return `<tr class="${isExportacao(record.tipoCliente) ? 'editor-export' : ''}" data-index="${index}">
+        <td><select data-field="tipoCliente">${tipoOptions(record.tipoCliente)}</select></td>
+        <td><input data-field="linha" value="${escapeHtml(record.linha)}"></td>
+        <td><div class="model-pair"><small>Modelo</small><input data-field="modelo" value="${escapeHtml(record.modelo)}"><small>Ateliê</small><input data-field="atelieResponsavel" value="${escapeHtml(record.atelieResponsavel || '')}"></div></td>
+        <td><input data-field="remessa" value="${escapeHtml(record.remessa)}"></td>
+        <td><input data-field="pares" value="${escapeHtml(formatNumberBR(record.pares))}"></td>
+        <td><input data-field="entrega" value="${escapeHtml(record.entrega || '')}" placeholder="dd/mm"></td>
+        <td><input data-field="fabrica" value="${escapeHtml(record.fabrica || '')}"></td>
+        <td><textarea data-field="cliente">${escapeHtml(record.cliente || '')}</textarea></td>
+        <td><textarea data-field="normativa">${escapeHtml(record.normativa || '')}</textarea></td>
+        <td><input data-field="taloes" value="${escapeHtml(formatNumberBR(record.taloes || 0))}"></td>
+        <td><input data-field="costura" value="${escapeHtml(record.costura || '')}"></td>
+        <td><input data-field="palmilha" value="${escapeHtml(record.palmilha || '')}"></td>
+        <td><input data-field="sola" value="${escapeHtml(record.sola || '')}"></td>
+        <td><input data-field="embarque" value="${escapeHtml(record.embarque || '')}"></td>
+        <td><button class="btn btn-danger btn-mini" type="button" data-action="delete-editor">Excluir</button></td>
+      </tr>`;
+    }
+
+    function renderEditorTable(){
+      const wrap = $('editorTableWrap');
+      if(!state.records.length){ wrap.innerHTML = '<div class="empty">Nenhuma linha na programação.</div>'; updateEditorSummary(); return; }
+      state.records.sort(sortRecordsForPreview);
+      let lastLine = null;
+      let body = '';
+      state.records.forEach((record,index)=>{
+        const line = String(record.linha || 'Sem linha');
+        if(line !== lastLine){
+          const lineRows = state.records.filter(r=>String(r.linha || 'Sem linha')===line);
+          const total = lineRows.reduce((sum,r)=>sum+parseNumberBR(r.pares),0);
+          body += `<tr class="editor-line-header"><td colspan="15">LINHA ${escapeHtml(line)} — ${lineRows.length} remessa(s) — ${formatNumberBR(total)} pares</td></tr>`;
+          lastLine = line;
+        }
+        body += editorRecordRow(record,index);
+      });
+      wrap.innerHTML = `<table class="editor-table"><thead><tr><th class="w-tipo">TIPO</th><th class="w-linha">LINHA</th><th class="w-modelo">MODELO / ATELIÊ</th><th class="w-remessa">REMESSA</th><th class="w-pares">PARES</th><th class="w-entrega">ENTREGA</th><th class="w-fab">FAB</th><th class="w-cliente">CLIENTE</th><th class="w-norm">NORMATIVAS</th><th class="w-tal">TAL.</th><th class="w-prod">COSTURA</th><th class="w-prod">PALMILHA</th><th class="w-prod">SOLA</th><th class="w-prod">EMBARQUE</th><th class="w-act">AÇÃO</th></tr></thead><tbody>${body}</tbody></table>`;
+      wrap.querySelectorAll('input,select,textarea').forEach(el=>el.addEventListener('input',updateEditorRecord));
+      wrap.querySelectorAll('[data-action="delete-editor"]').forEach(el=>el.addEventListener('click',deleteEditorRow));
+      updateEditorSummary();
+    }
+
+    function updateEditorRecord(event){
+      const tr = event.target.closest('tr[data-index]');
+      if(!tr) return;
+      const index = Number(tr.dataset.index);
+      const field = event.target.dataset.field;
+      const record = state.records[index];
+      if(!record || !field) return;
+      let value = event.target.value;
+      if(field === 'pares' || field === 'taloes') value = parseNumberBR(value);
+      record[field] = value;
+      if(field === 'modelo' || field === 'atelieResponsavel') record.modeloAtelieEntries = [];
+      record.origem = record.origem === 'banco' ? 'banco-editado' : (record.origem || 'manual');
+      updateEditorSummary();
       updateSummary();
+    }
+
+    function deleteEditorRow(event){
+      const tr = event.target.closest('tr[data-index]');
+      const index = Number(tr?.dataset.index);
+      if(!Number.isInteger(index) || !state.records[index]) return;
+      if(!confirm(`Excluir a remessa ${state.records[index].remessa || 'sem número'} desta programação?`)) return;
+      state.records.splice(index,1);
+      state.lineOrder = uniqueValues(state.records.map(r=>r.linha)).sort(sortNumericText);
+      renderEditorTable(); renderPreview(); renderLineSummary(); updateSummary();
+    }
+
+    function addEditorRow(){
+      const target = state.currentTarget || parseDateInput($('dataCorteInput').value);
+      const linhaBase = state.records.length ? state.records[state.records.length-1].linha : '';
+      state.records.push({
+        id:`manual_${Date.now()}`, origem:'manual', tipoCliente:'Mercado Interno', linha:linhaBase, modelo:'', atelieResponsavel:'', modeloAtelieEntries:[],
+        remessa:'', pares:0, taloes:0, corte:target?.dm || '', dataCorteIso:target?.iso || '', dataEntregaIso:'', entrega:'', fabrica:'', cliente:'', normativa:'',
+        costura:'', palmilha:'', sola:'', embarque:'', conferencia:{status:'Manual',detalhe:'Linha adicionada manualmente.'}, pdfPares:0, pdfCliente:'', pdfNormativa:''
+      });
+      state.lineOrder = uniqueValues(state.records.map(r=>r.linha)).sort(sortNumericText);
+      renderEditorTable();
+      const scroller = $('editorTableWrap'); if(scroller) scroller.scrollTop = scroller.scrollHeight;
+    }
+
+    function updateEditorSummary(){
+      const totals = getTotals();
+      const target = state.currentTarget || parseDateInput($('dataCorteInput').value);
+      $('editorDocumentTitle').textContent = `Planejamento FactorShoes - Corte ${target ? target.dm : ''}`;
+      $('editorSummary').innerHTML = `<span>Total: ${formatNumberBR(totals.total)} pares</span><span>Exportação: ${formatNumberBR(totals.totalExp)} pares</span><span>${totals.qtdRemessas} remessa(s) • ${formatNumberBR(totals.totalTaloes)} talões • ${paginateRecords().length || 0} página(s) estimada(s)</span>`;
+    }
+
+    function openEditorModal(){
+      if(!state.records.length){ setStatus('Crie uma programação pelo banco ou abra uma programação salva antes de gerar o PDF.'); return; }
+      renderEditorTable();
+      openModal('editorModal');
+    }
+
+    function closeEditorModal(){
+      state.lineOrder = uniqueValues(state.records.map(r=>r.linha)).sort(sortNumericText);
+      renderPreview();
       renderLineSummary();
+      updateSummary();
+      closeAllModals();
     }
 
     function updateStateFromPreview(){
-      document.querySelectorAll('#previewWrap tbody tr').forEach(tr => {
-        const idx = Number(tr.dataset.index);
-        if(!state.records[idx]) return;
-        tr.querySelectorAll('input,select').forEach(el => {
-          const field = el.dataset.field;
-          if(!field) return;
-          state.records[idx][field] = field === 'pares' ? parseNumberBR(el.value) : el.value.trim();
-        });
-        state.records[idx].entregaNormativa = extractFirstDateDM(state.records[idx].normativa);
-      });
+      // Os campos do modal atualizam state.records em tempo real.
       state.records.sort(sortRecordsForPreview);
     }
 
@@ -826,31 +1073,29 @@
       const normal = state.records.filter(r => !isExportacao(r.tipoCliente));
       const totalExp = exp.reduce((s,r)=>s+parseNumberBR(r.pares),0);
       const totalNormal = normal.reduce((s,r)=>s+parseNumberBR(r.pares),0);
-      const totalBanco = [...state.bancoResumo.values()].reduce((s,b)=>s+parseNumberBR(b.pares),0);
+      const total = totalExp + totalNormal;
       const totalTaloes = state.records.reduce((s,r)=>s+parseNumberBR(r.taloes),0);
       const totalClienteEspecial = state.records.filter(r => normalizeText(r.tipoCliente) === 'CLIENTE ESPECIAL').reduce((s,r)=>s+parseNumberBR(r.pares),0);
       const totalMercadoInterno = state.records.filter(r => normalizeText(r.tipoCliente) === 'MERCADO INTERNO').reduce((s,r)=>s+parseNumberBR(r.pares),0);
       const totalEstoque = state.records.filter(r => normalizeText(r.tipoCliente) === 'ESTOQUE').reduce((s,r)=>s+parseNumberBR(r.pares),0);
-      return { totalExp, totalNormal, total: totalExp + totalNormal, totalBanco, totalTaloes, totalClienteEspecial, totalMercadoInterno, totalEstoque, qtdExp: new Set(exp.map(r=>r.remessa)).size, qtdRemessas:new Set(state.records.map(r=>r.remessa)).size };
+      return { totalExp,totalNormal,total,totalBanco:total,totalTaloes,totalClienteEspecial,totalMercadoInterno,totalEstoque,qtdExp:new Set(exp.map(r=>r.remessa)).size,qtdRemessas:new Set(state.records.map(r=>normalizeRemessa(r.remessa)).filter(Boolean)).size };
     }
 
     function updateSummary(){
+      if(!state.records.length){ $('summaryCards').innerHTML = ''; return; }
       const totals = getTotals();
-      const ok = state.records.filter(r=>r.conferencia?.status === 'OK').length;
-      const diverg = state.records.filter(r=>r.conferencia?.status === 'Divergente').length;
-      const faltando = state.records.filter(r=>r.conferencia?.status === 'Não encontrada').length;
-      const bancoOk = state.bancoResumo.size && totals.totalBanco === totals.total;
+      const c = state.comparison || {};
       $('summaryCards').innerHTML = `
-        <div class="summary-card"><span>Remessas PDF</span><strong>${totals.qtdRemessas}</strong></div>
-        <div class="summary-card"><span>Remessas Banco</span><strong>${state.bancoResumo.size || 0}</strong></div>
-        <div class="summary-card good"><span>OK Banco</span><strong>${ok}</strong></div>
-        <div class="summary-card ${diverg ? 'warn' : ''}"><span>Divergentes</span><strong>${diverg}</strong></div>
-        <div class="summary-card ${faltando ? 'bad' : ''}"><span>Não encontradas</span><strong>${faltando}</strong></div>
-        <div class="summary-card"><span>Pares PDF</span><strong>${formatNumberBR(totals.total)}</strong></div>
-        <div class="summary-card ${state.bancoResumo.size ? (bancoOk ? 'good' : 'warn') : ''}"><span>Pares Banco</span><strong>${state.bancoResumo.size ? formatNumberBR(totals.totalBanco) : '-'}</strong></div>
-        <div class="summary-card"><span>Total exportação</span><strong>${formatNumberBR(totals.totalExp)}</strong></div>
+        <div class="summary-card"><span>Remessas Banco</span><strong>${totals.qtdRemessas}</strong></div>
+        <div class="summary-card"><span>Pares Banco</span><strong>${formatNumberBR(totals.total)}</strong></div>
         <div class="summary-card"><span>Total talões</span><strong>${formatNumberBR(totals.totalTaloes)}</strong></div>
-        <div class="summary-card"><span>Páginas estimadas</span><strong>${paginateRecords(15).length || 0}</strong></div>`;
+        <div class="summary-card"><span>Remessas PDF</span><strong>${c.pdfRemessas || 0}</strong></div>
+        <div class="summary-card"><span>Pares PDF</span><strong>${formatNumberBR(c.pdfPares || 0)}</strong></div>
+        <div class="summary-card good"><span>Conferidas</span><strong>${c.ok || 0}</strong></div>
+        <div class="summary-card ${(c.divergentes||0) ? 'warn' : ''}"><span>Divergentes</span><strong>${c.divergentes || 0}</strong></div>
+        <div class="summary-card ${(c.somenteBanco||0) ? 'bad' : ''}"><span>Somente banco</span><strong>${c.somenteBanco || 0}</strong></div>
+        <div class="summary-card ${(c.somentePdf||0) ? 'warn' : ''}"><span>Somente PDF</span><strong>${c.somentePdf || 0}</strong></div>
+        <div class="summary-card"><span>Páginas estimadas</span><strong>${paginateRecords().length || 0}</strong></div>`;
     }
 
     function groupByLinha(){
@@ -880,43 +1125,178 @@
       return rows.filter(r => exportacao ? isExportacao(r.tipoCliente) : !isExportacao(r.tipoCliente));
     }
 
-    function paginateRecords(limit=15){
-      const lineGroups = groupByLinha().map(([linha, rows]) => {
-        const sorted = rows.slice().sort(sortRecordsForPdf);
-        const parts = [];
-        for(let i=0; i<sorted.length; i+=limit){
-          parts.push({linha, rows:sorted.slice(i, i+limit), parte: sorted.length > limit ? Math.floor(i/limit) + 1 : ''});
+    function createPdfMeasureDoc(){
+      try{
+        if(window.jspdf?.jsPDF) return new window.jspdf.jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
+      }catch(err){ console.warn('Não foi possível iniciar a medição do PDF.', err); }
+      return null;
+    }
+
+    function estimateWrappedLines(doc, text, width, fontSize){
+      const value = String(text || '');
+      if(!value) return 1;
+      if(!doc){
+        const charsPerLine = Math.max(8, Math.floor(width * 2.2));
+        return value.split('\n').reduce((sum, part) => sum + Math.max(1, Math.ceil(part.length / charsPerLine)), 0);
+      }
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(fontSize);
+      return Math.max(1, doc.splitTextToSize(value, Math.max(2, width)).length);
+    }
+
+    function estimateRecordHeight(record, doc){
+      const normalFont = 5.9;
+      const modelFont = 5.8;
+      const normalLineMm = normalFont * 0.352778 * 1.15;
+      const modelLineMm = modelFont * 0.352778 * 1.05;
+
+      const modelLines = estimateWrappedLines(doc, modeloAteliePrint(record), 37.3, modelFont);
+      const clientLines = estimateWrappedLines(doc, cleanCliente(record.cliente || ''), 40.2, normalFont);
+      const normLines = estimateWrappedLines(doc, record.normativa || '', 57.2, normalFont);
+
+      const modelHeight = modelLines * modelLineMm + 0.7;
+      const clientHeight = clientLines * normalLineMm + 1.8;
+      const normHeight = normLines * normalLineMm + 1.8;
+      return Math.max(9.4, modelHeight, clientHeight, normHeight);
+    }
+
+    function estimateGroupHeight(group, doc, showLineHeader){
+      const expRows = rowsByType(group.rows, true);
+      const normalRows = rowsByType(group.rows, false);
+      let height = showLineHeader ? 5.8 : 0;
+
+      height += 6.2; // cabeçalho das colunas
+      if(expRows.length){
+        height += expRows.reduce((sum, row) => sum + estimateRecordHeight(row, doc), 0);
+      }else{
+        height += 14; // espaço de exportação vazio mantido no modelo atual
+      }
+      height += 5.8; // total exportação
+      height += normalRows.reduce((sum, row) => sum + estimateRecordHeight(row, doc), 0);
+      height += 5.8; // total normal
+      return height;
+    }
+
+    function estimatePageHeight(groups, doc){
+      const multiple = groups.length > 1;
+      return groups.reduce((sum, group, index) => {
+        const spacer = multiple && index > 0 ? 5.5 : 0;
+        return sum + spacer + estimateGroupHeight(group, doc, multiple);
+      }, 0);
+    }
+
+    function pdfTableAvailableHeight(pageIndex){
+      const pageHeight = 210;
+      const startY = 19;
+      const bottomMargin = pageIndex === 0 ? 28 : 7;
+      const safety = 2.5;
+      return pageHeight - startY - bottomMargin - safety;
+    }
+
+    function splitGroupToFit(group, pageIndex, doc){
+      const chunks = [];
+      let remaining = group.rows.slice();
+
+      while(remaining.length){
+        const pageLimit = pdfTableAvailableHeight(pageIndex + chunks.length);
+        let accepted = [];
+
+        for(const row of remaining){
+          const candidate = {linha:group.linha, rows:[...accepted, row], parte:''};
+          if(accepted.length && estimatePageHeight([candidate], doc) > pageLimit) break;
+          accepted.push(row);
+          if(estimatePageHeight([candidate], doc) > pageLimit){
+            accepted.pop();
+            break;
+          }
         }
-        return parts;
-      }).flat();
+
+        // Garante avanço mesmo em uma normativa excepcionalmente extensa.
+        if(!accepted.length) accepted = [remaining[0]];
+        chunks.push({linha:group.linha, rows:accepted, parte:''});
+        remaining = remaining.slice(accepted.length);
+      }
+      return chunks;
+    }
+
+    function paginateRecords(){
+      const measureDoc = createPdfMeasureDoc();
+      const queue = groupByLinha().map(([linha, rows]) => ({
+        linha,
+        rows:rows.slice().sort(sortRecordsForPdf),
+        parte:''
+      }));
 
       const pages = [];
       let current = [];
-      let count = 0;
 
-      // A primeira página tem os cards de "Dados encontrados" no rodapé.
-      // Por isso ela precisa de uma folga maior: se juntar duas linhas e passar
-      // desse limite reduzido, o autoTable quebra a tabela no meio da segunda linha.
-      const firstPageJoinLimit = 11;
-      function currentLimit(){
-        return pages.length === 0 ? firstPageJoinLimit : limit;
+      function rowsThatFit(group, pageGroups, pageIndex){
+        const pageLimit = pdfTableAvailableHeight(pageIndex);
+        const accepted = [];
+        for(const row of group.rows){
+          const candidateGroup = {linha:group.linha, rows:[...accepted, row], parte:''};
+          const candidatePage = [...pageGroups, candidateGroup];
+          if(estimatePageHeight(candidatePage, measureDoc) <= pageLimit){
+            accepted.push(row);
+          }else{
+            break;
+          }
+        }
+        return accepted;
       }
 
-      lineGroups.forEach(group => {
-        const qtd = group.rows.length;
+      while(queue.length){
+        const group = queue.shift();
+        const pageIndex = pages.length;
+        const pageLimit = pdfTableAvailableHeight(pageIndex);
+        const wholeCandidate = [...current, group];
 
-        // Mantém uma linha grande sozinha na página, mesmo que passe do limite
-        // reduzido da primeira página. O corte em partes já respeita o limite geral.
-        if(current.length && count + qtd > currentLimit()){
-          pages.push(current);
-          current = [];
-          count = 0;
+        if(estimatePageHeight(wholeCandidate, measureDoc) <= pageLimit){
+          current = wholeCandidate;
+          continue;
         }
 
-        current.push(group);
-        count += qtd;
-      });
+        // A linha inteira não cabe. Usa o espaço restante da página com o
+        // máximo possível da próxima linha, evitando páginas quase vazias.
+        const accepted = rowsThatFit(group, current, pageIndex);
+        if(accepted.length){
+          current.push({linha:group.linha, rows:accepted, parte:''});
+          pages.push(current);
+          current = [];
+          const remaining = group.rows.slice(accepted.length);
+          if(remaining.length) queue.unshift({linha:group.linha, rows:remaining, parte:''});
+          continue;
+        }
+
+        if(current.length){
+          pages.push(current);
+          current = [];
+          queue.unshift(group);
+          continue;
+        }
+
+        // Segurança para uma única remessa com textos excepcionalmente longos.
+        const forcedRow = group.rows[0];
+        pages.push([{linha:group.linha, rows:[forcedRow], parte:''}]);
+        const remaining = group.rows.slice(1);
+        if(remaining.length) queue.unshift({linha:group.linha, rows:remaining, parte:''});
+      }
+
       if(current.length) pages.push(current);
+
+      const occurrences = new Map();
+      pages.flat().forEach(group => occurrences.set(group.linha, (occurrences.get(group.linha) || 0) + 1));
+      const counters = new Map();
+      pages.flat().forEach(group => {
+        if((occurrences.get(group.linha) || 0) > 1){
+          const next = (counters.get(group.linha) || 0) + 1;
+          counters.set(group.linha, next);
+          group.parte = next;
+        }else{
+          group.parte = '';
+        }
+      });
+
       return pages;
     }
 
@@ -967,7 +1347,7 @@
               cleanCliente(r.cliente || ''),
               r.normativa || '',
               r.taloes || '',
-              '', '', '', ''
+              r.costura || '', r.palmilha || '', r.sola || '', r.embarque || ''
             ];
             body.push(tipoCell ? [tipoCell, ...row] : row);
           });
@@ -992,28 +1372,23 @@
     }
 
     function generatePdf(){
+      openEditorModal();
+    }
+
+    function generateFinalPdf(){
       updateStateFromPreview();
-      if(!state.records.length){ setStatus('Não há dados para gerar PDF. Clique em Carregar arquivo primeiro.'); return; }
-      const target = parseDateInput($('dataCorteInput').value);
+      if(!state.records.length){ setStatus('Não há dados para gerar PDF.'); return; }
+      const target = state.currentTarget || parseDateInput($('dataCorteInput').value);
       if(!target){ setStatus('Informe a Data de Corte antes de gerar o PDF.'); return; }
-      const totals = getTotals();
-      const divergentes = state.records.filter(r=>r.conferencia?.status === 'Divergente').length;
-      const naoEncontradas = state.records.filter(r=>r.conferencia?.status === 'Não encontrada').length;
-      if(state.bancoResumo.size && (totals.totalBanco !== totals.total || divergentes || naoEncontradas)){
-        const ok = confirm(`Atenção: os dados não estão 100% iguais ao banco.\n\nPares PDF: ${formatNumberBR(totals.total)}\nPares banco: ${formatNumberBR(totals.totalBanco)}\nDivergentes: ${divergentes}\nNão encontradas: ${naoEncontradas}\n\nDeseja gerar o PDF mesmo assim?`);
-        if(!ok) return;
-      }
-      if(window.jspdf && window.jspdf.jsPDF && typeof window.jspdf.jsPDF.API.autoTable !== 'undefined'){
-        generatePdfWithJsPdf(target);
-      }else{
-        generatePrintablePdf(target);
-      }
+      state.currentTarget = target;
+      if(window.jspdf && window.jspdf.jsPDF && typeof window.jspdf.jsPDF.API.autoTable !== 'undefined') generatePdfWithJsPdf(target);
+      else generatePrintablePdf(target);
     }
 
     function generatePdfWithJsPdf(target){
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
-      const pages = paginateRecords(15);
+      const pages = paginateRecords();
       const totals = getTotals();
       const pageW = doc.internal.pageSize.getWidth();
       const pageH = doc.internal.pageSize.getHeight();
@@ -1054,11 +1429,6 @@
 
       pages.forEach((pageGroups, index) => {
         if(index > 0) doc.addPage();
-        const pageRows = pageGroups.flatMap(g => g.rows);
-        const totalPagina = pageRows.reduce((s,r)=>s+parseNumberBR(r.pares),0);
-        const expPagina = pageRows.filter(r=>isExportacao(r.tipoCliente)).reduce((s,r)=>s+parseNumberBR(r.pares),0);
-        const remessasPagina = new Set(pageRows.map(r=>r.remessa)).size;
-
         doc.setFont('helvetica','bold');
         doc.setFontSize(12);
         doc.text(`Planejamento FactorShoes - ${corteTitulo}`, pageW/2, 9, {align:'center'});
@@ -1066,15 +1436,14 @@
         doc.text(`${summarizePageLines(pageGroups)}`, margin, 16);
         doc.setFont('helvetica','normal');
         doc.text(pageHeaderText(index, pages.length), pageW - margin, 16, {align:'right'});
-        doc.setFont('helvetica','bold');
-        doc.text(`Total da página: ${formatNumberBR(totalPagina)} pares | Exportação da página: ${formatNumberBR(expPagina)} pares | Remessas: ${remessasPagina}`, margin, 20);
 
         doc.autoTable({
-          startY: 23,
+          startY: 19,
           margin:{left:margin,right:margin,bottom:index===0?28:7},
           tableWidth: pageW - margin * 2,
           body: buildAutoTableBody(pageGroups, true),
           theme:'grid',
+          rowPageBreak:'avoid',
           styles:{font:'helvetica',fontSize:5.9,cellPadding:0.9,valign:'middle',textColor:[0,0,0],lineColor:[0,0,0],lineWidth:0.1,overflow:'linebreak',minCellHeight:9.4},
           headStyles:{fillColor:[217,217,217],textColor:[0,0,0],fontStyle:'bold',halign:'center',valign:'middle',fontSize:6.0,minCellHeight:7},
           columnStyles:{
@@ -1189,7 +1558,7 @@
             <td class="text-center">${escapeHtml(r.fabrica)}</td>
             <td class="text-left">${escapeHtml(r.cliente)}</td>
             <td class="text-left">${escapeHtml(r.normativa)}</td>
-            <td class="text-center">${escapeHtml(r.taloes || '')}</td><td></td><td></td><td></td><td></td>
+            <td class="text-center">${escapeHtml(r.taloes || '')}</td><td>${escapeHtml(r.costura || '')}</td><td>${escapeHtml(r.palmilha || '')}</td><td>${escapeHtml(r.sola || '')}</td><td>${escapeHtml(r.embarque || '')}</td>
           </tr>`;
         });
       }else if(forceEmpty){
@@ -1200,18 +1569,15 @@
     }
 
     function generatePrintablePdf(target){
-      const pages = paginateRecords(15);
+      const pages = paginateRecords();
       const totals = getTotals();
       const corteTitulo = `Corte ${pad2(target.day)}/${pad2(target.month)}`;
       const html = pages.map((pageGroups,index) => {
-        const pageRows = pageGroups.flatMap(g => g.rows);
-        const totalPagina = pageRows.reduce((s,r)=>s+parseNumberBR(r.pares),0);
-        const expPagina = pageRows.filter(r=>isExportacao(r.tipoCliente)).reduce((s,r)=>s+parseNumberBR(r.pares),0);
         const summary = index === 0 ? `<table class="print-total-box"><tr><td>TOTAL DE EXPORTAÇÃO</td><td>${formatNumberBR(totals.totalExp)}</td></tr><tr><td>TOTAL DE NORMAL</td><td>${formatNumberBR(totals.totalNormal)}</td></tr><tr><td>TOTAL DE PARES</td><td>${formatNumberBR(totals.total)}</td></tr></table>` : '';
         const groupsHtml = pageGroups.map((group, groupIndex) => `${pageGroups.length > 1 ? `<tr class="line-title"><td colspan="14">LINHA ${escapeHtml(group.linha)}${group.parte ? ' - PARTE ' + group.parte : ''}</td></tr>` : ''}${printableColumnHeader()}${printableGroupRows('EXPORTAÇÃO', rowsByType(group.rows,true), true)}${printableGroupRows('NORMAL', rowsByType(group.rows,false), false)}${pageGroups.length > 1 && groupIndex < pageGroups.length - 1 ? '<tr class="line-spacer"><td colspan="14"></td></tr>' : ''}`).join('');
         return `<section class="print-page">
           <div class="print-title">Planejamento FactorShoes - ${escapeHtml(corteTitulo)}</div>
-          <div class="print-head"><div><h2>${escapeHtml(summarizePageLines(pageGroups))}</h2><strong>Total da página:</strong> ${formatNumberBR(totalPagina)} pares &nbsp; | &nbsp; <strong>Exportação da página:</strong> ${formatNumberBR(expPagina)} pares</div><div>${pageHeaderText(index, pages.length)}</div></div>
+          <div class="print-head"><div><h2>${escapeHtml(summarizePageLines(pageGroups))}</h2></div><div>${pageHeaderText(index, pages.length)}</div></div>
           <table class="print-table"><tbody>${groupsHtml}</tbody></table>
           ${summary}
         </section>`;
@@ -1227,77 +1593,178 @@
       return chunks;
     }
 
-    async function saveClienteNormativaBanco(){
-      updateStateFromPreview();
-      if(!state.records.length){ setStatus('Não há remessas carregadas para lançar no banco.'); return; }
-      const porRemessa = new Map();
-      state.records.forEach(r => {
-        const rem = String(r.remessa || '').trim();
-        if(!rem) return;
-        porRemessa.set(rem, { cliente:r.cliente || '', normativa:r.normativa || '', fabrica:r.fabrica || '' });
-      });
-      const remessas = [...porRemessa.keys()];
-      if(!remessas.length){ setStatus('Nenhuma remessa válida para atualizar.'); return; }
-      const ok = window.confirm(`Lançar cliente, normativa e fábrica no banco para ${remessas.length} remessa(s)? Isso atualizará todos os talões dessas remessas.`);
+    async function launchNormativas(){
+      if(!state.authReady){ setStatus('Aguarde a confirmação do login.'); return; }
+      if(!(await ensurePdfReady())) return;
+      const pdfMap = state.pdfMapAll;
+      const remessas = [...pdfMap.keys()];
+      if(!remessas.length){ setStatus('Nenhuma remessa válida foi encontrada no PDF.'); return; }
+      const ok = confirm(`O sistema buscará ${remessas.length} remessa(s) do PDF no banco e preencherá somente campos vazios de cliente, normativa e fábrica (FAB). Dados já preenchidos não serão alterados. Deseja continuar?`);
       if(!ok) return;
+      setBusy('launchNormativasButton',true,'Lançando...');
       try{
-        setStatus('Buscando talões das remessas para atualizar cliente, normativa e fábrica...');
-        let docsParaAtualizar = [];
-        for(const grupo of chunkArray(remessas, 10)){
-          const qRef = query(collection(db,'taloes'), where('numeroRemessa','in', grupo));
-          const snap = await getDocs(qRef);
-          snap.docs.forEach(docSnap => {
+        setStatus('Buscando no banco todas as remessas existentes no PDF...');
+        const updates = [];
+        const remessasEncontradas = new Set();
+        let camposCliente = 0, camposNormativa = 0, camposFabrica = 0, preservados = 0;
+        for(const grupo of chunkArray(remessas,10)){
+          const snap = await getDocs(query(collection(db,'taloes'), where('numeroRemessa','in',grupo)));
+          snap.docs.forEach(docSnap=>{
             const data = docSnap.data();
-            const rem = String(data.numeroRemessa || '').trim();
-            const info = porRemessa.get(rem);
-            if(info) docsParaAtualizar.push({ref:docSnap.ref, remessa:rem, info});
+            const rem = normalizeRemessa(data.numeroRemessa);
+            const info = pdfMap.get(rem);
+            if(!info) return;
+            remessasEncontradas.add(rem);
+            const patch = {};
+            if(!hasValue(data.cliente) && hasValue(info.cliente)){ patch.cliente = info.cliente; camposCliente++; }
+            if(!hasValue(data.normativa) && hasValue(info.normativa)){ patch.normativa = info.normativa; camposNormativa++; }
+            if(!hasValue(extractFabricaValue(data)) && hasValue(info.fabrica)){ patch.fabrica = info.fabrica; camposFabrica++; }
+            if(Object.keys(patch).length) updates.push({ref:docSnap.ref,patch}); else preservados++;
           });
         }
-        if(!docsParaAtualizar.length){
-          setStatus('Nenhum talão encontrado no banco para as remessas carregadas.');
+        if(!updates.length){
+          setStatus(`Nenhum campo vazio precisou ser preenchido. Foram localizadas <strong>${remessasEncontradas.size}</strong> remessa(s); os dados já existentes foram preservados.`);
           return;
         }
-        let atualizados = 0;
-        for(const lote of chunkArray(docsParaAtualizar, 450)){
+        let documentosAtualizados = 0;
+        for(const lote of chunkArray(updates,450)){
           const batch = writeBatch(db);
-          lote.forEach(item => {
-            batch.update(item.ref, {
-              cliente: item.info.cliente,
-              normativa: item.info.normativa,
-              fabrica: item.info.fabrica
-            });
-          });
+          lote.forEach(item=>batch.update(item.ref,item.patch));
           await batch.commit();
-          atualizados += lote.length;
+          documentosAtualizados += lote.length;
         }
-        setStatus(`Cliente, normativa e fábrica lançados no banco com sucesso. Atualizados <strong>${atualizados}</strong> talão(ões) em <strong>${remessas.length}</strong> remessa(s).`);
+        const naoEncontradas = remessas.filter(rem=>!remessasEncontradas.has(rem));
+        let msg = `Lançamento concluído sem sobrescrever dados existentes: <strong>${documentosAtualizados}</strong> talão(ões) atualizados, <strong>${camposCliente}</strong> campo(s) de cliente, <strong>${camposNormativa}</strong> normativa(s) e <strong>${camposFabrica}</strong> campo(s) FAB preenchidos.`;
+        if(naoEncontradas.length) msg += ` <strong>${naoEncontradas.length}</strong> remessa(s) do PDF não foram encontradas no banco.`;
+        setStatus(msg);
       }catch(err){
         console.error(err);
-        setStatus('Erro ao lançar no banco: ' + escapeHtml(err.message || String(err)) + '<br>Confira se você está logado e se seu nível de acesso permite editar os talões.');
+        setStatus('Erro ao lançar normativas: ' + escapeHtml(err.message || String(err)));
+      }finally{
+        setBusy('launchNormativasButton',false);
       }
     }
 
-    function clearAll(){
-      state.selectedPdfFile = null;
-      state.records = [];
-      state.allPdfRecords = [];
-      state.bancoResumo = new Map();
-      state.bancoSomente = [];
-      state.lineOrder = [];
-      $('pdfFile').value = '';
-      $('selectedFilesLabel').textContent = 'Nenhum PDF selecionado.';
-      $('dataCorteInput').value = '';
-      $('summaryCards').innerHTML = '';
-      $('lineSummary').innerHTML = '';
-      renderPreview();
-      setStatus(state.authReady ? 'Login confirmado. Selecione o PDF Factor Geral.' : 'Aguardando login e seleção do PDF.');
+    function serializeRecord(record){
+      return {
+        tipoCliente:String(record.tipoCliente || ''), linha:String(record.linha || ''), modelo:String(record.modelo || ''), atelieResponsavel:String(record.atelieResponsavel || ''),
+        modeloAtelieEntries:Array.isArray(record.modeloAtelieEntries) ? record.modeloAtelieEntries.map(e=>({modelo:String(e?.modelo||''),atelies:Array.isArray(e?.atelies)?e.atelies.map(v=>String(v||'')):[]})) : [],
+        remessa:String(record.remessa || ''), pares:parseNumberBR(record.pares), taloes:parseNumberBR(record.taloes), corte:String(record.corte || ''), dataCorteIso:String(record.dataCorteIso || ''),
+        dataEntregaIso:String(record.dataEntregaIso || ''), entrega:String(record.entrega || ''), fabrica:String(record.fabrica || ''), cliente:String(record.cliente || ''), normativa:String(record.normativa || ''),
+        costura:String(record.costura || ''), palmilha:String(record.palmilha || ''), sola:String(record.sola || ''), embarque:String(record.embarque || ''), origem:String(record.origem || ''),
+        conferencia:{status:String(record.conferencia?.status || ''),detalhe:String(record.conferencia?.detalhe || '')}, pdfPares:parseNumberBR(record.pdfPares), pdfCliente:String(record.pdfCliente || ''), pdfNormativa:String(record.pdfNormativa || '')
+      };
+    }
+
+    async function saveProgramacao(){
+      updateStateFromPreview();
+      if(!state.records.length){ setStatus('Crie ou abra uma programação antes de salvar.'); return; }
+      if(!state.authReady){ setStatus('Aguarde a confirmação do login.'); return; }
+      const target = state.currentTarget || parseDateInput($('dataCorteInput').value);
+      if(!target){ setStatus('Informe a Data de Corte antes de salvar.'); return; }
+      let nome = state.currentProgramName;
+      if(!nome){
+        const sugerido = `Programação ${target.dm.replace('/','-')}-${target.year}`;
+        nome = prompt('Nome da programação:', sugerido);
+        if(nome === null) return;
+        nome = String(nome).trim() || sugerido;
+      }
+      setBusy('saveProgramButton',true,'Salvando...');
+      setBusy('saveProgramModalButton',true,'Salvando...');
+      try{
+        const totals = getTotals();
+        const ref = state.currentProgramId ? doc(db,'programacoesMontagem',state.currentProgramId) : doc(collection(db,'programacoesMontagem'));
+        const payload = {
+          nome, dataCorte:target.iso, dataCorteDm:target.dm, ano:target.year,
+          arquivoPdf:state.selectedPdfFile?.name || '', itens:state.records.map(serializeRecord),
+          totalRemessas:totals.qtdRemessas,totalPares:totals.total,totalTaloes:totals.totalTaloes,
+          comparacao:{...state.comparison}, atualizadoEm:serverTimestamp(), atualizadoPor:state.currentUser?.email || localStorage.getItem('userName') || ''
+        };
+        if(!state.currentProgramId){ payload.criadoEm = serverTimestamp(); payload.criadoPor = state.currentUser?.email || ''; }
+        await setDoc(ref,payload,{merge:true});
+        state.currentProgramId = ref.id;
+        state.currentProgramName = nome;
+        setStatus(`Programação <strong>${escapeHtml(nome)}</strong> salva com sucesso: ${totals.qtdRemessas} remessa(s) e ${formatNumberBR(totals.total)} pares.`);
+      }catch(err){
+        console.error(err);
+        setStatus('Erro ao salvar a programação: ' + escapeHtml(err.message || String(err)));
+      }finally{
+        setBusy('saveProgramButton',false);
+        setBusy('saveProgramModalButton',false);
+      }
+    }
+
+    function formatSavedDate(value){
+      try{
+        const d = value?.toDate ? value.toDate() : (value ? new Date(value) : null);
+        return d && !Number.isNaN(d.getTime()) ? d.toLocaleString('pt-BR') : 'Data não disponível';
+      }catch(e){ return 'Data não disponível'; }
+    }
+
+    function renderSavedPrograms(){
+      const wrap = $('savedProgramsList');
+      const list = [...state.savedPrograms.entries()];
+      if(!list.length){ wrap.innerHTML = '<div class="saved-empty">Nenhuma programação salva foi encontrada.</div>'; return; }
+      wrap.innerHTML = list.map(([id,data])=>`<div class="saved-item"><div><h3>${escapeHtml(data.nome || 'Programação sem nome')}</h3><p><strong>Corte:</strong> ${escapeHtml(data.dataCorteDm || isoToDM(data.dataCorte) || '-')} • <strong>Remessas:</strong> ${formatNumberBR(data.totalRemessas || (data.itens||[]).length)} • <strong>Pares:</strong> ${formatNumberBR(data.totalPares || 0)} • <strong>Talões:</strong> ${formatNumberBR(data.totalTaloes || 0)}</p><p>Última atualização: ${escapeHtml(formatSavedDate(data.atualizadoEm || data.criadoEm))}</p></div><button class="btn btn-primary" type="button" data-open-program="${escapeHtml(id)}">Abrir</button></div>`).join('');
+      wrap.querySelectorAll('[data-open-program]').forEach(btn=>btn.addEventListener('click',()=>loadSavedProgram(btn.dataset.openProgram)));
+    }
+
+    async function openSavedPrograms(){
+      openModal('savedModal');
+      $('savedProgramsList').innerHTML = '<div class="saved-empty">Carregando programações...</div>';
+      try{
+        const snap = await getDocs(query(collection(db,'programacoesMontagem'),orderBy('atualizadoEm','desc'),firestoreLimit(50)));
+        state.savedPrograms = new Map(snap.docs.map(d=>[d.id,d.data()]));
+        renderSavedPrograms();
+      }catch(err){
+        console.error(err);
+        $('savedProgramsList').innerHTML = `<div class="saved-empty">Erro ao carregar: ${escapeHtml(err.message || String(err))}</div>`;
+      }
+    }
+
+    function targetFromIso(iso, dmFallback){
+      const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if(m) return {year:Number(m[1]),month:Number(m[2]),day:Number(m[3]),dm:`${m[3]}/${m[2]}`,iso:String(iso)};
+      return parseDateInput(dmFallback || '');
+    }
+
+    function loadSavedProgram(id){
+      const data = state.savedPrograms.get(id);
+      if(!data) return;
+      const target = targetFromIso(data.dataCorte,data.dataCorteDm);
+      state.currentTarget = target;
+      if(target){ state.reportYear = target.year; $('dataCorteInput').value = target.dm; }
+      state.currentProgramId = id;
+      state.currentProgramName = data.nome || '';
+      state.records = Array.isArray(data.itens) ? data.itens.map((r,index)=>({
+        id:`salvo_${id}_${index}`,...r,
+        modeloAtelieEntries:Array.isArray(r.modeloAtelieEntries)?r.modeloAtelieEntries:[],
+        costura:r.costura||'',palmilha:r.palmilha||'',sola:r.sola||'',embarque:r.embarque||'',
+        conferencia:r.conferencia||{status:'Salva',detalhe:'Programação carregada do histórico.'}
+      })) : [];
+      state.comparison = data.comparacao || {ok:0,divergentes:0,somenteBanco:0,somentePdf:0,pdfRemessas:0,pdfPares:0};
+      state.pdfOnly = [];
+      state.lineOrder = uniqueValues(state.records.map(r=>r.linha)).sort(sortNumericText);
+      renderPreview();renderLineSummary();updateSummary();
+      closeAllModals();
+      setStatus(`Programação salva <strong>${escapeHtml(state.currentProgramName || '')}</strong> aberta com ${state.records.length} linha(s).`);
+      openEditorModal();
     }
 
     $('pdfFile').addEventListener('change', handlePdfFile);
-    $('loadFilesButton').addEventListener('click', loadFiles);
+    $('launchNormativasButton').addEventListener('click', launchNormativas);
+    $('createProgramButton').addEventListener('click', createProgramacao);
     $('generatePdfButton').addEventListener('click', generatePdf);
-    $('saveBancoButton').addEventListener('click', saveClienteNormativaBanco);
-    $('clearButton').addEventListener('click', clearAll);
+    $('saveProgramButton').addEventListener('click', saveProgramacao);
+    $('openSavedButton').addEventListener('click', openSavedPrograms);
+    $('addEditorRowButton').addEventListener('click', addEditorRow);
+    $('saveProgramModalButton').addEventListener('click', saveProgramacao);
+    $('printPdfButton').addEventListener('click', generateFinalPdf);
+    $('closeEditorButton').addEventListener('click', closeEditorModal);
+    $('closeEditorFooterButton').addEventListener('click', closeEditorModal);
+    $('closeSavedButton').addEventListener('click', closeAllModals);
+    document.querySelectorAll('.modal-overlay').forEach(modal=>modal.addEventListener('click',event=>{ if(event.target!==modal) return; if(modal.id==='editorModal') closeEditorModal(); else closeAllModals(); }));
+    document.addEventListener('keydown',event=>{ if(event.key==='Escape'){ if($('editorModal').classList.contains('open')) closeEditorModal(); else closeAllModals(); } });
   </script>
 </body>
 </html>
