@@ -1476,6 +1476,27 @@
       return resumo;
     }
 
+    function getPeriodoProducaoTalao(talao, dateISO) {
+      const periodoSalvo = cleanText(talao?.periodoProducao);
+      const dataReferencia = cleanText(talao?.dataReferenciaProducao || talao?.dataEntradaMontagem);
+
+      // Registros novos podem informar explicitamente o cartão correto da produção.
+      // Registros antigos continuam usando dataProducao, sem migração e sem alteração do histórico.
+      if (periodoSalvo && (!dataReferencia || dataReferencia === dateISO)) {
+        const periodoManual = PERIODOS.find(p => p.label === periodoSalvo);
+        if (periodoManual) return periodoManual;
+      }
+
+      const dataProducao = toDate(talao?.dataProducao);
+      if (!dataProducao) return null;
+
+      return PERIODOS.find(p => {
+        const inicio = makeLocalDate(dateISO, p.leituraInicio);
+        const fim = makeLocalDate(dateISO, p.leituraFim);
+        return dataProducao >= inicio && dataProducao < fim;
+      }) || null;
+    }
+
     function applyTaloesToResumo(taloes, dateISO, configList = trilhosConfig) {
       const resumo = emptyResumo(dateISO, configList);
 
@@ -1488,17 +1509,7 @@
         resumo.totalFabrica += pares;
         resumo.qtdTaloes += 1;
 
-        const dataProducao = toDate(talao.dataProducao);
-        if (!dataProducao) {
-          resumo.semHorario += pares;
-          return;
-        }
-
-        const periodoEncontrado = PERIODOS.find(p => {
-          const inicio = makeLocalDate(dateISO, p.leituraInicio);
-          const fim = makeLocalDate(dateISO, p.leituraFim);
-          return dataProducao >= inicio && dataProducao < fim;
-        });
+        const periodoEncontrado = getPeriodoProducaoTalao(talao, dateISO);
 
         if (!periodoEncontrado) {
           resumo.semHorario += pares;
@@ -1549,13 +1560,7 @@
     }
 
     function findPeriodoFromTalao(talao, dateISO) {
-      const dataProducao = toDate(talao.dataProducao);
-      if (!dataProducao) return null;
-      return PERIODOS.find(p => {
-        const inicio = makeLocalDate(dateISO, p.leituraInicio);
-        const fim = makeLocalDate(dateISO, p.leituraFim);
-        return dataProducao >= inicio && dataProducao < fim;
-      }) || null;
+      return getPeriodoProducaoTalao(talao, dateISO);
     }
 
     function talaoPertenceAoTrilho(talao, trilhoKey) {
