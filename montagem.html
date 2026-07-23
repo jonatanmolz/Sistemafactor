@@ -188,6 +188,63 @@
         .edit-button:hover {
             background-color: #e0a800;
         }
+        .periodo-producao-box {
+            margin-top: 6px;
+            padding: 14px;
+            border: 1px solid #cfd8e3;
+            border-radius: 8px;
+            background: #f7f9fc;
+        }
+        .periodo-producao-box label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+            color: #333;
+        }
+        .periodo-producao-box select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #6c757d;
+            border-radius: 7px;
+            background: #fff;
+            font-size: 1rem;
+        }
+        .periodo-producao-box small {
+            display: block;
+            margin-top: 8px;
+            color: #5b6570;
+            line-height: 1.35;
+        }
+        .periodo-status {
+            margin-top: 10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            background: #e8f4ff;
+            color: #084b83;
+            font-weight: bold;
+            text-align: center;
+        }
+        .periodo-status.manual {
+            background: #fff3cd;
+            color: #7a5600;
+            border: 1px solid #ffe08a;
+        }
+        .actions-cell {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .edit-period-button {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .edit-period-button:hover {
+            background-color: #0b5ed7;
+        }
     </style>
   <script src="navegacao.js"></script>
 </head>
@@ -221,6 +278,21 @@
                         Trilho - 05
                     </label>
                 </div>
+                <div class="periodo-producao-box">
+                    <label for="periodoProducaoSelect">Horário em que a produção será contabilizada</label>
+                    <select id="periodoProducaoSelect">
+                        <option value="">Automático pelo horário da leitura</option>
+                        <option value="08:00">08:00</option>
+                        <option value="09:00">09:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:18">11:18</option>
+                        <option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option>
+                        <option value="16:00">16:00</option>
+                    </select>
+                    <small>Quando uma baixa atrasar, selecione o horário correto antes de ler o lote. Exemplo: às 10:05, selecione 09:00 para lançar os talões no cartão das 09:00. Volte para Automático ao terminar.</small>
+                    <div id="periodoProducaoStatus" class="periodo-status">Modo automático ativo</div>
+                </div>
                 <div id="montagemMessage" class="scanner-message"></div>
             </div>
         </div>
@@ -235,6 +307,7 @@
                             <th>Linha</th>
                             <th>Modelo</th>
                             <th>Trilho</th>
+                            <th>Horário produção</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -271,6 +344,8 @@
         const montagemMessageDiv = document.getElementById('montagemMessage');
         const scannedListBody = document.getElementById('scannedListBody');
         const trilhoOptions = document.querySelectorAll('.trilho-option');
+        const periodoProducaoSelect = document.getElementById('periodoProducaoSelect');
+        const periodoProducaoStatus = document.getElementById('periodoProducaoStatus');
 
         let allTaloes = [];
         let currentUserEmail = '';
@@ -374,8 +449,10 @@
                     <td>${talao.linha}</td>
                     <td>${talao.modelo}</td>
                     <td>${talao.trilhoProduzido || 'N/A'}</td>
-                    <td>
+                    <td>${talao.periodoProducao || 'Automático'}</td>
+                    <td class="actions-cell">
                         <button class="edit-button" data-talao-id="${talao.id}">Editar Trilho</button>
+                        <button class="edit-period-button" data-talao-id="${talao.id}">Editar Horário</button>
                     </td>
                 `;
                 scannedListBody.appendChild(row);
@@ -383,6 +460,9 @@
             // Adiciona listener para os novos botões
             document.querySelectorAll('.edit-button').forEach(button => {
                 button.addEventListener('click', handleEditTrilho);
+            });
+            document.querySelectorAll('.edit-period-button').forEach(button => {
+                button.addEventListener('click', handleEditPeriodo);
             });
         }
         
@@ -418,6 +498,68 @@
                 alert("Entrada inválida. Por favor, escolha um trilho válido (ex: 'Trilho - 01').");
             }
         }
+
+        const PERIODOS_PRODUCAO_VALIDOS = ['08:00', '09:00', '10:00', '11:18', '14:00', '15:00', '16:00'];
+
+        function atualizarStatusPeriodo() {
+            const periodo = periodoProducaoSelect.value;
+            if (periodo) {
+                periodoProducaoStatus.textContent = `Modo manual ativo: os próximos talões serão contabilizados às ${periodo}`;
+                periodoProducaoStatus.classList.add('manual');
+            } else {
+                periodoProducaoStatus.textContent = 'Modo automático ativo';
+                periodoProducaoStatus.classList.remove('manual');
+            }
+        }
+
+        async function handleEditPeriodo(event) {
+            const talaoId = event.target.dataset.talaoId;
+            const talaoLocal = lastScannedTaloes.find(t => t.id === talaoId);
+            const periodoAtual = talaoLocal?.periodoProducao || 'Automático';
+            const novoPeriodo = prompt(
+                `Informe o horário correto para este talão. Atual: ${periodoAtual}.\n` +
+                `Opções: ${PERIODOS_PRODUCAO_VALIDOS.join(', ')}.\n` +
+                `Digite AUTO para voltar ao horário automático.`
+            );
+
+            if (novoPeriodo === null) return;
+            const valor = novoPeriodo.trim().toUpperCase();
+            const automatico = valor === 'AUTO' || valor === 'AUTOMATICO' || valor === 'AUTOMÁTICO' || valor === '';
+            const periodoNormalizado = automatico ? '' : novoPeriodo.trim();
+
+            if (!automatico && !PERIODOS_PRODUCAO_VALIDOS.includes(periodoNormalizado)) {
+                alert('Horário inválido. Use um dos horários exibidos na mensagem.');
+                return;
+            }
+
+            try {
+                const talaoRef = doc(db, 'taloes', talaoId);
+                const dataRef = talaoLocal?.dataReferenciaProducao || talaoLocal?.dataEntradaMontagem || new Date().toISOString().split('T')[0];
+                await updateDoc(talaoRef, {
+                    periodoProducao: periodoNormalizado,
+                    dataReferenciaProducao: dataRef,
+                    periodoProducaoEditadoPor: currentUserName,
+                    periodoProducaoEditadoEm: Timestamp.now()
+                });
+
+                if (talaoLocal) {
+                    talaoLocal.periodoProducao = periodoNormalizado;
+                    talaoLocal.dataReferenciaProducao = dataRef;
+                    saveScannedList();
+                    renderScannedList();
+                }
+                alert(automatico ? 'Horário automático restaurado.' : `Produção movida para ${periodoNormalizado}.`);
+            } catch (error) {
+                console.error('Erro ao atualizar o horário de produção:', error);
+                alert('Não foi possível atualizar o horário de produção.');
+            }
+        }
+
+        periodoProducaoSelect.addEventListener('change', () => {
+            atualizarStatusPeriodo();
+            barcodeInputMontagem.focus();
+        });
+        atualizarStatusPeriodo();
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -470,6 +612,9 @@ function listenToTaloes() {
                 // Atualiza o objeto local com as novas informações antes de inseri-lo na lista
                 talaoData.trilhoProduzido = updates.trilhoProduzido;
                 talaoData.dataProducao = updates.dataProducao;
+                talaoData.dataLeituraMontagem = updates.dataLeituraMontagem;
+                talaoData.periodoProducao = updates.periodoProducao;
+                talaoData.dataReferenciaProducao = updates.dataReferenciaProducao;
                 if(updates.dataEntradaTalonagem) {
                     talaoData.dataEntradaTalonagem = updates.dataEntradaTalonagem;
                 }
@@ -552,13 +697,20 @@ function listenToTaloes() {
                     return;
                 }
                 
+                const momentoLeitura = Timestamp.now();
+                const dataMontagemISO = new Date().toISOString().split('T')[0];
+                const periodoSelecionado = periodoProducaoSelect.value;
                 const updates = {
                     statusGeral: 'Montado',
                     statusCostura:'Finalizado',
                     statusCorte: 'Cortado',
-                    dataEntradaMontagem: new Date().toISOString().split('T')[0],
+                    dataEntradaMontagem: dataMontagemISO,
                     trilhoProduzido: selectedTrilho.value,
-                    dataProducao: Timestamp.now(), // Firestore Timestamp
+                    dataProducao: momentoLeitura, // Mantido para compatibilidade com as páginas existentes
+                    dataLeituraMontagem: momentoLeitura, // Horário real da leitura para auditoria
+                    periodoProducao: periodoSelecionado, // Horário de referência usado no controle
+                    dataReferenciaProducao: dataMontagemISO,
+                    periodoProducaoDefinidoPor: periodoSelecionado ? currentUserName : '',
                     usuarioMontagem: currentUserName
                 };
 
