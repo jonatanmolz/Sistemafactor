@@ -38,6 +38,22 @@
     .summary-card{border:1px solid var(--bd);border-radius:10px;background:#fafafa;padding:8px 10px;min-width:132px;text-align:center}
     .summary-card span{display:block;color:var(--muted);font-size:12px}.summary-card strong{font-size:18px}
     .summary-card.good{background:var(--good)} .summary-card.warn{background:var(--warn)} .summary-card.bad{background:var(--bad)}
+    button.summary-card{font-family:inherit;color:inherit;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease;border:1px solid var(--bd)}
+    button.summary-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.10)}
+    button.summary-card:focus-visible{outline:3px solid rgba(0,123,255,.25);outline-offset:2px}
+    button.summary-card:disabled{cursor:default;transform:none;box-shadow:none;opacity:.72}
+    .comparison-details{display:none;margin-top:10px;border:1px solid var(--bd);border-radius:10px;background:#fff;overflow:hidden}
+    .comparison-details.open{display:block}
+    .comparison-details-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:10px 12px;background:#f5f5f5;border-bottom:1px solid var(--bd)}
+    .comparison-details-head h3{font-size:15px;margin:0 0 2px}.comparison-details-head p{font-size:12px;color:var(--ink-2);margin:0}
+    .comparison-details-close{border:0;background:#e2e6ea;border-radius:7px;width:30px;height:28px;font-size:18px;cursor:pointer}
+    .comparison-details-wrap{overflow:auto;max-height:360px}
+    .comparison-details-table{width:100%;border-collapse:collapse;min-width:850px;font-size:12px}
+    .comparison-details-table th,.comparison-details-table td{border:1px solid var(--bd);padding:7px;vertical-align:top;text-align:left}
+    .comparison-details-table th{position:sticky;top:0;background:#d9d9d9;z-index:1;text-align:center}
+    .comparison-details-table td.num{text-align:right;font-weight:700;white-space:nowrap}
+    .comparison-field{font-weight:800;color:#8a5b00;white-space:nowrap}
+    .comparison-empty{padding:18px;text-align:center;color:var(--muted)}
     .preview-wrap{width:100%;overflow:auto;border:1px solid var(--bd);border-radius:10px;background:#fff;max-height:68vh}
     table.preview{width:100%;border-collapse:collapse;font-size:12px;min-width:1200px}
     .preview th,.preview td{border:1px solid var(--bd);padding:5px;text-align:center;vertical-align:middle}
@@ -62,7 +78,7 @@
     body.modal-open{overflow:hidden}
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);display:none;align-items:center;justify-content:center;padding:12px;z-index:10050}
     .modal-overlay.open{display:flex}
-    .modal-card{background:#fff;border-radius:12px;box-shadow:0 18px 60px rgba(0,0,0,.28);width:min(98vw,1750px);max-height:96vh;display:flex;flex-direction:column;overflow:hidden}
+    .modal-card{background:#fff;border-radius:12px;box-shadow:0 18px 60px rgba(0,0,0,.28);width:min(99vw,1820px);max-height:96vh;display:flex;flex-direction:column;overflow:hidden}
     .modal-card.saved-card{width:min(94vw,980px);max-height:90vh}
     .modal-header{padding:12px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;background:#fafafa}
     .modal-header h2{font-size:19px}.modal-header .hint{margin-top:2px}
@@ -71,19 +87,55 @@
     .editor-title{text-align:center;font-size:17px;font-weight:800;margin:0 0 7px}
     .editor-meta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;font-weight:700;margin-bottom:8px}
     .editor-table-wrap{overflow:auto;border:1px solid #222;border-radius:4px;background:#fff;max-height:68vh}
-    table.editor-table{width:100%;min-width:1650px;border-collapse:collapse;table-layout:fixed;font-size:11px}
-    .editor-table th,.editor-table td{border:1px solid #222;padding:3px;vertical-align:middle;text-align:center}
-    .editor-table th{position:sticky;top:0;z-index:3;background:#d9d9d9;font-size:10px}
-    .editor-table input,.editor-table select,.editor-table textarea{width:100%;min-width:0;border:1px solid #b8b8b8;border-radius:4px;padding:4px;font-size:11px;background:#fff}
-    .editor-table textarea{resize:vertical;min-height:42px;line-height:1.2}
+    table.editor-table{width:100%;min-width:1360px;border-collapse:collapse;table-layout:fixed;font-size:10px}
+    .editor-table th,.editor-table td{border:1px solid #222;padding:2px;vertical-align:middle;text-align:center}
+    .editor-table th{position:sticky;top:0;z-index:3;background:#d9d9d9;font-size:9px}
+    .editor-table input,.editor-table select,.editor-table textarea{width:100%;min-width:0;border:1px solid #b8b8b8;border-radius:4px;padding:3px;font-size:10px;background:#fff}
+    .editor-table textarea{resize:vertical;min-height:34px;line-height:1.15}
     .editor-table .model-pair{display:grid;grid-template-columns:1fr;gap:3px}
-    .editor-table .model-pair small{font-size:9px;color:#666;text-align:left}
-    .editor-table tr.editor-export{background:#eef6ff}.editor-table tr.editor-line-header td{background:#d9d9d9;font-weight:800;text-align:left;padding:5px 7px}
-    .editor-table .w-tipo{width:92px}.editor-table .w-linha{width:55px}.editor-table .w-modelo{width:180px}.editor-table .w-remessa{width:80px}.editor-table .w-pares{width:62px}.editor-table .w-entrega{width:82px}.editor-table .w-fab{width:48px}.editor-table .w-cliente{width:185px}.editor-table .w-norm{width:280px}.editor-table .w-tal{width:55px}.editor-table .w-prod{width:75px}.editor-table .w-act{width:58px}
+    .editor-table .model-pair small{font-size:8px;color:#666;text-align:left}
+    .editor-table tr.editor-export{background:#eef6ff}
+    .editor-table tr.editor-line-header td{background:#d9d9d9;font-weight:800;text-align:left;padding:4px 6px}
+    .editor-line-header-content{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+    .editor-table tr.editor-page-break td{border-top:4px solid var(--pri)!important}
+    .editor-table tr.editor-page-break td:first-child{position:relative}
+    .editor-table tr.editor-page-break td:first-child:before{content:'NOVA PÁGINA';position:absolute;left:2px;top:-15px;background:var(--pri);color:#fff;border-radius:4px 4px 0 0;padding:2px 5px;font-size:8px;font-weight:800;letter-spacing:.2px;z-index:2}
+    .editor-action-buttons{display:flex;flex-direction:column;gap:3px;align-items:stretch}
+    .editor-action-buttons .btn{white-space:normal;line-height:1.05;padding:4px 5px;font-size:10px}
+    .page-plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:8px;margin:0 0 9px;padding:9px;border:1px solid var(--bd);border-radius:8px;background:#fafafa}
+    .page-plan-title{grid-column:1/-1;font-size:12px;font-weight:800;color:var(--ink-2)}
+    .page-plan-card{border:1px solid #c9c9c9;border-radius:9px;background:#fff;padding:8px 9px;min-width:0;font-size:11px;line-height:1.35}
+    .page-plan-card>strong{display:block;font-size:13px;margin-bottom:3px}
+    .page-plan-card.manual{border-color:var(--pri);box-shadow:inset 4px 0 0 var(--pri)}
+    .page-plan-lines{font-weight:700;margin-bottom:2px;min-height:30px}
+    .page-plan-count{color:var(--ink-2);margin-bottom:7px}
+    .page-plan-controls{display:grid;grid-template-columns:1fr auto;gap:5px;align-items:end;padding-top:7px;border-top:1px solid #e2e2e2}
+    .page-plan-controls label{grid-column:1/-1;font-size:10px;color:var(--ink-2)}
+    .page-plan-controls select{width:100%;min-width:0;padding:6px;font-size:11px;border-radius:6px}
+    .page-plan-controls .btn{padding:6px 8px;font-size:11px}
+    .page-plan-remove{grid-column:1/-1;border:0;background:transparent;color:var(--pri-700);padding:2px 0;text-align:left;font-size:10px;font-weight:700;cursor:pointer}
+    .page-plan-last{padding-top:7px;border-top:1px solid #e2e2e2;color:var(--muted);font-size:10px;font-weight:700}
+    .editor-table .w-tipo{width:84px}.editor-table .w-linha{width:46px}.editor-table .w-modelo{width:156px}.editor-table .w-remessa{width:72px}.editor-table .w-pares{width:56px}.editor-table .w-entrega{width:72px}.editor-table .w-fab{width:40px}.editor-table .w-cliente{width:160px}.editor-table .w-norm{width:225px}.editor-table .w-tal{width:44px}.editor-table .w-prod{width:62px}.editor-table .w-act{width:56px}
     .saved-list{display:grid;gap:9px}
     .saved-item{border:1px solid var(--bd);border-radius:10px;padding:11px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff}
     .saved-item h3{font-size:15px;margin:0 0 4px}.saved-item p{font-size:12px;color:var(--ink-2);margin:2px 0;line-height:1.35}
     .saved-empty{padding:25px;text-align:center;color:var(--muted)}
+    .norm-review-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .norm-review-summary .summary-card{min-width:145px}
+    .norm-review-summary .filter-card{font-family:inherit;color:inherit;cursor:pointer;transition:.15s;position:relative}
+    .norm-review-summary .filter-card:hover{transform:translateY(-1px);box-shadow:0 3px 9px rgba(0,0,0,.10)}
+    .norm-review-summary .filter-card.active{border:2px solid #d59b00;box-shadow:0 0 0 3px rgba(255,193,7,.18)}
+    .norm-review-summary .filter-card.active:after{content:'FILTRO ATIVO';display:block;margin-top:3px;font-size:9px;font-weight:800;color:#7d5600}
+    .norm-review-summary .filter-card:disabled{cursor:default;opacity:.65;transform:none;box-shadow:none}
+    .norm-review-wrap{overflow:auto;border:1px solid var(--bd);border-radius:8px;max-height:62vh;background:#fff}
+    .norm-review-table{width:100%;min-width:1150px;border-collapse:collapse;font-size:11px}
+    .norm-review-table th,.norm-review-table td{border:1px solid var(--bd);padding:6px;vertical-align:top}
+    .norm-review-table th{position:sticky;top:0;background:#d9d9d9;z-index:2;text-align:center}
+    .norm-review-table td:nth-child(1),.norm-review-table td:nth-child(2),.norm-review-table td:nth-child(3){text-align:center;vertical-align:middle}
+    .change-old{color:#8b1e1e;text-decoration:line-through;display:block;margin-bottom:3px}
+    .change-new{color:#146c2e;font-weight:700;display:block}
+    .confidence-high{color:#146c2e;font-weight:800}.confidence-warn{color:#9a6500;font-weight:800}.confidence-bad{color:#b00020;font-weight:800}
+    .pdf-source-list{font-size:10px;line-height:1.3;color:var(--ink-2)}
     .modal-close{border:0;background:#e9ecef;border-radius:8px;width:36px;height:34px;font-size:21px;cursor:pointer;line-height:1}
 
     @media(max-width:760px){.main-content{padding:8px}.panel{padding:10px}.btn{flex:1 1 auto}.filters .form-group{min-width:calc(50% - 8px);flex:1}h1{font-size:19px}.summary-card{flex:1 1 calc(50% - 8px)}.modal-overlay{padding:4px}.modal-card{max-height:99vh;border-radius:7px}.modal-actions .btn{flex:1 1 calc(50% - 7px)}.saved-item{align-items:flex-start;flex-direction:column}.saved-item .btn{width:100%}}
@@ -124,19 +176,19 @@
       <div class="panel-title">
         <div>
           <h1>Programação por Linha</h1>
-          <div class="hint">O <strong>PDF Factor Geral</strong> é usado somente para lançar campos vazios de cliente, normativa e fábrica (FAB), além de conferir a programação. A programação oficial é sempre criada pelos talões existentes no banco para a data de corte selecionada.</div>
+          <div class="hint">Selecione <strong>3 PDFs Factor Geral de datas diferentes</strong>. O sistema compara cliente e normativa por remessa, escolhe os dois resultados mais próximos e só propõe alterações quando houver concordância segura. A programação oficial continua sendo criada pelos talões existentes no banco.</div>
         </div>
       </div>
       <div class="toolbar">
-        <input type="file" id="pdfFile" class="file-picker-hidden" accept=".pdf,application/pdf" />
-        <label class="btn btn-primary" for="pdfFile">Escolher PDF</label>
+        <input type="file" id="pdfFile" class="file-picker-hidden" accept=".pdf,application/pdf" multiple />
+        <label class="btn btn-primary" for="pdfFile">Escolher 3 PDFs</label>
         <button class="btn btn-primary" id="launchNormativasButton" type="button">Lançar normativas</button>
         <button class="btn btn-primary" id="createProgramButton" type="button">Criar programação</button>
         <button class="btn btn-ok" id="generatePdfButton" type="button">Gerar PDF</button>
         <button class="btn btn-ok" id="saveProgramButton" type="button">Salvar programação</button>
         <button class="btn" id="openSavedButton" type="button">Abrir programações salvas</button>
       </div>
-      <div id="selectedFilesLabel" class="selected-files">Nenhum PDF selecionado.</div>
+      <div id="selectedFilesLabel" class="selected-files">Nenhum PDF selecionado. Escolha três relatórios de datas diferentes.</div>
       <div class="filters">
         <div class="form-group date-small">
           <label for="dataCorteInput">Data de Corte</label>
@@ -145,13 +197,14 @@
       </div>
       <div id="status" class="status">Aguardando login e seleção do PDF.</div>
       <div class="summary" id="summaryCards"></div>
+      <div class="comparison-details" id="comparisonDetails" aria-live="polite"></div>
     </div>
 
     <div class="panel">
       <div class="panel-title">
         <div>
           <h2>Conferência da programação</h2>
-          <div class="hint">A tabela abaixo vem do banco de dados. O PDF atual aparece somente na conferência de remessas, pares, clientes e normativas. Remessas que existam apenas no PDF não entram automaticamente na programação.</div>
+          <div class="hint">A tabela abaixo vem do banco de dados. A conferência usa o consenso dos três PDFs para remessas, pares, clientes e normativas. Remessas que existam apenas nos PDFs não entram automaticamente na programação.</div>
         </div>
       </div>
       <div id="lineSummary"></div>
@@ -166,12 +219,13 @@
       <div class="modal-header">
         <div>
           <h2 id="editorModalTitle">Edição da programação</h2>
-          <div class="hint">Esta prévia usa exatamente os dados que serão enviados ao PDF. Todos os campos podem ser editados; também é possível adicionar e excluir linhas.</div>
+          <div class="hint">Esta prévia usa exatamente os dados que serão enviados ao PDF. Ajuste a divisão diretamente nos cartões de <strong>Página 1, Página 2...</strong>, escolhendo onde cada folha deve terminar.</div>
         </div>
         <button class="modal-close" id="closeEditorButton" type="button" aria-label="Fechar">×</button>
       </div>
       <div class="modal-actions">
         <button class="btn btn-primary" id="addEditorRowButton" type="button">Adicionar linha</button>
+        <button class="btn" id="clearPageBreaksButton" type="button">Limpar divisões de página</button>
         <button class="btn btn-ok" id="saveProgramModalButton" type="button">Salvar programação</button>
         <button class="btn btn-ok" id="printPdfButton" type="button">Gerar PDF para impressão</button>
         <button class="btn" id="closeEditorFooterButton" type="button">Fechar</button>
@@ -179,6 +233,7 @@
       <div class="modal-body">
         <div class="editor-title" id="editorDocumentTitle">Planejamento FactorShoes</div>
         <div class="editor-meta" id="editorSummary"></div>
+        <div class="page-plan" id="pagePlanSummary"></div>
         <div class="editor-table-wrap" id="editorTableWrap"></div>
       </div>
     </div>
@@ -194,6 +249,28 @@
         <button class="modal-close" id="closeSavedButton" type="button" aria-label="Fechar">×</button>
       </div>
       <div class="modal-body"><div id="savedProgramsList" class="saved-list"><div class="saved-empty">Carregando...</div></div></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="normativasModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="normativasModalTitle">
+      <div class="modal-header">
+        <div>
+          <h2 id="normativasModalTitle">Revisão do lançamento de clientes e normativas</h2>
+          <div class="hint">Somente remessas confirmadas por pelo menos dois PDFs são marcadas para atualização. Revise as alterações antes de gravar no banco.</div>
+        </div>
+        <button class="modal-close" id="closeNormativasButton" type="button" aria-label="Fechar">×</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ok" id="confirmNormativasButton" type="button">Confirmar alterações selecionadas</button>
+        <button class="btn" id="selectAllNormativasButton" type="button">Marcar todas seguras</button>
+        <button class="btn" id="unselectAllNormativasButton" type="button">Desmarcar todas</button>
+        <button class="btn" id="closeNormativasFooterButton" type="button">Fechar</button>
+      </div>
+      <div class="modal-body">
+        <div id="normativasReviewSummary" class="norm-review-summary"></div>
+        <div id="normativasReviewWrap" class="norm-review-wrap"><div class="saved-empty">Aguardando análise...</div></div>
+      </div>
     </div>
   </div>
 
@@ -218,6 +295,12 @@
 
     const state = {
       selectedPdfFile: null,
+      selectedPdfFiles: [],
+      pdfSources: [],
+      pdfConsensusAll: new Map(),
+      pendingNormativaUpdates: [],
+      pendingNormativaRows: [],
+      normativasReviewFilter: 'all',
       pdfParsePromise: null,
       pdfReady: false,
       records: [],
@@ -323,47 +406,77 @@
       return `${pad2(m[1])}/${pad2(m[2])}`;
     }
 
+    function reportDateSortKey(value){
+      const m = String(value || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      return m ? Number(`${m[3]}${m[2]}${m[1]}`) : 0;
+    }
+
+    function selectedPdfNames(){
+      return state.pdfSources.map(source => `${source.file.name} (${source.reportDate || 'data não identificada'})`).join(', ');
+    }
+
     async function handlePdfFile(){
-      const file = $('pdfFile').files?.[0] || null;
-      state.selectedPdfFile = file && (/\.pdf$/i.test(file.name) || file.type === 'application/pdf') ? file : null;
+      const files = [...($('pdfFile').files || [])].filter(file => /\.pdf$/i.test(file.name) || file.type === 'application/pdf').slice(0,3);
+      state.selectedPdfFiles = files;
+      state.selectedPdfFile = files[0] || null;
       state.pdfReady = false;
       state.pdfParsePromise = null;
       state.allPdfRecords = [];
       state.pdfMapAll = new Map();
+      state.pdfConsensusAll = new Map();
+      state.pdfSources = [];
       state.pdfMapSelected = new Map();
-      if(!state.selectedPdfFile){
-        $('selectedFilesLabel').textContent = 'Nenhum PDF válido selecionado.';
-        setStatus('Selecione o PDF Factor Geral.');
+      if(!files.length){
+        $('selectedFilesLabel').textContent = 'Nenhum PDF válido selecionado. Escolha três relatórios de datas diferentes.';
+        setStatus('Selecione os três PDFs Factor Geral.');
         return;
       }
-      $('selectedFilesLabel').innerHTML = `PDF selecionado: <strong>${escapeHtml(state.selectedPdfFile.name)}</strong> — lendo o arquivo...`;
-      const guessed = inferDateFromFileName(state.selectedPdfFile.name);
-      if(guessed && !$('dataCorteInput').value) $('dataCorteInput').value = guessed;
+      if(($('pdfFile').files || []).length > 3){
+        setStatus('Foram selecionados mais de três arquivos. O sistema usará somente os três primeiros PDFs.');
+      }
+      $('selectedFilesLabel').innerHTML = `Lendo <strong>${files.length}</strong> PDF(s)...`;
       try{
-        state.pdfParsePromise = parseFactorGeralPdf(state.selectedPdfFile);
-        const records = await state.pdfParsePromise;
-        state.allPdfRecords = records;
-        state.pdfMapAll = buildPdfMap(records);
+        state.pdfParsePromise = Promise.all(files.map(async file => {
+          const parsed = await parseFactorGeralPdf(file);
+          return {file, reportDate:parsed.reportDate || '', records:parsed.records, map:buildPdfMap(parsed.records)};
+        }));
+        const sources = await state.pdfParsePromise;
+        sources.sort((a,b)=>reportDateSortKey(a.reportDate)-reportDateSortKey(b.reportDate));
+        state.pdfSources = sources;
+        state.selectedPdfFile = sources.length ? sources[sources.length-1].file : null;
+        state.allPdfRecords = sources.flatMap(source => source.records.map(record => ({...record, sourceDate:source.reportDate, sourceFile:source.file.name})));
+        state.pdfConsensusAll = buildConsensusMap(sources.map(source => ({...source,map:source.map})));
+        state.pdfMapAll = state.pdfConsensusAll;
         state.pdfReady = true;
-        const pares = [...state.pdfMapAll.values()].reduce((sum,item)=>sum+parseNumberBR(item.pares),0);
-        $('selectedFilesLabel').innerHTML = `PDF: <strong>${escapeHtml(state.selectedPdfFile.name)}</strong> — ${state.pdfMapAll.size} remessa(s), ${formatNumberBR(pares)} pares.`;
-        setStatus('PDF lido. Agora você pode <strong>Lançar normativas</strong> ou escolher a data e <strong>Criar programação</strong>.');
+        const detalhes = sources.map(source => `${escapeHtml(source.file.name)}: <strong>${escapeHtml(source.reportDate || 'sem data')}</strong>, ${source.map.size} rem.`).join(' &nbsp;•&nbsp; ');
+        $('selectedFilesLabel').innerHTML = `<strong>${sources.length} PDF(s) carregado(s)</strong> — ${detalhes}`;
+        if(sources.length === 3){
+          setStatus('Três PDFs lidos. O botão <strong>Lançar normativas</strong> abrirá uma revisão antes de qualquer alteração no banco.');
+        }else{
+          setStatus(`Foram carregados <strong>${sources.length}</strong> PDF(s). Para corrigir clientes e normativas com segurança, selecione exatamente <strong>3 PDFs</strong>.`);
+        }
       }catch(err){
         console.error(err);
         state.pdfReady = false;
-        $('selectedFilesLabel').innerHTML = `PDF: <strong>${escapeHtml(state.selectedPdfFile.name)}</strong> — erro na leitura.`;
-        setStatus('Erro ao ler o PDF: ' + escapeHtml(err.message || String(err)));
+        $('selectedFilesLabel').innerHTML = 'Erro na leitura dos PDFs.';
+        setStatus('Erro ao ler os PDFs: ' + escapeHtml(err.message || String(err)));
       }finally{
         state.pdfParsePromise = null;
       }
     }
 
-    async function ensurePdfReady(){
-      if(state.pdfReady && state.allPdfRecords.length) return true;
-      if(state.pdfParsePromise){ await state.pdfParsePromise; return state.pdfReady; }
-      if(!state.selectedPdfFile){ setStatus('Selecione primeiro o <strong>PDF Factor Geral</strong>.'); return false; }
+    async function ensurePdfReady(requireThree=false){
+      if(state.pdfReady && state.pdfSources.length){
+        if(requireThree && state.pdfSources.length !== 3){
+          setStatus('Para lançar clientes e normativas, selecione exatamente <strong>3 PDFs Factor Geral</strong>.');
+          return false;
+        }
+        return true;
+      }
+      if(state.pdfParsePromise){ await state.pdfParsePromise; return ensurePdfReady(requireThree); }
+      if(!state.selectedPdfFiles.length){ setStatus('Selecione primeiro os <strong>3 PDFs Factor Geral</strong>.'); return false; }
       await handlePdfFile();
-      return state.pdfReady;
+      return ensurePdfReady(requireThree);
     }
 
     onAuthStateChanged(auth, async (user) => {
@@ -405,6 +518,7 @@
       const pdf = await window.pdfjsLib.getDocument({data}).promise;
       const records = [];
       let current = null;
+      let reportDate = '';
 
       for(let pageNum=1; pageNum<=pdf.numPages; pageNum++){
         const page = await pdf.getPage(pageNum);
@@ -415,11 +529,13 @@
           return { text:str, x:tx[4], y:tx[5], page:pageNum };
         }).filter(i => i.text);
 
-        const anosDaPagina = items
-          .filter(i => /^\d{2}\/\d{2}\/\d{4}$/.test(i.text))
-          .map(i => parseInt(i.text.split('/')[2],10))
-          .filter(y => Number.isFinite(y) && y >= 2020);
+        const fullDateItems = items.filter(i => /^\d{2}\/\d{2}\/\d{4}$/.test(i.text));
+        const anosDaPagina = fullDateItems.map(i => parseInt(i.text.split('/')[2],10)).filter(y => Number.isFinite(y) && y >= 2020);
         if(anosDaPagina.length) state.reportYear = Math.max(state.reportYear, ...anosDaPagina);
+        if(!reportDate && fullDateItems.length){
+          const headerDate = fullDateItems.slice().sort((a,b)=>(b.y-a.y)||(b.x-a.x))[0];
+          reportDate = headerDate?.text || '';
+        }
 
         const headerClient = items.find(i => normalizeText(i.text) === 'CLIENTE');
         const headerObs = items.find(i => normalizeText(i.text).startsWith('OBSERVACAO'));
@@ -438,7 +554,7 @@
         }
       }
       if(current) records.push(finalizePdfRecord(current));
-      return records.filter(r => r.remessa && r.linha && r.pares && r.corte);
+      return {records:records.filter(r => r.remessa && r.linha && r.pares && r.corte), reportDate};
     }
 
     function groupPdfLines(items){
@@ -559,6 +675,119 @@
       return map;
     }
 
+    function similarityTokens(value){
+      return normalizeText(value).replace(/[^A-Z0-9À-Ü]+/g,' ').split(/\s+/).filter(Boolean);
+    }
+
+    function jaccardSimilarity(a,b){
+      const A = new Set(similarityTokens(a));
+      const B = new Set(similarityTokens(b));
+      if(!A.size && !B.size) return 1;
+      if(!A.size || !B.size) return 0;
+      let inter = 0;
+      A.forEach(token=>{ if(B.has(token)) inter++; });
+      return inter / (A.size + B.size - inter);
+    }
+
+    function fieldSimilarity(a,b,field){
+      const na = normalizeText(field === 'cliente' ? cleanCliente(a) : cleanNormativa(a));
+      const nb = normalizeText(field === 'cliente' ? cleanCliente(b) : cleanNormativa(b));
+      if(!na || !nb) return 0;
+      if(na === nb) return 1;
+      const wordScore = jaccardSimilarity(na,nb);
+      if(field === 'cliente') return wordScore;
+      const numsA = new Set((na.match(/\d+/g)||[]));
+      const numsB = new Set((nb.match(/\d+/g)||[]));
+      let numberScore = 1;
+      if(numsA.size || numsB.size){
+        let inter = 0; numsA.forEach(n=>{if(numsB.has(n)) inter++;});
+        numberScore = inter / Math.max(1, numsA.size + numsB.size - inter);
+      }
+      return (wordScore * 0.45) + (numberScore * 0.55);
+    }
+
+    function valueCompleteness(value,field){
+      const cleaned = field === 'cliente' ? cleanCliente(value) : cleanNormativa(value);
+      const tokens = similarityTokens(cleaned);
+      const numbers = (cleaned.match(/\d+/g)||[]).length;
+      return tokens.length + numbers * 1.5 + Math.min(cleaned.length,180)/180;
+    }
+
+    function chooseConsensusField(candidates,field){
+      const valid = (candidates || []).map((candidate,index)=>({
+        ...candidate,
+        value:field === 'cliente' ? cleanCliente(candidate.value) : cleanNormativa(candidate.value),
+        sourceIndex:index
+      })).filter(candidate=>hasValue(candidate.value));
+      if(!valid.length) return {value:'',support:0,total:candidates.length,confidence:'vazio',score:0,sources:[]};
+      if(valid.length === 1) return {value:valid[0].value,support:1,total:candidates.length,confidence:'insuficiente',score:0,sources:[valid[0]]};
+      let best = null;
+      for(let i=0;i<valid.length;i++){
+        for(let j=i+1;j<valid.length;j++){
+          const score = fieldSimilarity(valid[i].value,valid[j].value,field);
+          const dateScore = Math.max(reportDateSortKey(valid[i].reportDate),reportDateSortKey(valid[j].reportDate));
+          if(!best || score > best.score || (score === best.score && dateScore > best.dateScore)) best={a:valid[i],b:valid[j],score,dateScore};
+        }
+      }
+      const threshold = field === 'cliente' ? 0.82 : 0.72;
+      const pair = [best.a,best.b];
+      pair.sort((a,b)=>{
+        const complete = valueCompleteness(b.value,field)-valueCompleteness(a.value,field);
+        if(Math.abs(complete)>0.15) return complete;
+        return reportDateSortKey(b.reportDate)-reportDateSortKey(a.reportDate);
+      });
+      const chosen = pair[0];
+      const agreeing = valid.filter(candidate=>fieldSimilarity(candidate.value,chosen.value,field)>=threshold);
+      return {
+        value:chosen.value,
+        support:agreeing.length,
+        total:candidates.length,
+        confidence:best.score>=threshold && agreeing.length>=2 ? 'alta' : 'revisar',
+        score:best.score,
+        sources:agreeing
+      };
+    }
+
+    function chooseConsensusPares(candidates){
+      const counts = new Map();
+      candidates.forEach(candidate=>{ const value=parseNumberBR(candidate.value); if(value) counts.set(value,(counts.get(value)||0)+1); });
+      const ranked=[...counts.entries()].sort((a,b)=>(b[1]-a[1])||(b[0]-a[0]));
+      return ranked.length ? ranked[0][0] : 0;
+    }
+
+    function chooseConsensusFabrica(candidates){
+      const counts = new Map();
+      candidates.forEach(candidate=>{ const value=String(candidate.value||'').trim(); if(value) counts.set(value,(counts.get(value)||0)+1); });
+      const ranked=[...counts.entries()].sort((a,b)=>(b[1]-a[1])||sortNumericText(a[0],b[0]));
+      return ranked.length ? ranked[0][0] : '';
+    }
+
+    function buildConsensusMap(sources){
+      const remessas = new Set();
+      (sources||[]).forEach(source=>source.map.forEach((_,remessa)=>remessas.add(remessa)));
+      const result = new Map();
+      remessas.forEach(remessa=>{
+        const sourceValues=(sources||[]).map(source=>{
+          const item=source.map.get(remessa)||{};
+          return {fileName:source.file?.name||'',reportDate:source.reportDate||'',cliente:item.cliente||'',normativa:item.normativa||'',pares:item.pares||0,fabrica:item.fabrica||'',cortes:item.cortes||[],linhas:item.linhas||[]};
+        });
+        const clienteConsensus=chooseConsensusField(sourceValues.map(v=>({...v,value:v.cliente})),'cliente');
+        const normativaConsensus=chooseConsensusField(sourceValues.map(v=>({...v,value:v.normativa})),'normativa');
+        const latestAvailable=sourceValues.slice().sort((a,b)=>reportDateSortKey(b.reportDate)-reportDateSortKey(a.reportDate)).find(v=>v.pares||v.cliente||v.normativa)||{};
+        result.set(remessa,{
+          remessa,
+          pares:chooseConsensusPares(sourceValues.map(v=>({...v,value:v.pares}))) || parseNumberBR(latestAvailable.pares),
+          cliente:clienteConsensus.value || '',
+          normativa:normativaConsensus.value || '',
+          fabrica:chooseConsensusFabrica(sourceValues.map(v=>({...v,value:v.fabrica}))),
+          cortes:uniqueValues(sourceValues.flatMap(v=>v.cortes||[])),
+          linhas:uniqueValues(sourceValues.flatMap(v=>v.linhas||[])),
+          clienteConsensus,normativaConsensus,sourceValues
+        });
+      });
+      return result;
+    }
+
     function cleanCliente(value){
       let s = String(value || '').replace(/\s+/g,' ').trim();
       if(/^0+$/.test(s)) return '';
@@ -566,6 +795,8 @@
       s = s.replace(/\bEmpenho\b.*$/i, '').trim();
       s = s.replace(/\bUsu[aá]rio\b.*$/i, '').trim();
       s = s.replace(/\bP[aá]gina\b.*$/i, '').trim();
+      s = s.replace(/\b\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}\b/g, ' ');
+      s = s.replace(/(^|\s)à(?=\s|$)/gi, ' ').replace(/\s+0$/,'').replace(/\s+/g,' ').trim();
       const u = normalizeText(s);
       const mappings = [
         ['INDUSTRIAS VERSATO', 'VERSATO'], ['VERSATO', 'VERSATO'], ['MARISA LOJAS', 'MARISA'], ['KALLAN CALCADOS', 'KALLAN'],
@@ -596,7 +827,8 @@
         /\s+Empenho\s+à.*$/i
       ];
       cortesRodape.forEach(rx => { s = s.replace(rx, ''); });
-      s = s.replace(/\s+/g,' ').trim();
+      s = s.replace(/\b\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}\b/g, ' ');
+      s = s.replace(/(^|\s)à(?=\s|$)/gi, ' ').replace(/^0\s+/,'').replace(/\s+/g,' ').trim();
       return s;
     }
 
@@ -799,7 +1031,7 @@
         fabrica:fabricas.join(' / '),
         cliente:clientes.join(' / '),
         normativa:normativas.join(' | '),
-        costura:'', palmilha:'', sola:'', embarque:'',
+        costura:'', palmilha:'', sola:'', embarque:'', pageBreakBefore:false,
         conferencia:{status:'Aguardando', detalhe:'Ainda não comparado com o PDF.'},
         pdfPares:0, pdfCliente:'', pdfNormativa:''
       };
@@ -855,8 +1087,8 @@
           setStatus(`Nenhum talão encontrado no banco para o corte <strong>${escapeHtml(target.dm)}</strong>.`);
           return;
         }
-        const pdfSelecionado = state.allPdfRecords.filter(r => String(r.corte || '') === target.dm);
-        state.pdfMapSelected = buildPdfMap(pdfSelecionado);
+        const selectedSources = state.pdfSources.map(source => ({...source,map:buildPdfMap(source.records.filter(r => String(r.corte || '') === target.dm))}));
+        state.pdfMapSelected = buildConsensusMap(selectedSources);
         const records = [...bancoMap.values()].map((item,index)=>recordFromBancoItem(item,target,index));
         state.currentTarget = target;
         state.currentProgramId = null;
@@ -962,7 +1194,9 @@
     }
 
     function editorRecordRow(record, index){
-      return `<tr class="${isExportacao(record.tipoCliente) ? 'editor-export' : ''}" data-index="${index}">
+      const hasBreak = !!record.pageBreakBefore;
+      const isFirstRecord = index === 0;
+      return `<tr class="${isExportacao(record.tipoCliente) ? 'editor-export' : ''}${hasBreak ? ' editor-page-break' : ''}" data-index="${index}">
         <td><select data-field="tipoCliente">${tipoOptions(record.tipoCliente)}</select></td>
         <td><input data-field="linha" value="${escapeHtml(record.linha)}"></td>
         <td><div class="model-pair"><small>Modelo</small><input data-field="modelo" value="${escapeHtml(record.modelo)}"><small>Ateliê</small><input data-field="atelieResponsavel" value="${escapeHtml(record.atelieResponsavel || '')}"></div></td>
@@ -977,7 +1211,7 @@
         <td><input data-field="palmilha" value="${escapeHtml(record.palmilha || '')}"></td>
         <td><input data-field="sola" value="${escapeHtml(record.sola || '')}"></td>
         <td><input data-field="embarque" value="${escapeHtml(record.embarque || '')}"></td>
-        <td><button class="btn btn-danger btn-mini" type="button" data-action="delete-editor">Excluir</button></td>
+        <td><div class="editor-action-buttons"><button class="btn btn-danger btn-mini" type="button" data-action="delete-editor">Excluir</button></div></td>
       </tr>`;
     }
 
@@ -992,7 +1226,7 @@
         if(line !== lastLine){
           const lineRows = state.records.filter(r=>String(r.linha || 'Sem linha')===line);
           const total = lineRows.reduce((sum,r)=>sum+parseNumberBR(r.pares),0);
-          body += `<tr class="editor-line-header"><td colspan="15">LINHA ${escapeHtml(line)} — ${lineRows.length} remessa(s) — ${formatNumberBR(total)} pares</td></tr>`;
+          body += `<tr class="editor-line-header"><td colspan="15"><div class="editor-line-header-content"><span>LINHA ${escapeHtml(line)} — ${lineRows.length} remessa(s) — ${formatNumberBR(total)} pares</span></div></td></tr>`;
           lastLine = line;
         }
         body += editorRecordRow(record,index);
@@ -1019,6 +1253,26 @@
       updateSummary();
     }
 
+    function toggleEditorPageBreak(event){
+      const explicitIndex = event.currentTarget?.dataset?.index;
+      const tr = event.currentTarget?.closest('tr[data-index]');
+      const index = explicitIndex !== undefined ? Number(explicitIndex) : Number(tr?.dataset.index);
+      if(!Number.isInteger(index) || !state.records[index]) return;
+      state.records[index].pageBreakBefore = !state.records[index].pageBreakBefore;
+      renderEditorTable();
+      updateSummary();
+    }
+
+    function clearPageBreaks(){
+      const count = state.records.filter(r=>r.pageBreakBefore).length;
+      if(!count){ setStatus('A programação não possui divisões manuais de página.'); return; }
+      if(!confirm(`Remover as ${count} divisão(ões) manual(is) de página desta programação?`)) return;
+      state.records.forEach(record=>{ record.pageBreakBefore = false; });
+      renderEditorTable();
+      updateSummary();
+      setStatus('Divisões manuais removidas. A paginação voltou ao modo automático.');
+    }
+
     function deleteEditorRow(event){
       const tr = event.target.closest('tr[data-index]');
       const index = Number(tr?.dataset.index);
@@ -1035,18 +1289,118 @@
       state.records.push({
         id:`manual_${Date.now()}`, origem:'manual', tipoCliente:'Mercado Interno', linha:linhaBase, modelo:'', atelieResponsavel:'', modeloAtelieEntries:[],
         remessa:'', pares:0, taloes:0, corte:target?.dm || '', dataCorteIso:target?.iso || '', dataEntregaIso:'', entrega:'', fabrica:'', cliente:'', normativa:'',
-        costura:'', palmilha:'', sola:'', embarque:'', conferencia:{status:'Manual',detalhe:'Linha adicionada manualmente.'}, pdfPares:0, pdfCliente:'', pdfNormativa:''
+        costura:'', palmilha:'', sola:'', embarque:'', pageBreakBefore:false, conferencia:{status:'Manual',detalhe:'Linha adicionada manualmente.'}, pdfPares:0, pdfCliente:'', pdfNormativa:''
       });
       state.lineOrder = uniqueValues(state.records.map(r=>r.linha)).sort(sortNumericText);
       renderEditorTable();
       const scroller = $('editorTableWrap'); if(scroller) scroller.scrollTop = scroller.scrollHeight;
     }
 
+    function orderedPdfRecords(){
+      return groupByLinha().flatMap(([, rows]) => rows);
+    }
+
+    function pageBoundaryLabel(record, ordered, orderIndex){
+      const next = ordered[orderIndex + 1];
+      const linha = String(record?.linha || 'Sem linha');
+      if(!next || String(next.linha || 'Sem linha') !== linha){
+        return `Após a linha ${linha}`;
+      }
+      return `Linha ${linha}: após remessa ${record?.remessa || (orderIndex + 1)}`;
+    }
+
+    function applyPageEndFromPlan(event){
+      const card = event.currentTarget.closest('.page-plan-card');
+      const pageIndex = Number(card?.dataset.pageIndex);
+      const select = card?.querySelector('[data-page-end-select]');
+      const endOrderIndex = Number(select?.value);
+      const ordered = orderedPdfRecords();
+      const currentPages = paginateRecords();
+      const pageRows = currentPages[pageIndex]?.flatMap(group => group.rows) || [];
+      const firstRecord = pageRows[0];
+      const startOrderIndex = ordered.indexOf(firstRecord);
+
+      if(!Number.isInteger(endOrderIndex) || endOrderIndex < startOrderIndex || endOrderIndex >= ordered.length - 1){
+        setStatus('Não foi possível aplicar esse fim de página. Escolha outro ponto.');
+        return;
+      }
+
+      // Remove quebras existentes dentro do trecho que o usuário escolheu manter na mesma folha.
+      for(let i = startOrderIndex + 1; i <= endOrderIndex; i++){
+        ordered[i].pageBreakBefore = false;
+      }
+      ordered[endOrderIndex + 1].pageBreakBefore = true;
+
+      const label = pageBoundaryLabel(ordered[endOrderIndex], ordered, endOrderIndex);
+      renderEditorTable();
+      updateSummary();
+      setStatus(`Página ${pageIndex + 1} ajustada: <strong>${escapeHtml(label)}</strong>.`);
+    }
+
+    function removePageEndFromPlan(event){
+      const pageIndex = Number(event.currentTarget.dataset.pageIndex);
+      const currentPages = paginateRecords();
+      const nextFirstRecord = currentPages[pageIndex + 1]?.[0]?.rows?.[0];
+      if(!nextFirstRecord || !nextFirstRecord.pageBreakBefore){
+        setStatus('Essa página já está usando a divisão automática.');
+        return;
+      }
+      nextFirstRecord.pageBreakBefore = false;
+      renderEditorTable();
+      updateSummary();
+      setStatus(`A divisão manual após a página ${pageIndex + 1} foi removida.`);
+    }
+
+    function renderPagePlan(pages){
+      const wrap = $('pagePlanSummary');
+      if(!wrap) return;
+      if(!pages.length){ wrap.innerHTML = '<div class="page-plan-title">Nenhuma página estimada.</div>'; return; }
+
+      const ordered = orderedPdfRecords();
+      const cards = pages.map((groups,index)=>{
+        const rows = groups.flatMap(group=>group.rows);
+        const total = rows.reduce((sum,row)=>sum+parseNumberBR(row.pares),0);
+        const labels = groups.map(group=>`Linha ${group.linha}${group.parte ? ' parte ' + group.parte : ''}`).join(' / ');
+        const lastRecord = rows[rows.length - 1];
+        const lastOrderIndex = ordered.indexOf(lastRecord);
+        const nextRecord = ordered[lastOrderIndex + 1];
+        const manualEnd = !!nextRecord?.pageBreakBefore;
+
+        let controls = '<div class="page-plan-last">Última página — termina no final da programação.</div>';
+        if(nextRecord){
+          const options = rows.map(record => {
+            const orderIndex = ordered.indexOf(record);
+            const selected = orderIndex === lastOrderIndex ? 'selected' : '';
+            return `<option value="${orderIndex}" ${selected}>${escapeHtml(pageBoundaryLabel(record, ordered, orderIndex))}</option>`;
+          }).join('');
+          controls = `<div class="page-plan-controls">
+            <label>Onde a página ${index + 1} deve terminar?</label>
+            <select data-page-end-select>${options}</select>
+            <button class="btn btn-primary" type="button" data-action="apply-page-end">Aplicar</button>
+            ${manualEnd ? `<button class="page-plan-remove" type="button" data-action="remove-page-end" data-page-index="${index}">Usar divisão automática nesta página</button>` : ''}
+          </div>`;
+        }
+
+        return `<div class="page-plan-card ${manualEnd ? 'manual' : ''}" data-page-index="${index}">
+          <strong>Página ${index+1}${manualEnd ? ' • ajuste manual' : ''}</strong>
+          <div class="page-plan-lines">${escapeHtml(labels)}</div>
+          <div class="page-plan-count">${rows.length} remessa(s) • ${formatNumberBR(total)} pares</div>
+          ${controls}
+        </div>`;
+      }).join('');
+
+      wrap.innerHTML = `<div class="page-plan-title">Distribuição das folhas — em cada cartão escolha onde aquela página deve terminar:</div>${cards}`;
+      wrap.querySelectorAll('[data-action="apply-page-end"]').forEach(button=>button.addEventListener('click',applyPageEndFromPlan));
+      wrap.querySelectorAll('[data-action="remove-page-end"]').forEach(button=>button.addEventListener('click',removePageEndFromPlan));
+    }
+
     function updateEditorSummary(){
       const totals = getTotals();
       const target = state.currentTarget || parseDateInput($('dataCorteInput').value);
+      const pages = paginateRecords();
       $('editorDocumentTitle').textContent = `Planejamento FactorShoes - Corte ${target ? target.dm : ''}`;
-      $('editorSummary').innerHTML = `<span>Total: ${formatNumberBR(totals.total)} pares</span><span>Exportação: ${formatNumberBR(totals.totalExp)} pares</span><span>${totals.qtdRemessas} remessa(s) • ${formatNumberBR(totals.totalTaloes)} talões • ${paginateRecords().length || 0} página(s) estimada(s)</span>`;
+      $('editorSummary').innerHTML = `<span>Total: ${formatNumberBR(totals.total)} pares</span><span>Exportação: ${formatNumberBR(totals.totalExp)} pares</span><span>${totals.qtdRemessas} remessa(s) • ${formatNumberBR(totals.totalTaloes)} talões • ${pages.length || 0} página(s) estimada(s)</span>`;
+      renderPagePlan(pages);
     }
 
     function openEditorModal(){
@@ -1081,8 +1435,107 @@
       return { totalExp,totalNormal,total,totalBanco:total,totalTaloes,totalClienteEspecial,totalMercadoInterno,totalEstoque,qtdExp:new Set(exp.map(r=>r.remessa)).size,qtdRemessas:new Set(state.records.map(r=>normalizeRemessa(r.remessa)).filter(Boolean)).size };
     }
 
+    function comparisonFieldRows(record){
+      const rows = [];
+      const bancoPares = parseNumberBR(record.pares);
+      const pdfPares = parseNumberBR(record.pdfPares);
+      if(bancoPares !== pdfPares){
+        rows.push({campo:'Pares', banco:formatNumberBR(bancoPares), pdf:formatNumberBR(pdfPares)});
+      }
+      const bancoCliente = cleanCliente(record.cliente || '');
+      const pdfCliente = cleanCliente(record.pdfCliente || '');
+      if(normalizeText(bancoCliente) !== normalizeText(pdfCliente)){
+        rows.push({campo:'Cliente', banco:bancoCliente || '-', pdf:pdfCliente || '-'});
+      }
+      const bancoNormativa = cleanNormativa(record.normativa || '');
+      const pdfNormativa = cleanNormativa(record.pdfNormativa || '');
+      if(normalizeText(bancoNormativa) !== normalizeText(pdfNormativa)){
+        rows.push({campo:'Normativa', banco:bancoNormativa || '-', pdf:pdfNormativa || '-'});
+      }
+      return rows;
+    }
+
+    function closeComparisonDetails(){
+      const wrap = $('comparisonDetails');
+      if(!wrap) return;
+      wrap.classList.remove('open');
+      wrap.innerHTML = '';
+    }
+
+    function showComparisonDetails(kind){
+      const wrap = $('comparisonDetails');
+      if(!wrap) return;
+      let title = '';
+      let subtitle = '';
+      let rowsHtml = '';
+
+      if(kind === 'divergentes'){
+        title = 'Remessas divergentes';
+        const divergentes = state.records.filter(r => r.conferencia?.status === 'Divergente');
+        subtitle = `${divergentes.length} remessa(s) com diferença entre o banco e o PDF atual.`;
+        const detailRows = [];
+        divergentes.forEach(record => {
+          const fields = comparisonFieldRows(record);
+          if(fields.length){
+            fields.forEach(field => detailRows.push({record, ...field}));
+          }else{
+            detailRows.push({record, campo:'Conferência', banco:record.conferencia?.detalhe || '-', pdf:'-'});
+          }
+        });
+        rowsHtml = detailRows.map(item => `<tr>
+          <td><strong>${escapeHtml(item.record.remessa || '-')}</strong></td>
+          <td>${escapeHtml(item.record.linha || '-')}</td>
+          <td class="comparison-field">${escapeHtml(item.campo)}</td>
+          <td>${escapeHtml(item.banco)}</td>
+          <td>${escapeHtml(item.pdf)}</td>
+        </tr>`).join('');
+      }else if(kind === 'somenteBanco'){
+        title = 'Remessas somente no banco';
+        const items = state.records.filter(r => r.conferencia?.status === 'Somente no banco');
+        subtitle = `${items.length} remessa(s) pertencem ao corte selecionado, mas não foram encontradas no PDF atual.`;
+        rowsHtml = items.map(record => `<tr>
+          <td><strong>${escapeHtml(record.remessa || '-')}</strong></td>
+          <td>${escapeHtml(record.linha || '-')}</td>
+          <td class="num">${formatNumberBR(record.pares)}</td>
+          <td>${escapeHtml(record.cliente || '-')}</td>
+          <td>${escapeHtml(record.normativa || '-')}</td>
+        </tr>`).join('');
+      }else if(kind === 'somentePdf'){
+        title = 'Remessas somente no PDF';
+        const items = state.pdfOnly || [];
+        subtitle = `${items.length} remessa(s) aparecem no PDF, mas não foram encontradas no banco para a data de corte selecionada.`;
+        rowsHtml = items.map(item => `<tr>
+          <td><strong>${escapeHtml(item.remessa || '-')}</strong></td>
+          <td>${escapeHtml((item.linhas || []).join(' / ') || '-')}</td>
+          <td class="num">${formatNumberBR(item.pares)}</td>
+          <td>${escapeHtml(item.cliente || '-')}</td>
+          <td>${escapeHtml(item.normativa || '-')}</td>
+        </tr>`).join('');
+      }
+
+      let tableHead = '';
+      if(kind === 'divergentes'){
+        tableHead = '<tr><th>Remessa</th><th>Linha</th><th>Campo divergente</th><th>Banco</th><th>PDF</th></tr>';
+      }else{
+        tableHead = '<tr><th>Remessa</th><th>Linha</th><th>Pares</th><th>Cliente</th><th>Normativa</th></tr>';
+      }
+
+      wrap.innerHTML = `<div class="comparison-details-head">
+        <div><h3>${escapeHtml(title)}</h3><p>${escapeHtml(subtitle)}</p></div>
+        <button class="comparison-details-close" id="closeComparisonDetailsButton" type="button" aria-label="Fechar detalhes">×</button>
+      </div>
+      ${rowsHtml ? `<div class="comparison-details-wrap"><table class="comparison-details-table"><thead>${tableHead}</thead><tbody>${rowsHtml}</tbody></table></div>` : '<div class="comparison-empty">Nenhuma ocorrência encontrada.</div>'}`;
+      wrap.classList.add('open');
+      $('closeComparisonDetailsButton')?.addEventListener('click', closeComparisonDetails);
+      wrap.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+
     function updateSummary(){
-      if(!state.records.length){ $('summaryCards').innerHTML = ''; return; }
+      if(!state.records.length){
+        $('summaryCards').innerHTML = '';
+        closeComparisonDetails();
+        return;
+      }
       const totals = getTotals();
       const c = state.comparison || {};
       $('summaryCards').innerHTML = `
@@ -1092,10 +1545,13 @@
         <div class="summary-card"><span>Remessas PDF</span><strong>${c.pdfRemessas || 0}</strong></div>
         <div class="summary-card"><span>Pares PDF</span><strong>${formatNumberBR(c.pdfPares || 0)}</strong></div>
         <div class="summary-card good"><span>Conferidas</span><strong>${c.ok || 0}</strong></div>
-        <div class="summary-card ${(c.divergentes||0) ? 'warn' : ''}"><span>Divergentes</span><strong>${c.divergentes || 0}</strong></div>
-        <div class="summary-card ${(c.somenteBanco||0) ? 'bad' : ''}"><span>Somente banco</span><strong>${c.somenteBanco || 0}</strong></div>
-        <div class="summary-card ${(c.somentePdf||0) ? 'warn' : ''}"><span>Somente PDF</span><strong>${c.somentePdf || 0}</strong></div>
+        <button class="summary-card ${(c.divergentes||0) ? 'warn' : ''}" type="button" data-comparison-detail="divergentes" ${(c.divergentes||0) ? '' : 'disabled'} title="Clique para ver as remessas e os campos divergentes"><span>Divergentes</span><strong>${c.divergentes || 0}</strong></button>
+        <button class="summary-card ${(c.somenteBanco||0) ? 'bad' : ''}" type="button" data-comparison-detail="somenteBanco" ${(c.somenteBanco||0) ? '' : 'disabled'} title="Clique para ver as remessas existentes somente no banco"><span>Somente banco</span><strong>${c.somenteBanco || 0}</strong></button>
+        <button class="summary-card ${(c.somentePdf||0) ? 'warn' : ''}" type="button" data-comparison-detail="somentePdf" ${(c.somentePdf||0) ? '' : 'disabled'} title="Clique para ver as remessas existentes somente no PDF"><span>Somente PDF</span><strong>${c.somentePdf || 0}</strong></button>
         <div class="summary-card"><span>Páginas estimadas</span><strong>${paginateRecords().length || 0}</strong></div>`;
+      $('summaryCards').querySelectorAll('[data-comparison-detail]').forEach(button => {
+        button.addEventListener('click', () => showComparisonDetails(button.dataset.comparisonDetail));
+      });
     }
 
     function groupByLinha(){
@@ -1219,14 +1675,29 @@
       return chunks;
     }
 
+    function buildPaginationQueue(){
+      const queue = [];
+      groupByLinha().forEach(([linha, rows])=>{
+        let segmentRows = [];
+        let segmentBreak = false;
+        rows.slice().sort(sortRecordsForPdf).forEach(row=>{
+          if(row.pageBreakBefore && segmentRows.length){
+            queue.push({linha, rows:segmentRows, parte:'', manualBreakBefore:segmentBreak});
+            segmentRows = [row];
+            segmentBreak = true;
+          }else{
+            if(!segmentRows.length) segmentBreak = !!row.pageBreakBefore;
+            segmentRows.push(row);
+          }
+        });
+        if(segmentRows.length) queue.push({linha, rows:segmentRows, parte:'', manualBreakBefore:segmentBreak});
+      });
+      return queue;
+    }
+
     function paginateRecords(){
       const measureDoc = createPdfMeasureDoc();
-      const queue = groupByLinha().map(([linha, rows]) => ({
-        linha,
-        rows:rows.slice().sort(sortRecordsForPdf),
-        parte:''
-      }));
-
+      const queue = buildPaginationQueue();
       const pages = [];
       let current = [];
 
@@ -1234,19 +1705,24 @@
         const pageLimit = pdfTableAvailableHeight(pageIndex);
         const accepted = [];
         for(const row of group.rows){
-          const candidateGroup = {linha:group.linha, rows:[...accepted, row], parte:''};
+          const candidateGroup = {linha:group.linha, rows:[...accepted, row], parte:'', manualBreakBefore:group.manualBreakBefore};
           const candidatePage = [...pageGroups, candidateGroup];
-          if(estimatePageHeight(candidatePage, measureDoc) <= pageLimit){
-            accepted.push(row);
-          }else{
-            break;
-          }
+          if(estimatePageHeight(candidatePage, measureDoc) <= pageLimit) accepted.push(row);
+          else break;
         }
         return accepted;
       }
 
       while(queue.length){
         const group = queue.shift();
+
+        // Uma divisão manual sempre encerra a folha atual. Marcando a primeira
+        // remessa de uma linha, a linha inteira começa na página seguinte.
+        if(group.manualBreakBefore && current.length){
+          pages.push(current);
+          current = [];
+        }
+
         const pageIndex = pages.length;
         const pageLimit = pdfTableAvailableHeight(pageIndex);
         const wholeCandidate = [...current, group];
@@ -1256,15 +1732,13 @@
           continue;
         }
 
-        // A linha inteira não cabe. Usa o espaço restante da página com o
-        // máximo possível da próxima linha, evitando páginas quase vazias.
         const accepted = rowsThatFit(group, current, pageIndex);
         if(accepted.length){
-          current.push({linha:group.linha, rows:accepted, parte:''});
+          current.push({linha:group.linha, rows:accepted, parte:'', manualBreakBefore:group.manualBreakBefore});
           pages.push(current);
           current = [];
           const remaining = group.rows.slice(accepted.length);
-          if(remaining.length) queue.unshift({linha:group.linha, rows:remaining, parte:''});
+          if(remaining.length) queue.unshift({linha:group.linha, rows:remaining, parte:'', manualBreakBefore:false});
           continue;
         }
 
@@ -1275,11 +1749,10 @@
           continue;
         }
 
-        // Segurança para uma única remessa com textos excepcionalmente longos.
         const forcedRow = group.rows[0];
-        pages.push([{linha:group.linha, rows:[forcedRow], parte:''}]);
+        pages.push([{linha:group.linha, rows:[forcedRow], parte:'', manualBreakBefore:group.manualBreakBefore}]);
         const remaining = group.rows.slice(1);
-        if(remaining.length) queue.unshift({linha:group.linha, rows:remaining, parte:''});
+        if(remaining.length) queue.unshift({linha:group.linha, rows:remaining, parte:'', manualBreakBefore:false});
       }
 
       if(current.length) pages.push(current);
@@ -1292,9 +1765,7 @@
           const next = (counters.get(group.linha) || 0) + 1;
           counters.set(group.linha, next);
           group.parte = next;
-        }else{
-          group.parte = '';
-        }
+        }else group.parte = '';
       });
 
       return pages;
@@ -1593,56 +2064,153 @@
       return chunks;
     }
 
+    function confidenceLabel(consensus){
+      if(!consensus || consensus.confidence === 'vazio') return '<span class="confidence-bad">Sem dados</span>';
+      if(consensus.confidence === 'alta') return `<span class="confidence-high">${consensus.support}/${consensus.total} PDFs</span>`;
+      if(consensus.confidence === 'insuficiente') return `<span class="confidence-warn">Somente ${consensus.support} PDF</span>`;
+      return '<span class="confidence-bad">Sem concordância</span>';
+    }
+
+    function renderNormativasReview(){
+      const rows=state.pendingNormativaRows||[];
+      const safe=rows.filter(row=>row.safe && (row.changeCliente||row.changeNormativa||row.changeFabrica));
+      const review=rows.filter(row=>!row.safe && row.hasCandidate);
+      const reviewFilterActive=state.normativasReviewFilter==='review';
+      $('normativasReviewSummary').innerHTML=`
+        <div class="summary-card good"><span>Seguras para atualizar</span><strong>${safe.length}</strong></div>
+        <button type="button" class="summary-card warn filter-card ${reviewFilterActive?'active':''}" id="filterReviewNormativasButton" ${review.length?'':'disabled'} title="${reviewFilterActive?'Clique para voltar a mostrar todas as remessas':'Clique para mostrar somente as remessas que precisam de revisão'}"><span>Precisam revisão</span><strong>${review.length}</strong></button>
+        <div class="summary-card"><span>Talões envolvidos</span><strong>${safe.reduce((sum,row)=>sum+row.docs.length,0)}</strong></div>
+        <div class="summary-card"><span>PDFs comparados</span><strong>${state.pdfSources.length}</strong></div>`;
+
+      const filterButton=$('filterReviewNormativasButton');
+      if(filterButton){
+        filterButton.addEventListener('click',()=>{
+          state.normativasReviewFilter=state.normativasReviewFilter==='review'?'all':'review';
+          renderNormativasReview();
+          $('normativasReviewWrap').scrollTop=0;
+        });
+      }
+
+      if(!rows.length){
+        $('normativasReviewWrap').innerHTML='<div class="saved-empty">Nenhuma remessa do PDF foi encontrada no banco.</div>';
+        return;
+      }
+
+      const indexedRows=rows.map((row,index)=>({row,index}));
+      const visibleRows=reviewFilterActive
+        ? indexedRows.filter(item=>!item.row.safe && item.row.hasCandidate)
+        : indexedRows;
+
+      if(!visibleRows.length){
+        $('normativasReviewWrap').innerHTML='<div class="saved-empty">Nenhuma remessa precisa de revisão.</div>';
+        return;
+      }
+
+      const html=visibleRows.map(({row,index})=>{
+        const disabled=!row.safe || !(row.changeCliente||row.changeNormativa||row.changeFabrica);
+        const selected=!disabled ? 'checked' : '';
+        const oldCliente=row.currentClientes.join(' / ')||'-';
+        const oldNorm=row.currentNormativas.join(' | ')||'-';
+        const newCliente=row.info.clienteConsensus?.value||'-';
+        const newNorm=row.info.normativaConsensus?.value||'-';
+        const sources=(row.info.sourceValues||[]).map(v=>`${escapeHtml(v.reportDate||'?')}: ${escapeHtml(v.cliente||'-')} | ${escapeHtml(v.normativa||'-')}`).join('<br>');
+        return `<tr data-review-index="${index}">
+          <td><input type="checkbox" data-review-select ${selected} ${disabled?'disabled':''}></td>
+          <td><strong>${escapeHtml(row.remessa)}</strong><br><small>${row.docs.length} talão(ões)</small></td>
+          <td>${confidenceLabel(row.info.clienteConsensus)}<br>${confidenceLabel(row.info.normativaConsensus)}</td>
+          <td>${row.changeCliente?`<span class="change-old">${escapeHtml(oldCliente)}</span><span class="change-new">${escapeHtml(newCliente)}</span>`:escapeHtml(oldCliente)}</td>
+          <td>${row.changeNormativa?`<span class="change-old">${escapeHtml(oldNorm)}</span><span class="change-new">${escapeHtml(newNorm)}</span>`:escapeHtml(oldNorm)}</td>
+          <td>${row.changeFabrica?`<span class="change-old">${escapeHtml(row.currentFabricas.join(' / ')||'-')}</span><span class="change-new">${escapeHtml(row.info.fabrica||'-')}</span>`:escapeHtml(row.currentFabricas.join(' / ')||'-')}</td>
+          <td><div class="pdf-source-list">${sources}</div></td>
+        </tr>`;
+      }).join('');
+      $('normativasReviewWrap').innerHTML=`<table class="norm-review-table"><thead><tr><th>Atualizar</th><th>Remessa</th><th>Confiança</th><th>Cliente atual → escolhido</th><th>Normativa atual → escolhida</th><th>FAB</th><th>Leitura dos 3 PDFs</th></tr></thead><tbody>${html}</tbody></table>`;
+    }
+
     async function launchNormativas(){
       if(!state.authReady){ setStatus('Aguarde a confirmação do login.'); return; }
-      if(!(await ensurePdfReady())) return;
-      const pdfMap = state.pdfMapAll;
-      const remessas = [...pdfMap.keys()];
-      if(!remessas.length){ setStatus('Nenhuma remessa válida foi encontrada no PDF.'); return; }
-      const ok = confirm(`O sistema buscará ${remessas.length} remessa(s) do PDF no banco e preencherá somente campos vazios de cliente, normativa e fábrica (FAB). Dados já preenchidos não serão alterados. Deseja continuar?`);
-      if(!ok) return;
-      setBusy('launchNormativasButton',true,'Lançando...');
+      if(!(await ensurePdfReady(true))) return;
+      const pdfMap=state.pdfConsensusAll;
+      const remessas=[...pdfMap.keys()];
+      if(!remessas.length){ setStatus('Nenhuma remessa válida foi encontrada nos PDFs.'); return; }
+      setBusy('launchNormativasButton',true,'Comparando...');
       try{
-        setStatus('Buscando no banco todas as remessas existentes no PDF...');
-        const updates = [];
-        const remessasEncontradas = new Set();
-        let camposCliente = 0, camposNormativa = 0, camposFabrica = 0, preservados = 0;
+        setStatus('Comparando os três PDFs e buscando os dados atuais no banco...');
+        const grouped=new Map();
         for(const grupo of chunkArray(remessas,10)){
-          const snap = await getDocs(query(collection(db,'taloes'), where('numeroRemessa','in',grupo)));
+          const snap=await getDocs(query(collection(db,'taloes'),where('numeroRemessa','in',grupo)));
           snap.docs.forEach(docSnap=>{
-            const data = docSnap.data();
-            const rem = normalizeRemessa(data.numeroRemessa);
-            const info = pdfMap.get(rem);
-            if(!info) return;
-            remessasEncontradas.add(rem);
-            const patch = {};
-            if(!hasValue(data.cliente) && hasValue(info.cliente)){ patch.cliente = info.cliente; camposCliente++; }
-            if(!hasValue(data.normativa) && hasValue(info.normativa)){ patch.normativa = info.normativa; camposNormativa++; }
-            if(!hasValue(extractFabricaValue(data)) && hasValue(info.fabrica)){ patch.fabrica = info.fabrica; camposFabrica++; }
-            if(Object.keys(patch).length) updates.push({ref:docSnap.ref,patch}); else preservados++;
+            const data=docSnap.data();
+            const rem=normalizeRemessa(data.numeroRemessa);
+            if(!pdfMap.has(rem)) return;
+            if(!grouped.has(rem)) grouped.set(rem,{docs:[],clientes:new Set(),normativas:new Set(),fabricas:new Set()});
+            const group=grouped.get(rem);
+            group.docs.push({ref:docSnap.ref,data});
+            if(hasValue(data.cliente)) group.clientes.add(cleanCliente(data.cliente));
+            if(hasValue(data.normativa)) group.normativas.add(cleanNormativa(data.normativa));
+            const fab=extractFabricaValue(data); if(hasValue(fab)) group.fabricas.add(fab);
           });
         }
-        if(!updates.length){
-          setStatus(`Nenhum campo vazio precisou ser preenchido. Foram localizadas <strong>${remessasEncontradas.size}</strong> remessa(s); os dados já existentes foram preservados.`);
-          return;
-        }
-        let documentosAtualizados = 0;
-        for(const lote of chunkArray(updates,450)){
-          const batch = writeBatch(db);
-          lote.forEach(item=>batch.update(item.ref,item.patch));
-          await batch.commit();
-          documentosAtualizados += lote.length;
-        }
-        const naoEncontradas = remessas.filter(rem=>!remessasEncontradas.has(rem));
-        let msg = `Lançamento concluído sem sobrescrever dados existentes: <strong>${documentosAtualizados}</strong> talão(ões) atualizados, <strong>${camposCliente}</strong> campo(s) de cliente, <strong>${camposNormativa}</strong> normativa(s) e <strong>${camposFabrica}</strong> campo(s) FAB preenchidos.`;
-        if(naoEncontradas.length) msg += ` <strong>${naoEncontradas.length}</strong> remessa(s) do PDF não foram encontradas no banco.`;
-        setStatus(msg);
+        const rows=[];
+        grouped.forEach((group,remessa)=>{
+          const info=pdfMap.get(remessa);
+          const currentClientes=uniqueValues([...group.clientes]);
+          const currentNormativas=uniqueValues([...group.normativas]);
+          const currentFabricas=uniqueValues([...group.fabricas]);
+          const safeCliente=info.clienteConsensus?.confidence==='alta' && hasValue(info.clienteConsensus.value);
+          const safeNormativa=info.normativaConsensus?.confidence==='alta' && hasValue(info.normativaConsensus.value);
+          const changeCliente=safeCliente && (currentClientes.length!==1 || normalizeText(currentClientes[0])!==normalizeText(info.clienteConsensus.value));
+          const changeNormativa=safeNormativa && (currentNormativas.length!==1 || normalizeText(currentNormativas[0])!==normalizeText(info.normativaConsensus.value));
+          const changeFabrica=hasValue(info.fabrica) && currentFabricas.length===0;
+          rows.push({remessa,docs:group.docs,currentClientes,currentNormativas,currentFabricas,info,safe:(safeCliente||safeNormativa),hasCandidate:hasValue(info.clienteConsensus?.value)||hasValue(info.normativaConsensus?.value),changeCliente,changeNormativa,changeFabrica});
+        });
+        rows.sort((a,b)=>sortNumericText(a.remessa,b.remessa));
+        state.pendingNormativaRows=rows;
+        state.normativasReviewFilter='all';
+        renderNormativasReview();
+        openModal('normativasModal');
+        const safeCount=rows.filter(row=>row.safe&&(row.changeCliente||row.changeNormativa||row.changeFabrica)).length;
+        setStatus(`Comparação concluída: <strong>${safeCount}</strong> remessa(s) possuem alterações seguras. Revise a janela antes de confirmar.`);
       }catch(err){
         console.error(err);
-        setStatus('Erro ao lançar normativas: ' + escapeHtml(err.message || String(err)));
+        setStatus('Erro ao preparar o lançamento: '+escapeHtml(err.message||String(err)));
       }finally{
         setBusy('launchNormativasButton',false);
       }
+    }
+
+    async function confirmNormativasUpdates(){
+      const checked=[...document.querySelectorAll('#normativasReviewWrap [data-review-select]:checked')];
+      if(!checked.length){ setStatus('Nenhuma alteração foi selecionada.'); return; }
+      const selectedRows=checked.map(input=>state.pendingNormativaRows[Number(input.closest('tr').dataset.reviewIndex)]).filter(Boolean);
+      const updates=[];
+      selectedRows.forEach(row=>{
+        row.docs.forEach(docItem=>{
+          const patch={};
+          if(row.changeCliente) patch.cliente=row.info.clienteConsensus.value;
+          if(row.changeNormativa) patch.normativa=row.info.normativaConsensus.value;
+          if(row.changeFabrica && !hasValue(extractFabricaValue(docItem.data))) patch.fabrica=row.info.fabrica;
+          if(Object.keys(patch).length) updates.push({ref:docItem.ref,patch});
+        });
+      });
+      if(!updates.length){ setStatus('As remessas selecionadas não possuem alterações pendentes.'); return; }
+      const ok=confirm(`Confirmar a atualização de ${selectedRows.length} remessa(s), totalizando ${updates.length} talão(ões)? Cliente e normativa poderão ser corrigidos quando dois ou três PDFs concordarem.`);
+      if(!ok) return;
+      setBusy('confirmNormativasButton',true,'Gravando...');
+      try{
+        let total=0;
+        for(const lote of chunkArray(updates,450)){
+          const batch=writeBatch(db); lote.forEach(item=>batch.update(item.ref,item.patch)); await batch.commit(); total+=lote.length;
+        }
+        closeAllModals();
+        setStatus(`Clientes e normativas atualizados com segurança em <strong>${selectedRows.length}</strong> remessa(s) e <strong>${total}</strong> talão(ões).`);
+      }catch(err){
+        console.error(err); setStatus('Erro ao atualizar o banco: '+escapeHtml(err.message||String(err)));
+      }finally{ setBusy('confirmNormativasButton',false); }
+    }
+
+    function setSafeReviewSelection(checked){
+      document.querySelectorAll('#normativasReviewWrap [data-review-select]:not(:disabled)').forEach(input=>{input.checked=checked;});
     }
 
     function serializeRecord(record){
@@ -1651,7 +2219,7 @@
         modeloAtelieEntries:Array.isArray(record.modeloAtelieEntries) ? record.modeloAtelieEntries.map(e=>({modelo:String(e?.modelo||''),atelies:Array.isArray(e?.atelies)?e.atelies.map(v=>String(v||'')):[]})) : [],
         remessa:String(record.remessa || ''), pares:parseNumberBR(record.pares), taloes:parseNumberBR(record.taloes), corte:String(record.corte || ''), dataCorteIso:String(record.dataCorteIso || ''),
         dataEntregaIso:String(record.dataEntregaIso || ''), entrega:String(record.entrega || ''), fabrica:String(record.fabrica || ''), cliente:String(record.cliente || ''), normativa:String(record.normativa || ''),
-        costura:String(record.costura || ''), palmilha:String(record.palmilha || ''), sola:String(record.sola || ''), embarque:String(record.embarque || ''), origem:String(record.origem || ''),
+        costura:String(record.costura || ''), palmilha:String(record.palmilha || ''), sola:String(record.sola || ''), embarque:String(record.embarque || ''), pageBreakBefore:!!record.pageBreakBefore, origem:String(record.origem || ''),
         conferencia:{status:String(record.conferencia?.status || ''),detalhe:String(record.conferencia?.detalhe || '')}, pdfPares:parseNumberBR(record.pdfPares), pdfCliente:String(record.pdfCliente || ''), pdfNormativa:String(record.pdfNormativa || '')
       };
     }
@@ -1676,7 +2244,7 @@
         const ref = state.currentProgramId ? doc(db,'programacoesMontagem',state.currentProgramId) : doc(collection(db,'programacoesMontagem'));
         const payload = {
           nome, dataCorte:target.iso, dataCorteDm:target.dm, ano:target.year,
-          arquivoPdf:state.selectedPdfFile?.name || '', itens:state.records.map(serializeRecord),
+          arquivoPdf:selectedPdfNames(), arquivosPdf:state.pdfSources.map(source=>({nome:source.file.name,data:source.reportDate})), itens:state.records.map(serializeRecord),
           totalRemessas:totals.qtdRemessas,totalPares:totals.total,totalTaloes:totals.totalTaloes,
           comparacao:{...state.comparison}, atualizadoEm:serverTimestamp(), atualizadoPor:state.currentUser?.email || localStorage.getItem('userName') || ''
         };
@@ -1739,7 +2307,7 @@
       state.records = Array.isArray(data.itens) ? data.itens.map((r,index)=>({
         id:`salvo_${id}_${index}`,...r,
         modeloAtelieEntries:Array.isArray(r.modeloAtelieEntries)?r.modeloAtelieEntries:[],
-        costura:r.costura||'',palmilha:r.palmilha||'',sola:r.sola||'',embarque:r.embarque||'',
+        costura:r.costura||'',palmilha:r.palmilha||'',sola:r.sola||'',embarque:r.embarque||'',pageBreakBefore:!!r.pageBreakBefore,
         conferencia:r.conferencia||{status:'Salva',detalhe:'Programação carregada do histórico.'}
       })) : [];
       state.comparison = data.comparacao || {ok:0,divergentes:0,somenteBanco:0,somentePdf:0,pdfRemessas:0,pdfPares:0};
@@ -1758,11 +2326,17 @@
     $('saveProgramButton').addEventListener('click', saveProgramacao);
     $('openSavedButton').addEventListener('click', openSavedPrograms);
     $('addEditorRowButton').addEventListener('click', addEditorRow);
+    $('clearPageBreaksButton').addEventListener('click', clearPageBreaks);
     $('saveProgramModalButton').addEventListener('click', saveProgramacao);
     $('printPdfButton').addEventListener('click', generateFinalPdf);
     $('closeEditorButton').addEventListener('click', closeEditorModal);
     $('closeEditorFooterButton').addEventListener('click', closeEditorModal);
     $('closeSavedButton').addEventListener('click', closeAllModals);
+    $('closeNormativasButton').addEventListener('click', closeAllModals);
+    $('closeNormativasFooterButton').addEventListener('click', closeAllModals);
+    $('confirmNormativasButton').addEventListener('click', confirmNormativasUpdates);
+    $('selectAllNormativasButton').addEventListener('click', ()=>setSafeReviewSelection(true));
+    $('unselectAllNormativasButton').addEventListener('click', ()=>setSafeReviewSelection(false));
     document.querySelectorAll('.modal-overlay').forEach(modal=>modal.addEventListener('click',event=>{ if(event.target!==modal) return; if(modal.id==='editorModal') closeEditorModal(); else closeAllModals(); }));
     document.addEventListener('keydown',event=>{ if(event.key==='Escape'){ if($('editorModal').classList.contains('open')) closeEditorModal(); else closeAllModals(); } });
   </script>
