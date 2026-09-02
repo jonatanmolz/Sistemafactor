@@ -208,7 +208,7 @@ tbody tr.model-row.no-price td{border-color:#f3a8b5}
 const firebaseConfig={apiKey:"AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",authDomain:"sistemataloes.firebaseapp.com",projectId:"sistemataloes",storageBucket:"sistemataloes.appspot.com",messagingSenderId:"684534379685",appId:typeof __app_id!=="undefined"?__app_id:"default-app-id"};
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
 import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-import{getFirestore,doc,getDoc,setDoc,collection,getDocs,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import{getFirestore,doc,getDoc,setDoc,collection,getDocs,serverTimestamp,writeBatch,arrayUnion}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const FULL_ACCESS_LEVELS=new Set(["07","08"]);
@@ -545,7 +545,8 @@ function updateAdjustPreview(){
   els.adjustPreview.textContent=`Será aplicado ${tipo} de ${formatPercentValue(Math.abs(pct))} em todos os modelos da coleção. Preço e setores serão reajustados e o histórico manual será registrado em cada modelo alterado.`;
 }
 function adjustedValue(value,percent){
-  return round3((Number(value)||0)*(1+(Number(percent)||0)/100));
+  const base=parseNumber(value);
+  return round3((base===null?0:base)*(1+(Number(percent)||0)/100));
 }
 function adjustedModelDataFrom(oldModel,percent){
   const oldSectors=oldModel?.preco?.setores||{};
@@ -571,48 +572,119 @@ function adjustedModelDataFrom(oldModel,percent){
     ativo:oldModel?.ativo!==false
   };
 }
+const ADJUSTMENT_SESSION_KEY="modelosPendingBulkAdjustment";
+function setAdjustStatus(type,text){
+  els.adjustPreview.className=`message ${type} show`;
+  els.adjustPreview.textContent=text;
+}
+function makeAdjustmentRunId(){
+  if(globalThis.crypto&&typeof globalThis.crypto.randomUUID==="function")return globalThis.crypto.randomUUID();
+  return `ajuste-${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
+}
+function getAdjustmentRunState(pct,motivo,observacao){
+  const signature=JSON.stringify({pct:round3(pct),motivo:String(motivo||""),observacao:String(observacao||"")});
+  try{
+    const saved=JSON.parse(sessionStorage.getItem(ADJUSTMENT_SESSION_KEY)||"null");
+    if(saved?.id&&saved.signature===signature&&Array.isArray(saved.committedIds))return saved;
+  }catch{}
+  const state={id:makeAdjustmentRunId(),signature,criadoEm:new Date().toISOString(),committedIds:[]};
+  try{sessionStorage.setItem(ADJUSTMENT_SESSION_KEY,JSON.stringify(state));}catch{}
+  return state;
+}
+function saveAdjustmentRunState(state){
+  try{sessionStorage.setItem(ADJUSTMENT_SESSION_KEY,JSON.stringify(state));}catch{}
+}
+function clearAdjustmentRun(){
+  try{sessionStorage.removeItem(ADJUSTMENT_SESSION_KEY);}catch{}
+}
 async function applyBulkAdjustment(){
   const pct=parseNumber(els.adjustPercentInput.value);
-  if(pct===null||pct===0){showMessage("warning","Informe um percentual diferente de zero para reajustar.");return;}
+  if(pct===null||pct===0){setAdjustStatus("warning","Informe um percentual diferente de zero para reajustar.");return;}
   if(String(els.adjustConfirmInput.value||"").trim().toUpperCase()!=="REAJUSTAR"){
-    showMessage("warning","Digite REAJUSTAR no campo de confirmação para aplicar o reajuste geral.");
+    setAdjustStatus("warning","Digite REAJUSTAR no campo de confirmação para aplicar o reajuste geral.");
     return;
   }
   const motivo=els.adjustMotivoInput.value.trim()||`Reajuste geral ${pct>0?"+":""}${formatPercentValue(pct)}`;
   const observacao=els.adjustObsInput.value.trim();
   const mensagem=`Confirmar reajuste geral de ${pct>0?"+":""}${formatPercentValue(pct)} em todos os modelos? Essa ação vai alterar os preços e setores dos modelos.`;
   if(!confirm(mensagem))return;
+
   els.applyAdjustmentButton.disabled=true;
+  let committedUpdated=0,totalDocs=0,runState=null;
   try{
-    showMessage("info","Aplicando reajuste geral nos modelos...");
+    runState=getAdjustmentRunState(pct,motivo,observacao);
+    const committedSet=new Set(runState.committedIds||[]);
+    setAdjustStatus("info","Preparando reajuste e conferindo os modelos...");
     const snap=await getDocs(collection(db,"modelos"));
     const docs=snap.docs;
-    let batch=writeBatch(db),batchOps=0,updated=0;
+    totalDocs=docs.length;
+    if(!totalDocs){clearAdjustmentRun();setAdjustStatus("warning","Nenhum modelo foi encontrado para reajustar.");return;}
+
     const now=new Date().toISOString();
+    const BATCH_SIZE=100;
+    let batch=writeBatch(db),batchOps=0,pendingInBatch=0,pendingIds=[],processed=0,skipped=0,unchanged=0;
+
+    const commitCurrentBatch=async()=>{
+      if(batchOps===0)return;
+      setAdjustStatus("info",`Reajustando... ${processed} de ${totalDocs} modelo(s) analisados. Confirmando ${pendingInBatch} alteração(ões)...`);
+      await batch.commit();
+      committedUpdated+=pendingInBatch;
+      pendingIds.forEach(id=>committedSet.add(id));
+      runState.committedIds=Array.from(committedSet);
+      saveAdjustmentRunState(runState);
+      batch=writeBatch(db);
+      batchOps=0;
+      pendingInBatch=0;
+      pendingIds=[];
+    };
+
     for(const docSnap of docs){
+      processed++;
       const oldData=docSnap.data();
+
+      // Se um lote anterior desta mesma tentativa já foi confirmado,
+      // evita aplicar a porcentagem novamente ao repetir a operação.
+      if(committedSet.has(docSnap.id)){skipped++;continue;}
+
       const oldModel={id:docSnap.id,...oldData};
       const newData=adjustedModelDataFrom(oldModel,pct);
       const changes=buildChanges(oldData,newData,{},observacao).filter(c=>c.campo);
-      if(!changes.length)continue;
-      const historico=Array.isArray(oldData?.historico)?oldData.historico.filter(h=>!isImportHistory(h)):[];
-      batch.set(docSnap.ref,{
-        ...newData,
+      if(!changes.length){unchanged++;continue;}
+
+      const historyEntry={data:now,motivo,observacao,usuario:currentUser.email,alteracoes:changes,tipo:"manual-reajuste"};
+
+      // Atualiza somente os campos ligados ao reajuste. Isso preserva
+      // quaisquer outros campos existentes no documento do modelo.
+      batch.update(docSnap.ref,{
+        "preco.valor":newData.preco.valor,
+        "preco.setores":newData.preco.setores,
+        totalSetores:newData.totalSetores,
+        saldo:newData.saldo,
         origem:"Reajuste geral",
-        criadoEm:oldData?.criadoEm||serverTimestamp(),
         atualizadoEm:serverTimestamp(),
         atualizadoPor:currentUser.email,
-        historico:[...historico,{data:now,motivo,observacao,usuario:currentUser.email,alteracoes:changes,tipo:"manual-reajuste"}]
-      },{merge:false});
-      batchOps++;updated++;
-      if(batchOps>=450){await batch.commit();batch=writeBatch(db);batchOps=0;}
+        historico:arrayUnion(historyEntry)
+      });
+      batchOps++;
+      pendingInBatch++;
+      pendingIds.push(docSnap.id);
+
+      if(batchOps>=BATCH_SIZE)await commitCurrentBatch();
+      else if(processed%25===0)setAdjustStatus("info",`Reajustando... ${processed} de ${totalDocs} modelo(s) analisados.`);
     }
-    if(batchOps>0)await batch.commit();
+
+    await commitCurrentBatch();
+    clearAdjustmentRun();
     closeAdjustModal();
     await loadModels();
-    showMessage("success",`Reajuste aplicado com sucesso em ${updated} modelo(s).`);
+    const extras=[];
+    if(skipped)extras.push(`${skipped} já pertenciam a esta mesma tentativa e foram ignorados`);
+    if(unchanged)extras.push(`${unchanged} não precisaram de alteração`);
+    showMessage("success",`Reajuste aplicado com sucesso em ${committedUpdated} modelo(s)${extras.length?`. ${extras.join("; ")}.`:"."}`);
   }catch(err){
     console.error(err);
+    const partial=(runState?.committedIds?.length||committedUpdated)>0?` ${runState?.committedIds?.length||committedUpdated} modelo(s) já foram confirmados antes da falha.`:"";
+    setAdjustStatus("error",`O reajuste encontrou um erro.${partial} Mantenha exatamente o mesmo percentual, motivo e observação e clique novamente em Aplicar reajuste para continuar sem repetir os lotes já confirmados. Detalhe: ${err.message}`);
     showMessage("error","Erro ao aplicar reajuste geral: "+err.message);
   }finally{
     els.applyAdjustmentButton.disabled=false;
