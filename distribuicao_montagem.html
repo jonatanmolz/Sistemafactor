@@ -605,7 +605,32 @@ function setPermissionUI(){
   saveButton.disabled=!currentUserCanEdit||!currentDistribution?.itens?.length;
   if(!currentUserCanEdit&&!currentDistribution)showMessage("Seu acesso é somente consulta. Clique em Abrir distribuição salva para visualizar as distribuições já criadas.","info");
 }
-function initNavigationSafe(nivel,nome){try{if(typeof window.initNavigation==="function")window.initNavigation(nivel,nome)}catch(e){console.warn("Falha ao iniciar navegação",e)}}
+function initNavigationSafe(nivel,nome){
+  try{
+    if(window.SistemaNavegacao && typeof window.SistemaNavegacao.init === "function"){
+      window.SistemaNavegacao.init({
+        userLevel:nivel,
+        userName:nome,
+        title:"Distribuição Montagem",
+        onLogout:async()=>{
+          try{
+            await signOut(auth);
+            localStorage.removeItem("userNivelAcesso");
+            localStorage.removeItem("userName");
+            window.location.href="login.html";
+          }catch(error){
+            console.error("Erro ao fazer logout:",error);
+            alert("Erro ao fazer logout. Tente novamente.");
+          }
+        }
+      });
+    }else{
+      console.warn("navegacao.js não foi carregado ou SistemaNavegacao.init não está disponível.");
+    }
+  }catch(e){
+    console.warn("Falha ao iniciar navegação",e);
+  }
+}
 function redirectUnauthorized(){
   alert("Seu nível de acesso não permite abrir esta página. Você será redirecionado para o início.");
   window.location.replace("index.html");
