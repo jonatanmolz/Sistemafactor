@@ -199,66 +199,163 @@ function nearestHeader(headers,cx){let best=null,dist=Infinity;headers.forEach(h
 function addModelValue(result,linha,modelo,pares){linha=normalizeKey(linha);modelo=normalizeKey(modelo);if(!linha||!modelo||!pares)return;if(!result.linhas[linha])result.linhas[linha]={total:0,modelos:{},remessas:{}};result.linhas[linha].modelos[modelo]=(Number(result.linhas[linha].modelos[modelo]||0)+Number(pares||0));}
 function addRemessaValue(result,linha,modelo,remessa){linha=normalizeKey(linha);modelo=normalizeKey(modelo);if(!linha||!modelo||!remessa?.pares)return;if(!result.linhas[linha])result.linhas[linha]={total:0,modelos:{},remessas:{}};if(!result.linhas[linha].remessas[modelo])result.linhas[linha].remessas[modelo]=[];result.linhas[linha].remessas[modelo].push(remessa);}
 
+// Leitura por remessa/modelo: nao depende de o subtotal estar na mesma pagina.
+// Os dados de conferencia abaixo sao temporarios e nao alteram o payload do Firebase.
+function collectPdfReferenceTotals(tokens,reference){
+  const registerGeneral=value=>{
+    if(value<=0)return;
+    if(reference.totalGeral!==null&&reference.totalGeral!==value){
+      reference.avisos.push("O PDF apresenta totais gerais diferentes. Confira o arquivo selecionado.");
+    }else reference.totalGeral=value;
+  };
+  tokens.filter(t=>/^Geral:?$/i.test(t.text)&&t.x<180).forEach(label=>{
+    const value=getSameLine(tokens,label.y,3).filter(t=>t.x>label.x+label.w-2&&t.x<200&&isNumberToken(t.text)).sort((a,b)=>a.x-b.x)[0];
+    if(value)registerGeneral(parsePdfNumber(value.text));
+  });
+  const titles=tokens.filter(t=>/^Resumo$/i.test(t.text)&&getSameLine(tokens,t.y,3).some(v=>/^Linha$/i.test(v.text)));
+  titles.forEach(title=>{
+    const linhaHeader=tokens.filter(t=>/^Linha$/i.test(t.text)&&t.y>title.y+3&&t.y<title.y+25&&t.x<90).sort((a,b)=>a.y-b.y)[0];
+    if(!linhaHeader)return;
+    const columns=getSameLine(tokens,linhaHeader.y,3).sort((a,b)=>a.x-b.x);
+    const corteHeader=columns.find(t=>/^Corte$/i.test(t.text));
+    const afterLinha=columns.find(t=>t.x>linhaHeader.x+10);
+    const afterCorte=corteHeader&&columns.find(t=>t.x>corteHeader.x+10);
+    if(!corteHeader||!afterLinha||!afterCorte)return;
+    const ys=uniqueYs(tokens.filter(t=>t.y>linhaHeader.y+3&&t.x>=linhaHeader.x-5&&t.x<afterCorte.x),2);
+    let foundRows=false;
+    for(const y of ys){
+      const cells=getSameLine(tokens,y,2.5);
+      const value=cells.find(t=>t.cx>corteHeader.x&&t.cx<afterCorte.x&&isNumberToken(t.text));
+      const linha=cells.find(t=>t.x>=linhaHeader.x-5&&t.x<afterLinha.x-3&&/^\d{4}$/.test(t.text));
+      if(!linha){
+        // A ultima linha do resumo nao tem codigo e contem o total geral.
+        if(foundRows){if(value)registerGeneral(parsePdfNumber(value.text));break;}
+        continue;
+      }
+      if(!value)continue;
+      foundRows=true;
+      const expected=parsePdfNumber(value.text);
+      if(reference.linhas[linha.text]!==undefined&&reference.linhas[linha.text]!==expected){
+        reference.avisos.push(`A linha ${linha.text} aparece com totais diferentes no resumo do PDF.`);
+      }else reference.linhas[linha.text]=expected;
+    }
+  });
+}
+
+function checkPdfDistribution(result,reference,records){
+  const issues=[...reference.avisos];
+  const totalsFromRows={};
+  records.forEach(row=>{
+    totalsFromRows[row.linha]=(totalsFromRows[row.linha]||0)+row.pares;
+    const found=Object.values(row.modelos).reduce((sum,value)=>sum+Number(value||0),0);
+    if(found!==row.pares){
+      issues.push(`Remessa ${row.remessa}, linha ${row.linha}: ${formatNumber(row.pares)} pares no PDF, mas ${formatNumber(found)} identificados nos modelos.`);
+    }
+  });
+  // O resumo e independente dos itens extraidos: detecta inclusive linhas omitidas.
+  const expectedLines=Object.keys(reference.linhas).length?reference.linhas:totalsFromRows;
+  const lineKeys=new Set([...Object.keys(expectedLines),...Object.keys(result.linhas)]);
+  lineKeys.forEach(linha=>{
+    const expected=Number(expectedLines[linha]||0);
+    const actual=Number(result.linhas[linha]?.total||0);
+    if(expected!==actual){
+      issues.push(`Linha ${linha}: esperado ${formatNumber(expected)} pares; lido ${formatNumber(actual)} pares.`);
+    }
+  });
+  const expectedTotal=reference.totalGeral??Object.values(expectedLines).reduce((sum,value)=>sum+value,0);
+  if(expectedTotal!==result.totalPares){
+    issues.push(`Total do PDF: ${formatNumber(expectedTotal)} pares. Total lido: ${formatNumber(result.totalPares)} pares. Diferen\u00e7a: ${formatNumber(expectedTotal-result.totalPares)} pares.`);
+  }
+  if(!records.size)issues.push("Nenhuma remessa foi identificada. Verifique se este PDF possui texto e segue o formato de corte por modelo.");
+  return [...new Set(issues)];
+}
+
 async function extractDistributionFromPdf(file){
-  if(!initPdfJs())throw new Error("PDF.js não disponível.");
+  if(!initPdfJs())throw new Error("PDF.js n\u00e3o dispon\u00edvel.");
   const arrayBuffer=await file.arrayBuffer();
   const pdf=await window.pdfjsLib.getDocument({data:arrayBuffer}).promise;
   const result={arquivoOrigem:file.name||"",dataCorte:"",dataCorteISO:"",linhas:{},itens:[],totalPares:0,totalModelos:0,totalRemessas:0};
-
-  for(let pageNumber=1;pageNumber<=pdf.numPages;pageNumber++){
-    const page=await pdf.getPage(pageNumber);
-    const viewport=page.getViewport({scale:1});
-    const textContent=await page.getTextContent();
-    const tokens=textContent.items.flatMap(item=>getTokensFromTextItem(item,viewport)).filter(t=>t.text);
-    if(!result.dataCorte){
-      const dateTok=tokens.find(t=>t.x<170&&t.y<80&&isDateToken(t.text));
-      if(dateTok){result.dataCorte=dateTok.text.replaceAll("/","-");result.dataCorteISO=brToISO(dateTok.text)}
-    }
-    const adm=tokens.filter(t=>t.text==="Adm-Rem");
-    if(!adm.length)continue;
-    const headerY=adm.sort((a,b)=>a.y-b.y)[0].y;
-    const headers=tokens.filter(t=>Math.abs(t.y-headerY)<=6&&t.x>510&&isModelToken(t.text)).map(t=>({model:t.text,x:t.cx})).sort((a,b)=>a.x-b.x);
-    if(!headers.length)continue;
-    const firstModelX=headers[0].x-18;
-    const rows=tokens.filter(t=>t.x>80&&t.x<165&&isRemessaToken(t.text)).map(remTok=>{
-      const line=getSameLine(tokens,remTok.y).sort((a,b)=>a.x-b.x);
-      const linha=(line.find(t=>t.x<38&&/^\d{4}$/.test(t.text))||{}).text||"";
-      const lote=(line.find(t=>t.x>35&&t.x<92&&/^[\w.-]+$/.test(t.text))||{}).text||"";
-      const paresTok=line.find(t=>t.x>145&&t.x<195&&isNumberToken(t.text));
-      const dateRow=(line.find(t=>t.x>180&&t.x<210&&/^\d{2}\/\d{2}$/.test(t.text))||{}).text||"";
-      const cliente=line.filter(t=>t.x>395&&t.x<545).sort((a,b)=>a.x-b.x).map(t=>t.text).join(" ");
-      return{y:remTok.y,linha,lote,remessa:remTok.text,pares:parsePdfNumber(paresTok?.text||"0"),dataCorte:dateRow,cliente};
-    }).sort((a,b)=>a.y-b.y);
-    const totalYs=uniqueYs(tokens.filter(t=>String(t.text||"").toLowerCase().includes("modelo")).map(t=>({y:t.y})),3).sort((a,b)=>a-b);
-    let previousY=headerY;
-    for(const totalY of totalYs){
-      const groupRows=rows.filter(r=>r.y>previousY&&r.y<totalY+3);
-      previousY=totalY;
-      if(!groupRows.length)continue;
-      const linha=mostCommon(groupRows.map(r=>r.linha));
-      if(!linha)continue;
-      if(!result.linhas[linha])result.linhas[linha]={total:0,modelos:{},remessas:{}};
-      const totalLineTok=getSameLine(tokens,totalY,5).find(t=>t.x>100&&t.x<155&&isNumberToken(t.text));
-      const totalLine=parsePdfNumber(totalLineTok?.text||"0");
-      if(totalLine>result.linhas[linha].total)result.linhas[linha].total=totalLine;
-      const totalValues=getSameLine(tokens,totalY,5).filter(t=>t.x>firstModelX&&isNumberToken(t.text));
-      totalValues.forEach(tok=>{
-        const {best,dist}=nearestHeader(headers,tok.cx);
-        if(best&&dist<18)addModelValue(result,linha,best.model,parsePdfNumber(tok.text));
-      });
-      groupRows.forEach(row=>{
-        const rowValues=getSameLine(tokens,row.y,5).filter(t=>t.x>firstModelX&&isNumberToken(t.text));
+  const records=new Map();
+  const reference={linhas:{},totalGeral:null,avisos:[]};
+  try{
+    for(let pageNumber=1;pageNumber<=pdf.numPages;pageNumber++){
+      const page=await pdf.getPage(pageNumber);
+      const viewport=page.getViewport({scale:1});
+      const textContent=await page.getTextContent();
+      const tokens=textContent.items.flatMap(item=>getTokensFromTextItem(item,viewport)).filter(t=>t.text);
+      if(!result.dataCorte){
+        const dateTok=tokens.find(t=>t.x<170&&t.y<80&&isDateToken(t.text));
+        if(dateTok){result.dataCorte=dateTok.text.replaceAll("/","-");result.dataCorteISO=brToISO(dateTok.text);}
+      }
+      collectPdfReferenceTotals(tokens,reference);
+      const adm=tokens.filter(t=>t.text==="Adm-Rem").sort((a,b)=>a.y-b.y);
+      if(!adm.length){
+        if(tokens.some(t=>isRemessaToken(t.text)))reference.avisos.push(`P\u00e1gina ${pageNumber}: remessas encontradas sem cabe\u00e7alho reconhecido.`);
+        continue;
+      }
+      const headerY=adm[0].y;
+      const headers=tokens.filter(t=>Math.abs(t.y-headerY)<=6&&t.x>510&&isModelToken(t.text)).map(t=>({model:t.text,x:t.cx})).sort((a,b)=>a.x-b.x);
+      if(!headers.length){
+        if(tokens.some(t=>isRemessaToken(t.text)))reference.avisos.push(`P\u00e1gina ${pageNumber}: n\u00e3o foi poss\u00edvel identificar as colunas dos modelos.`);
+        continue;
+      }
+      const firstModelX=headers[0].x-18;
+      const rows=tokens.filter(t=>t.y>headerY+5&&t.x>80&&t.x<165&&isRemessaToken(t.text)).sort((a,b)=>a.y-b.y);
+      const occurrences=new Map();
+      rows.forEach(remTok=>{
+        const line=getSameLine(tokens,remTok.y).sort((a,b)=>a.x-b.x);
+        const linha=(line.find(t=>t.x<38&&/^\d{4}$/.test(t.text))||{}).text||"";
+        if(!linha){reference.avisos.push(`P\u00e1gina ${pageNumber}, remessa ${remTok.text}: linha n\u00e3o identificada.`);return;}
+        const lote=(line.find(t=>t.x>35&&t.x<92&&/^[\w.-]+$/.test(t.text))||{}).text||"";
+        const paresTok=line.find(t=>t.x>145&&t.x<195&&isNumberToken(t.text));
+        const pares=parsePdfNumber(paresTok?.text||"0");
+        if(!paresTok)reference.avisos.push(`Remessa ${remTok.text}: total de pares n\u00e3o identificado.`);
+        const dataCorte=(line.find(t=>t.x>180&&t.x<210&&/^\d{2}\/\d{2}$/.test(t.text))||{}).text||"";
+        const cliente=line.filter(t=>t.x>395&&t.x<firstModelX).map(t=>t.text).join(" ");
+        const baseKey=JSON.stringify([linha,lote,remTok.text,dataCorte]);
+        const occurrence=occurrences.get(baseKey)||0;
+        occurrences.set(baseKey,occurrence+1);
+        const key=JSON.stringify([baseKey,occurrence]);
+        let record=records.get(key);
+        if(!record){
+          record={linha,lote,remessa:remTok.text,pares,cliente,modelos:{}};
+          records.set(key,record);
+        }else if(record.pares!==pares){
+          reference.avisos.push(`Remessa ${remTok.text}, linha ${linha}: total de pares diferente entre as p\u00e1ginas.`);
+        }
+        // As paginas horizontais repetem a remessa, mas mostram outros modelos.
+        // Cada par remessa/modelo entra uma unica vez; subtotais nao sao somados.
+        const rowValues=getSameLine(tokens,remTok.y,5).filter(t=>t.x>firstModelX&&isNumberToken(t.text));
         rowValues.forEach(tok=>{
           const {best,dist}=nearestHeader(headers,tok.cx);
-          const pares=parsePdfNumber(tok.text);
-          if(best&&dist<18&&pares){addRemessaValue(result,linha,best.model,{remessa:row.remessa,lote:row.lote,pares,paresTalhao:row.pares,cliente:row.cliente||""});}
+          const value=parsePdfNumber(tok.text);
+          if(!value)return;
+          if(!best||dist>=18){
+            reference.avisos.push(`Remessa ${remTok.text}, p\u00e1gina ${pageNumber}: quantidade ${formatNumber(value)} sem coluna de modelo reconhecida.`);
+            return;
+          }
+          if(record.modelos[best.model]===undefined)record.modelos[best.model]=value;
+          else if(record.modelos[best.model]!==value){
+            reference.avisos.push(`Remessa ${remTok.text}, modelo ${best.model}: quantidades diferentes nas p\u00e1ginas do PDF.`);
+          }
         });
       });
     }
+    records.forEach(row=>{
+      Object.entries(row.modelos).forEach(([modelo,pares])=>{
+        addModelValue(result,row.linha,modelo,pares);
+        addRemessaValue(result,row.linha,modelo,{remessa:row.remessa,lote:row.lote,pares,paresTalhao:row.pares,cliente:row.cliente||""});
+      });
+    });
+    rebuildItems(result);
+    result.avisosLeitura=checkPdfDistribution(result,reference,records);
+    return result;
+  }finally{
+    // Libera o documento/worker ao final de cada leitura, inclusive em caso de erro.
+    try{await pdf.destroy();}catch(e){console.warn("Falha ao liberar o PDF",e);}
   }
-  rebuildItems(result);
-  return result;
 }
+
 
 function rebuildItems(distribution){
   const itens=[];let totalPares=0,totalRemessas=0;
@@ -387,7 +484,17 @@ async function readPdf(){
     currentDistribution=dist;
     recalcPredictedDates();
     renderAll();
-    showMessage(`PDF lido com sucesso: ${formatNumber(dist.totalPares)} pares em ${formatNumber(dist.totalModelos)} modelo(s).`,"success");
+    const avisos=[...(dist.avisosLeitura||[])];
+    if(!dist.dataCorte)avisos.unshift("Data de corte n\u00e3o identificada. Informe a data antes de salvar.");
+    if(!dist.itens.length)avisos.unshift("Nenhum modelo carregado. N\u00e3o salve esta leitura como uma distribui\u00e7\u00e3o completa.");
+    if(avisos.length){
+      console.warn("Confer\u00eancia do PDF:",avisos);
+      const detalhes=avisos.slice(0,6).join(" ");
+      const outros=avisos.length>6?` Mais ${avisos.length-6} aviso(s) no console do navegador.`:"";
+      showMessage(`Leitura com diverg\u00eancias: ${formatNumber(dist.totalPares)} pares em ${Object.keys(dist.linhas).length} linha(s). ${detalhes}${outros} Confira antes de salvar.`,"warning");
+    }else{
+      showMessage(`PDF lido e conferido: ${formatNumber(dist.totalPares)} pares em ${Object.keys(dist.linhas).length} linha(s) e ${formatNumber(dist.totalModelos)} modelo(s).`,"success");
+    }
   }catch(e){console.error(e);showMessage(`Erro ao ler PDF: ${e.message}`,"error")}
   finally{readPdfButton.disabled=false}
 }
