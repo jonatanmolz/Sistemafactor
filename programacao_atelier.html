@@ -284,6 +284,7 @@
       let currentUserName = "";
       let currentUserLevel = "";
       let allDocs = [];
+      let loadedWeeks = [];
 
       function localDateToISO(dateObj){ const y=dateObj.getFullYear(); const m=String(dateObj.getMonth()+1).padStart(2,"0"); const d=String(dateObj.getDate()).padStart(2,"0"); return `${y}-${m}-${d}`; }
       function todayISO(){ return localDateToISO(new Date()); }
@@ -308,10 +309,17 @@
         const firstMonday = addDaysISO(monday, -14);
         return [0,1,2,3].map((i)=>{
           const weekStart = addDaysISO(firstMonday, i*7);
-          const weekEnd = addDaysISO(weekStart, 4);
-          const corte1 = weekStart;
-          const corte2 = addDaysISO(weekStart, 3);
-          return { index:i+1, weekStart, weekEnd, cutDates:[corte1,corte2], isCurrent: weekStart === monday };
+          const weekEnd = addDaysISO(weekStart, 6);
+          return { index:i+1, weekStart, weekEnd, isCurrent: weekStart === monday };
+        });
+      }
+
+      // Inclui qualquer data de corte da semana, inclusive cortes remarcados.
+      // A mesma seleção alimenta os totais, a tabela por modelo e os detalhes.
+      function getWeekDocs(taloes, week){
+        return taloes.filter((talao)=>{
+          const date = toISODateOnly(talao.dataCorte);
+          return date && date >= week.weekStart && date <= week.weekEnd;
         });
       }
 
@@ -508,14 +516,14 @@
       }
 
       function renderCards(){
-        const baseIso = todayISO();
-        const weeks = getWeeks(baseIso);
+        const weeks = loadedWeeks.length ? loadedWeeks : getWeeks(todayISO());
         const selectedAtelie = getSelectedAtelie();
         const baseDocs = allDocs.filter(t=>!isAmostra(t)).filter(t => !selectedAtelie || String(t.idAtelieResponsavel || "") === selectedAtelie);
         const atelierText = selectedAtelie || "Todos os ateliês";
 
         cardsGrid.innerHTML = weeks.map((week)=>{
-          const weekDocs = baseDocs.filter(t=>week.cutDates.includes(toISODateOnly(t.dataCorte)));
+          const weekDocs = getWeekDocs(baseDocs, week);
+          const cutDates = [...new Set(weekDocs.map(t=>toISODateOnly(t.dataCorte)))].sort();
           const producedDocs = weekDocs.filter(t=>hasFilledDate(t.dataSaidaCostura));
           const todoDocs = weekDocs.filter(t=>!hasFilledDate(t.dataSaidaCostura));
           const totalProgramado = sumTotal(weekDocs);
@@ -525,10 +533,10 @@
             <article class="week-card ${week.isCurrent ? "current" : ""}">
               <header class="week-head">
                 <div class="week-title">
-                  <h2>${formatShort(week.cutDates[0])} e ${formatShort(week.cutDates[1])}</h2>
+                  <h2>${formatShort(week.weekStart)} a ${formatShort(week.weekEnd)}</h2>
                   <span>${week.isCurrent ? "Semana 3" : `Semana ${week.index}`}</span>
                 </div>
-                
+                ${cutDates.length ? `<p class="week-subtitle">Cortes: ${cutDates.map(formatShort).join(", ")}</p>` : ""}
               </header>
               <div class="totals">
                 <div class="total-box" data-card-action="programado" data-week-index="${week.index}"><span>Total programado</span><strong>${totalProgramado.toLocaleString("pt-BR")}</strong></div>
@@ -548,31 +556,35 @@
             const action = el.dataset.cardAction;
             const week = weeks.find(w=>w.index === weekIndex);
             if(!week) return;
-            const weekDocs = baseDocs.filter(t=>week.cutDates.includes(toISODateOnly(t.dataCorte)));
+            const weekDocs = getWeekDocs(baseDocs, week);
             let list = weekDocs;
             let label = "Total programado";
             if(action === "produzido") { list = weekDocs.filter(t=>hasFilledDate(t.dataSaidaCostura)); label = "Total produzido"; }
             if(action === "todo") { list = weekDocs.filter(t=>!hasFilledDate(t.dataSaidaCostura)); label = "Total a produzir"; }
-            openListModal(`${label} - Cortes ${formatShort(week.cutDates[0])} e ${formatShort(week.cutDates[1])}`, list);
+            openListModal(`${label} - Semana de ${formatDate(week.weekStart)} a ${formatDate(week.weekEnd)}`, list);
           });
         });
 
-        const allVisible = baseDocs.filter(t=>weeks.some(w=>w.cutDates.includes(toISODateOnly(t.dataCorte))));
-
-        
+        const allVisible = weeks.flatMap(week=>getWeekDocs(baseDocs, week));
+        statusLine.textContent = `${atelierText} • ${formatDate(weeks[0].weekStart)} a ${formatDate(weeks[weeks.length-1].weekEnd)} • ${allVisible.length.toLocaleString("pt-BR")} talões • ${sumTotal(allVisible).toLocaleString("pt-BR")} pares • Amostras não incluídas.`;
       }
 
       async function loadProgramacao(){
         const baseIso = todayISO();
         const weeks = getWeeks(baseIso);
-        const start = weeks[0].cutDates[0];
-        const end = weeks[3].cutDates[1];
+        const start = weeks[0].weekStart;
+        const endExclusive = addDaysISO(weeks[weeks.length-1].weekEnd, 1);
         cardsGrid.innerHTML = '<div class="empty-message">Carregando programação...</div>';
         statusLine.textContent = "";
         try{
-          const cutDates = weeks.flatMap(w => w.cutDates);
-          const snap = await db.collection("taloes").where("dataCorte", "in", cutDates).get();
+          // dataCorte é gravada pelos cadastros como YYYY-MM-DD.
+          // O intervalo cobre as quatro semanas completas sem limitar os dias de corte.
+          const snap = await db.collection("taloes")
+            .where("dataCorte", ">=", start)
+            .where("dataCorte", "<", endExclusive)
+            .get();
           allDocs = snap.docs.map(doc=>({ id:doc.id, ...doc.data() }));
+          loadedWeeks = weeks;
           renderCards();
         }catch(error){
           console.error("Erro ao carregar programação:", error);
