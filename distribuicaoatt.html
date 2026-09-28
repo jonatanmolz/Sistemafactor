@@ -1079,6 +1079,28 @@
   .print-flat-note{display:block!important;font-size:5.8pt!important;line-height:1.05!important;margin-top:.2mm!important;background:#fff7d6!important;padding:.15mm .35mm!important;border-left:.45mm solid #d97706!important;font-weight:800!important;color:#000!important}
 }
 
+.price-update-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin:10px 0}
+.price-update-summary .summary-item{min-height:68px}
+.price-update-warning{padding:9px 11px;border-radius:8px;background:#fff3cd;color:#664d03;margin:10px 0;font-size:.85rem;line-height:1.4}
+.price-update-table{min-width:720px}
+.price-update-table td:first-child{text-align:left;font-weight:700}
+.price-update-table .price-pending{color:#842029;font-weight:700}
+.price-update-table .price-change{color:#14532d;font-weight:700}
+.autosave-status{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px;background:#eef2f7;color:#334155;font-size:.8rem;font-weight:700;white-space:nowrap}
+.autosave-status[data-state="saved"]{background:#e8f7ed;color:#14532d}
+.autosave-status[data-state="pending"],.autosave-status[data-state="saving"]{background:#eaf4ff;color:#084298}
+.autosave-status[data-state="error"]{background:#ffe3e8;color:#842029}
+.capacity-tooltip{position:fixed;z-index:8500;width:min(350px,calc(100vw - 24px));max-height:min(400px,80vh);overflow:auto;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;box-shadow:0 12px 32px rgba(15,23,42,.25);font-size:.79rem;line-height:1.35;pointer-events:none}
+.capacity-tooltip[hidden]{display:none!important}
+.capacity-tooltip strong{display:block;margin-bottom:3px;font-size:.9rem}
+.capacity-tooltip p{margin:2px 0 7px;color:#475569}
+.capacity-tooltip table{min-width:0;font-size:.73rem}
+.capacity-tooltip th,.capacity-tooltip td{padding:5px 6px;white-space:normal}
+.capacity-tooltip td:first-child{text-align:left;font-weight:700}
+.capacity-tooltip .capacity-current{background:#edf8f1}
+.model-link{cursor:help}
+.model-link:focus-visible{outline:2px solid #0d6efd;outline-offset:2px;border-radius:3px}
+@media print{.capacity-tooltip{display:none!important}}
 </style>
 <script src="navegacao.js"></script>
 </head>
@@ -1095,7 +1117,9 @@
       <button class="btn btn-secondary" id="openSavedButton" type="button">Abrir salvas</button>
       <button class="btn btn-primary" id="generateButton" type="button">Montar distribuição</button>
       <button class="btn btn-secondary" id="addAtelierButton" type="button">+ Ateliê</button>
-      <button class="btn btn-success" id="saveButton" type="button" disabled>Salvar distribuição</button>
+      <button class="btn btn-secondary" id="updatePricesButton" type="button" title="Buscar os preços atuais de costura dos modelos desta distribuição" disabled>Atualizar preços</button>
+      <span class="autosave-status" id="autoSaveStatus" data-state="idle" role="status" aria-live="polite">Aguardando distribuição</span>
+      <button class="btn btn-secondary btn-small hidden" id="retryAutoSaveButton" type="button">Tentar novamente</button>
       <button class="btn btn-warning" id="launchButton" type="button">Lançar distribuição</button>
       <button class="btn btn-secondary" id="printButton" type="button" disabled>Imprimir / PDF</button>
       <button class="btn btn-secondary" id="clearButton" type="button">Limpar</button>
@@ -1133,6 +1157,7 @@
   <div class="atelier-grid" id="atelierGrid"></div>
 </section>
 </main>
+<div id="capacityTooltip" class="capacity-tooltip no-print" role="tooltip" hidden></div>
 
 <div class="modal-backdrop" id="distributionsModalBackdrop">
   <div class="modal" role="dialog" aria-modal="true">
@@ -1152,6 +1177,20 @@
     <div class="modal-body">
       <div class="open-saved-info">Clique em <strong>Abrir</strong> para carregar uma distribuição já salva com todas as movimentações, divisões e observações.</div>
       <div class="table-wrap"><table class="saved-list-table"><thead><tr><th>Distribuição</th><th>Datas de corte</th><th>Total pares</th><th>Valor total</th><th>Atualizado por</th><th>Ação</th></tr></thead><tbody id="savedTableBody"></tbody></table></div>
+      <div class="actions" style="margin-top:10px"><button class="btn btn-secondary btn-small hidden" id="savedLoadMoreButton" type="button">Carregar mais</button><span class="mini-help" id="savedListInfo"></span></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="pricesModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pricesModalTitle">
+    <div class="modal-header"><h3 id="pricesModalTitle">Atualizar preços de costura</h3><button class="modal-close" id="closePricesModalButton" type="button">Fechar</button></div>
+    <div class="modal-body">
+      <p class="mini-help">Preços atuais do cadastro de modelos para a distribuição aberta. Confira as alterações antes de aplicar. Os pares, ateliês, divisões e observações serão preservados.</p>
+      <div id="pricesSummary" class="price-update-summary"></div>
+      <div id="pricesWarning" class="price-update-warning hidden"></div>
+      <div class="table-wrap"><table class="price-update-table"><thead><tr><th>Modelo / ateliê</th><th>Pares</th><th>Preço atual/par</th><th>Novo preço/par</th><th>Diferença total</th></tr></thead><tbody id="pricesTableBody"></tbody></table></div>
+      <div class="actions" style="margin-top:12px"><button class="btn btn-success" id="applyPricesButton" type="button">Aplicar preços</button><button class="btn btn-secondary" id="cancelPricesButton" type="button">Cancelar</button></div>
     </div>
   </div>
 </div>
@@ -1179,35 +1218,136 @@
 const firebaseConfig={apiKey:"AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",authDomain:"sistemataloes.firebaseapp.com",projectId:"sistemataloes",storageBucket:"sistemataloes.appspot.com",messagingSenderId:"684534379685",appId:typeof __app_id!=="undefined"?__app_id:"default-app-id"};
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
 import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-import{getFirestore,doc,getDoc,setDoc,collection,getDocs,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import{getFirestore,doc,getDoc,setDoc,collection,getDocs,getDocsFromServer,query,orderBy,limit,startAfter,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const FULL_ACCESS_LEVELS=new Set(["07","08"]);
-let currentUser=null,currentUserLevel="",currentUserName="",modelsMap=new Map(),taloesCache=[],lastAtelierMap=new Map(),atelierHistoryMap=new Map(),allocation=[],manualAteliers=new Set(),selectedDocs=[],currentSplitId=null,modelHistoryMap=new Map(),atelierNotes=new Map(),atelierNotePositions=new Map(),lineSummaryGroups=[],undoStack=[],redoStack=[];
+let currentUser=null,currentUserLevel="",currentUserName="",modelsMap=new Map(),taloesCache=[],lastAtelierMap=new Map(),atelierHistoryMap=new Map(),modelCapacityMap=new Map(),allocation=[],manualAteliers=new Set(),selectedDocs=[],currentSplitId=null,atelierNotes=new Map(),atelierNotePositions=new Map(),lineSummaryGroups=[],undoStack=[],redoStack=[],pendingPrices=null,pricesLoading=false,taloesLoaded=false,autoSaveTimer=null,autoSaveRetryTimer=null,autoSavePromise=null,autoSaveVersion=0,savedVersion=0,activeSavedDocId="",navigationRequest=0,savedListRows=[],savedListCursor=null,savedListLoaded=false,savedListBusy=false,savedListHasMore=false,savedListGeneration=0;
+const savedListCache=new Map(),SAVED_PAGE_SIZE=15;
 const $=id=>document.getElementById(id);
-const els={dateOneInput:$("dateOneInput"),dateTwoInput:$("dateTwoInput"),atelierFilterInput:$("atelierFilterInput"),selectDistributionsButton:$("selectDistributionsButton"),generateButton:$("generateButton"),addAtelierButton:$("addAtelierButton"),saveButton:$("saveButton"),printButton:$("printButton"),launchButton:$("launchButton"),clearButton:$("clearButton"),openSavedButton:$("openSavedButton"),savedModalBackdrop:$("savedModalBackdrop"),closeSavedModalButton:$("closeSavedModalButton"),savedTableBody:$("savedTableBody"),messageBox:$("messageBox"),summaryCard:$("summaryCard"),summaryGrid:$("summaryGrid"),lineSummaryPanel:$("lineSummaryPanel"),lineSummaryGrid:$("lineSummaryGrid"),resetLineGroupsButton:$("resetLineGroupsButton"),periodInfo:$("periodInfo"),atelierSection:$("atelierSection"),atelierGrid:$("atelierGrid"),atelierInfo:$("atelierInfo"),distributionsModalBackdrop:$("distributionsModalBackdrop"),closeDistributionsModalButton:$("closeDistributionsModalButton"),distributionsTableBody:$("distributionsTableBody"),confirmDistributionsButton:$("confirmDistributionsButton"),splitModalBackdrop:$("splitModalBackdrop"),splitModalTitle:$("splitModalTitle"),closeSplitModalButton:$("closeSplitModalButton"),splitSummary:$("splitSummary"),splitPairsInput:$("splitPairsInput"),splitDestinationSelect:$("splitDestinationSelect"),splitNewAtelierInput:$("splitNewAtelierInput"),splitOriginNoteInput:$("splitOriginNoteInput"),splitDestinationNoteInput:$("splitDestinationNoteInput"),confirmSplitButton:$("confirmSplitButton")};
+const els={dateOneInput:$("dateOneInput"),dateTwoInput:$("dateTwoInput"),atelierFilterInput:$("atelierFilterInput"),selectDistributionsButton:$("selectDistributionsButton"),generateButton:$("generateButton"),addAtelierButton:$("addAtelierButton"),updatePricesButton:$("updatePricesButton"),autoSaveStatus:$("autoSaveStatus"),retryAutoSaveButton:$("retryAutoSaveButton"),capacityTooltip:$("capacityTooltip"),printButton:$("printButton"),launchButton:$("launchButton"),clearButton:$("clearButton"),openSavedButton:$("openSavedButton"),savedModalBackdrop:$("savedModalBackdrop"),closeSavedModalButton:$("closeSavedModalButton"),savedTableBody:$("savedTableBody"),savedLoadMoreButton:$("savedLoadMoreButton"),savedListInfo:$("savedListInfo"),pricesModalBackdrop:$("pricesModalBackdrop"),closePricesModalButton:$("closePricesModalButton"),cancelPricesButton:$("cancelPricesButton"),applyPricesButton:$("applyPricesButton"),pricesSummary:$("pricesSummary"),pricesWarning:$("pricesWarning"),pricesTableBody:$("pricesTableBody"),messageBox:$("messageBox"),summaryCard:$("summaryCard"),summaryGrid:$("summaryGrid"),lineSummaryPanel:$("lineSummaryPanel"),lineSummaryGrid:$("lineSummaryGrid"),resetLineGroupsButton:$("resetLineGroupsButton"),periodInfo:$("periodInfo"),atelierSection:$("atelierSection"),atelierGrid:$("atelierGrid"),atelierInfo:$("atelierInfo"),distributionsModalBackdrop:$("distributionsModalBackdrop"),closeDistributionsModalButton:$("closeDistributionsModalButton"),distributionsTableBody:$("distributionsTableBody"),confirmDistributionsButton:$("confirmDistributionsButton"),splitModalBackdrop:$("splitModalBackdrop"),splitModalTitle:$("splitModalTitle"),closeSplitModalButton:$("closeSplitModalButton"),splitSummary:$("splitSummary"),splitPairsInput:$("splitPairsInput"),splitDestinationSelect:$("splitDestinationSelect"),splitNewAtelierInput:$("splitNewAtelierInput"),splitOriginNoteInput:$("splitOriginNoteInput"),splitDestinationNoteInput:$("splitDestinationNoteInput"),confirmSplitButton:$("confirmSplitButton")};
 function redirectUnauthorized(){alert("Seu nível de acesso não permite abrir esta página. Você será redirecionado para o início.");window.location.replace("index.html");}
 onAuthStateChanged(auth,async user=>{if(!user){window.location.href="login.html";return}currentUser=user;try{const userSnap=await getDoc(doc(db,"Usuario",user.email));if(!userSnap.exists()){alert("Dados do usuário não encontrados. Faça login novamente.");await signOut(auth);window.location.href="login.html";return}const userData=userSnap.data();currentUserLevel=String(userData.nivelAcesso||"");currentUserName=userData.Nome||user.email||"Usuário";localStorage.setItem("userNivelAcesso",currentUserLevel);localStorage.setItem("userName",currentUserName);if(!FULL_ACCESS_LEVELS.has(currentUserLevel)){redirectUnauthorized();return}document.body.classList.remove("auth-loading");if(window.SistemaNavegacao){if(Array.isArray(window.SistemaNavegacao.pages)&&!window.SistemaNavegacao.pages.some(p=>String(p.href||"").toLowerCase()==="distribuicaoatt.html")){window.SistemaNavegacao.pages.push({group:"Costura",name:"Distribuição Ateliês",href:"distribuicaoatt.html",levels:["07","08"]});}window.SistemaNavegacao.init({userLevel:currentUserLevel,userName:currentUserName,title:"Distribuição Ateliês",onLogout:async()=>{await signOut(auth);localStorage.removeItem("userNivelAcesso");localStorage.removeItem("userName");window.location.href="login.html";}})}showMessage("info","Selecione as duas distribuições da semana para começar.");}catch(err){console.error(err);alert("Erro ao validar usuário: "+err.message);window.location.replace("index.html")}});
-function showMessage(type,text){els.messageBox.className=text?`message show ${type}`:"message";els.messageBox.textContent=text||""}function onlyDigits(v){return String(v||"").replace(/\D/g,"")}function normalizeText(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()}const HOLD_ATELIER="Segurar";function normalizeAtelierName(name){const n=String(name||"").trim();const norm=normalizeText(n);return(!n||norm==="sem atelie definido"||norm==="sem atelier definido"||norm==="sem ateliê definido")?HOLD_ATELIER:n}function displayAtelierName(name){return normalizeAtelierName(name)}function escapeHtml(str){return String(str??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]))}function parseNumber(value){if(value===null||value===undefined)return 0;if(typeof value==="number")return Number.isFinite(value)?value:0;let s=String(value).trim();if(!s||s==="-")return 0;s=s.replace(/R\$|\s/g,"");if(s.includes(",")&&s.includes("."))s=s.replace(/\./g,"").replace(",",".");else if(s.includes(","))s=s.replace(",",".");s=s.replace(/[^0-9.\-]/g,"");const n=parseFloat(s);return Number.isFinite(n)?n:0}function formatMoney(v){return(Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2,maximumFractionDigits:2})}function formatNumber(v){return(Number(v)||0).toLocaleString("pt-BR",{maximumFractionDigits:0})}function formatPairsDay(v){const n=Number(v)||0;return n.toLocaleString("pt-BR",{minimumFractionDigits:Number.isInteger(n)?0:1,maximumFractionDigits:1})}function round2(n){return Math.round((Number(n)||0)*100)/100}function pad2(n){return String(n).padStart(2,"0")}function toISODate(date){return`${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`}function isoToBR(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}/${m}/${y}`}function isoToShortBR(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}/${m}`}function isoToDocId(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}-${m}-${y}`}function docIdToISO(docId){if(!docId)return"";const[d,m,y]=String(docId).split("-");return`${y}-${m}-${d}`}function docIdToBR(docId){return docId?String(docId).replaceAll("-","/"):""}function normalizeDate(value){if(!value)return"";try{if(value.toDate)return toISODate(value.toDate())}catch{}if(value instanceof Date&&!isNaN(value))return toISODate(value);const s=String(value).trim();if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);const br=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(br)return`${br[3]}-${br[2]}-${br[1]}`;const brShort=s.match(/^(\d{2})\/(\d{2})$/);if(brShort){const y=new Date().getFullYear();return`${y}-${brShort[2]}-${brShort[1]}`}return""}function modelKey(linha,modelo){return`${onlyDigits(linha)}.${onlyDigits(modelo)}`}function fallbackModelKeys(linha,modelo){const l=onlyDigits(linha),m=onlyDigits(modelo);return[`${l}.${m}`,`${l}-${m}`,`${l}_${m}`]}function getModel(linha,modelo){for(const key of fallbackModelKeys(linha,modelo)){if(modelsMap.has(key))return modelsMap.get(key)}return null}function getCosturaValue(model){const setores=model?.preco?.setores||{};const found=Object.entries(setores).find(([name])=>normalizeText(name)==="costura");return Number(found?.[1]||0)}function firstNonEmpty(data,fields){for(const f of fields){const v=data?.[f];if(v!==undefined&&v!==null&&String(v).trim()!=="")return v}return""}function getTalaoDate(data){return normalizeDate(firstNonEmpty(data,["dataSaidaCostura","dataProducaoCostura","dataBaixaCostura","saidaCostura","dataEntradaDistribuicao"]))}function getAtelier(data){return String(firstNonEmpty(data,["idAtelieResponsavel","idAtelierResponsavel","atelieResponsavel","atelierResponsavel","nomeAtelie","nomeAtelier","atelie","atelier","Atelie","Atelier"])||"Sem ateliê").trim()}function getLinha(data){return String(firstNonEmpty(data,["linha","Linha","codLinha"]))}function getModelo(data){return String(firstNonEmpty(data,["modelo","Modelo","codModelo"]))}function getPares(data){return parseNumber(firstNonEmpty(data,["pares","Pares","quantidadePares","qtdPares"]))}
+function showMessage(type,text){els.messageBox.className=text?`message show ${type}`:"message";els.messageBox.textContent=text||""}function onlyDigits(v){return String(v||"").replace(/\D/g,"")}function normalizeText(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()}const HOLD_ATELIER="Segurar";function normalizeAtelierName(name){const n=String(name||"").trim();const norm=normalizeText(n);return(!n||norm==="sem atelie definido"||norm==="sem atelier definido"||norm==="sem ateliê definido")?HOLD_ATELIER:n}function displayAtelierName(name){return normalizeAtelierName(name)}function escapeHtml(str){return String(str??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]))}function parseNumber(value){if(value===null||value===undefined)return 0;if(typeof value==="number")return Number.isFinite(value)?value:0;let s=String(value).trim();if(!s||s==="-")return 0;s=s.replace(/R\$|\s/g,"");if(s.includes(",")&&s.includes("."))s=s.replace(/\./g,"").replace(",",".");else if(s.includes(","))s=s.replace(",",".");s=s.replace(/[^0-9.\-]/g,"");const n=parseFloat(s);return Number.isFinite(n)?n:0}function formatMoney(v){return(Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2,maximumFractionDigits:2})}function formatNumber(v){return(Number(v)||0).toLocaleString("pt-BR",{maximumFractionDigits:0})}function formatPairsDay(v){const n=Number(v)||0;return n.toLocaleString("pt-BR",{minimumFractionDigits:Number.isInteger(n)?0:1,maximumFractionDigits:1})}function round2(n){return Math.round((Number(n)||0)*100)/100}function pad2(n){return String(n).padStart(2,"0")}function toISODate(date){return`${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`}function isoToBR(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}/${m}/${y}`}function isoToShortBR(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}/${m}`}function isoToDocId(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}-${m}-${y}`}function docIdToISO(docId){if(!docId)return"";const[d,m,y]=String(docId).split("-");return`${y}-${m}-${d}`}function docIdToBR(docId){return docId?String(docId).replaceAll("-","/"):""}function normalizeDate(value){if(!value)return"";try{if(value.toDate)return toISODate(value.toDate())}catch{}if(value instanceof Date&&!isNaN(value))return toISODate(value);const s=String(value).trim();if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);const br=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(br)return`${br[3]}-${br[2]}-${br[1]}`;const brShort=s.match(/^(\d{2})\/(\d{2})$/);if(brShort){const y=new Date().getFullYear();return`${y}-${brShort[2]}-${brShort[1]}`}return""}function modelKey(linha,modelo){return`${onlyDigits(linha)}.${onlyDigits(modelo)}`}function fallbackModelKeys(linha,modelo){const l=onlyDigits(linha),m=onlyDigits(modelo);return[`${l}.${m}`,`${l}-${m}`,`${l}_${m}`]}function findModelInMap(map,linha,modelo){for(const key of fallbackModelKeys(linha,modelo)){if(map.has(key))return map.get(key)}return null}function getModel(linha,modelo){return findModelInMap(modelsMap,linha,modelo)}function getCosturaValue(model){const setores=model?.preco?.setores||{};const found=Object.entries(setores).find(([name])=>normalizeText(name)==="costura");return parseNumber(found?.[1])}function firstNonEmpty(data,fields){for(const f of fields){const v=data?.[f];if(v!==undefined&&v!==null&&String(v).trim()!=="")return v}return""}function getTalaoDate(data){return normalizeDate(firstNonEmpty(data,["dataSaidaCostura","dataProducaoCostura","dataBaixaCostura","saidaCostura","dataEntradaDistribuicao"]))}function getAtelier(data){return String(firstNonEmpty(data,["idAtelieResponsavel","idAtelierResponsavel","atelieResponsavel","atelierResponsavel","nomeAtelie","nomeAtelier","atelie","atelier","Atelie","Atelier"])||"Sem ateliê").trim()}function getLinha(data){return String(firstNonEmpty(data,["linha","Linha","codLinha"]))}function getModelo(data){return String(firstNonEmpty(data,["modelo","Modelo","codModelo"]))}function getPares(data){return parseNumber(firstNonEmpty(data,["pares","Pares","quantidadePares","qtdPares"]))}
 function getMonday(iso){const d=new Date(`${iso}T12:00:00`);const day=d.getDay();const diff=(day===0?-6:1-day);d.setDate(d.getDate()+diff);return d}function addDays(date,days){const d=new Date(date.getTime());d.setDate(d.getDate()+days);return d}function buildWeeks(referenceISO=toISODate(new Date())){const monday=getMonday(referenceISO);const weeks=[];for(let i=2;i>=0;i--){const start=addDays(monday,-7*i),end=addDays(start,4);const startISO=toISODate(start),endISO=toISODate(end);weeks.push({index:weeks.length+1,startISO,endISO,dates:Array.from({length:5},(_,d)=>toISODate(addDays(start,d)))});}return weeks}
-async function loadModels(){const snap=await getDocs(collection(db,"modelos"));modelsMap=new Map();snap.docs.forEach(d=>{const data={id:d.id,...d.data()};modelsMap.set(d.id,data);if(data.linha&&data.modelo)modelsMap.set(modelKey(data.linha,data.modelo),data)})}async function loadTaloes(){if(taloesCache.length)return taloesCache;const snap=await getDocs(collection(db,"taloes"));taloesCache=snap.docs.map(d=>({id:d.id,...d.data()}));return taloesCache}
+function buildModelsMap(snap){const map=new Map();snap.docs.forEach(d=>{const data={id:d.id,...d.data()};map.set(d.id,data);if(data.linha&&data.modelo)map.set(modelKey(data.linha,data.modelo),data)});return map}async function loadModels(){const snap=await getDocs(collection(db,"modelos"));modelsMap=buildModelsMap(snap)}async function loadTaloes(){if(taloesLoaded)return taloesCache;const snap=await getDocs(collection(db,"taloes"));taloesCache=snap.docs.map(d=>({id:d.id,...d.data()}));taloesLoaded=true;return taloesCache}
 function previousBusinessDayISO(baseISO=toISODate(new Date())){let d=new Date(`${baseISO}T12:00:00`);d.setDate(d.getDate()-1);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);return toISODate(d)}
 function businessDatesUntilYesterday(){const yesterdayISO=previousBusinessDayISO();const weeks=buildWeeks(yesterdayISO);const dates=weeks.flatMap(w=>w.dates).filter(dateISO=>dateISO<=yesterdayISO);return{weeks,dates,startISO:dates[0]||weeks[0].startISO,endISO:yesterdayISO,diasUteis:dates.length||1}}
-function calculateHistory(taloes){const periodo=businessDatesUntilYesterday(),weekDateSet=new Set(periodo.dates),diasUteis=periodo.diasUteis;const hist=new Map(),last=new Map(),modelHist=new Map();taloes.forEach(t=>{const dateISO=getTalaoDate(t);const corteISO=getTalaoCorteDate(t)||dateISO;const linha=getLinha(t),modelo=getModelo(t),pares=getPares(t);if(!dateISO||!linha||!modelo||pares<=0)return;const atelier=getAtelier(t);const key=modelKey(linha,modelo);if(!modelHist.has(key))modelHist.set(key,[]);const mh=modelHist.get(key);const existingHist=mh.find(x=>x.atelier===atelier&&x.dateISO===dateISO&&x.corteISO===corteISO);if(existingHist){existingHist.pares=Number(existingHist.pares||0)+pares}else{mh.push({atelier,dateISO,corteISO,pares})};const current=last.get(key);if(!current||dateISO>current.dateISO)last.set(key,{atelier,dateISO,corteISO});if(dateISO<periodo.startISO||dateISO>periodo.endISO||!weekDateSet.has(dateISO))return;const model=getModel(linha,modelo);const costura=getCosturaValue(model);const valor=round2(pares*costura);if(!hist.has(atelier))hist.set(atelier,{atelier,total:0,pares:0,dias:new Set()});const h=hist.get(atelier);h.total=round2(h.total+valor);h.pares+=pares;h.dias.add(dateISO)});hist.forEach(h=>{h.mediaDia=round2(h.total/diasUteis);h.mediaDiaProduzido=round2(h.total/(h.dias.size||1));h.diasUteis=diasUteis});modelHist.forEach(list=>list.sort((a,b)=>a.dateISO.localeCompare(b.dateISO)));lastAtelierMap=last;atelierHistoryMap=hist;modelHistoryMap=modelHist}
+function calculateHistory(taloes){
+  const periodo=businessDatesUntilYesterday(),weekDateSet=new Set(periodo.dates),diasUteis=periodo.diasUteis;
+  const hist=new Map(),last=new Map(),capacity=new Map();
+  taloes.forEach(t=>{
+    const dateISO=getTalaoDate(t),linha=getLinha(t),modelo=getModelo(t),pares=getPares(t);
+    if(!dateISO||!linha||!modelo||pares<=0||toISODate(new Date(`${dateISO}T12:00:00`))!==dateISO)return;
+    const atelier=getAtelier(t),key=modelKey(linha,modelo),corteISO=getTalaoCorteDate(t)||dateISO;
+    const current=last.get(key);
+    if(!current||dateISO>current.dateISO)last.set(key,{atelier,dateISO,corteISO});
+    if(normalizeText(atelier)!=="sem atelie"){
+      if(!capacity.has(key))capacity.set(key,new Map());
+      const byAtelier=capacity.get(key);
+      if(!byAtelier.has(atelier))byAtelier.set(atelier,{atelier,days:new Map(),weeks:new Map()});
+      const row=byAtelier.get(atelier),weekISO=toISODate(getMonday(dateISO));
+      row.days.set(dateISO,(row.days.get(dateISO)||0)+pares);
+      row.weeks.set(weekISO,(row.weeks.get(weekISO)||0)+pares);
+    }
+    if(dateISO<periodo.startISO||dateISO>periodo.endISO||!weekDateSet.has(dateISO))return;
+    const valor=round2(pares*getCosturaValue(getModel(linha,modelo)));
+    if(!hist.has(atelier))hist.set(atelier,{atelier,total:0,pares:0,dias:new Set()});
+    const h=hist.get(atelier);h.total=round2(h.total+valor);h.pares+=pares;h.dias.add(dateISO);
+  });
+  hist.forEach(h=>{h.mediaDia=round2(h.total/diasUteis);h.mediaDiaProduzido=round2(h.total/(h.dias.size||1));h.diasUteis=diasUteis});
+  const compact=new Map();
+  capacity.forEach((ateliers,key)=>compact.set(key,[...ateliers.values()].map(a=>{
+    let maxDia=0,diaISO="",maxSemana=0,semanaISO="";
+    a.days.forEach((pares,date)=>{if(pares>maxDia||pares===maxDia&&date>diaISO){maxDia=pares;diaISO=date}});
+    a.weeks.forEach((pares,week)=>{if(pares>maxSemana||pares===maxSemana&&week>semanaISO){maxSemana=pares;semanaISO=week}});
+    return{atelier:a.atelier,maxDia,diaISO,maxSemana,semanaISO};
+  })));
+  lastAtelierMap=last;atelierHistoryMap=hist;modelCapacityMap=compact;
+}
 async function loadDistribution(docId){const snap=await getDoc(doc(db,"Distribuicao",docId));if(!snap.exists())throw new Error(`Distribuição ${docIdToBR(docId)} não encontrada.`);return{docId,data:snap.data()}}
 function distributionItems(data,docId){if(Array.isArray(data.itens)&&data.itens.length){return data.itens.map(i=>({linha:String(i.linha||""),modelo:String(i.modelo||""),pares:Number(i.pares||0),origem:docId}))}const out=[];Object.entries(data.linhas||{}).forEach(([linha,line])=>{Object.entries(line.modelos||{}).forEach(([modelo,pares])=>out.push({linha,modelo,pares:Number(pares||0),origem:docId}))});return out}
 function makeAllocation(combined){allocation=combined.map((item,index)=>{const model=getModel(item.linha,item.modelo);const costura=getCosturaValue(model);const last=lastAtelierMap.get(modelKey(item.linha,item.modelo));const atelier=normalizeAtelierName(last?.atelier||HOLD_ATELIER);return calcItem({...item,id:`${modelKey(item.linha,item.modelo)}-${index}-${Date.now()}`,key:modelKey(item.linha,item.modelo),atelier,lastDate:last?.dateISO||"",categoria:model?.categoria||"Sem categoria",subcategoria:model?.subcategoria||"Sem subcategoria",costuraUnit:costura,semModelo:!model,semCostura:!!model&&costura<=0})})}
 function calcItem(item){item.pares=Number(item.pares||0);item.costuraUnit=Number(item.costuraUnit||0);item.valor=round2(item.pares*item.costuraUnit);item.valorDia=round2(item.valor/5);item.paresDia=round2(item.pares/5);return item}
+function allocationPriceSignature(){return JSON.stringify({distribuicoes:selectedDocs,itens:allocation.map(i=>[i.id,i.key,i.pares,i.atelier,i.costuraUnit,!!i.semModelo,!!i.semCostura])})}
+function closePricesModal(){els.pricesModalBackdrop.classList.remove("show");pendingPrices=null}
+function compareCurrentPrices(freshModels){
+  const rows=[];
+  allocation.forEach(item=>{
+    const model=findModelInMap(freshModels,item.linha,item.modelo);
+    const oldPrice=parseNumber(item.costuraUnit);
+    const newPrice=getCosturaValue(model);
+    const issue=!model?"Modelo não cadastrado":newPrice<=0?"Costura sem preço válido":"";
+    const changed=!issue&&(Math.abs(newPrice-oldPrice)>0.000001||!!item.semModelo||!!item.semCostura);
+    if(!issue&&!changed)return;
+    const newValue=round2(Number(item.pares||0)*newPrice);
+    const oldValue=round2(Number(item.pares||0)*oldPrice);
+    rows.push({id:item.id,key:item.key,linha:item.linha,modelo:item.modelo,atelier:item.atelier,pares:Number(item.pares||0),oldPrice,newPrice,delta:changed?round2(newValue-oldValue):0,issue,changed});
+  });
+  rows.sort((a,b)=>Number(b.changed)-Number(a.changed)||String(a.key).localeCompare(String(b.key),"pt-BR",{numeric:true})||String(a.atelier).localeCompare(String(b.atelier),"pt-BR"));
+  return rows;
+}
+async function previewPriceUpdate(){
+  if(!allocation.length){showMessage("warning","Monte ou abra uma distribuição antes de atualizar os preços.");return}
+  const signature=allocationPriceSignature();
+  pendingPrices=null;
+  pricesLoading=true;
+  els.updatePricesButton.disabled=true;
+  showMessage("info","Consultando os preços atuais de costura no cadastro de modelos...");
+  try{
+    const snap=await getDocsFromServer(collection(db,"modelos"));
+    if(signature!==allocationPriceSignature()){showMessage("warning","A distribuição mudou durante a consulta. Clique em Atualizar preços novamente.");return}
+    const freshModels=buildModelsMap(snap);
+    const rows=compareCurrentPrices(freshModels);
+    const changes=rows.filter(r=>r.changed),issues=rows.filter(r=>r.issue);
+    const changedModels=new Set(changes.map(r=>r.key));
+    const pendingModels=new Set(issues.map(r=>r.key));
+    const totalDelta=round2(changes.reduce((sum,r)=>sum+r.delta,0));
+    pendingPrices={signature,changes,freshModels};
+    els.pricesSummary.innerHTML=`<div class="summary-item primary"><strong>${formatNumber(changedModels.size)}</strong><small>Modelos a revisar</small></div><div class="summary-item"><strong>${formatNumber(changes.reduce((sum,r)=>sum+r.pares,0))}</strong><small>Pares afetados</small></div><div class="summary-item ${totalDelta>=0?"ok":"warn"}"><strong>${totalDelta>=0?"+":""}${formatMoney(totalDelta)}</strong><small>Diferença na programação</small></div><div class="summary-item ${pendingModels.size?"danger":"ok"}"><strong>${formatNumber(pendingModels.size)}</strong><small>Sem preço válido</small></div>`;
+    els.pricesWarning.classList.toggle("hidden",!issues.length);
+    els.pricesWarning.textContent=issues.length?`${formatNumber(pendingModels.size)} modelo(s) sem cadastro ou preço de costura válido. Esses itens serão mantidos com os valores anteriores; confira o cadastro de modelos.`:"";
+    els.pricesTableBody.innerHTML=rows.length?rows.map(r=>`<tr><td>${escapeHtml(r.linha)}.${escapeHtml(r.modelo)} <small>• ${escapeHtml(r.atelier)}</small></td><td>${formatNumber(r.pares)}</td><td class="money">${formatMoney(r.oldPrice)}</td><td class="${r.issue?"price-pending":"price-change"}">${r.issue?escapeHtml(r.issue):formatMoney(r.newPrice)}</td><td class="money">${r.issue?"—":`${r.delta>=0?"+":""}${formatMoney(r.delta)}`}</td></tr>`).join(""):`<tr><td colspan="5">Todos os modelos desta distribuição já estão com os preços atuais.</td></tr>`;
+    els.applyPricesButton.disabled=!changes.length;
+    els.pricesModalBackdrop.classList.add("show");
+    showMessage("","");
+  }catch(err){console.error(err);showMessage("error","Não foi possível consultar os preços atuais. Nenhum valor foi alterado: "+err.message)}
+  finally{pricesLoading=false;els.updatePricesButton.disabled=!allocation.length}
+}
+function applyPriceUpdate(){
+  if(!pendingPrices||!pendingPrices.changes.length)return;
+  if(pendingPrices.signature!==allocationPriceSignature()){closePricesModal();showMessage("warning","A distribuição mudou desde a consulta. Clique em Atualizar preços novamente.");return}
+  pushUndo();
+  const byId=new Map(pendingPrices.changes.map(row=>[row.id,row]));
+  allocation.forEach(item=>{const row=byId.get(item.id);if(!row)return;item.costuraUnit=row.newPrice;item.semModelo=false;item.semCostura=false;calcItem(item)});
+  modelsMap=pendingPrices.freshModels;
+  if(taloesCache.length)calculateHistory(taloesCache);
+  const modelCount=new Set(pendingPrices.changes.map(row=>row.key)).size;
+  const totalDelta=round2(pendingPrices.changes.reduce((sum,row)=>sum+row.delta,0));
+  closePricesModal();
+  renderAll();
+  showMessage("success",`${formatNumber(modelCount)} modelo(s) revisado(s). Diferença total: ${totalDelta>=0?"+":""}${formatMoney(totalDelta)}. Os novos valores serão salvos automaticamente.`);
+}
 function cloneState(){return JSON.parse(JSON.stringify({allocation,manualAteliers:[...manualAteliers],atelierNotes:[...atelierNotes.entries()],atelierNotePositions:[...atelierNotePositions.entries()],lineSummaryGroups}))}
 function restoreState(state){allocation=(state&&state.allocation)||[];manualAteliers=new Set((state&&state.manualAteliers)||[]);atelierNotes=new Map((state&&state.atelierNotes)||[]);atelierNotePositions=new Map((state&&state.atelierNotePositions)||[]);lineSummaryGroups=Array.isArray(state&&state.lineSummaryGroups)?state.lineSummaryGroups:[];renderAll()}
-function pushUndo(){undoStack.push(cloneState());if(undoStack.length>80)undoStack.shift();redoStack=[]}
-function undoMove(){if(!undoStack.length)return;redoStack.push(cloneState());restoreState(undoStack.pop());showMessage("info","Movimento desfeito.")}
-function redoMove(){if(!redoStack.length)return;undoStack.push(cloneState());restoreState(redoStack.pop());showMessage("info","Movimento refeito.")}
+function pushUndo(){undoStack.push(cloneState());if(undoStack.length>80)undoStack.shift();redoStack=[];queueAutoSave()}
+function undoMove(){if(!undoStack.length)return;redoStack.push(cloneState());restoreState(undoStack.pop());queueAutoSave();showMessage("info","Movimento desfeito.")}
+function redoMove(){if(!redoStack.length)return;undoStack.push(cloneState());restoreState(redoStack.pop());queueAutoSave();showMessage("info","Movimento refeito.")}
 function compareClass(previsto,hist){if(!hist||!hist.mediaDia)return"";return Number(previsto||0)>=Number(hist.mediaDia||0)?"compare-good":"compare-bad"}
 function compareSymbol(previsto,hist){if(!hist||!hist.mediaDia)return"";return Number(previsto||0)>=Number(hist.mediaDia||0)?"▲":"▼"}
 function compareDiff(previsto,hist){if(!hist||!hist.mediaDia)return 0;return round2(Number(previsto||0)-Number(hist.mediaDia||0))}
 function getTalaoCorteDate(data){return normalizeDate(firstNonEmpty(data,["dataCorte","DataCorte","dataDeCorte","data_corte","corte"]))}
-function historyTooltip(item){const list=modelHistoryMap.get(item.key)||[];const totals=new Map();list.forEach(h=>{const atelier=String(h.atelier||"").trim();if(!atelier||normalizeText(atelier)===normalizeText(item.atelier))return;totals.set(atelier,(totals.get(atelier)||0)+Number(h.pares||0))});const rows=Array.from(totals.entries()).filter(([,pares])=>pares>0).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"pt-BR",{numeric:true}));if(!rows.length)return"";return rows.map(([atelier,pares])=>`${atelier} • ${formatNumber(pares)} pares`).join("\n")}
-function historyBadge(item){const title=historyTooltip(item);return title?`<span class="history-badge" title="${escapeHtml(title)}">👥</span>`:""}
+function historyBadge(item){return modelCapacityMap.has(item.key)?`<span class="history-badge" aria-hidden="true">👥</span>`:""}
+function hideModelCapacity(){els.capacityTooltip.hidden=true}
+function showModelCapacity(item,anchor){
+  if(!item||!anchor)return;
+  const rows=[...(modelCapacityMap.get(item.key)||[])].sort((a,b)=>Number(b.atelier===item.atelier)-Number(a.atelier===item.atelier)||b.maxSemana-a.maxSemana||a.atelier.localeCompare(b.atelier,"pt-BR"));
+  const weekLabel=iso=>{const end=toISODate(addDays(getMonday(iso),6));return`${isoToShortBR(iso)}–${isoToShortBR(end)}`};
+  els.capacityTooltip.innerHTML=`<strong>Modelo ${escapeHtml(item.linha)}.${escapeHtml(item.modelo)}</strong><p>Maior volume registrado deste modelo por ateliê, pelas datas de produção/saída da costura. Semana de segunda a domingo.</p>${rows.length?`<table><thead><tr><th>Ateliê</th><th>Máx./dia</th><th>Máx./semana</th></tr></thead><tbody>${rows.map(r=>`<tr class="${r.atelier===item.atelier?"capacity-current":""}"><td>${escapeHtml(r.atelier)}${r.atelier===item.atelier?" • atual":""}</td><td>${formatNumber(r.maxDia)}<br><small>${isoToBR(r.diaISO)}</small></td><td>${formatNumber(r.maxSemana)}<br><small>${weekLabel(r.semanaISO)}</small></td></tr>`).join("")}</tbody></table>`:`<p>${taloesLoaded?"Nenhum histórico de produção encontrado para este modelo.":"Carregando histórico de produção..."}</p>`}`;
+  els.capacityTooltip.hidden=false;
+  const rect=anchor.getBoundingClientRect(),tip=els.capacityTooltip;
+  tip.style.left=`${Math.max(8,Math.min(rect.left,window.innerWidth-tip.offsetWidth-10))}px`;
+  tip.style.top=`${Math.max(8,rect.bottom+8+tip.offsetHeight<window.innerHeight?rect.bottom+8:rect.top-tip.offsetHeight-8)}px`;
+}
 function noteBadge(item){return item.observacaoDivisao?`<span class="note-badge" title="${escapeHtml(item.observacaoDivisao)}">📝</span>`:""}
 function isSplitItem(item){return !!(item&&((item.dividido===true)||item.splitGroup||item.observacaoDivisao))}
 function atelierNoteValue(name){const raw=atelierNotes.get(name);if(raw&&typeof raw==="object")return String(raw.texto||raw.text||"");return String(raw||"")}
@@ -1218,8 +1358,41 @@ function promptAtelierNote(name){const atual=atelierNoteValue(name);const novo=p
 function renderAtelierNoteBlock(name){const note=atelierNoteValue(name);if(!note)return"";return `<div class="atelier-note-display atelier-note-block" draggable="true" data-note-atelier="${escapeHtml(name)}"><span><strong>Obs:</strong> ${escapeHtml(note)}</span><button class="btn-atelier-note-remove no-print" type="button" data-note-remove="${escapeHtml(name)}" title="Remover observação">×</button></div>`}
 function printDistribution(){if(!allocation.length){showMessage("warning","Monte a distribuição antes de imprimir.");return}const datas=selectedDocs.length?selectedDocs.map(docIdToBR).join(" e "):[isoToBR(els.dateOneInput.value),isoToBR(els.dateTwoInput.value)].filter(Boolean).join(" e ");const title=document.getElementById("printTitle");if(title)title.textContent=`Distribuição dos Ateliês • Cortes ${datas}`;window.print()}
 
-async function generate(){const docIds=[isoToDocId(els.dateOneInput.value),isoToDocId(els.dateTwoInput.value)].filter(Boolean);if(docIds.length!==2){showMessage("warning","Selecione as duas datas de distribuição da semana.");return}if(docIds[0]===docIds[1]){showMessage("warning","Selecione duas datas diferentes.");return}try{els.generateButton.disabled=true;showMessage("info","Buscando distribuições, modelos e último ateliê dos modelos...");await loadModels();const taloes=await loadTaloes();calculateHistory(taloes);const docs=await Promise.all(docIds.map(loadDistribution));selectedDocs=docIds;const map=new Map();docs.forEach(({docId,data})=>distributionItems(data,docId).forEach(i=>{const key=modelKey(i.linha,i.modelo);if(!key||!i.pares)return;if(!map.has(key))map.set(key,{linha:i.linha,modelo:i.modelo,pares:0,origens:[],paresPorOrigem:{}});const item=map.get(key);const qtd=Number(i.pares||0);item.pares+=qtd;item.origens.push(docId);item.paresPorOrigem[docId]=(Number(item.paresPorOrigem[docId]||0)+qtd)}));makeAllocation(Array.from(map.values()).sort((a,b)=>Number(a.linha)-Number(b.linha)||Number(a.modelo)-Number(b.modelo)));atelierNotes=new Map();atelierNotePositions=new Map();lineSummaryGroups=[];undoStack=[];redoStack=[];renderAll();showMessage("success",`Distribuição montada com ${formatNumber(allocation.length)} modelo(s).`)}catch(err){console.error(err);showMessage("error","Erro ao montar distribuição: "+err.message)}finally{els.generateButton.disabled=false}}
-function renderAll(){renderSummary();renderAteliers();els.saveButton.disabled=!allocation.length;if(els.printButton)els.printButton.disabled=!allocation.length}
+async function generate(){
+  const docIds=[isoToDocId(els.dateOneInput.value),isoToDocId(els.dateTwoInput.value)].filter(Boolean);
+  if(docIds.length!==2){showMessage("warning","Selecione as duas datas de distribuição da semana.");return}
+  if(docIds[0]===docIds[1]){showMessage("warning","Selecione duas datas diferentes.");return}
+  const request=++navigationRequest,docId=docIds.join("_");
+  els.generateButton.disabled=true;
+  try{
+    if(!await flushAutoSave()||request!==navigationRequest)return;
+    const existing=await getDoc(doc(db,"DistribuicaoAtelier",docId));
+    if(request!==navigationRequest)return;
+    if(existing.exists()&&!confirm(`Já existe uma distribuição salva para ${docIds.map(docIdToBR).join(" e ")}. Montar novamente vai substituir as movimentações e observações anteriores. Deseja continuar?`)){
+      showMessage("info","A distribuição salva foi mantida. Use Abrir salvas para retomá-la.");return;
+    }
+    showMessage("info","Buscando distribuições, modelos e histórico dos ateliês...");
+    await loadModels();const taloes=await loadTaloes();
+    if(request!==navigationRequest)return;
+    calculateHistory(taloes);
+    const docs=await Promise.all(docIds.map(loadDistribution));
+    if(request!==navigationRequest)return;
+    selectedDocs=docIds;
+    const map=new Map();
+    docs.forEach(({docId,data})=>distributionItems(data,docId).forEach(i=>{
+      const key=modelKey(i.linha,i.modelo);if(!key||!i.pares)return;
+      if(!map.has(key))map.set(key,{linha:i.linha,modelo:i.modelo,pares:0,origens:[],paresPorOrigem:{}});
+      const item=map.get(key),qtd=Number(i.pares||0);
+      item.pares+=qtd;item.origens.push(docId);item.paresPorOrigem[docId]=Number(item.paresPorOrigem[docId]||0)+qtd;
+    }));
+    makeAllocation(Array.from(map.values()).sort((a,b)=>Number(a.linha)-Number(b.linha)||Number(a.modelo)-Number(b.modelo)));
+    atelierNotes=new Map();atelierNotePositions=new Map();lineSummaryGroups=[];undoStack=[];redoStack=[];
+    resetAutoSave(docId);renderAll();queueAutoSave();
+    showMessage("success",`Distribuição montada com ${formatNumber(allocation.length)} modelo(s). Salvamento automático ativado.`);
+  }catch(err){console.error(err);showMessage("error","Erro ao montar distribuição: "+err.message)}
+  finally{els.generateButton.disabled=false}
+}
+function renderAll(){renderSummary();renderAteliers();els.updatePricesButton.disabled=!allocation.length||pricesLoading;if(els.printButton)els.printButton.disabled=!allocation.length}
 function getAtelierNames(){const names=new Set([...allocation.map(i=>normalizeAtelierName(i.atelier)),...[...manualAteliers].map(normalizeAtelierName)]);return Array.from(names).filter(Boolean).sort((a,b)=>{const ma=Number(atelierHistoryMap.get(a)?.mediaDia||0),mb=Number(atelierHistoryMap.get(b)?.mediaDia||0);if(mb!==ma)return mb-ma;return a.localeCompare(b,"pt-BR",{numeric:true})})}
 function normalizeLinhaKey(v){const s=String(v??"").trim();return s||"Sem linha"}
 function activeDistributionDocs(){const docs=(selectedDocs&&selectedDocs.length?selectedDocs:[isoToDocId(els.dateOneInput.value),isoToDocId(els.dateTwoInput.value)]).filter(Boolean);return Array.from(new Set(docs)).sort((a,b)=>docIdToISO(a).localeCompare(docIdToISO(b)))}
@@ -1238,7 +1411,7 @@ function mergeLineSummaryGroups(sourceIndex,targetIndex){sourceIndex=Number(sour
 function bindLineSummaryDragDrop(){if(!els.lineSummaryGrid)return;els.lineSummaryGrid.querySelectorAll(".line-summary-card").forEach(card=>{card.addEventListener("dragstart",e=>{e.dataTransfer.setData("application/x-line-group-index",card.dataset.lineGroupIndex);e.dataTransfer.setData("text/plain",`line:${card.dataset.lineGroupIndex}`);e.dataTransfer.effectAllowed="move"});card.addEventListener("dragover",e=>{e.preventDefault();card.classList.add("drag-over")});card.addEventListener("dragleave",()=>card.classList.remove("drag-over"));card.addEventListener("drop",e=>{e.preventDefault();card.classList.remove("drag-over");let source=e.dataTransfer.getData("application/x-line-group-index");const txt=e.dataTransfer.getData("text/plain")||"";if(!source&&txt.startsWith("line:"))source=txt.slice(5);mergeLineSummaryGroups(source,card.dataset.lineGroupIndex)})})}
 function resetLineSummaryGroups(){if(!allocation.length)return;pushUndo();lineSummaryGroups=[];renderSummary();showMessage("info","Agrupamento das linhas removido.")}
 function renderSummary(){const totalPares=allocation.reduce((s,i)=>s+i.pares,0),totalValor=round2(allocation.reduce((s,i)=>s+i.valor,0)),semAtelier=allocation.filter(i=>normalizeAtelierName(i.atelier)===HOLD_ATELIER).length,pend=allocation.filter(i=>i.semModelo||i.semCostura).length;els.periodInfo.textContent=selectedDocs.length?`Distribuições ${selectedDocs.map(docIdToBR).join(" e ")}`:"";els.summaryGrid.innerHTML=`<div class="summary-item primary combo"><strong>${formatNumber(totalPares)}<span>Total</span></strong><strong>${formatNumber(totalPares/5)}<span>Dia</span></strong></div><div class="summary-item ok combo"><strong>${formatMoney(totalValor)}<span>Total</span></strong><strong>${formatMoney(totalValor/5)}<span>Dia</span></strong></div><div class="summary-item danger"><strong>${formatNumber(semAtelier)}</strong><small>Segurar</small></div><div class="summary-item danger"><strong>${formatNumber(pend)}</strong><small>Pendências de preço/modelo</small></div><div class="summary-item"><strong>${formatNumber(getAtelierNames().length)}</strong><small>Ateliês na distribuição</small></div>`;renderLineSummary();els.summaryCard.classList.remove("hidden")}
-function renderAteliers(){const term=normalizeText(els.atelierFilterInput.value||"");const names=getAtelierNames().filter(n=>!term||normalizeText(n).includes(term));els.atelierInfo.textContent=`${formatNumber(names.length)} card(s). Arraste os modelos entre ateliês ou segure SHIFT ao soltar para dividir.`;if(!names.length){els.atelierGrid.innerHTML=`<div class="empty-drop">Nenhum ateliê encontrado.</div>`}else{els.atelierGrid.innerHTML=names.map((name,index)=>renderAtelierCard(name,index)).join("");bindDragDrop()}els.atelierSection.classList.remove("hidden")}
+function renderAteliers(){hideModelCapacity();const term=normalizeText(els.atelierFilterInput.value||"");const names=getAtelierNames().filter(n=>!term||normalizeText(n).includes(term));els.atelierInfo.textContent=`${formatNumber(names.length)} card(s). Arraste os modelos entre ateliês ou segure SHIFT ao soltar para dividir.`;if(!names.length){els.atelierGrid.innerHTML=`<div class="empty-drop">Nenhum ateliê encontrado.</div>`}else{els.atelierGrid.innerHTML=names.map((name,index)=>renderAtelierCard(name,index)).join("");bindDragDrop()}els.atelierSection.classList.remove("hidden")}
 function printShortCortes(){
   const docs=(selectedDocs&&selectedDocs.length?selectedDocs:[isoToDocId(els.dateOneInput.value),isoToDocId(els.dateTwoInput.value)]).filter(Boolean);
   return docs.sort((a,b)=>docIdToISO(a).localeCompare(docIdToISO(b))).map(d=>isoToShortBR(docIdToISO(d))).join(" e ");
@@ -1259,10 +1432,10 @@ function renderAtelierCard(name,index){const items=allocation.filter(i=>i.atelie
 function renderCategoryGroups(items,atelierName=""){const catMap=new Map();items.sort((a,b)=>normalizeText(a.categoria).localeCompare(normalizeText(b.categoria))||normalizeText(a.subcategoria).localeCompare(normalizeText(b.subcategoria))||Number(a.linha)-Number(b.linha)||Number(a.modelo)-Number(b.modelo)).forEach(i=>{const cat=i.categoria||"Sem categoria",sub=i.subcategoria||"Sem subcategoria";if(!catMap.has(cat))catMap.set(cat,new Map());const subMap=catMap.get(cat);if(!subMap.has(sub))subMap.set(sub,[]);subMap.get(sub).push(i)});const blocks=Array.from(catMap.entries()).map(([cat,subMap],idx)=>{const catItems=Array.from(subMap.values()).flat();const catPares=catItems.reduce((s,i)=>s+i.pares,0),catValor=round2(catItems.reduce((s,i)=>s+i.valor,0));const subs=Array.from(subMap.entries()).map(([sub,subItems])=>renderSubcategory(sub,subItems)).join("");return `<div class="category-box" data-note-drop-atelier="${escapeHtml(atelierName)}" data-note-position="${idx+1}"><div class="category-head"><span>${escapeHtml(cat)}</span><span class="muted">${formatNumber(catPares)} pares <span class="financial-data">• ${formatMoney(catValor)}</span></span></div>${subs}</div>`});const noteBlock=renderAtelierNoteBlock(atelierName);if(noteBlock){const pos=Math.min(Math.max(atelierNotePosition(atelierName),0),blocks.length);blocks.splice(pos,0,noteBlock)}return blocks.join("")}
 function renderSubcategory(label,items){const totalPares=items.reduce((s,i)=>s+i.pares,0),totalValor=round2(items.reduce((s,i)=>s+i.valor,0));return `<div class="subcat-box"><div class="subcat-head"><span>${escapeHtml(label)}</span><span class="muted">${formatNumber(totalPares)} pares <span class="financial-data">• ${formatMoney(totalValor)}</span></span></div>${renderGroup(label,items)}</div>`}
 function groupItems(items){const map=new Map();items.forEach(i=>{const key=`${i.categoria||"Sem categoria"} / ${i.subcategoria||"Sem subcategoria"}`;if(!map.has(key))map.set(key,[]);map.get(key).push(i)});return map}
-function renderGroup(label,items){const rows=items.map(i=>{const hist=historyBadge(i);const note=String(i.observacaoDivisao||"");const showNote=isSplitItem(i);const notePrint=note?`<div class="model-note-print">Obs: ${escapeHtml(note)}</div>`:"";const noteEditor=showNote?`<div class="model-note-wrap no-print"><input class="model-note-input" type="text" data-note-id="${escapeHtml(i.id)}" value="${escapeHtml(note)}" placeholder="Observação da divisão" /></div>`:"";return `<tr class="model-row ${i.semModelo||i.semCostura?"missing":""} ${note?"has-note":""} ${showNote?"is-split":""}" draggable="true" data-item-id="${escapeHtml(i.id)}" title="Arraste para outro ateliê. Segure SHIFT ao soltar para dividir."><td class="model-main-cell"><div class="model-title-line"><span class="model-link">${escapeHtml(i.linha)}.${escapeHtml(i.modelo)}</span>${hist}${i.semModelo?" ⚠":i.semCostura?" ⚠":""}</div>${noteEditor}${notePrint}</td><td>${formatNumber(i.pares)}</td><td class="pares-dia-col">${formatNumber(i.paresDia)}</td><td class="money daily-value-col financial-data"><strong>${formatMoney(i.valorDia)}</strong></td></tr>`}).join("");return `<div class="group-box"><table class="model-table"><thead><tr><th>Modelo / observação</th><th>Pares</th><th class="pares-dia-col">Pares/dia</th><th class="daily-value-col financial-data">Valor diário</th></tr></thead><tbody>${rows}</tbody></table></div>`}
+function renderGroup(label,items){const rows=items.map(i=>{const hist=historyBadge(i);const note=String(i.observacaoDivisao||"");const showNote=isSplitItem(i);const notePrint=note?`<div class="model-note-print">Obs: ${escapeHtml(note)}</div>`:"";const noteEditor=showNote?`<div class="model-note-wrap no-print"><input class="model-note-input" type="text" data-note-id="${escapeHtml(i.id)}" value="${escapeHtml(note)}" placeholder="Observação da divisão" /></div>`:"";return `<tr class="model-row ${i.semModelo||i.semCostura?"missing":""} ${note?"has-note":""} ${showNote?"is-split":""}" draggable="true" data-item-id="${escapeHtml(i.id)}"><td class="model-main-cell"><div class="model-title-line"><span class="model-link" tabindex="0" data-item-id="${escapeHtml(i.id)}" aria-label="Histórico de produção do modelo ${escapeHtml(i.linha)}.${escapeHtml(i.modelo)}">${escapeHtml(i.linha)}.${escapeHtml(i.modelo)}${hist}</span>${i.semModelo?" ⚠":i.semCostura?" ⚠":""}</div>${noteEditor}${notePrint}</td><td>${formatNumber(i.pares)}</td><td class="pares-dia-col">${formatNumber(i.paresDia)}</td><td class="money daily-value-col financial-data"><strong>${formatMoney(i.valorDia)}</strong></td></tr>`}).join("");return `<div class="group-box"><table class="model-table"><thead><tr><th>Modelo / observação</th><th>Pares</th><th class="pares-dia-col">Pares/dia</th><th class="daily-value-col financial-data">Valor diário</th></tr></thead><tbody>${rows}</tbody></table></div>`}
 function updateItemNote(id,value){const item=allocation.find(i=>i.id===id);if(!item)return;const val=String(value||"").trim();if((item.observacaoDivisao||"")===val)return;pushUndo();item.observacaoDivisao=val;renderAll()}
 function autoScrollDuringDrag(e){const margin=90,speed=22;if(e.clientY<margin)window.scrollBy(0,-speed);else if(window.innerHeight-e.clientY<margin)window.scrollBy(0,speed)}
-function bindDragDrop(){els.atelierGrid.querySelectorAll(".btn-atelier-note").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();promptAtelierNote(btn.dataset.atelierNote||"")}));els.atelierGrid.querySelectorAll(".btn-atelier-note-remove").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();setAtelierNote(btn.dataset.noteRemove||"","")}));els.atelierGrid.querySelectorAll(".atelier-note-block").forEach(block=>{block.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",`note:${block.dataset.noteAtelier}`);e.dataTransfer.effectAllowed="move"})});els.atelierGrid.querySelectorAll(".category-box").forEach(box=>{box.addEventListener("dragover",e=>{const types=[...e.dataTransfer.types];if(types.includes("text/plain")){e.preventDefault();box.classList.add("note-drop-target")}});box.addEventListener("dragleave",()=>box.classList.remove("note-drop-target"));box.addEventListener("drop",e=>{const data=e.dataTransfer.getData("text/plain");if(data&&data.startsWith("note:")){e.preventDefault();e.stopPropagation();box.classList.remove("note-drop-target");const noteName=data.slice(5);setAtelierNotePosition(noteName,Number(box.dataset.notePosition||0))}})});els.atelierGrid.querySelectorAll(".model-note-input").forEach(input=>{input.addEventListener("click",e=>e.stopPropagation());input.addEventListener("mousedown",e=>e.stopPropagation());input.addEventListener("change",()=>updateItemNote(input.dataset.noteId,input.value));input.addEventListener("blur",()=>updateItemNote(input.dataset.noteId,input.value));});els.atelierGrid.querySelectorAll(".model-row").forEach(row=>{row.addEventListener("dragstart",e=>{if(e.target&&e.target.classList&&e.target.classList.contains("model-note-input")){e.preventDefault();return}e.dataTransfer.setData("text/plain",row.dataset.itemId);e.dataTransfer.effectAllowed="move"})});els.atelierGrid.querySelectorAll(".atelier-card").forEach(card=>{card.addEventListener("dragover",e=>{e.preventDefault();autoScrollDuringDrag(e);card.classList.add("drag-over")});card.addEventListener("dragleave",()=>card.classList.remove("drag-over"));card.addEventListener("drop",e=>{e.preventDefault();card.classList.remove("drag-over");const data=e.dataTransfer.getData("text/plain");if(data&&data.startsWith("note:")){const noteName=data.slice(5);setAtelierNotePosition(noteName,999);return}if(e.shiftKey)openSplitModal(data,card.dataset.atelier);else moveItem(data,card.dataset.atelier)})});els.atelierGrid.querySelectorAll(".btn-dividir").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();openSplitModal(btn.dataset.splitId)}))}
+function bindDragDrop(){els.atelierGrid.querySelectorAll(".model-link").forEach(link=>{const show=()=>showModelCapacity(allocation.find(i=>i.id===link.dataset.itemId),link);link.addEventListener("mouseenter",show);link.addEventListener("focus",show);link.addEventListener("click",e=>{e.stopPropagation();show()});link.addEventListener("mouseleave",hideModelCapacity);link.addEventListener("blur",hideModelCapacity)});els.atelierGrid.querySelectorAll(".btn-atelier-note").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();promptAtelierNote(btn.dataset.atelierNote||"")}));els.atelierGrid.querySelectorAll(".btn-atelier-note-remove").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();setAtelierNote(btn.dataset.noteRemove||"","")}));els.atelierGrid.querySelectorAll(".atelier-note-block").forEach(block=>{block.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",`note:${block.dataset.noteAtelier}`);e.dataTransfer.effectAllowed="move"})});els.atelierGrid.querySelectorAll(".category-box").forEach(box=>{box.addEventListener("dragover",e=>{const types=[...e.dataTransfer.types];if(types.includes("text/plain")){e.preventDefault();box.classList.add("note-drop-target")}});box.addEventListener("dragleave",()=>box.classList.remove("note-drop-target"));box.addEventListener("drop",e=>{const data=e.dataTransfer.getData("text/plain");if(data&&data.startsWith("note:")){e.preventDefault();e.stopPropagation();box.classList.remove("note-drop-target");const noteName=data.slice(5);setAtelierNotePosition(noteName,Number(box.dataset.notePosition||0))}})});els.atelierGrid.querySelectorAll(".model-note-input").forEach(input=>{input.addEventListener("click",e=>e.stopPropagation());input.addEventListener("mousedown",e=>e.stopPropagation());input.addEventListener("input",()=>{const item=allocation.find(i=>i.id===input.dataset.noteId);if(!item)return;if(!input.dataset.autosaveEditing){pushUndo();input.dataset.autosaveEditing="1"}else queueAutoSave();item.observacaoDivisao=input.value});input.addEventListener("change",()=>updateItemNote(input.dataset.noteId,input.value));input.addEventListener("blur",()=>updateItemNote(input.dataset.noteId,input.value));});els.atelierGrid.querySelectorAll(".model-row").forEach(row=>{row.addEventListener("dragstart",e=>{if(e.target&&e.target.classList&&e.target.classList.contains("model-note-input")){e.preventDefault();return}e.dataTransfer.setData("text/plain",row.dataset.itemId);e.dataTransfer.effectAllowed="move"})});els.atelierGrid.querySelectorAll(".atelier-card").forEach(card=>{card.addEventListener("dragover",e=>{e.preventDefault();autoScrollDuringDrag(e);card.classList.add("drag-over")});card.addEventListener("dragleave",()=>card.classList.remove("drag-over"));card.addEventListener("drop",e=>{e.preventDefault();card.classList.remove("drag-over");const data=e.dataTransfer.getData("text/plain");if(data&&data.startsWith("note:")){const noteName=data.slice(5);setAtelierNotePosition(noteName,999);return}if(e.shiftKey)openSplitModal(data,card.dataset.atelier);else moveItem(data,card.dataset.atelier)})});els.atelierGrid.querySelectorAll(".btn-dividir").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();openSplitModal(btn.dataset.splitId)}))}
 
 
 function mergeOriginPairs(target,source){const merged=cleanOriginPairs(target?.paresPorOrigem);Object.entries(cleanOriginPairs(source?.paresPorOrigem)).forEach(([doc,pares])=>{merged[doc]=Number(merged[doc]||0)+Number(pares||0)});if(Object.keys(merged).length)target.paresPorOrigem=merged}
@@ -1316,14 +1489,158 @@ function moveOrMergeItem(id,dest){
 function moveItem(id,dest){const item=allocation.find(i=>i.id===id);const destName=normalizeAtelierName(dest);if(!item||!destName||item.atelier===destName)return;pushUndo();const result=moveOrMergeItem(id,destName);renderAll();if(result==="merged")showMessage("success",`${item.linha}.${item.modelo} somado novamente em ${destName}.`);else showMessage("success",`${item.linha}.${item.modelo} movido para ${destName}.`)}
 function openSplitModal(id,preferredDest=""){const item=allocation.find(i=>i.id===id);if(!item)return;currentSplitId=id;els.splitModalTitle.textContent=`Dividir ${item.linha}.${item.modelo}`;els.splitSummary.innerHTML=`<div class="summary-item"><strong>${formatNumber(item.pares)}</strong><small>Pares atuais</small></div><div class="summary-item ok"><strong>${formatMoney(item.valor)}</strong><small>Valor atual</small></div><div class="summary-item"><strong>${escapeHtml(item.atelier)}</strong><small>Ateliê atual</small></div>`;els.splitPairsInput.value="";els.splitPairsInput.max=String(Math.max(0,item.pares-1));els.splitNewAtelierInput.value="";if(els.splitOriginNoteInput)els.splitOriginNoteInput.value=item.observacaoDivisao||"";if(els.splitDestinationNoteInput)els.splitDestinationNoteInput.value="";let destinos=getAtelierNames().filter(n=>n!==item.atelier);if(preferredDest&&preferredDest!==item.atelier&&!destinos.includes(preferredDest))destinos.unshift(preferredDest);els.splitDestinationSelect.innerHTML=destinos.map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");if(preferredDest&&preferredDest!==item.atelier)els.splitDestinationSelect.value=preferredDest;els.splitModalBackdrop.classList.add("show");setTimeout(()=>els.splitPairsInput.focus(),50)}
 function confirmSplit(){const item=allocation.find(i=>i.id===currentSplitId);if(!item)return;const qtd=Number(els.splitPairsInput.value||0);const dest=normalizeAtelierName((els.splitNewAtelierInput.value.trim()||els.splitDestinationSelect.value||"").trim());const obsOrigem=(els.splitOriginNoteInput?.value||"").trim();const obsDestino=(els.splitDestinationNoteInput?.value||"").trim();if(!dest){showMessage("warning","Informe o ateliê destino.");return}if(qtd<=0||qtd>=item.pares){showMessage("warning","Informe uma quantidade menor que o total de pares do modelo.");return}pushUndo();const splitGroup=item.splitGroup||`${item.key}-split-${Date.now()}`;const originSplit=splitOriginPairs(item,qtd);item.pares-=qtd;if(originSplit.remaining)item.paresPorOrigem=originSplit.remaining;item.dividido=true;item.splitGroup=splitGroup;item.observacaoDivisao=obsOrigem;calcItem(item);const clone=calcItem({...item,id:`${item.key}-split-${Date.now()}`,pares:qtd,paresPorOrigem:originSplit.transfer||{},atelier:dest,dividido:true,splitGroup,observacaoDivisao:obsDestino});const existing=allocation.find(i=>i.id!==item.id&&i.atelier===dest&&i.key===item.key);if(existing){mergeItems(existing,clone)}else{allocation.push(clone)}manualAteliers.add(dest);refreshSplitFlags();els.splitModalBackdrop.classList.remove("show");renderAll();showMessage("success",`${item.linha}.${item.modelo} dividido com ${formatNumber(qtd)} pares para ${dest}.`)}
-async function saveAllocation(){if(!allocation.length){showMessage("warning","Monte a distribuição antes de salvar.");return}try{const docId=selectedDocs.join("_")||`manual_${Date.now()}`;const totalPares=allocation.reduce((s,i)=>s+i.pares,0),totalValor=round2(allocation.reduce((s,i)=>s+i.valor,0));const itensSalvos=allocation.map(i=>({id:i.id,key:i.key,linha:i.linha,modelo:i.modelo,pares:i.pares,atelier:i.atelier,categoria:i.categoria,subcategoria:i.subcategoria,costuraUnit:i.costuraUnit,valor:i.valor,valorDia:i.valorDia,paresDia:i.paresDia,dividido:!!i.dividido,splitGroup:i.splitGroup||"",observacaoDivisao:i.observacaoDivisao||"",origensTexto:getItemOrigins(i).join("|"),origensMap:originsToObject(i),paresPorOrigem:cleanOriginPairs(i.paresPorOrigem),semModelo:i.semModelo,semCostura:i.semCostura}));await setDoc(doc(db,"DistribuicaoAtelier",docId),{distribuicoes:selectedDocs,itens:itensSalvos,observacoesAtelier:Object.fromEntries(atelierNotes),observacoesAtelierPosicoes:Object.fromEntries(atelierNotePositions),gruposResumoLinhas:lineGroupsToFirestore(),resumo:{totalPares,totalValor,valorDia:round2(totalValor/5),totalAtelies:getAtelierNames().length},atualizadoEm:serverTimestamp(),atualizadoPor:currentUser.email,atualizadoPorNome:currentUserName},{merge:false});showMessage("success",`Distribuição dos ateliês salva em DistribuicaoAtelier/${docId}.`)}catch(err){console.error(err);showMessage("error","Erro ao salvar: "+err.message)}}
-async function openSavedModal(){els.savedModalBackdrop.classList.add("show");els.savedTableBody.innerHTML=`<tr><td colspan="6">Carregando distribuições salvas...</td></tr>`;try{const snap=await getDocs(collection(db,"DistribuicaoAtelier"));const rows=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>String(getTimeValue(b.data.atualizadoEm)||b.id).localeCompare(String(getTimeValue(a.data.atualizadoEm)||a.id)));if(!rows.length){els.savedTableBody.innerHTML=`<tr><td colspan="6">Nenhuma distribuição de ateliês salva ainda.</td></tr>`;return}els.savedTableBody.innerHTML=rows.map(r=>{const data=r.data||{};const cortes=Array.isArray(data.distribuicoes)?data.distribuicoes.map(docIdToBR).join(" e "):"—";const totalPares=data.resumo?.totalPares||0,totalValor=data.resumo?.totalValor||0;return `<tr><td><strong>${escapeHtml(r.id)}</strong></td><td>${escapeHtml(cortes)}</td><td>${formatNumber(totalPares)}</td><td class="money">${formatMoney(totalValor)}</td><td>${escapeHtml(data.atualizadoPorNome||data.atualizadoPor||"—")}</td><td><button class="btn btn-primary btn-small btn-open-saved" type="button" data-saved-id="${escapeHtml(r.id)}">Abrir</button></td></tr>`}).join("");els.savedTableBody.querySelectorAll(".btn-open-saved").forEach(btn=>btn.addEventListener("click",()=>loadSavedAllocation(btn.dataset.savedId)))}catch(err){console.error(err);els.savedTableBody.innerHTML=`<tr><td colspan="6">Erro ao carregar: ${escapeHtml(err.message)}</td></tr>`}}
-function getTimeValue(value){try{if(value&&value.toMillis)return value.toMillis();if(value&&value.toDate)return value.toDate().getTime();if(value)return new Date(value).getTime()||0}catch{}return 0}
-async function loadSavedAllocation(docId){if(!docId)return;try{showMessage("info","Abrindo distribuição salva...");const snap=await getDoc(doc(db,"DistribuicaoAtelier",docId));if(!snap.exists()){showMessage("warning","Distribuição salva não encontrada.");return}const data=snap.data()||{};selectedDocs=Array.isArray(data.distribuicoes)?data.distribuicoes:[];els.dateOneInput.value=selectedDocs[0]?docIdToISO(selectedDocs[0]):"";els.dateTwoInput.value=selectedDocs[1]?docIdToISO(selectedDocs[1]):"";if(!modelsMap.size)await loadModels();const taloes=await loadTaloes();calculateHistory(taloes);allocation=Array.isArray(data.itens)?data.itens.map((i,idx)=>calcItem({...i,id:i.id||`${modelKey(i.linha,i.modelo)}-saved-${idx}`,key:i.key||modelKey(i.linha,i.modelo),linha:String(i.linha||""),modelo:String(i.modelo||""),pares:Number(i.pares||0),atelier:normalizeAtelierName(i.atelier||HOLD_ATELIER),categoria:i.categoria||"Sem categoria",subcategoria:i.subcategoria||"Sem subcategoria",dividido:!!i.dividido,splitGroup:i.splitGroup||"",observacaoDivisao:i.observacaoDivisao||"",origens:getItemOrigins(i),paresPorOrigem:cleanOriginPairs(i.paresPorOrigem)})):[];manualAteliers=new Set(allocation.map(i=>normalizeAtelierName(i.atelier)).filter(Boolean));atelierNotes=new Map(Object.entries(data.observacoesAtelier||{}).map(([k,v])=>[normalizeAtelierName(k),typeof v==="object"?String(v.texto||v.text||""):String(v||"")]));atelierNotePositions=new Map(Object.entries(data.observacoesAtelierPosicoes||{}).map(([k,v])=>[normalizeAtelierName(k),Number(v)||0]));lineSummaryGroups=lineGroupsFromFirestore(data.gruposResumoLinhas);undoStack=[];redoStack=[];els.savedModalBackdrop.classList.remove("show");renderAll();showMessage("success",`Distribuição salva ${docId} aberta com sucesso.`)}catch(err){console.error(err);showMessage("error","Erro ao abrir distribuição salva: "+err.message)}}
+function updateAutoSaveStatus(state,label){
+  els.autoSaveStatus.dataset.state=state;
+  els.autoSaveStatus.textContent=label;
+  els.retryAutoSaveButton.classList.toggle("hidden",state!=="error");
+}
+function resetAutoSave(docId,saved=false){
+  clearTimeout(autoSaveTimer);clearTimeout(autoSaveRetryTimer);
+  autoSaveTimer=null;autoSaveRetryTimer=null;
+  activeSavedDocId=docId;autoSaveVersion=0;savedVersion=0;
+  updateAutoSaveStatus(saved?"saved":"idle",saved?"Salvo automaticamente":"Preparando distribuição");
+}
+function queueAutoSave(){
+  if(!allocation.length||!activeSavedDocId)return;
+  autoSaveVersion++;
+  updateAutoSaveStatus("pending","Alterações pendentes...");
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer=setTimeout(()=>{autoSaveTimer=null;void drainAutoSave()},700);
+}
+function makeAutoSavePayload(){
+  const totalPares=allocation.reduce((s,i)=>s+i.pares,0),totalValor=round2(allocation.reduce((s,i)=>s+i.valor,0));
+  const itensSalvos=allocation.map(i=>({id:i.id,key:i.key,linha:i.linha,modelo:i.modelo,pares:i.pares,atelier:i.atelier,categoria:i.categoria,subcategoria:i.subcategoria,costuraUnit:i.costuraUnit,valor:i.valor,valorDia:i.valorDia,paresDia:i.paresDia,dividido:!!i.dividido,splitGroup:i.splitGroup||"",observacaoDivisao:i.observacaoDivisao||"",origensTexto:getItemOrigins(i).join("|"),origensMap:originsToObject(i),paresPorOrigem:cleanOriginPairs(i.paresPorOrigem),semModelo:i.semModelo,semCostura:i.semCostura}));
+  return{distribuicoes:[...selectedDocs],itens:itensSalvos,observacoesAtelier:Object.fromEntries(atelierNotes),observacoesAtelierPosicoes:Object.fromEntries(atelierNotePositions),gruposResumoLinhas:lineGroupsToFirestore(),resumo:{totalPares,totalValor,valorDia:round2(totalValor/5),totalAtelies:getAtelierNames().length},atualizadoEm:serverTimestamp(),atualizadoPor:currentUser.email,atualizadoPorNome:currentUserName};
+}
+async function drainAutoSave(){
+  if(autoSavePromise)return autoSavePromise;
+  if(autoSaveVersion<=savedVersion||!allocation.length||!activeSavedDocId)return true;
+  clearTimeout(autoSaveTimer);autoSaveTimer=null;
+  autoSavePromise=(async()=>{
+    while(savedVersion<autoSaveVersion){
+      const version=autoSaveVersion,docId=activeSavedDocId;
+      updateAutoSaveStatus("saving","Salvando automaticamente...");
+      try{const payload=makeAutoSavePayload();await setDoc(doc(db,"DistribuicaoAtelier",docId),payload,{merge:false})}
+      catch(err){
+        console.error(err);
+        updateAutoSaveStatus("error","Falha no salvamento automático");
+        showMessage("error","Não foi possível salvar a distribuição. Tente novamente antes de sair ou abrir outra.");
+        clearTimeout(autoSaveRetryTimer);
+        autoSaveRetryTimer=setTimeout(()=>{autoSaveRetryTimer=null;if(autoSaveVersion>savedVersion)void drainAutoSave()},5000);
+        return false;
+      }
+      savedVersion=version;
+      savedListLoaded=false;
+      savedListCache.delete(docId);
+    }
+    clearTimeout(autoSaveRetryTimer);autoSaveRetryTimer=null;
+    updateAutoSaveStatus("saved",`Salvo automaticamente às ${new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}`);
+    if(els.messageBox.textContent==="Não foi possível salvar a distribuição. Tente novamente antes de sair ou abrir outra.")showMessage("success","Distribuição salva automaticamente.");
+    return true;
+  })();
+  try{return await autoSavePromise}finally{autoSavePromise=null}
+}
+async function flushAutoSave(){
+  clearTimeout(autoSaveTimer);autoSaveTimer=null;
+  while(savedVersion<autoSaveVersion){
+    if(!await drainAutoSave())return false;
+  }
+  return true;
+}
+function renderSavedList(){
+  if(!savedListRows.length){els.savedTableBody.innerHTML=`<tr><td colspan="6">Nenhuma distribuição de ateliês encontrada.</td></tr>`}
+  else{
+    els.savedTableBody.innerHTML=savedListRows.map(r=>{
+      const data=r.data||{},cortes=Array.isArray(data.distribuicoes)?data.distribuicoes.map(docIdToBR).join(" e "):"—";
+      return `<tr><td><strong>${escapeHtml(r.id)}</strong></td><td>${escapeHtml(cortes)}</td><td>${formatNumber(data.resumo?.totalPares||0)}</td><td class="money">${formatMoney(data.resumo?.totalValor||0)}</td><td>${escapeHtml(data.atualizadoPorNome||data.atualizadoPor||"—")}</td><td><button class="btn btn-primary btn-small btn-open-saved" type="button" data-saved-id="${escapeHtml(r.id)}">Abrir</button></td></tr>`;
+    }).join("");
+    els.savedTableBody.querySelectorAll(".btn-open-saved").forEach(btn=>btn.addEventListener("click",()=>loadSavedAllocation(btn.dataset.savedId)));
+  }
+  els.savedLoadMoreButton.classList.toggle("hidden",!savedListHasMore);
+  els.savedListInfo.textContent=savedListRows.length?`${formatNumber(savedListRows.length)} distribuição(ões) exibida(s), mais recentes primeiro.`:"";
+}
+async function loadSavedPage(reset=false){
+  if(savedListBusy)return;
+  if(reset){savedListRows=[];savedListCursor=null;savedListHasMore=false;savedListCache.clear();savedListGeneration++}
+  const request=savedListGeneration;
+  savedListBusy=true;
+  els.savedLoadMoreButton.disabled=true;
+  els.savedListInfo.textContent=reset?"Carregando as mais recentes...":"Carregando mais distribuições...";
+  try{
+    const constraints=[orderBy("atualizadoEm","desc")];
+    if(savedListCursor)constraints.push(startAfter(savedListCursor));
+    constraints.push(limit(SAVED_PAGE_SIZE+1));
+    const snap=await getDocs(query(collection(db,"DistribuicaoAtelier"),...constraints));
+    if(request!==savedListGeneration)return;
+    const page=snap.docs.slice(0,SAVED_PAGE_SIZE);
+    page.forEach(d=>{const data=d.data();savedListRows.push({id:d.id,data});savedListCache.set(d.id,data)});
+    if(page.length)savedListCursor=page[page.length-1];
+    savedListHasMore=snap.docs.length>SAVED_PAGE_SIZE;
+    savedListLoaded=true;
+    renderSavedList();
+  }catch(err){
+    console.error(err);
+    els.savedListInfo.textContent="Erro ao carregar a lista. Tente novamente.";
+    if(reset)els.savedTableBody.innerHTML=`<tr><td colspan="6">Erro ao carregar: ${escapeHtml(err.message)}</td></tr>`;
+    els.savedLoadMoreButton.classList.remove("hidden");
+  }finally{savedListBusy=false;els.savedLoadMoreButton.disabled=false}
+}
+async function openSavedModal(){
+  if(!await flushAutoSave())return;
+  els.savedModalBackdrop.classList.add("show");
+  if(savedListLoaded){renderSavedList();return}
+  els.savedTableBody.innerHTML=`<tr><td colspan="6">Carregando distribuições salvas...</td></tr>`;
+  await loadSavedPage(true);
+}
+async function loadSavedAllocation(docId){
+  if(!docId)return;
+  const request=++navigationRequest;
+  if(!await flushAutoSave()||request!==navigationRequest)return;
+  try{
+    showMessage("info","Abrindo distribuição salva...");
+    let data=savedListCache.get(docId);
+    if(!data){const snap=await getDoc(doc(db,"DistribuicaoAtelier",docId));if(!snap.exists()){showMessage("warning","Distribuição salva não encontrada.");return}data=snap.data()||{}}
+    if(request!==navigationRequest)return;
+    selectedDocs=Array.isArray(data.distribuicoes)?data.distribuicoes:[];
+    els.dateOneInput.value=selectedDocs[0]?docIdToISO(selectedDocs[0]):"";
+    els.dateTwoInput.value=selectedDocs[1]?docIdToISO(selectedDocs[1]):"";
+    allocation=Array.isArray(data.itens)?data.itens.map((i,idx)=>calcItem({...i,id:i.id||`${modelKey(i.linha,i.modelo)}-saved-${idx}`,key:i.key||modelKey(i.linha,i.modelo),linha:String(i.linha||""),modelo:String(i.modelo||""),pares:Number(i.pares||0),atelier:normalizeAtelierName(i.atelier||HOLD_ATELIER),categoria:i.categoria||"Sem categoria",subcategoria:i.subcategoria||"Sem subcategoria",dividido:!!i.dividido,splitGroup:i.splitGroup||"",observacaoDivisao:i.observacaoDivisao||"",origens:getItemOrigins(i),paresPorOrigem:cleanOriginPairs(i.paresPorOrigem)})):[];
+    manualAteliers=new Set(allocation.map(i=>normalizeAtelierName(i.atelier)).filter(Boolean));
+    atelierNotes=new Map(Object.entries(data.observacoesAtelier||{}).map(([k,v])=>[normalizeAtelierName(k),typeof v==="object"?String(v.texto||v.text||""):String(v||"")]));
+    atelierNotePositions=new Map(Object.entries(data.observacoesAtelierPosicoes||{}).map(([k,v])=>[normalizeAtelierName(k),Number(v)||0]));
+    lineSummaryGroups=lineGroupsFromFirestore(data.gruposResumoLinhas);
+    undoStack=[];redoStack=[];
+    resetAutoSave(docId,true);
+    els.savedModalBackdrop.classList.remove("show");
+    renderAll();
+    showMessage("success",`Distribuição salva ${docId} aberta com sucesso.`);
+    if(taloesLoaded&&modelsMap.size)return;
+    setTimeout(async()=>{
+      try{
+        if(!modelsMap.size)await loadModels();
+        const taloes=await loadTaloes();
+        if(request!==navigationRequest)return;
+        calculateHistory(taloes);renderAteliers();
+      }catch(err){console.error(err);if(request===navigationRequest)showMessage("warning","Distribuição aberta, mas não foi possível carregar o histórico dos ateliês: "+err.message)}
+    },0);
+  }catch(err){console.error(err);showMessage("error","Erro ao abrir distribuição salva: "+err.message)}
+}
 async function openDistributionsModal(){els.distributionsModalBackdrop.classList.add("show");els.distributionsTableBody.innerHTML=`<tr><td colspan="5">Carregando...</td></tr>`;try{const snap=await getDocs(collection(db,"Distribuicao"));const docs=snap.docs.map(d=>({id:d.id,data:d.data()})).sort((a,b)=>docIdToISO(b.id).localeCompare(docIdToISO(a.id)));if(!docs.length){els.distributionsTableBody.innerHTML=`<tr><td colspan="5">Nenhuma distribuição salva.</td></tr>`;return}els.distributionsTableBody.innerHTML=docs.map(d=>`<tr><td><input type="checkbox" class="dist-check" value="${escapeHtml(d.id)}"></td><td><strong>${docIdToBR(d.id)}</strong></td><td>${formatNumber(d.data.totalPares||0)}</td><td>${formatNumber(d.data.totalModelos||0)}</td><td class="cell-left">${escapeHtml(d.data.arquivoOrigem||"—")}</td></tr>`).join("");els.distributionsTableBody.querySelectorAll(".dist-check").forEach(ch=>ch.addEventListener("change",()=>{const checked=[...els.distributionsTableBody.querySelectorAll(".dist-check:checked")];if(checked.length>2){ch.checked=false;showMessage("warning","Selecione no máximo duas distribuições.")}}))}catch(err){console.error(err);els.distributionsTableBody.innerHTML=`<tr><td colspan="5">Erro ao carregar distribuições: ${escapeHtml(err.message)}</td></tr>`}}
 function confirmDistributionSelection(){const checked=[...els.distributionsTableBody.querySelectorAll(".dist-check:checked")].map(c=>c.value);if(checked.length!==2){showMessage("warning","Selecione exatamente duas distribuições.");return}els.dateOneInput.value=docIdToISO(checked[0]);els.dateTwoInput.value=docIdToISO(checked[1]);els.distributionsModalBackdrop.classList.remove("show");generate()}
-function clearAll(){allocation=[];manualAteliers=new Set();atelierNotes=new Map();atelierNotePositions=new Map();lineSummaryGroups=[];selectedDocs=[];undoStack=[];redoStack=[];els.dateOneInput.value="";els.dateTwoInput.value="";els.atelierFilterInput.value="";els.summaryCard.classList.add("hidden");els.atelierSection.classList.add("hidden");els.saveButton.disabled=true;if(els.printButton)els.printButton.disabled=true;showMessage("","")}
-els.generateButton.addEventListener("click",generate);if(els.printButton)els.printButton.addEventListener("click",printDistribution);if(els.launchButton)els.launchButton.addEventListener("click",()=>showMessage("info","O lançamento definitivo da distribuição será configurado na próxima etapa."));els.addAtelierButton.addEventListener("click",()=>{const name=prompt("Nome do ateliê:");if(name&&name.trim()){pushUndo();manualAteliers.add(normalizeAtelierName(name.trim()));renderAll()}});els.clearButton.addEventListener("click",clearAll);if(els.resetLineGroupsButton)els.resetLineGroupsButton.addEventListener("click",resetLineSummaryGroups);els.saveButton.addEventListener("click",saveAllocation);els.atelierFilterInput.addEventListener("input",()=>{if(allocation.length)renderAteliers()});els.selectDistributionsButton.addEventListener("click",openDistributionsModal);if(els.openSavedButton)els.openSavedButton.addEventListener("click",openSavedModal);if(els.closeSavedModalButton)els.closeSavedModalButton.addEventListener("click",()=>els.savedModalBackdrop.classList.remove("show"));if(els.savedModalBackdrop)els.savedModalBackdrop.addEventListener("click",e=>{if(e.target===els.savedModalBackdrop)els.savedModalBackdrop.classList.remove("show")});els.closeDistributionsModalButton.addEventListener("click",()=>els.distributionsModalBackdrop.classList.remove("show"));els.distributionsModalBackdrop.addEventListener("click",e=>{if(e.target===els.distributionsModalBackdrop)els.distributionsModalBackdrop.classList.remove("show")});els.confirmDistributionsButton.addEventListener("click",confirmDistributionSelection);els.closeSplitModalButton.addEventListener("click",()=>els.splitModalBackdrop.classList.remove("show"));els.splitModalBackdrop.addEventListener("click",e=>{if(e.target===els.splitModalBackdrop)els.splitModalBackdrop.classList.remove("show")});els.confirmSplitButton.addEventListener("click",confirmSplit);document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="z"&&!e.shiftKey){e.preventDefault();undoMove();return}if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="z"&&e.shiftKey){e.preventDefault();redoMove();return}if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="y"){e.preventDefault();redoMove();return}if(e.key==="Escape"){els.distributionsModalBackdrop.classList.remove("show");if(els.savedModalBackdrop)els.savedModalBackdrop.classList.remove("show");els.splitModalBackdrop.classList.remove("show")}});
+async function clearAll(){
+  const request=++navigationRequest;
+  if(!await flushAutoSave()||request!==navigationRequest)return;
+  closePricesModal();hideModelCapacity();
+  allocation=[];manualAteliers=new Set();atelierNotes=new Map();atelierNotePositions=new Map();lineSummaryGroups=[];selectedDocs=[];undoStack=[];redoStack=[];
+  els.dateOneInput.value="";els.dateTwoInput.value="";els.atelierFilterInput.value="";
+  els.summaryCard.classList.add("hidden");els.atelierSection.classList.add("hidden");
+  els.updatePricesButton.disabled=true;if(els.printButton)els.printButton.disabled=true;
+  resetAutoSave("");updateAutoSaveStatus("idle","Aguardando distribuição");showMessage("","");
+}
+els.generateButton.addEventListener("click",generate);els.updatePricesButton.addEventListener("click",previewPriceUpdate);els.applyPricesButton.addEventListener("click",applyPriceUpdate);els.closePricesModalButton.addEventListener("click",closePricesModal);els.cancelPricesButton.addEventListener("click",closePricesModal);els.pricesModalBackdrop.addEventListener("click",e=>{if(e.target===els.pricesModalBackdrop)closePricesModal()});if(els.printButton)els.printButton.addEventListener("click",printDistribution);if(els.launchButton)els.launchButton.addEventListener("click",()=>showMessage("info","O lançamento definitivo da distribuição será configurado na próxima etapa."));els.addAtelierButton.addEventListener("click",()=>{const name=prompt("Nome do ateliê:");if(name&&name.trim()){pushUndo();manualAteliers.add(normalizeAtelierName(name.trim()));renderAll()}});els.clearButton.addEventListener("click",clearAll);if(els.resetLineGroupsButton)els.resetLineGroupsButton.addEventListener("click",resetLineSummaryGroups);els.savedLoadMoreButton.addEventListener("click",()=>loadSavedPage());els.retryAutoSaveButton.addEventListener("click",()=>{void drainAutoSave()});els.atelierFilterInput.addEventListener("input",()=>{if(allocation.length)renderAteliers()});els.selectDistributionsButton.addEventListener("click",openDistributionsModal);if(els.openSavedButton)els.openSavedButton.addEventListener("click",openSavedModal);if(els.closeSavedModalButton)els.closeSavedModalButton.addEventListener("click",()=>els.savedModalBackdrop.classList.remove("show"));if(els.savedModalBackdrop)els.savedModalBackdrop.addEventListener("click",e=>{if(e.target===els.savedModalBackdrop)els.savedModalBackdrop.classList.remove("show")});els.closeDistributionsModalButton.addEventListener("click",()=>els.distributionsModalBackdrop.classList.remove("show"));els.distributionsModalBackdrop.addEventListener("click",e=>{if(e.target===els.distributionsModalBackdrop)els.distributionsModalBackdrop.classList.remove("show")});els.confirmDistributionsButton.addEventListener("click",confirmDistributionSelection);els.closeSplitModalButton.addEventListener("click",()=>els.splitModalBackdrop.classList.remove("show"));els.splitModalBackdrop.addEventListener("click",e=>{if(e.target===els.splitModalBackdrop)els.splitModalBackdrop.classList.remove("show")});els.confirmSplitButton.addEventListener("click",confirmSplit);document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="z"&&!e.shiftKey){e.preventDefault();undoMove();return}if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="z"&&e.shiftKey){e.preventDefault();redoMove();return}if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==="y"){e.preventDefault();redoMove();return}if(e.key==="Escape"){hideModelCapacity();closePricesModal();els.distributionsModalBackdrop.classList.remove("show");if(els.savedModalBackdrop)els.savedModalBackdrop.classList.remove("show");els.splitModalBackdrop.classList.remove("show")}});
+document.addEventListener("click",e=>{if(!e.target.closest?.(".model-link"))hideModelCapacity()});
+window.addEventListener("beforeunload",e=>{if(autoSaveVersion>savedVersion){e.preventDefault();e.returnValue=""}});
+window.addEventListener("online",()=>{if(autoSaveVersion>savedVersion)void drainAutoSave()});
 </script>
 </body>
 </html>
