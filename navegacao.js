@@ -39,12 +39,12 @@
     // Ferramentas
     { group: 'Ferramentas', name: 'Romaneio', href: 'romaneio.html', levels: ['05', '07'] },
     { group: 'Ferramentas', name: 'Movimentação', href: 'movimentacao.html', levels: ['05', '07'] },
-    { group: 'Ferramentas', name: 'Relatorio Geral', href: 'relatoriogeral.html', levels: ['01', '02', '04', '05', '06', '07'] },
+    { group: 'Ferramentas', name: 'Relatório Geral', href: 'relatoriogeral.html', levels: ['01', '02', '04', '05', '06', '07'] },
 
     // Corte
     { group: 'Corte', name: 'Corte', href: 'corte.html', levels: ['02', '07'] },
-    { group: 'Corte', name: 'Talões perdidos', href: 'taloesperdidos.html', levels: ['02', '04', '07'] },
     { group: 'Corte', name: 'Programação Corte', href: 'programacaocrt.html', levels: ['02', '04', '07'] },
+    { group: 'Corte', name: 'Talões perdidos', href: 'taloesperdidos.html', levels: ['02', '04', '07'] },
 
     // Relatórios
     { group: 'Relatórios', name: 'Cronograma', href: 'cronograma.html', levels: ['01', '02', '04', '05', '06', '07'] },
@@ -55,16 +55,16 @@
     { group: 'Relatórios', name: 'Controle Celular', href: 'controle_mobile.html', levels: ['05', '06', '07'] }, 
 
     // Costura
-    { group: 'Costura', name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03', '07'] },
-    { group: 'Costura', name: 'Controle', href: 'programacaoatt.html', levels: ['03', '07'] },
-    { group: 'Costura', name: 'Programação', href: 'programacao_atelier.html', levels: ['03', '07'] },
-    { group: 'Costura', name: 'Entrada atelier', href: 'costura_entrada.html', levels: ['03', '07'] },
-    { group: 'Costura', name: 'Saida atelier', href: 'costura_saida.html', levels: ['03', '07'] },
+    { group: 'Costura - Relatório', name: 'Relatorio Atelier', href: 'relatorioAtelier.html', levels: ['03', '07'] },
+    { group: 'Costura - Relatório', name: 'Controle', href: 'programacaoatt.html', levels: ['03', '07'] },
+    { group: 'Costura - Relatório', name: 'Programação', href: 'programacao_atelier.html', levels: ['03', '07'] },
+    { group: 'Costura - Baixa de produção', name: 'Entrada atelier', href: 'costura_entrada.html', levels: ['03', '07'] },
+    { group: 'Costura - Baixa de produção', name: 'Saida atelier', href: 'costura_saida.html', levels: ['03', '07'] },
 
     // Fábrica
-    { group: 'Fábrica', name: 'Distribuição', href: 'distribuicao.html', levels: ['04', '07'] },
-    { group: 'Fábrica', name: 'Talonagem', href: 'talonagem.html', levels: ['04', '07'] },
-    { group: 'Fábrica', name: 'Montagem', href: 'montagem.html', levels: ['05', '07'] },
+    { group: 'Baixa de produção', name: 'Distribuição', href: 'distribuicao.html', levels: ['04', '07'] },
+    { group: 'Baixa de produção', name: 'Talonagem', href: 'talonagem.html', levels: ['04', '07'] },
+    { group: 'Baixa de produção', name: 'Montagem', href: 'montagem.html', levels: ['05', '07'] },
 
     //Backup
     { group: 'Backup', name: 'Backup', href: 'migracaotaloes.html', levels: ['07'] },
