@@ -33,14 +33,12 @@
     { group: 'Cadastro', name: 'Criar Distribuição', href: 'distribuicao_montagem.html', levels: ['07','08'] },
     { group: 'Cadastro', name: 'Distribuição Atelieres', href: 'distribuicaoatt.html', levels: ['05', '07','08'] },
     { group: 'Cadastro', name: 'Criar Programação', href: 'programacao_montagem.html', levels: ['05', '07'] },
-    { group: 'Cadastro', name: 'Backup', href: 'migracaotaloes.html', levels: ['07'] },
-    { group: 'Cadastro', name: 'Excluir (backup)', href: 'excluirbackups.html', levels: ['07'] },
+
      
      
     // Ferramentas
     { group: 'Ferramentas', name: 'Romaneio', href: 'romaneio.html', levels: ['05', '07'] },
     { group: 'Ferramentas', name: 'Movimentação', href: 'movimentacao.html', levels: ['05', '07'] },
-    { group: 'Ferramentas', name: 'Fechamento de Remessas', href: 'encerramento.html', levels: ['05', '07'] },
     { group: 'Ferramentas', name: 'Relatorio Geral', href: 'relatoriogeral.html', levels: ['01', '02', '04', '05', '06', '07'] },
 
     // Corte
