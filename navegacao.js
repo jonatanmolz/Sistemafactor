@@ -39,7 +39,7 @@
     // Ferramentas
     { group: 'Ferramentas', name: 'Romaneio', href: 'romaneio.html', levels: ['05', '07'] },
     { group: 'Ferramentas', name: 'Movimentação', href: 'movimentacao.html', levels: ['05', '07'] },
-    { group: 'Ferramentas', name: 'Relatório Geral', href: 'relatoriogeral.html', levels: ['01', '02', '04', '05', '06', '07'] },
+    { group: 'Ferramentas', name: 'Relatório Geral', href: 'relatoriogeral.html', levels: ['05', '06', '07'] },
 
     // Corte
     { group: 'Corte', name: 'Corte', href: 'corte.html', levels: ['02', '07'] },
