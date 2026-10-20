@@ -64,14 +64,8 @@
     // Fábrica
     { group: 'Baixa de produção', name: 'Distribuição', href: 'distribuicao.html', levels: ['04', '07'] },
     { group: 'Baixa de produção', name: 'Talonagem', href: 'talonagem.html', levels: ['04', '07'] },
-    { group: 'Baixa de produção', name: 'Montagem', href: 'montagem.html', levels: ['05', '07'] },
+    { group: 'Baixa de produção', name: 'Montagem', href: 'montagem.html', levels: ['05', '07'] }
 
-    //Backup
-    { group: 'Backup', name: 'Backup', href: 'migracaotaloes.html', levels: ['07'] },
-    { group: 'Backup', name: 'Excluir (backup)', href: 'excluirbackups.html', levels: ['07'] },
-    { group: 'Backup', name: 'Cronograma Antigos', href: 'cronogramaBackup.html', levels: ['01', '02', '04', '05', '06', '07'] },
-    { group: 'Backup', name: 'Relatorio Geral Antigos', href: 'relatoriogeralBackup.html', levels: ['01', '02', '04', '05', '06', '07'] }, 
-    { group: 'Backup', name: 'Romaneios Antigos', href: 'romaneioBackup.html', levels: [ '05', '07'] }
   ];
 
   function normalizarHref(valor) {
