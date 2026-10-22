@@ -39,6 +39,7 @@
      
     // Ferramentas
     { group: 'Ferramentas', name: 'Romaneio', href: 'romaneio.html', levels: ['05', '07'] },
+    { group: 'Ferramentas', name: 'Movimentação', href: 'movimentacao.html', levels: ['05', '07'] },
     { group: 'Ferramentas', name: 'Fechamento de Remessas', href: 'encerramento.html', levels: ['05', '07'] },
     { group: 'Ferramentas', name: 'Relatorio Geral', href: 'relatoriogeral.html', levels: ['01', '02', '04', '05', '06', '07'] },
 
