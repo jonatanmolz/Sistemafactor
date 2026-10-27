@@ -34,6 +34,7 @@
 
     /* Ajustes finos v5 */
     .global-line-panel{display:none;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:10px 12px;margin:0 0 12px}.global-line-panel.show{display:flex}.global-line-panel strong{font-size:13px;color:#334155}.global-line-filters{display:flex;gap:8px;flex-wrap:wrap}.global-line-check{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;color:#334155;cursor:pointer}.global-line-check input{width:15px;height:15px;accent-color:var(--primary)}
+    .global-line-check-all{background:#eaf2ff;border-color:#93c5fd;color:#1d4ed8}
     .filter-panel{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;margin:0 0 12px;background:#fff;border:1px solid #e2e8f0;border-radius:14px}.filter-panel strong{font-size:13px;color:#334155}.filter-check{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;color:#334155;cursor:pointer}.filter-check input{width:15px;height:15px;accent-color:var(--primary)}
     .value-button{border:0;background:transparent;color:#1e3a5f;font-weight:900;cursor:pointer;padding:2px 6px;border-radius:8px;font-family:inherit}.value-button:hover{background:#eaf2ff;text-decoration:underline}.clickable-cell{cursor:pointer}.clickable-cell:hover{background:#eaf2ff!important;text-decoration:underline}.small-note{font-size:12px;color:#64748b;font-weight:800;margin:10px 0 0}.status-danger{color:#dc2626!important;font-weight:900}.status-ok{color:#15803d!important;font-weight:900}
     .modal-grid.costura-grid{grid-template-columns:repeat(3,minmax(270px,1fr));align-items:start}.modal-grid.costura-grid .modal-card-head{padding:9px 11px}.modal-grid.costura-grid .modal-card-head h4{font-size:14px}.modal-grid.costura-grid .modal-card-head strong{font-size:14px}.modal-grid.costura-grid .modal-card-body{padding:9px 10px;overflow:hidden}.modal-grid.costura-grid table{font-size:10.5px;table-layout:fixed}.modal-grid.costura-grid th,.modal-grid.costura-grid td{padding:5px 5px}.modal-grid.costura-grid th{font-size:9px}.modal-grid.costura-grid th:nth-child(1),.modal-grid.costura-grid td:nth-child(1){width:78px}.modal-grid.costura-grid th:nth-child(2),.modal-grid.costura-grid td:nth-child(2),.modal-grid.costura-grid th:nth-child(3),.modal-grid.costura-grid td:nth-child(3){width:82px}
@@ -115,10 +116,74 @@
       color: #1e3a5f;
     }
 
+    /* Filtros e calendario no padrao do Cronograma. */
+    .giro-search{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 16px 10px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .giro-fields{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px}
+    .giro-field{display:flex;flex-direction:column;gap:3px;min-width:0;flex:0 0 auto}
+    .giro-field label{font-size:13px;font-weight:400;color:#333;line-height:17px}
+    .giro-field-line{width:100px}.giro-field-model{width:115px}.giro-field-remessa{width:130px}.giro-field-type{width:145px}.giro-field-atelier{width:145px}.giro-field-date{width:195px}
+    .giro-field input:not([type=hidden]),.giro-field select,.giro-date-trigger{width:100%;height:35px;min-width:0;margin:0;border:1px solid #ccc;border-radius:8px;padding:7px 9px;background:#fff;color:#111;font:400 14px/19px Arial,Helvetica,sans-serif;box-sizing:border-box}
+    .giro-date-trigger{text-align:left;cursor:pointer;white-space:nowrap}.giro-date-trigger:hover{background:#f7f7f7}.giro-date-trigger.has-range{background:#f8fafc}
+    .giro-field input:focus-visible,.giro-field select:focus-visible,.giro-date-trigger:focus-visible,.giro-filter-btn:focus-visible,.giro-calendar-day:focus-visible,.giro-calendar-nav:focus-visible,.giro-calendar-close:focus-visible{outline:2px solid #007bff;outline-offset:2px}
+    .giro-search-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .giro-filter-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:36px;border:0;border-radius:8px;padding:8px 14px;margin:0;background:#e9ecef;color:#111;font:400 14px/20px Arial,Helvetica,sans-serif;cursor:pointer;white-space:nowrap}
+    .giro-filter-btn:hover{background:#dfe3e7}.giro-filter-btn.primary{background:#007bff;color:#fff}.giro-filter-btn.primary:hover{background:#0069d9}.giro-filter-btn:disabled{opacity:.6;cursor:wait}
+    .giro-search-info{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;min-height:14px;font-size:12px;color:#64748b;line-height:1.3}.giro-pending{color:#926107}.giro-pending[hidden]{display:none}
+    .giro-quick-wrap{position:relative}.giro-quick-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:3000;width:270px;background:#fff;border:1px solid #d7dde7;border-radius:12px;padding:12px;box-shadow:0 10px 28px rgba(15,23,42,.17)}
+    .giro-quick-menu[hidden]{display:none}.giro-quick-heading{display:block;font-size:13px;font-weight:700;color:#334155;margin-bottom:9px}
+    .giro-quick-options{display:grid;grid-template-columns:1fr 1fr;gap:7px}.giro-quick-options .giro-filter-btn{padding:7px;font-size:12px}.giro-quick-menu p{font-size:12px;color:#64748b;margin:9px 0 0;line-height:1.4}
+    .giro-date-overlay{position:fixed;inset:0;z-index:100010;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.52);padding:12px;overflow:auto}.giro-date-overlay[hidden]{display:none!important}
+    .giro-date-dialog{width:520px;max-width:100%;max-height:calc(100dvh - 24px);overflow:auto;background:#fff;border:1px solid #b8b8b8;border-radius:12px;box-shadow:0 18px 48px rgba(0,0,0,.3);padding:12px 16px 14px;color:#111}
+    .giro-calendar-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.giro-calendar-title-row h2{margin:0;font:700 20px/26px Arial,Helvetica,sans-serif;color:#111}
+    .giro-calendar-close{border:0;border-radius:6px;background:transparent;font:700 27px/28px Arial,Helvetica,sans-serif;color:#111;width:30px;height:30px;padding:0;cursor:pointer}.giro-calendar-close:hover{background:#f1f5f9}
+    .giro-calendar-header{display:flex;align-items:center;justify-content:space-between;margin:6px 0 8px}.giro-calendar-nav{border:0;border-radius:6px;background:#fff;color:#555;padding:0 9px;font:400 30px/32px Arial,Helvetica,sans-serif;cursor:pointer;min-width:32px}.giro-calendar-nav:hover{background:#f1f5f9}
+    .giro-calendar-month{font-size:17px;font-weight:700;color:#444;text-align:center}.giro-calendar-weekdays,.giro-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0}.giro-calendar-weekdays span{text-align:center;font-size:13px;font-weight:700;color:#555;padding:5px 0;line-height:20px}
+    .giro-calendar-day{border:0;background:#fff;min-width:0;min-height:34px;height:34px;border-radius:0;padding:0;text-align:center;font:400 14px/34px Arial,Helvetica,sans-serif;color:#555;cursor:pointer;touch-action:manipulation}.giro-calendar-day:hover{background:#eef7e9}.giro-calendar-day.out-month{color:#aaa}.giro-calendar-day.in-range{background:#e6f3df}.giro-calendar-day.range-start,.giro-calendar-day.range-end{background:#35a80d;color:#fff;border-radius:50%;font-weight:700}.giro-calendar-day:focus-visible{position:relative;z-index:1;outline-offset:-2px}
+    .giro-calendar-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:12px}.giro-calendar-hint{margin:0;color:#777;font-size:13px;line-height:1.3;flex:1}.giro-calendar-buttons{display:flex;gap:8px;flex-shrink:0}
+    .giro-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:760px){.giro-search{padding:12px}.giro-fields{gap:10px}.giro-field{width:auto;flex:1 1 calc(50% - 10px)}.giro-field-date{flex-basis:100%}.giro-search-actions{width:100%;gap:8px}.giro-search-actions>.giro-filter-btn{flex:1}.giro-quick-wrap{flex:1}.giro-quick-wrap>.giro-filter-btn{width:100%}.giro-quick-menu{right:-50px;max-width:calc(100vw - 40px)}.giro-calendar-title-row h2{font-size:18px}.giro-date-dialog{padding:12px}.giro-calendar-weekdays span{font-size:12px}.giro-calendar-day{height:36px;line-height:36px}.giro-calendar-actions{align-items:flex-start;flex-direction:column;gap:12px}.giro-calendar-buttons{align-self:flex-end}.giro-search-actions .giro-filter-btn{padding:8px 10px;font-size:13px}}
   </style>
 </head>
 <body>
   <main class="main-content">
+    <section class="giro-search" aria-label="Filtros de pesquisa">
+      <div class="giro-fields">
+        <div class="giro-field giro-field-line"><label for="fLinha">Linha:</label><input type="text" id="fLinha" placeholder="Ex: 7142" autocomplete="off"></div>
+        <div class="giro-field giro-field-model"><label for="fModelo">Modelo:</label><input type="text" id="fModelo" placeholder="Ex: 522" autocomplete="off"></div>
+        <div class="giro-field giro-field-remessa"><label for="fRemessa">Remessa:</label><input type="text" id="fRemessa" placeholder="Ex: 2684982" autocomplete="off"></div>
+        <div class="giro-field giro-field-date">
+          <label id="corteFieldLabel" for="openCorteDatePicker">Data de Corte:</label>
+          <button type="button" id="openCorteDatePicker" class="giro-date-trigger" aria-haspopup="dialog" aria-controls="dateRangePickerModal" aria-expanded="false" aria-labelledby="corteFieldLabel corteRangeLabel"><span id="corteRangeLabel">Selecionar data/per&iacute;odo</span></button>
+          <input type="hidden" id="fCorteInicio"><input type="hidden" id="fCorteFim">
+        </div>
+        <div class="giro-field giro-field-type"><label for="fTipo">Tipo de Cliente:</label><select id="fTipo"><option value="">Todos</option></select></div>
+        <div class="giro-field giro-field-atelier"><label for="fAtelie">Ateli&ecirc; Respons&aacute;vel:</label><select id="fAtelie"><option value="">Todos</option></select></div>
+        <div class="giro-field giro-field-date">
+          <label id="entregaFieldLabel" for="openEntregaDatePicker">Data de Entrega:</label>
+          <button type="button" id="openEntregaDatePicker" class="giro-date-trigger" aria-haspopup="dialog" aria-controls="dateRangePickerModal" aria-expanded="false" aria-labelledby="entregaFieldLabel entregaRangeLabel"><span id="entregaRangeLabel">Selecionar data/per&iacute;odo</span></button>
+          <input type="hidden" id="fEntregaInicio"><input type="hidden" id="fEntregaFim">
+        </div>
+        <div class="giro-search-actions">
+          <button type="button" class="giro-filter-btn primary" id="applyGiroFilters">Gerar Relat&oacute;rio</button>
+          <div class="giro-quick-wrap">
+            <button type="button" class="giro-filter-btn" id="quickGiroFilters" aria-expanded="false" aria-controls="giroQuickMenu">Filtros r&aacute;pidos</button>
+            <div id="giroQuickMenu" class="giro-quick-menu" role="group" aria-labelledby="giroQuickTitle" hidden>
+              <div class="giro-quick-heading" id="giroQuickTitle">Filtrar por Data de Entrega:</div>
+              <div class="giro-quick-options">
+                <button type="button" class="giro-filter-btn" data-giro-preset="today">Hoje</button>
+                <button type="button" class="giro-filter-btn" data-giro-preset="week">Esta semana</button>
+                <button type="button" class="giro-filter-btn" data-giro-preset="next-week">Pr&oacute;xima semana</button>
+                <button type="button" class="giro-filter-btn" data-giro-preset="month">Este m&ecirc;s</button>
+              </div>
+              <p>Depois, clique em Gerar Relat&oacute;rio para atualizar os cards.</p>
+            </div>
+          </div>
+          <button type="button" class="giro-filter-btn" id="clearGiroFilters">Limpar</button>
+        </div>
+      </div>
+      <div class="giro-search-info"><span id="giroFilterCount" aria-live="polite"></span><span id="giroFiltersPending" class="giro-pending" hidden>Filtros alterados. Clique em Gerar Relat&oacute;rio.</span></div>
+    </section>
+
     <section class="toolbar">
       <div class="toolbar-title">
         <h1>Giro de Produção</h1>
@@ -129,7 +194,14 @@
       </div>
     </section>
     <div class="status-line" id="statusLine">Carregando dados...</div>
-    <section class="global-line-panel" id="globalLinePanel"><strong>Linhas visíveis:</strong><div class="global-line-filters" id="globalLineFilters"></div></section>
+    <section class="global-line-panel" id="globalLinePanel">
+      <strong>Linhas visíveis:</strong>
+      <label class="global-line-check global-line-check-all" title="Marcar ou desmarcar todas as linhas de uma vez">
+        <input type="checkbox" id="globalLineToggleAll" aria-controls="globalLineFilters" />
+        Marcar/desmarcar todas
+      </label>
+      <div class="global-line-filters" id="globalLineFilters"></div>
+    </section>
 
     <section class="cards-grid">
       <article class="sector-card corte" id="corteCard" tabindex="0">
@@ -157,6 +229,31 @@
     </div>
   </div>
 
+  <!-- Calendario compartilhado; corte e entrega mantem selecoes independentes. -->
+  <div id="dateRangePickerModal" class="giro-date-overlay" hidden>
+    <section class="giro-date-dialog" role="dialog" aria-modal="true" aria-labelledby="datePickerTitle" aria-describedby="datePickerHint">
+      <div class="giro-calendar-title-row">
+        <h2 id="datePickerTitle">Selecionar per&iacute;odo</h2>
+        <button type="button" id="datePickerClose" class="giro-calendar-close" aria-label="Fechar calend&aacute;rio">&times;</button>
+      </div>
+      <div class="giro-calendar-header">
+        <button type="button" id="datePickerPrev" class="giro-calendar-nav" aria-label="M&ecirc;s anterior">&lsaquo;</button>
+        <div id="datePickerMonthTitle" class="giro-calendar-month" aria-live="polite"></div>
+        <button type="button" id="datePickerNext" class="giro-calendar-nav" aria-label="Pr&oacute;ximo m&ecirc;s">&rsaquo;</button>
+      </div>
+      <div class="giro-calendar-weekdays" aria-hidden="true"><span>DOM.</span><span>SEG.</span><span>TER.</span><span>QUA.</span><span>QUI.</span><span>SEX.</span><span>S&Aacute;B.</span></div>
+      <div id="datePickerGrid" class="giro-calendar-grid" role="group" aria-label="Dias do calend&aacute;rio"></div>
+      <p id="datePickerSelection" class="giro-sr-only" aria-live="polite"></p>
+      <div class="giro-calendar-actions">
+        <p id="datePickerHint" class="giro-calendar-hint">Clique em uma data para buscar somente aquele dia, ou clique em duas datas para selecionar um per&iacute;odo.</p>
+        <div class="giro-calendar-buttons">
+          <button type="button" id="datePickerClear" class="giro-filter-btn">Limpar</button>
+          <button type="button" id="datePickerApply" class="giro-filter-btn primary">Aplicar</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <script src="navegacao.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
@@ -170,10 +267,12 @@
       const refreshButton=document.getElementById('refreshButton');
       const globalLinePanel=document.getElementById('globalLinePanel');
       const globalLineFilters=document.getElementById('globalLineFilters');
+      const globalLineToggleAll=document.getElementById('globalLineToggleAll');
       const modal=document.getElementById('detailModal'); const modalTitle=document.getElementById('modalTitle'); const modalSubtitle=document.getElementById('modalSubtitle'); const modalBody=document.getElementById('modalBody');
       const closeModalButton=document.getElementById('closeModalButton');
       let allDocs=[]; let docsCorte=[]; let docsCostura=[]; let docsMontagem=[]; let currentUserLevel=''; let currentUserName='';
       let selectedGlobalLines = new Set();
+      let globalLinesCustomized = false;
       let storedLists = new Map(); let storedListCounter = 0;
       let currentCorteBase = []; let selectedCorteAtelies = new Set();
       let currentCosturaAtelieGroups = new Map();
@@ -215,20 +314,246 @@
       function storeList(list){const key='l'+(++storedListCounter); storedLists.set(key, Array.isArray(list)?[...list]:[]); return key;}
       function getStoredList(key){return storedLists.get(key)||[];}
       function getSelectedGlobalLines(){return Array.from(selectedGlobalLines)}
-      function filterBySelectedLines(list){const selected=getSelectedGlobalLines(); if(!selected.length)return list; return list.filter(t=>selected.includes(lineKey(t)))}
+      function filterBySelectedLines(list){return globalLinesCustomized ? list.filter(t=>selectedGlobalLines.has(lineKey(t))) : list;}
+      const filterIds=['fLinha','fModelo','fRemessa','fCorteInicio','fCorteFim','fTipo','fAtelie','fEntregaInicio','fEntregaFim'];
+      let activeFilters={};
+      let loadedQueryKey='';
+      let loadedQuery=null;
+      let dataLoading=false;
+      function readFilters(){return Object.fromEntries(filterIds.map(id=>[id,document.getElementById(id).value.trim()]));}
+      function filterGiro(list){return filterBySelectedLines(list).filter(t=>{
+        const f=activeFilters, corte=toISODateOnly(t.dataCorte), entrega=toISODateOnly(t.dataEntrega);
+        return (!f.fLinha||lineKey(t).toLowerCase().includes(f.fLinha.toLowerCase()))
+          &&(!f.fModelo||modelKey(t).toLowerCase().includes(f.fModelo.toLowerCase()))
+          &&(!f.fRemessa||String(t.numeroRemessa||'').toLowerCase().includes(f.fRemessa.toLowerCase()))
+          &&(!f.fCorteInicio||(corte&&corte>=f.fCorteInicio))&&(!f.fCorteFim||(corte&&corte<=f.fCorteFim))
+          &&(!f.fEntregaInicio||(entrega&&entrega>=f.fEntregaInicio))&&(!f.fEntregaFim||(entrega&&entrega<=f.fEntregaFim))
+          &&(!f.fTipo||normTipo(t.tipoCliente)===f.fTipo)
+          &&(!f.fAtelie||getAtelieKey(t)===f.fAtelie);
+      });}
+      function populateGiroOptions(){
+        for(const [id,values] of [['fTipo',Array.from(new Set(allDocs.map(t=>normTipo(t.tipoCliente)).filter(Boolean)))],['fAtelie',Array.from(new Set(allDocs.map(getAtelieKey)))]] ){
+          const el=document.getElementById(id),previous=el.value;
+          if(previous&&!values.includes(previous))values.push(previous);
+          el.innerHTML='<option value="">Todos</option>'+values.sort(compareText).map(v=>`<option value="${escapeHTML(v)}">${escapeHTML(v==='Exportacao'?'Exportação':v)}</option>`).join('');
+          el.value=values.includes(previous)?previous:'';
+        }
+      }
+      function getGiroQuery(filters){
+        // Apenas um campo no Firebase: o outro intervalo e aplicado localmente.
+        if(filters.fCorteInicio||filters.fCorteFim)return {field:'dataCorte',start:filters.fCorteInicio||'',end:filters.fCorteFim||''};
+        if(filters.fEntregaInicio||filters.fEntregaFim)return {field:'dataEntrega',start:filters.fEntregaInicio||'',end:filters.fEntregaFim||''};
+        return {field:'dataCorte',start:addDaysISO(todayISO(),-120),end:addDaysISO(todayISO(),120)};
+      }
+      function queryKey(query){return JSON.stringify([query.field,query.start,query.end]);}
+      function updatePendingFilters(){
+        const pending=readFilters();
+        document.getElementById('giroFiltersPending').hidden=!filterIds.some(id=>(pending[id]||'')!==(activeFilters[id]||''));
+      }
+      function setLoadedStatus(){
+        if(!loadedQuery)return;
+        const name=loadedQuery.field==='dataCorte'?'corte':'entrega';
+        const range=loadedQuery.start&&loadedQuery.end
+          ? `${formatDate(loadedQuery.start)} a ${formatDate(loadedQuery.end)}`
+          : loadedQuery.start?`a partir de ${formatDate(loadedQuery.start)}`:`até ${formatDate(loadedQuery.end)}`;
+        setStatus(`Atualizado em ${formatDate(todayISO())} • ${allDocs.length.toLocaleString('pt-BR')} talões analisados • janela de ${name} ${range}`);
+      }
+      async function applyGiroFilters(){
+        if(dataLoading)return;
+        const next=readFilters();
+        if((next.fCorteInicio&&next.fCorteFim&&next.fCorteInicio>next.fCorteFim)||(next.fEntregaInicio&&next.fEntregaFim&&next.fEntregaInicio>next.fEntregaFim)){
+          alert('A data inicial deve ser anterior ou igual à data final.');return;
+        }
+        if(queryKey(getGiroQuery(next))!==loadedQueryKey){await loadData(next);return;}
+        activeFilters=next;
+        modal.classList.remove('show');renderDashboard();setLoadedStatus();updatePendingFilters();
+      }
+      document.getElementById('applyGiroFilters').addEventListener('click',applyGiroFilters);
+      document.getElementById('clearGiroFilters').addEventListener('click',async()=>{
+        if(dataLoading)return;
+        filterIds.forEach(id=>document.getElementById(id).value='');
+        selectedGlobalLines=new Set();globalLinesCustomized=false;
+        updateRangeLabels();updatePendingFilters();closeQuickFilters();
+        await applyGiroFilters();
+      });
+      filterIds.forEach(id=>{
+        const el=document.getElementById(id);
+        el.addEventListener('input',updatePendingFilters);
+        el.addEventListener('change',updatePendingFilters);
+        el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();applyGiroFilters();}});
+      });
+
+      // O calendario edita um rascunho; Fechar/Esc nao alteram os filtros.
+      const picker=document.getElementById('dateRangePickerModal');
+      const pickerGrid=document.getElementById('datePickerGrid');
+      const pickerTitle=document.getElementById('datePickerTitle');
+      const pickerMonthTitle=document.getElementById('datePickerMonthTitle');
+      const pickerSelection=document.getElementById('datePickerSelection');
+      const calendarMonths=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      let pickerTarget=null,pickerStart='',pickerEnd='',pickerMonth=new Date();
+      let pickerReturnFocus=null,pickerOldOverflow='';
+      const dateTargets={
+        corte:{start:'fCorteInicio',end:'fCorteFim',button:'openCorteDatePicker',label:'corteRangeLabel',title:'Selecionar Data de Corte'},
+        entrega:{start:'fEntregaInicio',end:'fEntregaFim',button:'openEntregaDatePicker',label:'entregaRangeLabel',title:'Selecionar Data de Entrega'}
+      };
+      function rangeLabel(start,end){
+        if(!start&&!end)return 'Selecionar data/período';
+        if(start&&(!end||end===start))return formatDate(start);
+        return `${start?formatDate(start):'Início'} até ${end?formatDate(end):'Fim'}`;
+      }
+      function updateRangeLabels(){
+        Object.values(dateTargets).forEach(target=>{
+          const start=document.getElementById(target.start).value,end=document.getElementById(target.end).value;
+          const text=rangeLabel(start,end),button=document.getElementById(target.button);
+          document.getElementById(target.label).textContent=text;
+          button.classList.toggle('has-range',Boolean(start||end));button.title=text;
+        });
+      }
+      function openDatePicker(targetName){
+        closeQuickFilters();pickerTarget=dateTargets[targetName];
+        pickerStart=document.getElementById(pickerTarget.start).value;
+        pickerEnd=document.getElementById(pickerTarget.end).value;
+        const base=dateFromISO(pickerStart||pickerEnd||todayISO());
+        pickerMonth=new Date(base.getFullYear(),base.getMonth(),1);
+        pickerTitle.textContent=pickerTarget.title;
+        pickerReturnFocus=document.getElementById(pickerTarget.button);
+        pickerReturnFocus.setAttribute('aria-expanded','true');
+        pickerOldOverflow=document.body.style.overflow;
+        document.body.style.overflow='hidden';picker.hidden=false;
+        renderDatePicker(pickerStart||localDateToISO(base),true);
+      }
+      function closeDatePicker(){
+        if(picker.hidden)return;
+        picker.hidden=true;document.body.style.overflow=pickerOldOverflow;
+        if(pickerReturnFocus){pickerReturnFocus.setAttribute('aria-expanded','false');pickerReturnFocus.focus();}
+        pickerTarget=null;
+      }
+      function renderDatePicker(focusISO='',moveFocus=false){
+        const year=pickerMonth.getFullYear(),month=pickerMonth.getMonth();
+        pickerMonthTitle.textContent=`${calendarMonths[month]} ${year}`;pickerGrid.innerHTML='';
+        const gridStart=new Date(year,month,1-new Date(year,month,1).getDay());
+        const current=todayISO(),monthPrefix=localDateToISO(pickerMonth).slice(0,7);
+        if(!focusISO)focusISO=pickerStart&&pickerStart.slice(0,7)===monthPrefix?pickerStart:current.slice(0,7)===monthPrefix?current:localDateToISO(pickerMonth);
+        let focusButton=null;
+        for(let i=0;i<42;i++){
+          const cellDate=new Date(gridStart.getFullYear(),gridStart.getMonth(),gridStart.getDate()+i);
+          const iso=localDateToISO(cellDate),end=pickerEnd||pickerStart;
+          const selected=Boolean(pickerStart&&iso>=pickerStart&&iso<=end);
+          const button=document.createElement('button');
+          button.type='button';button.className='giro-calendar-day';button.dataset.date=iso;
+          button.textContent=String(cellDate.getDate());button.tabIndex=iso===focusISO?0:-1;
+          button.classList.toggle('out-month',cellDate.getMonth()!==month);
+          button.classList.toggle('in-range',selected);
+          button.classList.toggle('range-start',Boolean(pickerStart&&iso===pickerStart));
+          button.classList.toggle('range-end',Boolean(end&&iso===end));
+          button.setAttribute('aria-label',`${cellDate.getDate()} de ${calendarMonths[cellDate.getMonth()]} de ${cellDate.getFullYear()}`);
+          button.setAttribute('aria-pressed',String(selected));
+          if(iso===current)button.setAttribute('aria-current','date');
+          if(iso===focusISO)focusButton=button;
+          button.addEventListener('click',()=>selectDateInPicker(iso));pickerGrid.appendChild(button);
+        }
+        pickerSelection.textContent=!pickerStart?'Nenhuma data selecionada.':pickerEnd
+          ? `Selecionado: ${rangeLabel(pickerStart,pickerEnd)}.`
+          :`${formatDate(pickerStart)} selecionado. Escolha a segunda data ou aplique para buscar somente esse dia.`;
+        if(!focusButton){focusButton=pickerGrid.firstElementChild;focusButton.tabIndex=0;}
+        if(moveFocus)focusButton.focus();
+      }
+      function selectDateInPicker(iso){
+        if(!pickerStart||pickerEnd){pickerStart=iso;pickerEnd='';}
+        else{pickerEnd=iso;if(pickerEnd<pickerStart)[pickerStart,pickerEnd]=[pickerEnd,pickerStart];}
+        renderDatePicker(iso,true);
+      }
+      function applyDatePicker(){
+        if(!pickerTarget)return;
+        document.getElementById(pickerTarget.start).value=pickerStart||'';
+        document.getElementById(pickerTarget.end).value=pickerEnd||pickerStart||'';
+        updateRangeLabels();updatePendingFilters();closeDatePicker();
+      }
+      function changePickerMonth(offset){
+        pickerMonth=new Date(pickerMonth.getFullYear(),pickerMonth.getMonth()+offset,1);renderDatePicker();
+      }
+      document.getElementById('openCorteDatePicker').addEventListener('click',()=>openDatePicker('corte'));
+      document.getElementById('openEntregaDatePicker').addEventListener('click',()=>openDatePicker('entrega'));
+      document.getElementById('datePickerClose').addEventListener('click',closeDatePicker);
+      document.getElementById('datePickerPrev').addEventListener('click',()=>changePickerMonth(-1));
+      document.getElementById('datePickerNext').addEventListener('click',()=>changePickerMonth(1));
+      document.getElementById('datePickerApply').addEventListener('click',applyDatePicker);
+      document.getElementById('datePickerClear').addEventListener('click',()=>{pickerStart='';pickerEnd='';renderDatePicker();});
+      picker.addEventListener('click',e=>{if(e.target===picker)closeDatePicker();});
+      pickerGrid.addEventListener('keydown',e=>{
+        const button=e.target.closest('button[data-date]');if(!button)return;
+        const date=dateFromISO(button.dataset.date),offsets={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7};
+        if(Object.prototype.hasOwnProperty.call(offsets,e.key))date.setDate(date.getDate()+offsets[e.key]);
+        else if(e.key==='Home')date.setDate(date.getDate()-date.getDay());
+        else if(e.key==='End')date.setDate(date.getDate()+6-date.getDay());
+        else if(e.key==='PageUp'||e.key==='PageDown'){
+          const day=date.getDate();date.setDate(1);date.setMonth(date.getMonth()+(e.key==='PageUp'?-1:1));
+          date.setDate(Math.min(day,new Date(date.getFullYear(),date.getMonth()+1,0).getDate()));
+        }else return;
+        e.preventDefault();pickerMonth=new Date(date.getFullYear(),date.getMonth(),1);renderDatePicker(localDateToISO(date),true);
+      });
+      document.addEventListener('keydown',e=>{
+        if(picker.hidden)return;
+        if(e.key==='Escape'){e.preventDefault();closeDatePicker();return;}
+        if(e.key==='Tab'){
+          const focusable=Array.from(picker.querySelectorAll('button:not([disabled])')).filter(el=>el.tabIndex>=0);
+          const first=focusable[0],last=focusable[focusable.length-1],active=document.activeElement;
+          if(e.shiftKey&&(active===first||!picker.contains(active))){e.preventDefault();last.focus();}
+          else if(!e.shiftKey&&(active===last||!picker.contains(active))){e.preventDefault();first.focus();}
+        }
+      });
+      ['fCorteInicio','fCorteFim','fEntregaInicio','fEntregaFim'].forEach(id=>document.getElementById(id).addEventListener('change',updateRangeLabels));
+      updateRangeLabels();
+
+      const quickButton=document.getElementById('quickGiroFilters'),quickMenu=document.getElementById('giroQuickMenu');
+      function closeQuickFilters(){
+        document.getElementById('giroQuickMenu').hidden=true;
+        document.getElementById('quickGiroFilters').setAttribute('aria-expanded','false');
+      }
+      quickButton.addEventListener('click',()=>{
+        quickMenu.hidden=!quickMenu.hidden;quickButton.setAttribute('aria-expanded',String(!quickMenu.hidden));
+      });
+      document.addEventListener('click',e=>{if(!quickMenu.contains(e.target)&&!quickButton.contains(e.target))closeQuickFilters();});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!quickMenu.hidden){closeQuickFilters();quickButton.focus();}});
+      quickMenu.querySelectorAll('[data-giro-preset]').forEach(button=>button.addEventListener('click',()=>{
+        // Os atalhos alteram somente a entrega; o corte continua no calendario manual.
+        const preset=button.dataset.giroPreset,target=dateTargets.entrega;
+        let start=todayISO(),end=start;
+        if(preset==='week'||preset==='next-week'){
+          start=addDaysISO(start,-((dateFromISO(start).getDay()+6)%7)+(preset==='next-week'?7:0));end=addDaysISO(start,6);
+        }else if(preset==='month'){
+          const today=dateFromISO(start);start=localDateToISO(new Date(today.getFullYear(),today.getMonth(),1));
+          end=localDateToISO(new Date(today.getFullYear(),today.getMonth()+1,0));
+        }
+        document.getElementById(target.start).value=start;document.getElementById(target.end).value=end;
+        updateRangeLabels();updatePendingFilters();closeQuickFilters();document.getElementById('applyGiroFilters').focus();
+      }));
+
       function getGiroLineSource(){return allDocs.filter(t=>isAvailableCorte(t)||isAvailableCostura(t)||isAvailableMontagem(t));}
+      function getGiroLines(){return groupSum(getGiroLineSource(),lineKey).map(([line])=>line).sort(compareText);}
       function renderGlobalLineFilters(){
-        const lines=groupSum(getGiroLineSource(),lineKey).map(([line])=>line).sort(compareText);
+        const lines=getGiroLines();
+        if(!globalLinesCustomized)selectedGlobalLines=new Set(lines);
+        const selectedCount=lines.filter(line=>selectedGlobalLines.has(line)).length;
+        globalLineToggleAll.checked=lines.length>0&&selectedCount===lines.length;
+        globalLineToggleAll.indeterminate=selectedCount>0&&selectedCount<lines.length;
+        globalLineToggleAll.disabled=!lines.length;
         if(!lines.length){globalLinePanel.classList.remove('show');globalLineFilters.innerHTML='';return;}
-        if(!selectedGlobalLines.size){selectedGlobalLines=new Set(lines)} else {const valid=new Set(lines);selectedGlobalLines=new Set(Array.from(selectedGlobalLines).filter(l=>valid.has(l)));if(!selectedGlobalLines.size)selectedGlobalLines=new Set(lines)}
         globalLinePanel.classList.add('show');
         globalLineFilters.innerHTML=lines.map(line=>`<label class="global-line-check"><input type="checkbox" value="${escapeHTML(line)}" ${selectedGlobalLines.has(line)?'checked':''} onchange="window.toggleGiroLine(this.value,this.checked)" /> Linha ${escapeHTML(line)}</label>`).join('');
       }
-      window.toggleGiroLine=function(line,checked){if(checked)selectedGlobalLines.add(line);else selectedGlobalLines.delete(line);renderDashboard();};
+      window.toggleGiroLine=function(line,checked){if(checked)selectedGlobalLines.add(line);else selectedGlobalLines.delete(line);globalLinesCustomized=true;renderDashboard();};
+      globalLineToggleAll.addEventListener('change',()=>{
+        selectedGlobalLines=globalLineToggleAll.checked?new Set(getGiroLines()):new Set();
+        // A selection with no lines must remain empty, not revert to showing all.
+        globalLinesCustomized=true;
+        renderDashboard();
+      });
 
       function renderDashboard(){
         renderGlobalLineFilters();
-        const baseDocs=filterBySelectedLines(allDocs);
+        document.getElementById('giroFilterCount').textContent=`${filterGiro(allDocs).length.toLocaleString('pt-BR')} talões encontrados`;
+        const baseDocs=filterGiro(allDocs);
         docsCorte=baseDocs.filter(isAvailableCorte); docsCostura=baseDocs.filter(isAvailableCostura); docsMontagem=baseDocs.filter(isAvailableMontagem);
         document.getElementById('corteTotal').textContent=sumTotal(docsCorte).toLocaleString('pt-BR');
         document.getElementById('costuraTotal').textContent=sumTotal(docsCostura).toLocaleString('pt-BR');
@@ -237,8 +562,29 @@
         renderLineGrid(document.getElementById('costuraLinhas'),docsCostura); renderModelList(document.getElementById('costuraModelos'),docsCostura);
         renderLineGrid(document.getElementById('montagemLinhas'),docsMontagem); renderModelList(document.getElementById('montagemModelos'),docsMontagem);
       }
-      async function loadData(){
-        try{setStatus('Carregando giro de produção...'); refreshButton.disabled=true; const start=addDaysISO(todayISO(),-120), end=addDaysISO(todayISO(),120); const snap=await db.collection('taloes').where('dataCorte','>=',start).where('dataCorte','<=',end).get(); const map=new Map(); snap.docs.forEach(d=>map.set(d.id,{id:d.id,...d.data()})); allDocs=Array.from(map.values()).filter(t=>!isAmostra(t)); renderDashboard(); setStatus(`Atualizado em ${formatDate(todayISO())} • ${allDocs.length.toLocaleString('pt-BR')} talões analisados • janela de corte ${formatDate(start)} a ${formatDate(end)}`);}catch(error){console.error(error);setStatus('Erro ao carregar dados. Veja o console para detalhes.');}finally{refreshButton.disabled=false;}
+      async function loadData(filters=activeFilters){
+        if(dataLoading)return;
+        dataLoading=true;
+        const requested={...filters},query=getGiroQuery(requested);
+        const controls=[refreshButton,document.getElementById('applyGiroFilters'),document.getElementById('clearGiroFilters')];
+        controls.forEach(button=>button.disabled=true);
+        try{
+          setStatus('Carregando giro de produção...');
+          let ref=db.collection('taloes');
+          if(query.start)ref=ref.where(query.field,'>=',query.start);
+          if(query.end)ref=ref.where(query.field,'<=',query.end);
+          const snap=await ref.get(),map=new Map();
+          snap.docs.forEach(d=>map.set(d.id,{id:d.id,...d.data()}));
+          allDocs=Array.from(map.values()).filter(t=>!isAmostra(t));
+          activeFilters=requested;loadedQuery=query;loadedQueryKey=queryKey(query);
+          modal.classList.remove('show');
+          populateGiroOptions();renderDashboard();setLoadedStatus();
+        }catch(error){
+          console.error(error);
+          setStatus('Não foi possível carregar os dados. Os resultados anteriores foram mantidos. Tente novamente.');
+        }finally{
+          dataLoading=false;controls.forEach(button=>button.disabled=false);updatePendingFilters();
+        }
       }
 
       function openModal(title,subtitle,html){modalTitle.textContent=title; modalSubtitle.textContent=subtitle||''; modalBody.innerHTML=html; modal.classList.add('show')}
@@ -277,7 +623,7 @@
       }
       window.toggleCorteAtelie=function(atelie,checked){if(checked)selectedCorteAtelies.add(atelie);else selectedCorteAtelies.delete(atelie);renderCorteModalContent();};
       function openCorte(){
-        currentCorteBase=filterBySelectedLines(allDocs).filter(t=>!isAmostra(t)&&(!has(t.costuraDataInicio)||materialIncomplete(t)));
+        currentCorteBase=filterGiro(allDocs).filter(t=>!isAmostra(t)&&(!has(t.costuraDataInicio)||materialIncomplete(t)));
         const atelies=Array.from(new Set(currentCorteBase.map(getAtelieKey))).sort(compareText); selectedCorteAtelies=new Set(atelies);
         const checks=atelies.map(a=>`<label class="filter-check"><input type="checkbox" checked onchange="window.toggleCorteAtelie('${escapeHTML(a)}',this.checked)" /> ${escapeHTML(a)}</label>`).join('');
         openModal('Giro do Corte',`${currentCorteBase.length.toLocaleString('pt-BR')} talões analisados • ${sumTotal(currentCorteBase).toLocaleString('pt-BR')} pares`, `<div class="filter-panel"><strong>Filtrar ateliê:</strong>${checks || '<span class="small-note">Nenhum ateliê encontrado.</span>'}</div><div class="modal-grid"><div class="modal-card full"><div class="modal-card-head"><h4>Materiais e talões em aberto por data de corte</h4><strong id="corteModalTotal">${sumTotal(currentCorteBase).toLocaleString('pt-BR')} pares</strong></div><div class="modal-card-body"><table><thead><tr><th>Data corte</th><th class="num">Cabedal</th><th class="num">Forro</th><th class="num">Tiras</th><th class="num">Aviamento</th><th class="num">No corte completos</th><th class="num">No corte incompletos</th></tr></thead><tbody id="corteModalBody"></tbody></table><p class="small-note">Clique em qualquer valor para abrir os modelos. Depois clique no valor do modelo/ateliê para listar os talões.</p></div></div></div>`);
@@ -285,7 +631,7 @@
       }
 
       function openCostura(){
-        const baseDocs=filterBySelectedLines(allDocs);
+        const baseDocs=filterGiro(allDocs);
         const costuraBase=baseDocs.filter(t=>!isAmostra(t)&&has(t.idAtelieResponsavel)&&!has(t.dataSaidaCostura));
         const atelies=Array.from(groupDocs(costuraBase,t=>String(t.idAtelieResponsavel||'Sem ateliê')).entries()).sort((a,b)=>compareText(a[0],b[0]));
         currentCosturaAtelieGroups=new Map(atelies);
@@ -296,14 +642,14 @@
 
       function openMontagem(){
         const totalLines=groupSum(docsMontagem,lineKey); const totalModels=groupSum(docsMontagem,modelKey).sort((a,b)=>b[1]-a[1]||compareText(a[0],b[0]));
-        const byDate=Array.from(groupDocs(filterBySelectedLines(allDocs).filter(isMissingMontagem),t=>toISODateOnly(t.dataCorte)||'Sem data').entries()).sort((a,b)=>compareText(a[0],b[0]));
+        const byDate=Array.from(groupDocs(filterGiro(allDocs).filter(isMissingMontagem),t=>toISODateOnly(t.dataCorte)||'Sem data').entries()).sort((a,b)=>compareText(a[0],b[0]));
         const dateRows=byDate.map(([date,list])=>{const disponivel=list.filter(isAvailableMontagem); const linhas=groupSum(disponivel,lineKey).map(([l,v])=>`${l}: ${v.toLocaleString('pt-BR')}`).join(' • ')||'-'; const key=storeList(disponivel); const txt=dateLabel(date); return `<tr class="clickable-row" onclick="window.openGiroStoredModels('${key}','${encodeURIComponent(`Montagem ${txt} - Modelos`)}','${encodeURIComponent(`${disponivel.length.toLocaleString('pt-BR')} talões • ${sumTotal(disponivel).toLocaleString('pt-BR')} pares`)}')"><td class="date-title">${txt}</td><td>${escapeHTML(linhas)}</td><td class="num">${sumTotal(disponivel).toLocaleString('pt-BR')}</td><td class="num danger">${sumTotal(list).toLocaleString('pt-BR')}</td></tr>`}).join('')||'<tr><td colspan="4" class="empty-message">Nenhuma montagem em aberto.</td></tr>';
         openModal('Giro da Montagem',`${docsMontagem.length.toLocaleString('pt-BR')} talões disponíveis • ${sumTotal(docsMontagem).toLocaleString('pt-BR')} pares`,`<div class="modal-grid"><div class="modal-card"><div class="modal-card-head"><h4>Total disponível por linha</h4><strong>${sumTotal(docsMontagem).toLocaleString('pt-BR')}</strong></div><div class="modal-card-body"><table><thead><tr><th>Linha</th><th class="num">Pares</th></tr></thead><tbody>${totalLines.map(([k,v])=>`<tr><td>${escapeHTML(k)}</td><td class="num">${v.toLocaleString('pt-BR')}</td></tr>`).join('')||'<tr><td colspan="2" class="empty-message">Nenhuma linha.</td></tr>'}</tbody></table></div></div><div class="modal-card"><div class="modal-card-head"><h4>Total disponível por modelo</h4><strong>${totalModels.length.toLocaleString('pt-BR')} modelos</strong></div><div class="modal-card-body"><table><thead><tr><th>Modelo</th><th class="num">Pares</th></tr></thead><tbody>${totalModels.map(([k,v])=>{const list=docsMontagem.filter(t=>modelKey(t)===k);const key=storeList(list);return `<tr class="clickable-row" onclick="window.openGiroStoredTaloes('${key}','${encodeURIComponent(`Talões - ${k}`)}','${encodeURIComponent(`${list.length.toLocaleString('pt-BR')} talões • ${v.toLocaleString('pt-BR')} pares`)}')"><td>${escapeHTML(k)}</td><td class="num">${v.toLocaleString('pt-BR')}</td></tr>`}).join('')||'<tr><td colspan="2" class="empty-message">Nenhum modelo.</td></tr>'}</tbody></table></div></div><div class="modal-card full"><div class="modal-card-head"><h4>Por data de corte</h4><strong>disponível x falta montar</strong></div><div class="modal-card-body"><table><thead><tr><th>Data corte</th><th>Disponível por linha</th><th class="num">Total disponível</th><th class="num">Total falta montar</th></tr></thead><tbody>${dateRows}</tbody></table><p class="small-note">Clique em uma data de corte para ver os modelos. Depois clique no valor do modelo/ateliê para abrir os talões.</p></div></div></div>`)
       }
 
       function addCardOpen(id,fn){const el=document.getElementById(id); el.addEventListener('click',fn); el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fn();}})}
       addCardOpen('corteCard',openCorte); addCardOpen('costuraCard',openCostura); addCardOpen('montagemCard',openMontagem);
-      closeModalButton.addEventListener('click',()=>modal.classList.remove('show')); modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('show')}); refreshButton.addEventListener('click',loadData);
+      closeModalButton.addEventListener('click',()=>modal.classList.remove('show')); modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('show')}); refreshButton.addEventListener('click',()=>loadData());
       auth.onAuthStateChanged(async user=>{if(!user){window.location.href='login.html';return}try{const userSnap=await db.collection('Usuario').doc(user.email||'').get(); if(userSnap.exists){const data=userSnap.data()||{}; currentUserName=data.Nome||''; currentUserLevel=data.nivelAcesso||''; localStorage.setItem('userNivelAcesso',currentUserLevel); localStorage.setItem('userName',currentUserName);} if(window.SistemaNavegacao){window.SistemaNavegacao.init({userLevel:currentUserLevel||'03',userName:currentUserName||'',title:'Giro de Produção',onLogout:async()=>{await auth.signOut();localStorage.removeItem('userNivelAcesso');localStorage.removeItem('userName');window.location.href='login.html';}})} loadData();}catch(e){console.error(e);setStatus('Erro ao iniciar a página. Veja o console.');}});
     })();
   </script>
