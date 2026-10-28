@@ -68,6 +68,38 @@
       min-width: 100px;
     }
     .summary-item strong{display:block;font-size:1.15em}
+    /* v8: o card conserva o tamanho e abre o detalhamento dos modelos. */
+    .summary-item.summary-total-pares {
+      background:var(--pri);color:#fff;font:inherit;line-height:inherit;
+      appearance:none;cursor:pointer;transition:background .15s;
+    }
+    .summary-item.summary-total-pares:hover{background:var(--pri-700)}
+    .summary-item.summary-total-pares:focus-visible{outline:3px solid var(--pri-700);outline-offset:3px}
+    #totalParesModal .modal-content{max-width:680px}
+    #totalParesModal .modal-head h3{margin:0;font-size:1.1rem}
+    #totalParesCloseButton{
+      position:absolute;right:10px;top:6px;border:0;background:transparent;
+      color:#666;font-size:26px;line-height:1;padding:4px 6px;cursor:pointer;
+    }
+    #totalParesCloseButton:hover{color:#111}
+    #totalParesCloseButton:focus-visible{outline:2px solid var(--pri);border-radius:4px}
+    #totalParesResumo{
+      margin:12px 0 8px;padding:10px;border-radius:8px;background:var(--chip);
+      color:var(--ink);font-size:.9rem;font-weight:700;line-height:1.4;
+    }
+    #totalParesModal .total-pares-note{margin:8px 0;color:var(--ink-2);font-size:.82rem;line-height:1.4}
+    #totalParesModal .total-pares-table-wrapper{max-height:60vh;overflow:auto;margin-top:10px}
+    #totalParesModal table{font-size:.88rem;table-layout:fixed}
+    #totalParesModal th,#totalParesModal td{padding:8px 10px;white-space:normal;overflow-wrap:anywhere}
+    #totalParesModal th:first-child,#totalParesModal td:first-child{text-align:left;width:56%}
+    #totalParesModal th:not(:first-child),#totalParesModal td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
+    #totalParesModal thead th{position:sticky;top:0;background:#f2f2f2;z-index:1}
+    #totalParesModal tbody tr:nth-child(even){background:#f8f9fb}
+    #totalParesModal tfoot th,#totalParesModal tfoot td{background:#eaf2ff;font-weight:700}
+    @media(max-width:768px){
+      #totalParesModal table{font-size:.8rem}
+      #totalParesModal th,#totalParesModal td{padding:7px 6px}
+    }
     /* Estilos para os novos filtros (links) */
     .filter-link {
         cursor: pointer;
@@ -829,6 +861,23 @@
     </div>
   </div>
 
+  <!-- v8: lista independente para nao alterar os outros resumos e detalhes. -->
+  <div id="totalParesModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="totalParesModalTitle">
+    <div class="modal-content">
+      <button type="button" id="totalParesCloseButton" aria-label="Fechar lista de modelos">&times;</button>
+      <div class="modal-head"><h3 id="totalParesModalTitle">Total de pares por modelo</h3></div>
+      <p id="totalParesResumo" aria-live="polite"></p>
+      <p class="total-pares-note">Modelos que compõem o card Total pares, conforme as linhas e remessas selecionadas.</p>
+      <div class="total-pares-table-wrapper" tabindex="0" aria-label="Lista de modelos">
+        <table aria-label="Pares e talões por modelo">
+          <thead><tr><th scope="col">Modelo (linha.modelo)</th><th scope="col">Pares</th><th scope="col">Talões</th></tr></thead>
+          <tbody id="totalParesModelosBody"></tbody>
+          <tfoot><tr><th scope="row">Total</th><td id="totalParesModelosTotal">0</td><td id="totalParesTaloesTotal">0</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div id="remessaFilterModal" class="modal">
     <div class="modal-content" style="max-width: 650px;">
       <span class="close-btn remessa-close-btn">&times;</span>
@@ -943,6 +992,13 @@
     const detailsModal=document.getElementById('detailsModal'), modalTitle=document.getElementById('modalTitle'), closeModalBtn=document.querySelector('.close-btn');
     const modalBodyContent = document.getElementById('modalBodyContent'); 
     const checkboxContainer = document.getElementById('checkboxContainer'); 
+    const totalParesModal = document.getElementById('totalParesModal');
+    const totalParesCloseButton = document.getElementById('totalParesCloseButton');
+    const totalParesModelosBody = document.getElementById('totalParesModelosBody');
+    const totalParesResumo = document.getElementById('totalParesResumo');
+    const totalParesModelosTotal = document.getElementById('totalParesModelosTotal');
+    const totalParesTaloesTotal = document.getElementById('totalParesTaloesTotal');
+
     
     // NOVO: Referências para o controle de Linhas
     const lineFilterContainer = document.getElementById('lineFilterContainer');
@@ -1119,6 +1175,11 @@
       cronogramaTableBody.replaceChildren();
       summaryInfo.replaceChildren();
       modalBodyContent.replaceChildren();
+      totalParesModal.style.display = 'none';
+      totalParesModelosBody.replaceChildren();
+      totalParesResumo.textContent = '';
+      totalParesModelosTotal.textContent = '0';
+      totalParesTaloesTotal.textContent = '0';
       modalTableBody = null;
       whatsMessageText.value = '';
       reportContent.style.display = 'none';
@@ -2066,7 +2127,7 @@
 
     function updateSummaryExcel(totalPares,totalTaloes,corte,costura,distribuicao,talonagem,montagem){
       summaryInfo.innerHTML = `
-        <div class="summary-item" style="background-color: var(--pri); color: white;">Total pares<br><strong>${totalPares.toLocaleString()}</strong></div>
+        <button type="button" id="totalParesButton" class="summary-item summary-total-pares" aria-haspopup="dialog" aria-controls="totalParesModal" title="Clique para listar os modelos deste total">Total pares<br><strong>${totalPares.toLocaleString()}</strong></button>
         <div class="summary-item" style="background-color: var(--pri); color: white;">Talões Filtrados<br><strong>${totalTaloes.toLocaleString()}</strong></div>
         
         <a href="#" class="summary-item filter-link ${currentStageFilter === 'corte' ? 'active-filter' : ''}" data-stage="corte">Corte (Faltando)<br><strong>${corte.toLocaleString()}</strong></a>
@@ -2076,6 +2137,84 @@
         <a href="#" class="summary-item filter-link ${currentStageFilter === 'montagem' ? 'active-filter' : ''}" data-stage="montagem">Montagem (Faltando)<br><strong>${montagem.toLocaleString()}</strong></a>
       `;
     }
+
+    // v8: usa a mesma lista do card, sem consultar o banco nem alterar os taloes.
+    function showTotalParesModelosModal() {
+      const taloes = getCurrentFilteredTaloes();
+      if (!taloes.length) return;
+      const modelos = new Map();
+      let totalPares = 0;
+
+      taloes.forEach(t => {
+        const linha = String(t.linha ?? '').trim();
+        const modelo = String(t.modelo ?? '').trim();
+        // Linha e modelo formam a chave para nao misturar modelos de linhas distintas.
+        const key = JSON.stringify([linha, modelo]);
+        const pares = Number(t.pares) || 0;
+        if (!modelos.has(key)) {
+          const nome = modelo ? (linha ? `${linha}.${modelo}` : modelo)
+            : (linha ? `${linha} — Sem modelo` : 'Sem modelo');
+          modelos.set(key, { nome, pares: 0, taloes: 0 });
+        }
+        const item = modelos.get(key);
+        item.pares += pares;
+        item.taloes += 1;
+        totalPares += pares;
+      });
+
+      const fragment = document.createDocumentFragment();
+      [...modelos.values()]
+        .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { numeric: true }))
+        .forEach(item => {
+          const tr = document.createElement('tr');
+          [item.nome, item.pares.toLocaleString(), item.taloes.toLocaleString()].forEach(value => {
+            const td = document.createElement('td');
+            td.textContent = value;
+            tr.appendChild(td);
+          });
+          fragment.appendChild(tr);
+        });
+      totalParesModelosBody.replaceChildren(fragment);
+      totalParesModelosTotal.textContent = totalPares.toLocaleString();
+      totalParesTaloesTotal.textContent = taloes.length.toLocaleString();
+      totalParesResumo.textContent = `${modelos.size.toLocaleString()} ${modelos.size === 1 ? 'modelo' : 'modelos'} • ${totalPares.toLocaleString()} pares • ${taloes.length.toLocaleString()} ${taloes.length === 1 ? 'talão' : 'talões'}`;
+      totalParesModal.style.display = 'block';
+      totalParesModal.scrollTop = 0;
+      totalParesModal.querySelector('.modal-content').scrollTop = 0;
+      totalParesModal.querySelector('.total-pares-table-wrapper').scrollTop = 0;
+      totalParesCloseButton.focus({ preventScroll: true });
+    }
+
+    function closeTotalParesModelosModal() {
+      totalParesModal.style.display = 'none';
+      const card = document.getElementById('totalParesButton');
+      if (card && card.getClientRects().length) card.focus({ preventScroll: true });
+    }
+
+    // O sumario e recriado a cada filtro. Um unico listener mantem o clique ativo.
+    summaryInfo.addEventListener('click', event => {
+      if (event.target.closest('#totalParesButton')) showTotalParesModelosModal();
+    });
+    totalParesCloseButton.addEventListener('click', closeTotalParesModelosModal);
+    totalParesModal.addEventListener('click', event => {
+      if (event.target === totalParesModal) closeTotalParesModelosModal();
+    });
+    totalParesModal.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        closeTotalParesModelosModal();
+      } else if (event.key === 'Tab') {
+        const last = totalParesModal.querySelector('.total-pares-table-wrapper');
+        if (event.shiftKey && document.activeElement === totalParesCloseButton) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          totalParesCloseButton.focus();
+        }
+      }
+    });
 
     function getTipoClienteClass(tipo){ switch(tipo){ case 'Exportacao': return 'exportacao-row'; case 'Cliente especial': return 'cliente-especial-row'; case 'Mercado Interno': return 'mercado-interno-row'; case 'Estoque': return 'estoque-row'; case 'Amostra': return 'amostra-row'; default: return ''; } }
     
