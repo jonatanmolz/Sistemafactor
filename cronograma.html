@@ -60,7 +60,7 @@
 
     #logoutButton{background:var(--danger);color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer}
     #logoutButton:hover{background:var(--danger-700)}
-    .container{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.08);width:100%;max-width:1200px}
+    .container{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.08);width:100%;max-width:100%;min-width:0}
     .summary-info{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;background:var(--chip);padding:8px;border-radius:8px;margin-bottom:12px;font-size:.9em}
     .summary-item{
       background:#fff;border:1px solid var(--bd);border-radius:10px;padding:8px 10px;text-align:center;
@@ -95,7 +95,7 @@
         border-radius: 10px;
         box-shadow: 0 2px 10px rgba(0,0,0,.08);
         width: 100%;
-        max-width: 1200px;
+        max-width: 100%;
         margin-bottom: 14px;
         text-align: left;
         font-size: 0.9em;
@@ -449,49 +449,174 @@
     }
 
 
-    /* Correção mobile: evita que o checkbox de linhas fique por cima do número */
-    #lineCheckboxes label {
+    /* Filtros sem rolagem e botoes com texto em duas linhas. */
+    .main-content > .container,
+    .main-content > .filters-container {
+      width: 96%;
+      max-width: 1600px;
+    }
+    #lineFilterContainer.line-filter-container {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      padding: 7px 9px;
+      margin-bottom: 12px;
       gap: 7px;
-      min-width: 58px;
-      padding: 4px 6px;
+      flex-wrap: nowrap;
       align-items: center;
       justify-content: flex-start;
+      font-size: 12px;
+      border-color: #d7dee8;
+    }
+    #lineFilterContainer .line-filter-title {
+      flex: 0 0 auto;
+      width: auto;
+      margin: 0;
+      color: var(--ink-2);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    #toggleAllLinesButton {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      min-height: 38px;
+      padding: 4px 8px;
+      border: 1px solid #b7d0f7;
+      border-radius: 16px;
+      background: #eef5ff;
+      color: #1d4ed8;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: normal;
+      transition: background .2s, border-color .2s;
+    }
+    #toggleAllLinesButton .line-toggle-text {
+      display: block;
+      text-align: center;
+      white-space: nowrap;
+    }
+    #toggleAllLinesButton:hover {
+      background: #e6f0ff;
+      border-color: #8bb4f0;
+    }
+    #toggleAllLinesButton .toggle-all-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 14px;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    #lineCheckboxes.line-pill-list {
+      display: flex;
+      flex: 1 1 0%;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+      width: auto;
+      min-width: 0;
+      padding: 1px;
+      font-size: 12px;
+      overflow: visible;
+    }
+    #lineCheckboxes label {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 4px;
+      min-width: 0;
+      min-height: 28px;
+      margin: 0;
+      padding: 4px 6px;
+      border: 1px solid #d7dee8;
+      border-radius: 16px;
+      background: #fff;
+      color: #22324a;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+      cursor: pointer;
     }
     #lineCheckboxes input[type="checkbox"] {
-      width: 18px !important;
-      min-width: 18px !important;
-      height: 18px !important;
+      flex: 0 0 13px !important;
+      width: 13px !important;
+      min-width: 13px !important;
+      height: 13px !important;
       margin: 0 !important;
-      flex: 0 0 18px !important;
-      display: inline-block !important;
+      padding: 0;
+      accent-color: #2563eb;
     }
-    @media (max-width: 768px) {
-      #lineCheckboxes {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(70px, 1fr));
-        gap: 8px;
+    #lineFilterContainer #selectRemessasButton {
+      flex: 0 0 auto;
+      width: auto;
+      min-width: 0;
+      min-height: 38px;
+      margin: 0;
+      padding: 4px 9px;
+      justify-content: center;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      line-height: 1.2;
+      text-align: center;
+      white-space: pre-line;
+    }
+    #toggleAllLinesButton:focus-visible,
+    #lineFilterContainer #selectRemessasButton:focus-visible,
+    #lineCheckboxes label:focus-within {
+      outline: 2px solid #2563eb;
+      outline-offset: -2px;
+    }
+    @media (max-width: 1100px) {
+      .main-content > .container,
+      .main-content > .filters-container {
+        width: 100%;
+        max-width: 100%;
+      }
+      #lineFilterContainer.line-filter-container {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 7px;
+        margin-bottom: 10px;
+      }
+      #lineFilterContainer #selectRemessasButton { margin-left: auto; }
+      #lineCheckboxes.line-pill-list {
+        order: 1;
+        flex: 1 1 100%;
         width: 100%;
       }
-      #lineCheckboxes label {
+    }
+    @media (max-width: 480px) {
+      #lineFilterContainer .line-filter-title { flex-basis: 100%; }
+      #toggleAllLinesButton,
+      #lineFilterContainer #selectRemessasButton {
+        flex: 1 1 calc(50% - 3px);
         min-width: 0;
-        padding: 6px 8px;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        background: #fff;
-        font-size: .82em;
+        margin: 0;
+        padding: 4px 6px;
       }
-      #lineCheckboxes input[type="checkbox"] {
-        width: 18px !important;
-        min-width: 18px !important;
-        height: 18px !important;
+      #lineCheckboxes label {
+        flex: 1 0 auto;
+        justify-content: center;
+        min-height: 32px;
       }
     }
-    @media (max-width: 380px) {
-      #lineCheckboxes {
-        grid-template-columns: repeat(2, minmax(80px, 1fr));
-      }
-    }
-
 
     /* Correção específica para o menu padrão do navegacao.js nesta página.
        O CSS antigo do cronograma tinha regras globais para "nav" que achatavam
@@ -531,12 +656,75 @@
       }
     }
 
+
+    /* v7: campos de busca compactos, sem alterar filtros internos do relatorio. */
+    @media (min-width: 769px) {
+      .main-content > .report-search-filters {
+        gap: 6px;
+        padding: 9px 10px;
+      }
+      .report-search-filters > .form-group {
+        flex: 0 1 132px;
+        min-width: 116px;
+        max-width: 132px;
+      }
+      .report-search-filters > .filter-linha {
+        flex-basis: 78px;
+        min-width: 68px;
+        max-width: 78px;
+      }
+      .report-search-filters > .filter-modelo {
+        flex-basis: 84px;
+        min-width: 68px;
+        max-width: 84px;
+      }
+      .report-search-filters > .filter-remessa {
+        flex-basis: 112px;
+        min-width: 100px;
+        max-width: 112px;
+      }
+      .report-search-filters > .date-range-field {
+        flex: 0 0 182px;
+        min-width: 182px;
+        max-width: 182px;
+      }
+      .report-search-filters label {
+        font-size: 12px;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+      .report-search-filters input:not([type="hidden"]),
+      .report-search-filters select,
+      .report-search-filters .date-range-button {
+        width: 100%;
+        min-width: 0;
+        height: 34px;
+        padding: 7px;
+        font-size: 13px;
+      }
+      .report-search-filters .date-range-button {
+        white-space: nowrap;
+      }
+      .report-search-filters > .btn {
+        flex: 0 0 auto;
+        min-height: 34px;
+        padding: 7px 10px;
+        font-size: 13px;
+        line-height: 20px;
+        justify-content: center;
+        white-space: nowrap;
+      }
+    }
+    @media (min-width: 1280px) {
+      .main-content > .report-search-filters { flex-wrap: nowrap; }
+    }
+
   </style>
   <script src="navegacao.js"></script>
 </head>
 <body>
   <div class="main-content">
-    <div class="filters-container">
+    <div class="filters-container report-search-filters">
       <div class="form-group filter-linha"><label for="filterLinha">Linha:</label><input type="text" id="filterLinha" placeholder="Ex: 7142" maxlength="5" /></div>
       <div class="form-group filter-modelo"><label for="filterModelo">Modelo:</label><input type="text" id="filterModelo" placeholder="Ex: 522" maxlength="5" /></div>
       <div class="form-group filter-remessa">
@@ -558,7 +746,7 @@
         <select id="filterAtelie"><option value="">Todos</option></select>
       </div>
       <div class="form-group date-range-field"><label>Data de Entrega:</label><button type="button" class="date-range-button" id="openEntregaDatePicker"><span id="entregaRangeLabel">Selecionar data/período</span></button><input type="hidden" id="filterDataEntregaInicio" /><input type="hidden" id="filterDataEntregaFim" /></div>
-      <button class="btn btn-primary" id="searchButton">Gerar Relatório</button>
+      <button class="btn btn-primary" id="searchButton" type="button">Gerar Relatório</button>
       <button class="btn btn-secondary" id="quickFiltersButton" title="Filtros rápidos">Filtros rápidos</button>
       <button class="btn btn-secondary" id="clearFiltersButton" title="Limpar filtros">Limpar</button>
       
@@ -572,17 +760,17 @@
           <button class="btn btn-secondary" type="button" id="costuraWhatsButton">Costura Whats</button>
         </div>
       </div>
-        <div id="lineFilterContainer" class="filters-container" style="display:none; justify-content: flex-start; max-width: 1200px; margin-bottom: 14px; align-items: flex-start;">
-            <h4 style="margin: 5px 10px 0 0; color: var(--ink-2); font-size: 1em;">Filtrar Linhas:</h4>
-            <div id="lineCheckboxes" class="column-checkboxes">
-                </div>
-               <button class="btn btn-secondary" id="selectRemessasButton" disabled style="padding: 0 20; min-width: 120px;">
-                  <span id="remessaCount">0</span> Clique para Selecionar as Remessas
-              </button>
-
-
+        <div id="lineFilterContainer" class="filters-container line-filter-container" style="display:none;">
+            <h4 class="line-filter-title">Linhas visíveis:</h4>
+            <button class="line-toggle-all-btn" id="toggleAllLinesButton" type="button">
+                <span class="toggle-all-icon">−</span>
+                <span class="line-toggle-text">Marcar/desmarcar<br>todas</span>
+            </button>
+            <div id="lineCheckboxes" class="column-checkboxes line-pill-list"></div>
+            <button class="btn btn-secondary" id="selectRemessasButton" type="button" disabled>Clique para selecionar&#10;as remessas</button>
+            <span id="remessaCount" hidden>0</span>
         </div>
-      <div id="loading" class="loader" style="display:none">Carregando dados...</div>
+      <div id="loading" class="loader" role="status" aria-live="polite" style="display:none">Carregando dados...</div>
       <div id="noData" class="loader">Selecione ao menos um filtro para iniciar a busca.</div>
       <div id="reportContent" style="display:none">
         
@@ -734,7 +922,7 @@
     };
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs, getDocsFromServer } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
     const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app);
 
     // === DOM ===
@@ -759,6 +947,7 @@
     // NOVO: Referências para o controle de Linhas
     const lineFilterContainer = document.getElementById('lineFilterContainer');
     const lineCheckboxes = document.getElementById('lineCheckboxes');
+    const toggleAllLinesButton = document.getElementById('toggleAllLinesButton');
 
     // NOVO: Referências para o controle de Remessas
     const selectRemessasButton = document.getElementById('selectRemessasButton');
@@ -773,6 +962,7 @@
     let modalTableBody = null; 
     
     let allFetchedTaloes=[];
+    let searchVersion = 0; // Invalida respostas de consultas antigas
     let currentStageFilter = null; 
     
     // NOVO: Variáveis de estado para o filtro de Linhas
@@ -786,81 +976,371 @@
 
 
     // === Autenticação e navegação padrão ===
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = 'login.html';
-        return;
+    // v6: each requested report starts with a real page reload.
+    // Only filters/display preferences travel across the reload, never report data.
+    const REPORT_STATE_KEY = `factor.cronograma.v6.pending:${location.pathname}`;
+    const HISTORY_STATE_KEY = '__factorCronogramaV6Pending';
+    const REPORT_TIMEOUT_MS = 45000;
+    const AUTH_TIMEOUT_MS = 30000;
+    const FILTER_INPUT_IDS = [
+      'filterLinha', 'filterModelo', 'filterRemessa', 'filterDataCorteInicio',
+      'filterDataCorteFim', 'filterTipoCliente', 'filterAtelie',
+      'filterDataEntregaInicio', 'filterDataEntregaFim'
+    ];
+    let authReady = false;
+    let authVersion = 0;
+    let pendingAutoSearch = false;
+    let reloadingPage = false;
+    let authWaitTimer = null;
+    let restoredColumnState = {};
+
+    function captureReportFilters() {
+      const fields = {};
+      FILTER_INPUT_IDS.forEach(id => {
+        fields[id] = document.getElementById(id).value.trim();
+      });
+      const columns = {};
+      checkboxContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        columns[cb.id] = cb.checked;
+      });
+      return { fields, hideSamples: naoExibirAmostras.checked, columns };
+    }
+
+    function getFilterValidationMessage(filters) {
+      const fields = filters.fields;
+      if (!FILTER_INPUT_IDS.some(id => fields[id])) {
+        return 'Selecione ao menos um filtro para gerar o relat\u00f3rio.';
       }
-
-      const snap = await getDoc(doc(db, 'Usuario', user.email));
-      if (!snap.exists()) {
-        alert('Dados do usuário não encontrados. Faça login novamente.');
-        await signOut(auth);
-        window.location.href = 'login.html';
-        return;
+      for (const [startId, endId, label] of [
+        ['filterDataCorteInicio', 'filterDataCorteFim', 'corte'],
+        ['filterDataEntregaInicio', 'filterDataEntregaFim', 'entrega']
+      ]) {
+        const start = fields[startId];
+        const end = fields[endId];
+        if (start && end && start > end) {
+          return `A data inicial de ${label} deve ser anterior ou igual \u00e0 data final.`;
+        }
       }
+      return '';
+    }
 
-      const userData = snap.data();
-      const nivelAcesso = String(userData.nivelAcesso || '');
-      const Nome = userData.Nome || 'Usuário';
+    function removePendingReport() {
+      try { sessionStorage.removeItem(REPORT_STATE_KEY); } catch (_) { /* May be blocked in file://. */ }
+      try {
+        const state = history.state;
+        if (state && Object.prototype.hasOwnProperty.call(state, HISTORY_STATE_KEY)) {
+          const cleanState = { ...state };
+          delete cleanState[HISTORY_STATE_KEY];
+          history.replaceState(cleanState, '');
+        }
+      } catch (_) { /* No persistent report data is stored. */ }
+    }
 
-      localStorage.setItem('userNivelAcesso', nivelAcesso);
-      localStorage.setItem('userName', Nome);
+    function savePendingReport(filters) {
+      const raw = JSON.stringify({ version: 6, createdAt: Date.now(), filters });
+      removePendingReport();
+      try {
+        sessionStorage.setItem(REPORT_STATE_KEY, raw);
+        if (sessionStorage.getItem(REPORT_STATE_KEY) !== raw) throw new Error('Storage verification failed');
+        return;
+      } catch (_) {
+        // Preserve filters even when sessionStorage is blocked on a local HTML file.
+        // History state also survives location.reload(), without adding filters to the URL.
+        const previous = history.state;
+        const state = previous && typeof previous === 'object' ? { ...previous } : {};
+        state[HISTORY_STATE_KEY] = raw;
+        history.replaceState(state, '');
+        if (history.state?.[HISTORY_STATE_KEY] !== raw) throw new Error('History verification failed');
+      }
+    }
 
-      window.SistemaNavegacao.init({
-        userLevel: nivelAcesso,
-        userName: Nome,
-        title: 'Controle de produção FactorShoes',
-        onLogout: async () => {
-          try {
-            await signOut(auth);
-            localStorage.removeItem('userNivelAcesso');
-            localStorage.removeItem('userName');
-            window.location.href = 'login.html';
-          } catch (e) {
-            console.error(e);
-            alert('Erro ao fazer logout. Tente novamente.');
-          }
+    function consumePendingReport() {
+      let raw = null;
+      try { raw = sessionStorage.getItem(REPORT_STATE_KEY); } catch (_) { /* Use fallback below. */ }
+      try { raw = raw || history.state?.[HISTORY_STATE_KEY]; } catch (_) { /* No fallback available. */ }
+      // Consume BEFORE authentication/query: no automatic reload/retry loop.
+      removePendingReport();
+      if (!raw) return null;
+      try {
+        const request = JSON.parse(raw);
+        const age = Date.now() - request.createdAt;
+        if (request.version !== 6 || !Number.isFinite(age) || age < -60000 || age > 300000) return null;
+        if (!request.filters || typeof request.filters.fields !== 'object' || !request.filters.fields) return null;
+        const fields = {};
+        FILTER_INPUT_IDS.forEach(id => {
+          const value = request.filters.fields[id];
+          fields[id] = typeof value === 'string' ? value.slice(0, 200).trim() : '';
+        });
+        return {
+          fields,
+          hideSamples: request.filters.hideSamples !== false,
+          columns: request.filters.columns && typeof request.filters.columns === 'object' ? request.filters.columns : {}
+        };
+      } catch (error) {
+        console.warn('Filtros temporarios invalidos; consulta automatica ignorada.', error);
+        return null;
+      }
+    }
+
+    function restoreReportFilters(filters) {
+      FILTER_INPUT_IDS.forEach(id => {
+        const input = document.getElementById(id);
+        const value = filters.fields[id] || '';
+        // The atelier list is asynchronous. Keep the selected atelier from the first query.
+        if (id === 'filterAtelie' && value && !Array.from(input.options).some(opt => opt.value === value)) {
+          input.add(new Option(value, value));
+        }
+        input.value = value;
+      });
+      naoExibirAmostras.checked = filters.hideSamples;
+      restoredColumnState = filters.columns;
+      updateRangeLabels();
+    }
+
+    function applyRestoredColumnState() {
+      checkboxContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        if (typeof restoredColumnState[cb.id] === 'boolean') {
+          cb.checked = restoredColumnState[cb.id];
+          cb.dispatchEvent(new Event('change'));
         }
       });
+      restoredColumnState = {};
+    }
 
-      loadAtelies();
-      setupColumnControl();
+    function resetReportData() {
+      allFetchedTaloes = [];
+      currentStageFilter = null;
+      availableLines = new Set();
+      selectedLines = new Set();
+      availableRemessas = new Map();
+      selectedRemessas = new Set();
+      lineCheckboxes.replaceChildren();
+      remessaFilterTableBody.replaceChildren();
+      cronogramaTableBody.replaceChildren();
+      summaryInfo.replaceChildren();
+      modalBodyContent.replaceChildren();
+      modalTableBody = null;
+      whatsMessageText.value = '';
+      reportContent.style.display = 'none';
+      lineFilterContainer.style.display = 'none';
+      selectRemessasButton.disabled = true;
+      selectRemessasButton.textContent = '0 Selecionadas';
+      selectAllRemessas.checked = true;
+      selectAllRemessas.indeterminate = false;
+      [detailsModal, remessaFilterModal, whatsMessageModal, dateRangePickerModal, quickFiltersModal].forEach(modal => {
+        modal.style.display = 'none';
+      });
+      updateToggleAllLinesButton();
+    }
+
+    function setReportBusy(busy, message = 'Carregando dados atualizados...') {
+      loading.textContent = message;
+      loading.style.display = busy ? 'block' : 'none';
+      searchButton.setAttribute('aria-busy', String(busy));
+      // Keep this button usable even while Firebase is not responding.
+      searchButton.disabled = reloadingPage;
+      searchButton.textContent = reloadingPage ? 'Reiniciando...' : busy ? 'Reiniciar consulta' : 'Gerar Relat\u00f3rio';
+      if (busy) noData.style.display = 'none';
+    }
+
+    function showReportMessage(message) {
+      setReportBusy(false);
+      noData.textContent = message;
+      noData.style.display = 'block';
+    }
+
+    function withTimeout(promise, milliseconds, code, message) {
+      let timer;
+      const deadline = new Promise((_, reject) => {
+        timer = setTimeout(() => {
+          const error = new Error(message);
+          error.code = code;
+          reject(error);
+        }, milliseconds);
+      });
+      // A late Firebase response cannot render after this promise has timed out.
+      // This limits the UI wait; it does not claim to cancel a server-side operation.
+      return Promise.race([promise, deadline]).finally(() => clearTimeout(timer));
+    }
+
+    function requestReportReload() {
+      if (reloadingPage) return;
+      const filters = captureReportFilters();
+      const validation = getFilterValidationMessage(filters);
+      if (validation) {
+        ++searchVersion;
+        pendingAutoSearch = false;
+        removePendingReport();
+        resetReportData();
+        showReportMessage(validation);
+        return;
+      }
+      try {
+        savePendingReport(filters);
+      } catch (error) {
+        console.error('Nao foi possivel preservar os filtros:', error);
+        noData.textContent = 'O navegador bloqueou o armazenamento dos filtros. N\u00e3o foi poss\u00edvel reiniciar automaticamente sem perd\u00ea-los.';
+        noData.style.display = 'block';
+        return;
+      }
+      ++searchVersion;
+      pendingAutoSearch = false;
+      reloadingPage = true;
+      resetReportData();
+      setReportBusy(true, 'Reiniciando a p\u00e1gina com os filtros selecionados...');
+      try {
+        window.location.reload();
+      } catch (error) {
+        reloadingPage = false;
+        removePendingReport();
+        console.error('Erro ao reiniciar a pagina:', error);
+        showReportMessage('N\u00e3o foi poss\u00edvel reiniciar a p\u00e1gina. Atualize-a pelo navegador e tente novamente.');
+      }
+    }
+
+    async function loadAtelies() {
+      try {
+        const qSnap = await withTimeout(
+          getDocs(query(collection(db, 'Usuario'), where('nivelAcesso', '==', '03'))),
+          AUTH_TIMEOUT_MS, 'atelier-timeout', 'A lista de atelies demorou para responder.'
+        );
+        const selected = filterAtelie.value;
+        const names = [...new Set(qSnap.docs.map(d => d.data().Nome).filter(Boolean))];
+        if (selected && !names.includes(selected)) names.push(selected);
+        names.sort((a, b) => a.localeCompare(b));
+        filterAtelie.replaceChildren(new Option('Todos', ''));
+        names.forEach(name => filterAtelie.add(new Option(name, name)));
+        filterAtelie.value = selected;
+      } catch (error) {
+        // An atelier-list problem must not hold up a report with already known filters.
+        console.warn('Erro ao carregar atelies:', error);
+      }
+    }
+
+    function handleAuthFailure(error) {
+      ++authVersion;
+      ++searchVersion;
+      authReady = false;
+      pendingAutoSearch = false;
+      clearTimeout(authWaitTimer);
+      resetReportData();
+      console.error('Erro ao confirmar acesso:', error);
+      showReportMessage('N\u00e3o foi poss\u00edvel confirmar seu acesso ao banco. Verifique a conex\u00e3o e clique em Gerar Relat\u00f3rio para reiniciar.');
+    }
+
+    function startAuthentication() {
+      authWaitTimer = setTimeout(() => {
+        if (!authReady && !reloadingPage) handleAuthFailure(new Error('Tempo esgotado ao confirmar a sessao.'));
+      }, AUTH_TIMEOUT_MS);
+      onAuthStateChanged(auth, async user => {
+        const myAuth = ++authVersion;
+        if (!user) {
+          clearTimeout(authWaitTimer);
+          authReady = false;
+          pendingAutoSearch = false;
+          ++searchVersion;
+          removePendingReport();
+          resetReportData();
+          window.location.href = 'login.html';
+          return;
+        }
+        try {
+          const snap = await withTimeout(getDoc(doc(db, 'Usuario', user.email)), AUTH_TIMEOUT_MS,
+            'auth-timeout', 'Tempo esgotado ao verificar o usuario.');
+          if (myAuth !== authVersion || reloadingPage) return;
+          if (!snap.exists()) {
+            pendingAutoSearch = false;
+            clearTimeout(authWaitTimer);
+            alert('Dados do usu\u00e1rio n\u00e3o encontrados. Fa\u00e7a login novamente.');
+            await signOut(auth);
+            window.location.href = 'login.html';
+            return;
+          }
+          const userData = snap.data();
+          const nivelAcesso = String(userData.nivelAcesso || '');
+          const Nome = userData.Nome || 'Usu\u00e1rio';
+          try {
+            localStorage.setItem('userNivelAcesso', nivelAcesso);
+            localStorage.setItem('userName', Nome);
+          } catch (_) { /* Do not block an authorized report when storage is restricted. */ }
+          if (window.SistemaNavegacao?.init) {
+            window.SistemaNavegacao.init({
+              userLevel: nivelAcesso, userName: Nome, title: 'Controle de produ\u00e7\u00e3o FactorShoes',
+              onLogout: async () => {
+                try {
+                  removePendingReport();
+                  await signOut(auth);
+                  try {
+                    localStorage.removeItem('userNivelAcesso');
+                    localStorage.removeItem('userName');
+                  } catch (_) { /* Navigation can continue. */ }
+                  window.location.href = 'login.html';
+                } catch (error) {
+                  console.error(error);
+                  alert('Erro ao fazer logout. Tente novamente.');
+                }
+              }
+            });
+          } else {
+            console.warn('navegacao.js nao disponivel; confira se esta na mesma pasta.');
+          }
+          if (!authReady) {
+            setupColumnControl();
+            applyRestoredColumnState();
+            loadAtelies();
+          }
+          authReady = true;
+          clearTimeout(authWaitTimer);
+          if (pendingAutoSearch) {
+            pendingAutoSearch = false;
+            // Run directly once. Do NOT call requestReportReload from here.
+            await runSearch();
+          }
+        } catch (error) {
+          if (myAuth === authVersion && !reloadingPage) handleAuthFailure(error);
+        }
+      }, handleAuthFailure);
+    }
+
+    clearFiltersButton.addEventListener('click', () => {
+      ++searchVersion;
+      pendingAutoSearch = false;
+      removePendingReport();
+      resetReportData();
+      FILTER_INPUT_IDS.forEach(id => document.getElementById(id).value = '');
+      naoExibirAmostras.checked = true;
+      datePickerStart = null;
+      datePickerEnd = null;
+      datePickerTarget = null;
+      updateRangeLabels();
+      showReportMessage('Selecione ao menos um filtro para iniciar a busca.');
     });
 
-    async function loadAtelies(){ try{ const qSnap=await getDocs(query(collection(db,'Usuario'), where('nivelAcesso','==','03'))); const names=qSnap.docs.map(d=>d.data().Nome).filter(Boolean).sort((a,b)=>a.localeCompare(b)); names.forEach(n=>{const opt=document.createElement('option'); opt.value=n; opt.textContent=n; filterAtelie.appendChild(opt);}); }catch(err){ console.error('Erro ao carregar ateliês:',err);} }
-    
-    // MODIFICADO: Limpa também os filtros de linha e remessa
-    clearFiltersButton.addEventListener('click',()=>{ 
-        [filterLinha,filterModelo,filterRemessa,filterDataCorteInicio,filterDataCorteFim,filterDataEntregaInicio,filterDataEntregaFim].forEach(i=>i.value=''); updateRangeLabels(); 
-        filterTipoCliente.value=''; 
-        filterAtelie.value=''; 
-        if(naoExibirAmostras) naoExibirAmostras.checked = true; 
-        cronogramaTableBody.innerHTML=''; 
-        summaryInfo.innerHTML=''; 
-        reportContent.style.display='none'; 
-        noData.textContent='Selecione ao menos um filtro para iniciar a busca.'; 
-        noData.style.display='block'; 
-        currentStageFilter = null; 
-        
-        // NOVO: Limpeza dos filtros de linha
-        lineFilterContainer.style.display = 'none'; 
-        availableLines = new Set(); 
-        selectedLines = new Set();
-
-        // NOVO: Limpeza dos filtros de remessa
-        remessaFilterModal.style.display = 'none';
-        selectRemessasButton.disabled = true;
-        selectRemessasButton.textContent = '0 Selecionadas';
-        availableRemessas = new Map();
-        selectedRemessas = new Set();
-    });
-    
-    searchButton.addEventListener('click', runSearch);
+    searchButton.addEventListener('click', requestReportReload);
+    [filterLinha, filterModelo, filterRemessa].forEach(input => input.addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        requestReportReload();
+      }
+    }));
     naoExibirAmostras.addEventListener('change', () => {
-      // Recarrega a busca para incluir ou remover amostras conforme a opção marcada.
-      if(reportContent.style.display !== 'none' || allFetchedTaloes.length > 0) runSearch();
+      if (loading.style.display !== 'none' || reportContent.style.display !== 'none' || allFetchedTaloes.length > 0) {
+        requestReportReload();
+      }
     });
+
+    if (toggleAllLinesButton) {
+      toggleAllLinesButton.addEventListener('click', () => {
+        if (availableLines.size === 0) return;
+        if (areAllLinesSelected()) {
+          selectedLines = new Set();
+        } else {
+          selectedLines = new Set([...availableLines]);
+        }
+        syncLineCheckboxUI();
+        filterAndGenerateReport();
+      });
+    }
 
     // Helpers
     function hasDate(v){ return v!==undefined && v!==null && String(v).trim()!==''; }
@@ -1019,7 +1499,7 @@
       filterDataEntregaFim.value = end ? isoFromDate(end) : '';
       updateRangeLabels();
       quickFiltersModal.style.display='none';
-      runSearch();
+      requestReportReload();
     }
 
     quickFiltersButton.addEventListener('click', () => quickFiltersModal.style.display='block');
@@ -1185,7 +1665,7 @@
     function updateRemessaCountDisplay() {
         const totalAvailable = availableRemessas.size;
         // remessaCount.textContent = selectedRemessas.size.toLocaleString(); // Não é mais necessário, usando o texto completo
-        selectRemessasButton.textContent = `Clique para selecionar as remessas`;
+        selectRemessasButton.textContent = `Clique para selecionar\nas remessas`;
     }
 
     // NOVO: Função para coletar e inicializar os dados de remessa para o filtro
@@ -1235,13 +1715,13 @@
         const availableRemessaKeys = Array.from(availableRemessas.keys());
 
         // O filtro de Linha só é aplicado se houver linhas disponíveis e nem todas estiverem selecionadas
-        if (availableLines.size > 0 && selectedLines.size > 0 && selectedLines.size < availableLines.size) {
+        if (availableLines.size > 0 && selectedLines.size < availableLines.size) {
             filteredTaloes = filteredTaloes.filter(t => selectedLines.has(t.linha));
         }
         
         // 2. Aplica o filtro de Remessas
         // O filtro de Remessa só é aplicado se houver remessas disponíveis e nem todas estiverem selecionadas
-        if (availableRemessaKeys.length > 0 && selectedRemessas.size > 0 && selectedRemessas.size < availableRemessaKeys.length) {
+        if (availableRemessaKeys.length > 0 && selectedRemessas.size < availableRemessaKeys.length) {
             filteredTaloes = filteredTaloes.filter(t => selectedRemessas.has(t.numeroRemessa));
         }
         
@@ -1251,6 +1731,28 @@
         return filteredTaloes;
     }
     
+    function areAllLinesSelected() {
+        return availableLines.size > 0 && selectedLines.size === availableLines.size;
+    }
+
+    function updateToggleAllLinesButton() {
+        if (!toggleAllLinesButton) return;
+        const icon = toggleAllLinesButton.querySelector('.toggle-all-icon');
+        if (icon) {
+            icon.textContent = areAllLinesSelected() ? '−' : '+';
+        }
+        toggleAllLinesButton.disabled = availableLines.size === 0;
+        toggleAllLinesButton.style.opacity = availableLines.size === 0 ? '0.6' : '1';
+        toggleAllLinesButton.style.cursor = availableLines.size === 0 ? 'default' : 'pointer';
+    }
+
+    function syncLineCheckboxUI() {
+        document.querySelectorAll('#lineCheckboxes input[type="checkbox"]').forEach(cb => {
+            cb.checked = selectedLines.has(cb.value);
+        });
+        updateToggleAllLinesButton();
+    }
+
     // NOVO: Função para renderizar e gerenciar o filtro de linhas (a mesma função original)
     function renderLineCheckboxes(taloes) {
         // 1. Coleta todas as linhas únicas dos talões
@@ -1264,6 +1766,9 @@
             selectedLines = new Set([...uniqueLines]);
         }
         
+        // Remove do estado linhas que não existem mais no resultado atual
+        selectedLines = new Set([...selectedLines].filter(line => uniqueLines.has(line)));
+
         // 4. Ordena as linhas
         const sortedLines = Array.from(uniqueLines).sort((a, b) => parseInt(a) - parseInt(b));
 
@@ -1286,12 +1791,13 @@
             checkbox.addEventListener('change', handleLineFilterChange);
 
             label.appendChild(checkbox);
-            label.appendChild(document.createTextNode(line));
+            label.appendChild(document.createTextNode(`Linha ${line}`));
             lineCheckboxes.appendChild(label);
         });
 
         // 6. Exibe o container de controle
         lineFilterContainer.style.display = uniqueLines.size > 0 ? 'flex' : 'none';
+        updateToggleAllLinesButton();
         
         // 7. Chama a função de filtragem e geração do relatório
         filterAndGenerateReport();
@@ -1305,6 +1811,7 @@
         } else {
             selectedLines.delete(line);
         }
+        syncLineCheckboxUI();
         // Força a re-geração do relatório com o novo filtro
         filterAndGenerateReport();
     }
@@ -1338,7 +1845,7 @@
         
         // Filtro de remessa nos checkboxes (se houver, após a busca)
         const availableRemessaKeys = Array.from(availableRemessas.keys());
-        if (!remessaText && availableRemessaKeys.length > 0 && selectedRemessas.size > 0 && selectedRemessas.size < availableRemessaKeys.length) {
+        if (!remessaText && availableRemessaKeys.length > 0 && selectedRemessas.size < availableRemessaKeys.length) {
             filters.push(`Remessas (Selecionadas): ${selectedRemessas.size} de ${availableRemessaKeys.length}`);
         }
 
@@ -1380,13 +1887,22 @@
 
     // MODIFICADO: Adiciona a lógica de renderização e filtro de linhas após a busca
     async function runSearch(){
-      loading.style.display='block'; noData.style.display='none'; reportContent.style.display='none'; cronogramaTableBody.innerHTML=''; allFetchedTaloes=[];
-      lineFilterContainer.style.display='none'; // Esconde antes de uma nova busca
-      selectRemessasButton.disabled = true;
-      selectRemessasButton.textContent = '0 Selecionadas'; // Reset para o texto padrão
-
-
-      const linha=filterLinha.value.trim(); const modelo=filterModelo.value.trim(); const remessa=filterRemessa.value.trim(); const dataCorteInicio=filterDataCorteInicio.value; const dataCorteFim=filterDataCorteFim.value; const tipoCliente=filterTipoCliente.value; const atelieResponsavel=filterAtelie.value; const dataEntregaInicio=filterDataEntregaInicio.value; const dataEntregaFim=filterDataEntregaFim.value;
+      if (!authReady || reloadingPage) return;
+      const mySearch = ++searchVersion;
+      const filters = captureReportFilters();
+      const validation = getFilterValidationMessage(filters);
+      resetReportData();
+      if (validation) {
+        showReportMessage(validation);
+        return;
+      }
+      setReportBusy(true);
+      const slowTimer = setTimeout(() => {
+        if (mySearch === searchVersion) {
+          loading.textContent = 'O banco est\u00e1 demorando para responder. Voc\u00ea pode clicar em Reiniciar consulta ou escolher outro filtro.';
+        }
+      }, 10000);
+      const linha=filters.fields.filterLinha; const modelo=filters.fields.filterModelo; const remessa=filters.fields.filterRemessa; const dataCorteInicio=filters.fields.filterDataCorteInicio; const dataCorteFim=filters.fields.filterDataCorteFim; const tipoCliente=filters.fields.filterTipoCliente; const atelieResponsavel=filters.fields.filterAtelie; const dataEntregaInicio=filters.fields.filterDataEntregaInicio; const dataEntregaFim=filters.fields.filterDataEntregaFim;
       try{
         let qRef=collection(db,'taloes'); let hasFilters=false;
         if(linha){ qRef=query(qRef, where('linha','==',linha)); hasFilters=true; }
@@ -1397,17 +1913,28 @@
         if(dataCorteInicio && dataCorteFim){ qRef=query(qRef, where('dataCorte','>=',dataCorteInicio), where('dataCorte','<=',dataCorteFim)); hasFilters=true; }
         else if(dataCorteInicio){ qRef=query(qRef, where('dataCorte','>=',dataCorteInicio)); hasFilters=true; }
         else if(dataCorteFim){ qRef=query(qRef, where('dataCorte','<=',dataCorteFim)); hasFilters=true; }
-        if(dataEntregaInicio || dataEntregaFim){ hasFilters=true; }
+        if(dataEntregaInicio || dataEntregaFim){
+          hasFilters=true;
+          // Uma única faixa de datas por consulta evita índices compostos de desigualdade.
+          // Quando há filtro de corte, a entrega continua sendo refinada localmente.
+          if(!dataCorteInicio && !dataCorteFim){
+            if(dataEntregaInicio) qRef=query(qRef, where('dataEntrega','>=',dataEntregaInicio));
+            if(dataEntregaFim) qRef=query(qRef, where('dataEntrega','<=',dataEntregaFim));
+          }
+        }
         
         currentStageFilter = null;
         if(!hasFilters){ loading.style.display='none'; noData.textContent='Por favor, selecione ao menos um filtro para iniciar a busca.'; noData.style.display='block'; return; }
         
-        const snap=await getDocs(qRef); 
+        // Server-only read: never present an offline cache as a freshly updated report.
+        const snap = await withTimeout(getDocsFromServer(qRef), REPORT_TIMEOUT_MS,
+          'report-timeout', 'O banco n\u00e3o respondeu em 45 segundos.');
+        if(mySearch !== searchVersion) return;
         allFetchedTaloes=snap.docs.map(d=>d.data()); 
 
         // Mantém o comportamento de não abrir amostras junto com os demais tipos.
         // Se o usuário escolher Tipo de Cliente = Amostra, o filtro permite buscar amostras normalmente.
-        if(naoExibirAmostras && naoExibirAmostras.checked && tipoCliente !== 'Amostra'){
+        if(filters.hideSamples && tipoCliente !== 'Amostra'){
             allFetchedTaloes = allFetchedTaloes.filter(t => t.tipoCliente !== 'Amostra');
         }
         
@@ -1439,11 +1966,27 @@
             selectRemessasButton.disabled = true; // Garante que o botão fica desabilitado
         }
         
-      }catch(err){ 
-        console.error('Erro ao gerar relatório:',err); 
-        loading.style.display='none'; 
-        noData.textContent='Erro ao carregar os dados. Verifique o console.'; 
-        noData.style.display='block'; 
+      } catch (err) {
+        if (mySearch !== searchVersion) return;
+        console.error('Erro ao gerar relatorio:', err);
+        resetReportData();
+        const code = String(err.code || '').replace(/^firestore\//, '');
+        let message;
+        if (code === 'report-timeout' || code === 'deadline-exceeded') {
+          message = 'O banco n\u00e3o respondeu dentro do limite de espera. A consulta foi interrompida nesta tela. Seus filtros foram mantidos; clique em Gerar Relat\u00f3rio para reiniciar.';
+        } else if (code === 'failed-precondition') {
+          message = 'O Firebase informou um pr\u00e9-requisito pendente para esta consulta, possivelmente um \u00edndice. Confira os detalhes no console (F12).';
+        } else if (code === 'permission-denied' || code === 'unauthenticated') {
+          message = 'O banco n\u00e3o autorizou a consulta. Confira seu login e as permiss\u00f5es de acesso.';
+        } else if (code === 'unavailable') {
+          message = 'N\u00e3o foi poss\u00edvel acessar o banco agora. Verifique a conex\u00e3o e clique em Gerar Relat\u00f3rio para reiniciar.';
+        } else {
+          message = `N\u00e3o foi poss\u00edvel gerar o relat\u00f3rio${code ? ` (${code})` : ''}. Seus filtros foram mantidos; tente gerar novamente. Detalhes no console (F12).`;
+        }
+        showReportMessage(message);
+      } finally {
+        clearTimeout(slowTimer);
+        if (mySearch === searchVersion) setReportBusy(false);
       }
     }
 
@@ -1544,6 +2087,7 @@
     }
 
     function renderTable(data){ 
+      const tableFragment = document.createDocumentFragment();
       cronogramaTableBody.innerHTML=''; 
       const keys=Object.keys(data).sort((a,b)=>{ 
         const da=data[a].dataCorte||'9999-12-31', db=data[b].dataCorte||'9999-12-31'; 
@@ -1606,8 +2150,15 @@
         } else { 
           html += `<td class="col-montagem">${grp.montagem.paresFaltando}</td><td class="col-montagem">${grp.montagem.taloesFaltando}</td>`; 
         }
-        tr.innerHTML=html; cronogramaTableBody.appendChild(tr);
-      }); 
+        tr.innerHTML=html; tableFragment.appendChild(tr);
+      });
+      cronogramaTableBody.appendChild(tableFragment);
+      // Reaplica visibilidade de colunas após recriar as linhas.
+      checkboxContainer.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        if(!cb.checked) cb.dataset.selectors.split(',').forEach(selector => {
+          cronogramaTableBody.querySelectorAll(selector).forEach(el => el.classList.add('hidden-column'));
+        });
+      });
     }
     
     // === FUNÇÕES DO MODAL DE DETALHES DA REMESSA (TABELA) ===
@@ -2038,7 +2589,7 @@
             if (allFetchedTaloes.length > 0) {
                 filterAndGenerateReport();
             } else {
-                runSearch(); 
+                requestReportReload(); 
             }
         }
     });
@@ -2100,6 +2651,15 @@
             }
         });
     }
+
+    // A pending request is consumed once; reopening/refreshing later does not loop.
+    const savedReportFilters = consumePendingReport();
+    if (savedReportFilters) {
+      restoreReportFilters(savedReportFilters);
+      pendingAutoSearch = true;
+      setReportBusy(true, 'Confirmando acesso para consultar os filtros selecionados...');
+    }
+    startAuthentication();
 
   </script>
 </body>
