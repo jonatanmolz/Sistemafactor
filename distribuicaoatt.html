@@ -1098,6 +1098,16 @@
 .capacity-tooltip th,.capacity-tooltip td{padding:5px 6px;white-space:normal}
 .capacity-tooltip td:first-child{text-align:left;font-weight:700}
 .capacity-tooltip .capacity-current{background:#edf8f1}
+/* FOTO_MODELO_HOVER_2026-10-29: somente leitura da colecao fotosModelos */
+.capacity-tooltip{width:min(392px,calc(100vw - 20px));max-height:calc(100vh - 18px);overflow-y:auto}
+.capacity-photo-panel{margin:7px 0 11px;border:1px solid #e2e8f0;background:#f8fafc;border-radius:9px;overflow:hidden;text-align:center}
+.capacity-photo-loading,.capacity-photo-empty{display:flex;align-items:center;justify-content:center;min-height:68px;padding:12px;color:#64748b;font-size:.78rem}
+.capacity-photo-main{display:block;width:100%;height:184px;object-fit:contain;background:#fff}
+.capacity-photo-count{display:block;padding:5px 7px;font-size:.69rem;font-weight:800;color:#475569;background:#f8fafc}
+.capacity-photo-thumbnails{display:flex;justify-content:center;gap:5px;padding:5px;background:#f8fafc;border-top:1px solid #e2e8f0}
+.capacity-photo-thumbnails img{width:55px;height:43px;object-fit:contain;background:#fff;border:1px solid #cbd5e1;border-radius:4px}
+.model-link:hover{text-decoration:underline}
+@media print{.capacity-photo-panel{display:none!important}}
 .model-link{cursor:help}
 .model-link:focus-visible{outline:2px solid #0d6efd;outline-offset:2px;border-radius:3px}
 @media print{.capacity-tooltip{display:none!important}}
@@ -1223,6 +1233,46 @@ const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const FULL_ACCESS_LEVELS=new Set(["07","08"]);
 let currentUser=null,currentUserLevel="",currentUserName="",modelsMap=new Map(),taloesCache=[],lastAtelierMap=new Map(),atelierHistoryMap=new Map(),modelCapacityMap=new Map(),allocation=[],manualAteliers=new Set(),selectedDocs=[],currentSplitId=null,atelierNotes=new Map(),atelierNotePositions=new Map(),lineSummaryGroups=[],undoStack=[],redoStack=[],pendingPrices=null,pricesLoading=false,taloesLoaded=false,autoSaveTimer=null,autoSaveRetryTimer=null,autoSavePromise=null,autoSaveVersion=0,savedVersion=0,activeSavedDocId="",navigationRequest=0,savedListRows=[],savedListCursor=null,savedListLoaded=false,savedListBusy=false,savedListHasMore=false,savedListGeneration=0;
 const savedListCache=new Map(),SAVED_PAGE_SIZE=15;
+// Busca as fotos apenas quando o usuario passa o mouse no modelo.
+// Nenhuma leitura da colecao de precos nem gravacao adicional e realizada.
+const hoverPhotoCache=new Map();
+let activePhotoHoverToken=0,activePhotoHoverAnchor=null;
+function secureModelPhotoUrl(value){
+  try{const u=new URL(String(value||""));return u.protocol==="https:"?u.href:""}catch{return""}
+}
+async function getHoverModelPhotos(code){
+  const cached=hoverPhotoCache.get(code);
+  if(cached?.promise)return cached.promise;
+  if(cached&&Date.now()<cached.expiresAt)return cached.photos;
+  const promise=getDoc(doc(db,"fotosModelos",code)).then(snap=>{
+    const source=snap.exists()?snap.data()?.fotos:[];
+    return(Array.isArray(source)?source:[]).map(p=>secureModelPhotoUrl(p?.url)).filter(Boolean).slice(0,5);
+  }).catch(err=>{
+    console.warn(`Nao foi possivel consultar a foto de ${code}:`,err);
+    return null; // O historico continua disponivel mesmo se faltar permissao para as fotos.
+  }).then(photos=>{
+    hoverPhotoCache.set(code,{photos,expiresAt:Date.now()+(photos===null?20000:300000)});
+    return photos;
+  });
+  hoverPhotoCache.set(code,{promise});
+  return promise;
+}
+function placeCapacityTooltip(anchor){
+  const tip=els.capacityTooltip;
+  if(!anchor||!anchor.isConnected||tip.hidden)return;
+  const rect=anchor.getBoundingClientRect();
+  const viewportWidth=document.documentElement.clientWidth||window.innerWidth;
+  const viewportHeight=document.documentElement.clientHeight||window.innerHeight;
+  tip.style.left=`${Math.max(8,Math.min(rect.left,viewportWidth-tip.offsetWidth-8))}px`;
+  const below=rect.bottom+8,above=rect.top-tip.offsetHeight-8;
+  const top=below+tip.offsetHeight<=viewportHeight-8?below:(above>=8?above:Math.max(8,Math.min(below,viewportHeight-tip.offsetHeight-8)));
+  tip.style.top=`${top}px`;
+}
+function renderHoverPhotoPanel(photos){
+  if(photos===null)return'<div class="capacity-photo-empty">Foto indisponivel no momento.</div>';
+  if(!photos.length)return'<div class="capacity-photo-empty">Sem foto cadastrada para este modelo.</div>';
+  return`<img class="capacity-photo-main" src="${escapeHtml(photos[0])}" alt="Foto do modelo" referrerpolicy="no-referrer">${photos.length>1?`<span class="capacity-photo-count">${photos.length} fotos cadastradas</span><div class="capacity-photo-thumbnails">${photos.slice(1).map((url,index)=>`<img src="${escapeHtml(url)}" alt="Outra foto do modelo ${index+2}" loading="lazy" referrerpolicy="no-referrer">`).join("")}</div>`:""}`;
+}
 const $=id=>document.getElementById(id);
 const els={dateOneInput:$("dateOneInput"),dateTwoInput:$("dateTwoInput"),atelierFilterInput:$("atelierFilterInput"),selectDistributionsButton:$("selectDistributionsButton"),generateButton:$("generateButton"),addAtelierButton:$("addAtelierButton"),updatePricesButton:$("updatePricesButton"),autoSaveStatus:$("autoSaveStatus"),retryAutoSaveButton:$("retryAutoSaveButton"),capacityTooltip:$("capacityTooltip"),printButton:$("printButton"),launchButton:$("launchButton"),clearButton:$("clearButton"),openSavedButton:$("openSavedButton"),savedModalBackdrop:$("savedModalBackdrop"),closeSavedModalButton:$("closeSavedModalButton"),savedTableBody:$("savedTableBody"),savedLoadMoreButton:$("savedLoadMoreButton"),savedListInfo:$("savedListInfo"),pricesModalBackdrop:$("pricesModalBackdrop"),closePricesModalButton:$("closePricesModalButton"),cancelPricesButton:$("cancelPricesButton"),applyPricesButton:$("applyPricesButton"),pricesSummary:$("pricesSummary"),pricesWarning:$("pricesWarning"),pricesTableBody:$("pricesTableBody"),messageBox:$("messageBox"),summaryCard:$("summaryCard"),summaryGrid:$("summaryGrid"),lineSummaryPanel:$("lineSummaryPanel"),lineSummaryGrid:$("lineSummaryGrid"),resetLineGroupsButton:$("resetLineGroupsButton"),periodInfo:$("periodInfo"),atelierSection:$("atelierSection"),atelierGrid:$("atelierGrid"),atelierInfo:$("atelierInfo"),distributionsModalBackdrop:$("distributionsModalBackdrop"),closeDistributionsModalButton:$("closeDistributionsModalButton"),distributionsTableBody:$("distributionsTableBody"),confirmDistributionsButton:$("confirmDistributionsButton"),splitModalBackdrop:$("splitModalBackdrop"),splitModalTitle:$("splitModalTitle"),closeSplitModalButton:$("closeSplitModalButton"),splitSummary:$("splitSummary"),splitPairsInput:$("splitPairsInput"),splitDestinationSelect:$("splitDestinationSelect"),splitNewAtelierInput:$("splitNewAtelierInput"),splitOriginNoteInput:$("splitOriginNoteInput"),splitDestinationNoteInput:$("splitDestinationNoteInput"),confirmSplitButton:$("confirmSplitButton")};
 function redirectUnauthorized(){alert("Seu nível de acesso não permite abrir esta página. Você será redirecionado para o início.");window.location.replace("index.html");}
@@ -1337,16 +1387,33 @@ function compareSymbol(previsto,hist){if(!hist||!hist.mediaDia)return"";return N
 function compareDiff(previsto,hist){if(!hist||!hist.mediaDia)return 0;return round2(Number(previsto||0)-Number(hist.mediaDia||0))}
 function getTalaoCorteDate(data){return normalizeDate(firstNonEmpty(data,["dataCorte","DataCorte","dataDeCorte","data_corte","corte"]))}
 function historyBadge(item){return modelCapacityMap.has(item.key)?`<span class="history-badge" aria-hidden="true">👥</span>`:""}
-function hideModelCapacity(){els.capacityTooltip.hidden=true}
+function hideModelCapacity(){
+  activePhotoHoverToken++;
+  activePhotoHoverAnchor=null;
+  els.capacityTooltip.hidden=true;
+}
 function showModelCapacity(item,anchor){
   if(!item||!anchor)return;
+  const token=++activePhotoHoverToken;
+  activePhotoHoverAnchor=anchor;
   const rows=[...(modelCapacityMap.get(item.key)||[])].sort((a,b)=>Number(b.atelier===item.atelier)-Number(a.atelier===item.atelier)||b.maxSemana-a.maxSemana||a.atelier.localeCompare(b.atelier,"pt-BR"));
   const weekLabel=iso=>{const end=toISODate(addDays(getMonday(iso),6));return`${isoToShortBR(iso)}–${isoToShortBR(end)}`};
-  els.capacityTooltip.innerHTML=`<strong>Modelo ${escapeHtml(item.linha)}.${escapeHtml(item.modelo)}</strong><p>Maior volume registrado deste modelo por ateliê, pelas datas de produção/saída da costura. Semana de segunda a domingo.</p>${rows.length?`<table><thead><tr><th>Ateliê</th><th>Máx./dia</th><th>Máx./semana</th></tr></thead><tbody>${rows.map(r=>`<tr class="${r.atelier===item.atelier?"capacity-current":""}"><td>${escapeHtml(r.atelier)}${r.atelier===item.atelier?" • atual":""}</td><td>${formatNumber(r.maxDia)}<br><small>${isoToBR(r.diaISO)}</small></td><td>${formatNumber(r.maxSemana)}<br><small>${weekLabel(r.semanaISO)}</small></td></tr>`).join("")}</tbody></table>`:`<p>${taloesLoaded?"Nenhum histórico de produção encontrado para este modelo.":"Carregando histórico de produção..."}</p>`}`;
+  els.capacityTooltip.innerHTML=`<strong>Modelo ${escapeHtml(item.linha)}.${escapeHtml(item.modelo)}</strong><div class="capacity-photo-panel" aria-label="Foto do modelo"><div class="capacity-photo-loading">Carregando foto...</div></div><p>Maior volume registrado deste modelo por ateliê, pelas datas de produção/saída da costura. Semana de segunda a domingo.</p>${rows.length?`<table><thead><tr><th>Ateliê</th><th>Máx./dia</th><th>Máx./semana</th></tr></thead><tbody>${rows.map(r=>`<tr class="${r.atelier===item.atelier?"capacity-current":""}"><td>${escapeHtml(r.atelier)}${r.atelier===item.atelier?" • atual":""}</td><td>${formatNumber(r.maxDia)}<br><small>${isoToBR(r.diaISO)}</small></td><td>${formatNumber(r.maxSemana)}<br><small>${weekLabel(r.semanaISO)}</small></td></tr>`).join("")}</tbody></table>`:`<p>${taloesLoaded?"Nenhum histórico de produção encontrado para este modelo.":"Carregando histórico de produção..."}</p>`}`;
   els.capacityTooltip.hidden=false;
-  const rect=anchor.getBoundingClientRect(),tip=els.capacityTooltip;
-  tip.style.left=`${Math.max(8,Math.min(rect.left,window.innerWidth-tip.offsetWidth-10))}px`;
-  tip.style.top=`${Math.max(8,rect.bottom+8+tip.offsetHeight<window.innerHeight?rect.bottom+8:rect.top-tip.offsetHeight-8)}px`;
+  placeCapacityTooltip(anchor);
+  // Se o usuario passar o mouse para outro modelo antes do Firebase responder,
+  // descarta o resultado antigo e nao troca a foto exibida.
+  void getHoverModelPhotos(item.key).then(photos=>{
+    if(token!==activePhotoHoverToken||activePhotoHoverAnchor!==anchor||els.capacityTooltip.hidden)return;
+    const panel=els.capacityTooltip.querySelector(".capacity-photo-panel");
+    if(!panel)return;
+    panel.innerHTML=renderHoverPhotoPanel(photos);
+    panel.querySelectorAll("img").forEach(img=>{
+      img.addEventListener("load",()=>{if(token===activePhotoHoverToken)placeCapacityTooltip(anchor)},{once:true});
+      img.addEventListener("error",()=>{if(token===activePhotoHoverToken&&img.classList.contains("capacity-photo-main")){panel.innerHTML='<div class="capacity-photo-empty">Nao foi possivel carregar a foto.</div>';placeCapacityTooltip(anchor)}},{once:true});
+    });
+    placeCapacityTooltip(anchor);
+  });
 }
 function noteBadge(item){return item.observacaoDivisao?`<span class="note-badge" title="${escapeHtml(item.observacaoDivisao)}">📝</span>`:""}
 function isSplitItem(item){return !!(item&&((item.dividido===true)||item.splitGroup||item.observacaoDivisao))}
