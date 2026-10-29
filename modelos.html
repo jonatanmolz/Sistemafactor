@@ -55,7 +55,6 @@ tbody tr.model-row.no-price{background:#ffe3e8!important;color:#7f1d1d}
 tbody tr.model-row.no-price:hover{background:#ffd2da!important}
 tbody tr.model-row.no-price td{border-color:#f3a8b5}
 .price-missing-badge{display:inline-block;background:#dc3545;color:#fff;border-radius:999px;padding:4px 9px;font-size:.72rem;font-weight:900;letter-spacing:.02em}
-.price-warning-text{display:block;color:#b42318;font-size:.70rem;font-weight:800;margin-top:2px}
 .cell-left{text-align:left}.money{text-align:right}.tag{display:inline-block;border:1px solid #d8d8d8;border-radius:999px;padding:3px 7px;background:#fff;margin:2px;font-size:.72rem;line-height:1.15}.tag.empty{color:#777;background:#f2f2f2}.models-card .cell-left{line-height:1.45}.mini-help{font-size:.8rem;color:var(--muted);line-height:1.35}.empty-state{padding:24px;text-align:center;color:#666}
 
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.50);display:none;align-items:center;justify-content:center;padding:14px;z-index:5000}.modal-backdrop.show{display:flex}
@@ -74,6 +73,68 @@ tbody tr.model-row.no-price td{border-color:#f3a8b5}
 @media(max-width:1100px){.compact-page-card,.models-card{width:96%;min-width:0}.table-wrap{max-height:72vh}}
 @media(max-width:760px){.filter-bar{grid-template-columns:1fr}.model-grid{grid-template-columns:1fr 1fr}.modal-summary{grid-template-columns:1fr}.card{padding:14px}.models-card table{font-size:.74rem}.models-card th,.models-card td{padding:6px 5px}.tag{font-size:.68rem;padding:3px 6px}.sector-table-wrap{overflow:auto}.sector-table{min-width:640px}}
 @media(max-width:520px){.model-grid{grid-template-columns:1fr}}
+
+/* FOTOS_MODELOS_MINIATURAS_2026-10-29 - apenas leitura de fotosModelos */
+.models-card th:nth-child(2),.models-card td:nth-child(2){width:15%}
+.models-card th:nth-child(6),.models-card td:nth-child(6){width:35%}
+.model-code-photo{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0}
+.model-photo-mini{width:46px;height:46px;flex:0 0 46px;border:1px solid #cbd5e1;border-radius:7px;overflow:hidden;background:#f8fafc;padding:0;cursor:zoom-in;display:grid;place-items:center}
+.model-photo-mini:hover,.model-code-button:hover{outline:2px solid #93c5fd;outline-offset:1px}
+.model-photo-mini img{display:block;width:100%;height:100%;object-fit:contain;background:#fff}
+.model-photo-placeholder{font-size:1.2rem;color:#94a3b8;line-height:1}
+.model-photo-placeholder.pending{font-size:.7rem;color:#64748b;font-weight:700}
+.model-code-button{border:0;background:transparent;color:#075eb5;font-weight:900;cursor:zoom-in;padding:5px 2px;border-radius:4px;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+.model-photo-mini:focus-visible,.model-code-button:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+.photo-modal-backdrop{z-index:6100}
+.photo-modal{width:min(950px,96vw);max-height:95vh}
+.photo-modal .modal-header h3{background:#eff6ff}
+.photo-viewer-body{padding:12px 16px 16px}
+.photo-viewer-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:230px;height:min(64vh,590px);border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;overflow:hidden}
+.photo-viewer-stage>img{display:block;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;background:#fff}
+.photo-viewer-empty{padding:24px;text-align:center;color:#64748b;font-size:.95rem;line-height:1.4}
+.photo-viewer-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:1;border:0;border-radius:999px;background:rgba(15,23,42,.70);color:#fff;font-size:1.35rem;font-weight:900;width:40px;height:40px;cursor:pointer}
+.photo-viewer-arrow:hover{background:#0f172a}
+.photo-viewer-arrow.prev{left:10px}.photo-viewer-arrow.next{right:10px}
+.photo-viewer-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
+.photo-viewer-counter{font-size:.86rem;color:#475569;font-weight:800}
+.photo-viewer-thumbs{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.photo-viewer-thumb{width:58px;height:49px;border:2px solid #cbd5e1;background:#fff;border-radius:7px;padding:2px;cursor:pointer}
+.photo-viewer-thumb.active{border-color:#0d6efd;box-shadow:0 0 0 2px #bfdbfe}
+.photo-viewer-thumb img{display:block;width:100%;height:100%;object-fit:contain}
+.photo-viewer-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media(max-width:970px){.models-card table{min-width:1010px}}
+@media(max-width:520px){.photo-viewer-body{padding:8px}.photo-viewer-stage{height:56vh;min-height:170px}.photo-viewer-arrow{width:34px;height:34px}}
+@media print{.photo-modal-backdrop{display:none!important}}
+
+/* TABELA_UNIFORME_2026-10-29: miniaturas compactas e preco em uma linha */
+.compact-page-card,.models-card{width:min(95%,1740px)}
+.models-card table{width:100%;min-width:1090px;table-layout:fixed;font-size:.79rem}
+.models-card th:nth-child(1),.models-card td:nth-child(1){width:6%}
+.models-card th:nth-child(2),.models-card td:nth-child(2){width:14%}
+.models-card th:nth-child(3),.models-card td:nth-child(3){width:11%}
+.models-card th:nth-child(4),.models-card td:nth-child(4){width:12%}
+.models-card th:nth-child(5),.models-card td:nth-child(5){width:11%}
+.models-card th:nth-child(6),.models-card td:nth-child(6){width:28%}
+.models-card th:nth-child(7),.models-card td:nth-child(7){width:10%}
+.models-card th:nth-child(8),.models-card td:nth-child(8){width:8%}
+.models-card thead th{height:38px;padding:7px 6px;white-space:nowrap;line-height:1.2}
+.models-card tbody tr.model-row{height:60px}
+.models-card tbody tr.model-row td{height:60px;padding:5px 7px;vertical-align:middle;line-height:1.2}
+.models-card tbody tr.model-row td:not(:nth-child(6)){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.models-card .model-code-photo{gap:8px;justify-content:center;flex-wrap:nowrap}
+.models-card .model-photo-mini{width:44px;height:44px;flex:0 0 44px}
+.models-card .model-code-button{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.models-card .price-missing-cell{text-align:center}
+.models-card .price-missing-badge{display:inline-flex;align-items:center;justify-content:center;min-width:94px;border-radius:999px;padding:7px 10px;white-space:nowrap;line-height:1;font-size:.68rem;letter-spacing:0}
+.models-card tbody tr.model-row.no-price{background:#fff0f2!important}
+.models-card tbody tr.model-row.no-price:hover{background:#ffe4e9!important}
+.models-card .money{white-space:nowrap;font-variant-numeric:tabular-nums}
+.models-card .model-sector-tags{display:flex;align-items:center;gap:5px;max-width:100%;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:thin;scrollbar-color:#cbd5e1 transparent;padding:2px 0}
+.models-card .model-sector-tags .tag{display:inline-flex;align-items:center;flex:0 0 auto;margin:0;padding:4px 7px;white-space:nowrap;font-size:.70rem;line-height:1.1}
+.models-card .model-sector-tags::-webkit-scrollbar{height:4px}
+.models-card .model-sector-tags::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:6px}
+@media(max-width:1100px){.compact-page-card,.models-card{width:96%}}
+@media print{.models-card .model-sector-tags{overflow:visible;flex-wrap:wrap}}
 </style>
 <script src="navegacao.js"></script>
 </head>
@@ -83,7 +144,7 @@ tbody tr.model-row.no-price td{border-color:#f3a8b5}
   <div class="page-head">
     <div>
       <h2 class="page-title">Modelos e Preços</h2>
-      <p class="page-subtitle">Cadastre e edite os modelos salvos na coleção <strong>modelos</strong>. Clique em qualquer linha da tabela para editar.</p>
+      <p class="page-subtitle">Cadastre e edite os modelos salvos na coleção <strong>modelos</strong>. Clique na miniatura ou no código do modelo para ampliar a foto; clique nas outras colunas para editar.</p>
     </div>
     <div class="top-actions">
       <button class="btn btn-warning" id="adjustPricesButton" type="button">Reajustar preços</button>
@@ -204,6 +265,30 @@ tbody tr.model-row.no-price td{border-color:#f3a8b5}
   </div>
 </div>
 
+
+<!-- Visualizador de fotos: somente leitura, sem alterar o cadastro do modelo -->
+<div class="modal-backdrop photo-modal-backdrop" id="photoModalBackdrop" aria-hidden="true">
+  <div class="modal photo-modal" role="dialog" aria-modal="true" aria-labelledby="photoModalTitle">
+    <div class="modal-header">
+      <h3 id="photoModalTitle">Foto do modelo</h3>
+      <button class="modal-close" id="closePhotoModalButton" type="button" aria-label="Fechar foto">Fechar</button>
+    </div>
+    <div class="photo-viewer-body">
+      <div class="photo-viewer-stage">
+        <button class="photo-viewer-arrow prev hidden" id="previousPhotoButton" type="button" aria-label="Foto anterior">&#8249;</button>
+        <img id="photoModalImage" class="hidden" alt="Foto ampliada do modelo" referrerpolicy="no-referrer" />
+        <div id="photoModalEmpty" class="photo-viewer-empty">Carregando foto...</div>
+        <button class="photo-viewer-arrow next hidden" id="nextPhotoButton" type="button" aria-label="Próxima foto">&#8250;</button>
+      </div>
+      <div class="photo-viewer-footer">
+        <span class="photo-viewer-counter" id="photoModalCount"></span>
+        <div class="photo-viewer-thumbs" id="photoModalThumbs"></div>
+        <div class="photo-viewer-actions"><button class="btn btn-secondary btn-small" id="editFromPhotoButton" type="button">Editar modelo</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 const firebaseConfig={apiKey:"AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",authDomain:"sistemataloes.firebaseapp.com",projectId:"sistemataloes",storageBucket:"sistemataloes.appspot.com",messagingSenderId:"684534379685",appId:typeof __app_id!=="undefined"?__app_id:"default-app-id"};
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
@@ -213,13 +298,18 @@ import{getFirestore,doc,getDoc,setDoc,collection,getDocs,serverTimestamp,writeBa
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const FULL_ACCESS_LEVELS=new Set(["07","08"]);
 let currentUser=null,currentUserLevel="",models=[],currentEditingId=null,currentEditingModel=null;
+// Os dados das fotos sao apenas consultados. Nenhum cadastro ou preco e alterado.
+let photosByModel=new Map(),photosCatalogLoaded=false,photosCatalogError="",photosCatalogPromise=null;
+let activePhotoModelId="",activePhotoIndex=0,photoLoadGeneration=0;
+
 
 const $=id=>document.getElementById(id);
 const els={
   createModelButton:$("createModelButton"),adjustPricesButton:$("adjustPricesButton"),refreshButton:$("refreshButton"),clearFilterButton:$("clearFilterButton"),modelFilterInput:$("modelFilterInput"),categoriaFilterInput:$("categoriaFilterInput"),subcategoriaFilterInput:$("subcategoriaFilterInput"),messageBox:$("messageBox"),listInfo:$("listInfo"),modelsTableBody:$("modelsTableBody"),
   modelModalBackdrop:$("modelModalBackdrop"),modelModalTitle:$("modelModalTitle"),closeModelModalButton:$("closeModelModalButton"),linhaInput:$("linhaInput"),modeloInput:$("modeloInput"),categoriaInput:$("categoriaInput"),subcategoriaInput:$("subcategoriaInput"),precoInput:$("precoInput"),motivoInput:$("motivoInput"),observacaoInput:$("observacaoInput"),
   sectorList:$("sectorList"),addSectorButton:$("addSectorButton"),formPreco:$("formPreco"),formTotalSetores:$("formTotalSetores"),formSaldo:$("formSaldo"),saveModelButton:$("saveModelButton"),historyBlock:$("historyBlock"),historyTitle:$("historyTitle"),historyList:$("historyList"),
-  adjustModalBackdrop:$("adjustModalBackdrop"),closeAdjustModalButton:$("closeAdjustModalButton"),adjustPercentInput:$("adjustPercentInput"),adjustMotivoInput:$("adjustMotivoInput"),adjustConfirmInput:$("adjustConfirmInput"),adjustObsInput:$("adjustObsInput"),adjustPreview:$("adjustPreview"),applyAdjustmentButton:$("applyAdjustmentButton")
+  adjustModalBackdrop:$("adjustModalBackdrop"),closeAdjustModalButton:$("closeAdjustModalButton"),adjustPercentInput:$("adjustPercentInput"),adjustMotivoInput:$("adjustMotivoInput"),adjustConfirmInput:$("adjustConfirmInput"),adjustObsInput:$("adjustObsInput"),adjustPreview:$("adjustPreview"),applyAdjustmentButton:$("applyAdjustmentButton"),
+  photoModalBackdrop:$("photoModalBackdrop"),photoModalTitle:$("photoModalTitle"),closePhotoModalButton:$("closePhotoModalButton"),photoModalImage:$("photoModalImage"),photoModalEmpty:$("photoModalEmpty"),photoModalCount:$("photoModalCount"),photoModalThumbs:$("photoModalThumbs"),previousPhotoButton:$("previousPhotoButton"),nextPhotoButton:$("nextPhotoButton"),editFromPhotoButton:$("editFromPhotoButton")
 };
 
 function redirectUnauthorized(){alert("Seu nível de acesso não permite abrir esta página. Você será redirecionado para o início.");window.location.replace("index.html");}
@@ -257,7 +347,7 @@ onAuthStateChanged(auth,async user=>{
     });
   }
   renderSectorInputs({});
-  try{await loadModels();}catch(err){console.error(err);showMessage("error","Usuário validado, mas não consegui acessar a coleção modelos. Confira as regras do Firebase. Detalhe: "+err.message);els.listInfo.textContent="Sem permissão para carregar modelos.";}
+  try{await loadModels();void loadModelPhotos();}catch(err){console.error(err);showMessage("error","Usuário validado, mas não consegui acessar a coleção modelos. Confira as regras do Firebase. Detalhe: "+err.message);els.listInfo.textContent="Sem permissão para carregar modelos.";}
 });
 
 function showMessage(type,text){els.messageBox.className=text?`message show ${type}`:"message";els.messageBox.textContent=text||"";}
@@ -399,6 +489,107 @@ async function loadModels(){
   models.sort((a,b)=>(Number(a.linha)-Number(b.linha))||(Number(a.modelo)-Number(b.modelo))||String(a.id).localeCompare(String(b.id)));
   renderModelsTable();
 }
+
+// Miniaturas de fotos da colecao independente fotosModelos/{linha}.{modelo}.
+// Esta consulta nao altera os campos de preco, historico ou producao.
+function safeModelPhotoUrl(value){
+  try{const u=new URL(String(value||""));return u.protocol==="https:"?u.href:"";}catch{return"";}
+}
+function modelPhotoKey(model){
+  const parts=String(model?.id||"").split(".");
+  const key=modelId(model?.linha||parts[0],model?.modelo||parts[1]);
+  return key!=="."?key:String(model?.id||"");
+}
+function photosForModel(model){
+  const id=modelPhotoKey(model);
+  return photosByModel.get(id)||photosByModel.get(String(model?.id||""))||[];
+}
+async function loadModelPhotos(force=false){
+  if(photosCatalogPromise)return photosCatalogPromise;
+  if(photosCatalogLoaded&&!force)return;
+  const generation=++photoLoadGeneration;
+  photosCatalogError="";
+  const task=(async()=>{
+    try{
+      const snap=await getDocs(collection(db,"fotosModelos"));
+      const next=new Map();
+      snap.docs.forEach(d=>{
+        const source=Array.isArray(d.data()?.fotos)?d.data().fotos:[];
+        const urls=source.map(p=>safeModelPhotoUrl(p?.url)).filter(Boolean).slice(0,5);
+        next.set(d.id,urls);
+      });
+      if(generation!==photoLoadGeneration)return;
+      photosByModel=next;
+      photosCatalogLoaded=true;
+      photosCatalogError="";
+    }catch(err){
+      console.warn("Nao foi possivel buscar as fotos dos modelos:",err);
+      if(generation!==photoLoadGeneration)return;
+      photosCatalogError=err?.message||"Fotos indisponiveis";
+      photosCatalogLoaded=false;
+    }finally{
+      if(generation===photoLoadGeneration){
+        renderModelsTable();
+        if(els.photoModalBackdrop.classList.contains("show"))renderPhotoModal();
+      }
+    }
+  })();
+  photosCatalogPromise=task;
+  try{await task;}finally{if(photosCatalogPromise===task)photosCatalogPromise=null;}
+}
+function modelPhotoThumbnail(model){
+  const pictures=photosForModel(model);
+  const label=photosCatalogError?"Fotos indisponiveis no momento":!photosCatalogLoaded?"Carregando fotos":pictures.length?`${pictures.length} foto(s) - clique para ampliar`:"Sem foto cadastrada - clique para consultar";
+  const inside=pictures.length?`<img src="${escapeHtml(pictures[0])}" alt="Miniatura do modelo ${escapeHtml(modelPhotoKey(model))}" loading="lazy" decoding="async" referrerpolicy="no-referrer" />`:photosCatalogLoaded||photosCatalogError?`<span class="model-photo-placeholder" aria-hidden="true">&#128247;</span>`:`<span class="model-photo-placeholder pending" aria-hidden="true">...</span>`;
+  return `<div class="model-code-photo"><button type="button" class="model-photo-mini" data-view-photo="${escapeHtml(model.id)}" title="${escapeHtml(label)}" aria-label="Ampliar foto do modelo ${escapeHtml(modelPhotoKey(model))}">${inside}</button><button type="button" class="model-code-button" data-view-photo="${escapeHtml(model.id)}" title="Clique para ver a foto">${escapeHtml(model.modelo||"")}</button></div>`;
+}
+function openPhotoModal(model){
+  if(!model)return;
+  activePhotoModelId=model.id;
+  activePhotoIndex=0;
+  els.photoModalBackdrop.classList.add("show");
+  els.photoModalBackdrop.setAttribute("aria-hidden","false");
+  renderPhotoModal();
+  els.closePhotoModalButton.focus();
+  if(!photosCatalogLoaded&&!photosCatalogError&&!photosCatalogPromise)void loadModelPhotos();
+}
+function renderPhotoModal(){
+  if(!activePhotoModelId)return;
+  const model=models.find(m=>m.id===activePhotoModelId);
+  if(!model)return;
+  const pictures=photosForModel(model);
+  els.photoModalTitle.textContent=`Fotos do modelo ${modelPhotoKey(model)}`;
+  const canShow=pictures.length>0;
+  activePhotoIndex=canShow?((activePhotoIndex%pictures.length)+pictures.length)%pictures.length:0;
+  els.photoModalImage.classList.toggle("hidden",!canShow);
+  els.photoModalEmpty.classList.toggle("hidden",canShow);
+  if(canShow){
+    els.photoModalImage.alt=`Foto ${activePhotoIndex+1} do modelo ${modelPhotoKey(model)}`;
+    els.photoModalImage.src=pictures[activePhotoIndex];
+  }else{
+    els.photoModalImage.removeAttribute("src");
+    els.photoModalEmpty.textContent=photosCatalogError?"Nao foi possivel consultar as fotos. Confira a conexao e as permissoes do Firebase.":(!photosCatalogLoaded?"Carregando fotos...":"Este modelo ainda nao possui foto cadastrada.");
+  }
+  els.photoModalCount.textContent=canShow?`Foto ${activePhotoIndex+1} de ${pictures.length}`:"Sem foto cadastrada";
+  els.previousPhotoButton.classList.toggle("hidden",pictures.length<2);
+  els.nextPhotoButton.classList.toggle("hidden",pictures.length<2);
+  els.photoModalThumbs.innerHTML=pictures.length>1?pictures.map((url,index)=>`<button type="button" class="photo-viewer-thumb ${index===activePhotoIndex?"active":""}" data-photo-index="${index}" aria-label="Ver foto ${index+1}"><img src="${escapeHtml(url)}" alt="Foto ${index+1}" loading="lazy" referrerpolicy="no-referrer" /></button>`).join(""):"";
+  els.photoModalThumbs.querySelectorAll("[data-photo-index]").forEach(button=>button.addEventListener("click",()=>{activePhotoIndex=Number(button.dataset.photoIndex)||0;renderPhotoModal();}));
+}
+function changePhoto(step){
+  const model=models.find(m=>m.id===activePhotoModelId);
+  const count=model?photosForModel(model).length:0;
+  if(count<2)return;
+  activePhotoIndex=(activePhotoIndex+step+count)%count;
+  renderPhotoModal();
+}
+function closePhotoModal(){
+  els.photoModalBackdrop.classList.remove("show");
+  els.photoModalBackdrop.setAttribute("aria-hidden","true");
+  els.photoModalImage.removeAttribute("src");
+  activePhotoModelId="";
+}
+
 function modelSemPreco(model){
   const valor=Number(model?.preco?.valor||0);
   return !Number.isFinite(valor)||valor<=0;
@@ -420,19 +611,21 @@ function renderModelsTable(){
     const setores=m.preco?.setores||{};
     const semPreco=modelSemPreco(m);
     const sectorTags=orderedSectorEntries(setores).length?orderedSectorEntries(setores).map(([k,v])=>`<span class="tag">${escapeHtml(k)}: ${formatMoney(v)}</span>`).join(""):`<span class="tag empty">Sem setores</span>`;
-    const priceContent=semPreco?`<span class="price-missing-badge">SEM PREÇO</span><span class="price-warning-text">Cadastrar valor</span>`:`<strong>${formatMoney(m.preco?.valor||0)}</strong>`;
+    const priceContent=semPreco?`<span class="price-missing-badge">SEM PREÇO</span>`:`<strong>${formatMoney(m.preco?.valor||0)}</strong>`;
     return `<tr class="model-row${semPreco?" no-price":""}" data-open-model="${escapeHtml(m.id)}" title="Clique para editar ${escapeHtml(m.id)}">
       <td>${escapeHtml(m.linha||"")}</td>
-      <td><strong>${escapeHtml(m.modelo||"")}</strong></td>
-      <td>${escapeHtml(m.categoria||"-")}</td>
-      <td>${escapeHtml(m.subcategoria||"-")}</td>
-      <td class="money">${priceContent}</td>
-      <td class="cell-left">${sectorTags}</td>
+      <td>${modelPhotoThumbnail(m)}</td>
+      <td title="${escapeHtml(m.categoria||"-")}">${escapeHtml(m.categoria||"-")}</td>
+      <td title="${escapeHtml(m.subcategoria||"-")}">${escapeHtml(m.subcategoria||"-")}</td>
+      <td class="money${semPreco?" price-missing-cell":""}">${priceContent}</td>
+      <td class="cell-left"><div class="model-sector-tags" tabindex="0" role="group" aria-label="Setores do modelo ${escapeHtml(m.id)}">${sectorTags}</div></td>
       <td class="money">${formatMoney(m.totalSetores||0)}</td>
       <td class="money"><strong>${formatMoney(m.saldo||0)}</strong></td>
     </tr>`;
   }).join("");
-  els.modelsTableBody.querySelectorAll("tr[data-open-model]").forEach(row=>row.addEventListener("click",()=>{const item=models.find(m=>m.id===row.dataset.openModel);if(item)openEditModal(item);}));
+   els.modelsTableBody.querySelectorAll("tr[data-open-model]").forEach(row=>row.addEventListener("click",e=>{if(e.target.closest("[data-view-photo]"))return;const item=models.find(m=>m.id===row.dataset.openModel);if(item)openEditModal(item);}));
+   els.modelsTableBody.querySelectorAll("[data-view-photo]").forEach(button=>button.addEventListener("click",e=>{e.stopPropagation();const item=models.find(m=>m.id===button.dataset.viewPhoto);if(item)openPhotoModal(item);}));
+   els.modelsTableBody.querySelectorAll(".model-photo-mini img").forEach(img=>img.addEventListener("error",()=>{img.replaceWith(Object.assign(document.createElement("span"),{className:"model-photo-placeholder",textContent:"📷"}));},{once:true}));
 }
 
 function snapshotForCompare(data){
@@ -697,7 +890,7 @@ els.closeAdjustModalButton.addEventListener("click",closeAdjustModal);
 els.adjustModalBackdrop.addEventListener("click",e=>{if(e.target===els.adjustModalBackdrop)closeAdjustModal();});
 els.adjustPercentInput.addEventListener("input",updateAdjustPreview);
 els.applyAdjustmentButton.addEventListener("click",applyBulkAdjustment);
-els.refreshButton.addEventListener("click",async()=>{try{await loadModels();showMessage("success","Lista atualizada.");}catch(err){console.error(err);showMessage("error","Não consegui carregar a coleção modelos. Detalhe: "+err.message);}});
+els.refreshButton.addEventListener("click",async()=>{try{await loadModels();await loadModelPhotos(true);showMessage("success",photosCatalogError?"Modelos atualizados. Fotos temporariamente indisponiveis.":"Modelos e fotos atualizados.");}catch(err){console.error(err);showMessage("error","Não consegui carregar a coleção modelos. Detalhe: "+err.message);}});
 els.clearFilterButton.addEventListener("click",()=>{els.modelFilterInput.value="";els.categoriaFilterInput.value="";els.subcategoriaFilterInput.value="";renderModelsTable();});
 els.modelFilterInput.addEventListener("input",renderModelsTable);
 els.categoriaFilterInput.addEventListener("input",renderModelsTable);
@@ -715,6 +908,13 @@ els.precoInput.addEventListener("blur",()=>{const n=parseNumber(els.precoInput.v
 els.saveModelButton.addEventListener("click",async()=>{try{await saveModelFromForm();}catch(err){console.error(err);showMessage("error","Erro ao salvar modelo: "+err.message);}});
 els.closeModelModalButton.addEventListener("click",closeModal);
 els.modelModalBackdrop.addEventListener("click",e=>{if(e.target===els.modelModalBackdrop)closeModal();});
+els.closePhotoModalButton.addEventListener("click",closePhotoModal);
+els.photoModalBackdrop.addEventListener("click",e=>{if(e.target===els.photoModalBackdrop)closePhotoModal();});
+els.previousPhotoButton.addEventListener("click",()=>changePhoto(-1));
+els.nextPhotoButton.addEventListener("click",()=>changePhoto(1));
+els.editFromPhotoButton.addEventListener("click",()=>{const model=models.find(m=>m.id===activePhotoModelId);closePhotoModal();if(model)openEditModal(model);});
+els.photoModalImage.addEventListener("error",()=>{if(!activePhotoModelId)return;els.photoModalImage.classList.add("hidden");els.photoModalEmpty.classList.remove("hidden");els.photoModalEmpty.textContent="Nao foi possivel carregar esta imagem. Tente outra foto ou atualize a pagina.";});
+document.addEventListener("keydown",e=>{if(!els.photoModalBackdrop.classList.contains("show"))return;if(e.key==="Escape"){closePhotoModal();return;}if(e.key==="ArrowLeft")changePhoto(-1);if(e.key==="ArrowRight")changePhoto(1);});
 </script>
 </body>
 </html>
