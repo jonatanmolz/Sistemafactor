@@ -149,6 +149,7 @@ tbody tr.model-row.no-price td{border-color:#f3a8b5}
     <div class="top-actions">
       <button class="btn btn-warning" id="adjustPricesButton" type="button">Reajustar preços</button>
       <button class="btn btn-success" id="createModelButton" type="button">Criar modelo</button>
+      <button class="btn btn-secondary" id="syncModelsButton" type="button" title="Busca os modelos dos talões e garante o mesmo cadastro em modelos e fotosModelos">Sincronizar talões</button>
       <button class="btn btn-secondary" id="refreshButton" type="button">Atualizar</button>
     </div>
   </div>
@@ -305,7 +306,7 @@ let activePhotoModelId="",activePhotoIndex=0,photoLoadGeneration=0;
 
 const $=id=>document.getElementById(id);
 const els={
-  createModelButton:$("createModelButton"),adjustPricesButton:$("adjustPricesButton"),refreshButton:$("refreshButton"),clearFilterButton:$("clearFilterButton"),modelFilterInput:$("modelFilterInput"),categoriaFilterInput:$("categoriaFilterInput"),subcategoriaFilterInput:$("subcategoriaFilterInput"),messageBox:$("messageBox"),listInfo:$("listInfo"),modelsTableBody:$("modelsTableBody"),
+  createModelButton:$("createModelButton"),adjustPricesButton:$("adjustPricesButton"),syncModelsButton:$("syncModelsButton"),refreshButton:$("refreshButton"),clearFilterButton:$("clearFilterButton"),modelFilterInput:$("modelFilterInput"),categoriaFilterInput:$("categoriaFilterInput"),subcategoriaFilterInput:$("subcategoriaFilterInput"),messageBox:$("messageBox"),listInfo:$("listInfo"),modelsTableBody:$("modelsTableBody"),
   modelModalBackdrop:$("modelModalBackdrop"),modelModalTitle:$("modelModalTitle"),closeModelModalButton:$("closeModelModalButton"),linhaInput:$("linhaInput"),modeloInput:$("modeloInput"),categoriaInput:$("categoriaInput"),subcategoriaInput:$("subcategoriaInput"),precoInput:$("precoInput"),motivoInput:$("motivoInput"),observacaoInput:$("observacaoInput"),
   sectorList:$("sectorList"),addSectorButton:$("addSectorButton"),formPreco:$("formPreco"),formTotalSetores:$("formTotalSetores"),formSaldo:$("formSaldo"),saveModelButton:$("saveModelButton"),historyBlock:$("historyBlock"),historyTitle:$("historyTitle"),historyList:$("historyList"),
   adjustModalBackdrop:$("adjustModalBackdrop"),closeAdjustModalButton:$("closeAdjustModalButton"),adjustPercentInput:$("adjustPercentInput"),adjustMotivoInput:$("adjustMotivoInput"),adjustConfirmInput:$("adjustConfirmInput"),adjustObsInput:$("adjustObsInput"),adjustPreview:$("adjustPreview"),applyAdjustmentButton:$("applyAdjustmentButton"),
@@ -368,6 +369,79 @@ function parseNumber(value){
 }
 function round3(n){return Math.round((Number(n)||0)*1000)/1000;}
 function formatMoney(v){return (Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2,maximumFractionDigits:2});}
+
+// Mantém as coleções modelos e fotosModelos com o mesmo conjunto de códigos.
+// Nenhum documento existente é sobrescrito durante a sincronização.
+function validModelCode(value){return /^\d+\.\d+$/.test(String(value||""));}
+function splitModelCode(value){
+  const code=String(value||"").trim();
+  if(!validModelCode(code))return null;
+  const [linha,modelo]=code.split(".");
+  return {code,linha,modelo};
+}
+function modelCodeFromTalao(data){
+  const linha=onlyDigits(data?.linha??data?.Linha??data?.codLinha);
+  const modelo=onlyDigits(data?.modelo??data?.Modelo??data?.codModelo);
+  return linha&&modelo?`${linha}.${modelo}`:"";
+}
+function automaticModelData(parts,origin="SincronizacaoTaloes"){
+  return {
+    linha:parts.linha,modelo:parts.modelo,chave:parts.code,categoria:"",subcategoria:"",observacaoModelo:"",
+    preco:{valor:0,setores:{}},totalSetores:0,saldo:0,ativo:false,cadastroPendente:true,
+    origem:origin,criadoEm:serverTimestamp(),atualizadoEm:serverTimestamp(),
+    criadoPor:currentUser?.email||"sistema",atualizadoPor:currentUser?.email||"sistema",historico:[]
+  };
+}
+function automaticFichaData(parts,origin="SincronizacaoTaloes"){
+  return {
+    linha:parts.linha,modelo:parts.modelo,fichaTecnica:[],combinacoes:[],fotos:[],anotacoes:"",
+    origem:origin,criadoEm:serverTimestamp(),atualizadoEm:serverTimestamp(),
+    criadoPor:currentUser?.email||"sistema",atualizadoPor:currentUser?.email||"sistema"
+  };
+}
+async function commitCreateOperations(operations,chunkSize=400){
+  const CHUNK=Math.max(1,Math.min(400,Number(chunkSize)||400));
+  for(let i=0;i<operations.length;i+=CHUNK){
+    const batch=writeBatch(db);
+    for(const op of operations.slice(i,i+CHUNK))batch.set(op.ref,op.data);
+    await batch.commit();
+  }
+}
+async function synchronizeModelsFromTaloes(){
+  if(els.syncModelsButton)els.syncModelsButton.disabled=true;
+  showMessage("info","Buscando modelos em talões e conferindo as duas coleções...");
+  try{
+    const [taloesSnap,modelosSnap,fichasSnap]=await Promise.all([
+      getDocs(collection(db,"taloes")),getDocs(collection(db,"modelos")),getDocs(collection(db,"fotosModelos"))
+    ]);
+    const targets=new Map();
+    taloesSnap.docs.forEach(d=>{const code=modelCodeFromTalao(d.data());const parts=splitModelCode(code);if(parts)targets.set(code,parts);});
+    modelosSnap.docs.forEach(d=>{const parts=splitModelCode(d.id);if(parts)targets.set(parts.code,parts);});
+    fichasSnap.docs.forEach(d=>{const parts=splitModelCode(d.id);if(parts)targets.set(parts.code,parts);});
+
+    const existingModels=new Set(modelosSnap.docs.map(d=>d.id));
+    const existingFichas=new Set(fichasSnap.docs.map(d=>d.id));
+    const modelOperations=[];
+    const fichaOperations=[];
+    let createdModels=0,createdFichas=0;
+    for(const parts of targets.values()){
+      if(!existingModels.has(parts.code)){modelOperations.push({ref:doc(db,"modelos",parts.code),data:automaticModelData(parts)});createdModels++;}
+      if(!existingFichas.has(parts.code)){fichaOperations.push({ref:doc(db,"fotosModelos",parts.code),data:automaticFichaData(parts)});createdFichas++;}
+    }
+    // Primeiro confirma os modelos. Somente depois cria as fichas correspondentes.
+    // Isso atende a regra do Firestore que exige a existencia de modelos/{id}
+    // e evita exceder o limite de leituras de regras em lotes muito grandes.
+    await commitCreateOperations(modelOperations,400);
+    await commitCreateOperations(fichaOperations,8);
+    await loadModels();
+    await loadModelPhotos(true);
+    const fromTaloes=new Set(taloesSnap.docs.map(d=>modelCodeFromTalao(d.data())).filter(validModelCode)).size;
+    showMessage("success",`Sincronização concluída: ${fromTaloes} modelo(s) encontrados nos talões; ${createdModels} criado(s) em modelos e ${createdFichas} criado(s) em fotosModelos. Registros existentes foram preservados.`);
+  }catch(err){
+    console.error("Erro ao sincronizar modelos",err);
+    showMessage("error","Não foi possível sincronizar os modelos: "+err.message);
+  }finally{if(els.syncModelsButton)els.syncModelsButton.disabled=false;}
+}
 function formatNumber(v){return (Number(v)||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:3});}
 function formatMoneyInput(v){return formatMoney(v);}
 function formatDecimalInput(v){return (Number(v)||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:3});}
@@ -671,7 +745,17 @@ async function saveModelFromForm(){
   if(oldData&&changes.length===0){showMessage("warning","Nenhuma alteração encontrada para salvar.");return;}
   const historico=Array.isArray(oldData?.historico)?oldData.historico.filter(h=>!isImportHistory(h)):[];
   const docData={...data,origem:"Manual",criadoEm:oldData?.criadoEm||serverTimestamp(),atualizadoEm:serverTimestamp(),atualizadoPor:currentUser.email,historico:[...historico,{data:new Date().toISOString(),motivo,observacao:"",usuario:currentUser.email,alteracoes:changes,tipo:"manual"}]};
-  await setDoc(ref,docData);
+  const fichaRef=doc(db,"fotosModelos",data.chave);
+  const fichaSnap=await getDoc(fichaRef);
+  // Salva o cadastro e, se necessário, cria a ficha correspondente no MESMO lote.
+  // Dessa forma não existe criação parcial entre modelos e fotosModelos.
+  const batch=writeBatch(db);
+  batch.set(ref,docData);
+  if(!fichaSnap.exists()){
+    const parts=splitModelCode(data.chave);
+    if(parts)batch.set(fichaRef,automaticFichaData(parts,"CadastroModelos"));
+  }
+  await batch.commit();
   showMessage("success",`Modelo ${data.chave} salvo com sucesso.`);
   await loadModels();
   closeModal();
@@ -886,6 +970,7 @@ async function applyBulkAdjustment(){
 
 els.createModelButton.addEventListener("click",openCreateModal);
 els.adjustPricesButton.addEventListener("click",openAdjustModal);
+els.syncModelsButton.addEventListener("click",synchronizeModelsFromTaloes);
 els.closeAdjustModalButton.addEventListener("click",closeAdjustModal);
 els.adjustModalBackdrop.addEventListener("click",e=>{if(e.target===els.adjustModalBackdrop)closeAdjustModal();});
 els.adjustPercentInput.addEventListener("input",updateAdjustPreview);
