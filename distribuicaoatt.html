@@ -1228,7 +1228,7 @@
 const firebaseConfig={apiKey:"AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8",authDomain:"sistemataloes.firebaseapp.com",projectId:"sistemataloes",storageBucket:"sistemataloes.appspot.com",messagingSenderId:"684534379685",appId:typeof __app_id!=="undefined"?__app_id:"default-app-id"};
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
 import{getAuth,onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-import{getFirestore,doc,getDoc,setDoc,collection,getDocs,getDocsFromServer,query,orderBy,limit,startAfter,serverTimestamp}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import{getFirestore,doc,getDoc,setDoc,collection,getDocs,getDocsFromServer,query,orderBy,limit,startAfter,serverTimestamp,writeBatch}from"https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 const FULL_ACCESS_LEVELS=new Set(["07","08"]);
 let currentUser=null,currentUserLevel="",currentUserName="",modelsMap=new Map(),taloesCache=[],lastAtelierMap=new Map(),atelierHistoryMap=new Map(),modelCapacityMap=new Map(),allocation=[],manualAteliers=new Set(),selectedDocs=[],currentSplitId=null,atelierNotes=new Map(),atelierNotePositions=new Map(),lineSummaryGroups=[],undoStack=[],redoStack=[],pendingPrices=null,pricesLoading=false,taloesLoaded=false,autoSaveTimer=null,autoSaveRetryTimer=null,autoSavePromise=null,autoSaveVersion=0,savedVersion=0,activeSavedDocId="",navigationRequest=0,savedListRows=[],savedListCursor=null,savedListLoaded=false,savedListBusy=false,savedListHasMore=false,savedListGeneration=0;
@@ -1280,6 +1280,41 @@ onAuthStateChanged(auth,async user=>{if(!user){window.location.href="login.html"
 function showMessage(type,text){els.messageBox.className=text?`message show ${type}`:"message";els.messageBox.textContent=text||""}function onlyDigits(v){return String(v||"").replace(/\D/g,"")}function normalizeText(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim()}const HOLD_ATELIER="Segurar";function normalizeAtelierName(name){const n=String(name||"").trim();const norm=normalizeText(n);return(!n||norm==="sem atelie definido"||norm==="sem atelier definido"||norm==="sem ateliê definido")?HOLD_ATELIER:n}function displayAtelierName(name){return normalizeAtelierName(name)}function escapeHtml(str){return String(str??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[c]))}function parseNumber(value){if(value===null||value===undefined)return 0;if(typeof value==="number")return Number.isFinite(value)?value:0;let s=String(value).trim();if(!s||s==="-")return 0;s=s.replace(/R\$|\s/g,"");if(s.includes(",")&&s.includes("."))s=s.replace(/\./g,"").replace(",",".");else if(s.includes(","))s=s.replace(",",".");s=s.replace(/[^0-9.\-]/g,"");const n=parseFloat(s);return Number.isFinite(n)?n:0}function formatMoney(v){return(Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL",minimumFractionDigits:2,maximumFractionDigits:2})}function formatNumber(v){return(Number(v)||0).toLocaleString("pt-BR",{maximumFractionDigits:0})}function formatPairsDay(v){const n=Number(v)||0;return n.toLocaleString("pt-BR",{minimumFractionDigits:Number.isInteger(n)?0:1,maximumFractionDigits:1})}function round2(n){return Math.round((Number(n)||0)*100)/100}function pad2(n){return String(n).padStart(2,"0")}function toISODate(date){return`${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`}function isoToBR(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}/${m}/${y}`}function isoToShortBR(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}/${m}`}function isoToDocId(iso){if(!iso)return"";const[y,m,d]=String(iso).split("-");return`${d}-${m}-${y}`}function docIdToISO(docId){if(!docId)return"";const[d,m,y]=String(docId).split("-");return`${y}-${m}-${d}`}function docIdToBR(docId){return docId?String(docId).replaceAll("-","/"):""}function normalizeDate(value){if(!value)return"";try{if(value.toDate)return toISODate(value.toDate())}catch{}if(value instanceof Date&&!isNaN(value))return toISODate(value);const s=String(value).trim();if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);const br=s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);if(br)return`${br[3]}-${br[2]}-${br[1]}`;const brShort=s.match(/^(\d{2})\/(\d{2})$/);if(brShort){const y=new Date().getFullYear();return`${y}-${brShort[2]}-${brShort[1]}`}return""}function modelKey(linha,modelo){return`${onlyDigits(linha)}.${onlyDigits(modelo)}`}function fallbackModelKeys(linha,modelo){const l=onlyDigits(linha),m=onlyDigits(modelo);return[`${l}.${m}`,`${l}-${m}`,`${l}_${m}`]}function findModelInMap(map,linha,modelo){for(const key of fallbackModelKeys(linha,modelo)){if(map.has(key))return map.get(key)}return null}function getModel(linha,modelo){return findModelInMap(modelsMap,linha,modelo)}function getCosturaValue(model){const setores=model?.preco?.setores||{};const found=Object.entries(setores).find(([name])=>normalizeText(name)==="costura");return parseNumber(found?.[1])}function firstNonEmpty(data,fields){for(const f of fields){const v=data?.[f];if(v!==undefined&&v!==null&&String(v).trim()!=="")return v}return""}function getTalaoDate(data){return normalizeDate(firstNonEmpty(data,["dataSaidaCostura","dataProducaoCostura","dataBaixaCostura","saidaCostura","dataEntradaDistribuicao"]))}function getAtelier(data){return String(firstNonEmpty(data,["idAtelieResponsavel","idAtelierResponsavel","atelieResponsavel","atelierResponsavel","nomeAtelie","nomeAtelier","atelie","atelier","Atelie","Atelier"])||"Sem ateliê").trim()}function getLinha(data){return String(firstNonEmpty(data,["linha","Linha","codLinha"]))}function getModelo(data){return String(firstNonEmpty(data,["modelo","Modelo","codModelo"]))}function getPares(data){return parseNumber(firstNonEmpty(data,["pares","Pares","quantidadePares","qtdPares"]))}
 function getMonday(iso){const d=new Date(`${iso}T12:00:00`);const day=d.getDay();const diff=(day===0?-6:1-day);d.setDate(d.getDate()+diff);return d}function addDays(date,days){const d=new Date(date.getTime());d.setDate(d.getDate()+days);return d}function buildWeeks(referenceISO=toISODate(new Date())){const monday=getMonday(referenceISO);const weeks=[];for(let i=2;i>=0;i--){const start=addDays(monday,-7*i),end=addDays(start,4);const startISO=toISODate(start),endISO=toISODate(end);weeks.push({index:weeks.length+1,startISO,endISO,dates:Array.from({length:5},(_,d)=>toISODate(addDays(start,d)))});}return weeks}
 function buildModelsMap(snap){const map=new Map();snap.docs.forEach(d=>{const data={id:d.id,...d.data()};map.set(d.id,data);if(data.linha&&data.modelo)map.set(modelKey(data.linha,data.modelo),data)});return map}async function loadModels(){const snap=await getDocs(collection(db,"modelos"));modelsMap=buildModelsMap(snap)}async function loadTaloes(){if(taloesLoaded)return taloesCache;const snap=await getDocs(collection(db,"taloes"));taloesCache=snap.docs.map(d=>({id:d.id,...d.data()}));taloesLoaded=true;return taloesCache}
+
+function validModelSyncCode(value){return /^\d+\.\d+$/.test(String(value||""));}
+function modelPartsForSync(linha,modelo){
+  const l=onlyDigits(linha),m=onlyDigits(modelo),code=l&&m?`${l}.${m}`:"";
+  return validModelSyncCode(code)?{code,linha:l,modelo:m}:null;
+}
+function automaticDistributionModel(parts){
+  return {linha:parts.linha,modelo:parts.modelo,chave:parts.code,categoria:"",subcategoria:"",observacaoModelo:"",preco:{valor:0,setores:{}},totalSetores:0,saldo:0,ativo:false,cadastroPendente:true,origem:"DistribuicaoAtelier-Automatico",criadoEm:serverTimestamp(),atualizadoEm:serverTimestamp(),criadoPor:currentUser?.email||"sistema",atualizadoPor:currentUser?.email||"sistema",historico:[]};
+}
+function automaticDistributionFicha(parts){
+  return {linha:parts.linha,modelo:parts.modelo,fichaTecnica:[],combinacoes:[],fotos:[],anotacoes:"",origem:"DistribuicaoAtelier-Automatico",criadoEm:serverTimestamp(),atualizadoEm:serverTimestamp(),criadoPor:currentUser?.email||"sistema",atualizadoPor:currentUser?.email||"sistema"};
+}
+async function ensureDistributionModels(modelSources){
+  const wanted=new Map();
+  for(const source of modelSources||[]){const parts=modelPartsForSync(source?.linha,source?.modelo);if(parts)wanted.set(parts.code,parts);}
+  if(!wanted.size)return {createdModels:0,createdFichas:0};
+
+  // modelos já foi carregada para calcular preços. fotosModelos é consultada uma vez
+  // para evitar uma leitura por modelo durante a montagem da distribuição.
+  const fichasSnap=await getDocs(collection(db,"fotosModelos"));
+  const existingFichas=new Set(fichasSnap.docs.map(d=>d.id));
+  const modelOperations=[];
+  const fichaOperations=[];
+  let createdModels=0,createdFichas=0;
+  for(const parts of wanted.values()){
+    if(!getModel(parts.linha,parts.modelo)){modelOperations.push({ref:doc(db,"modelos",parts.code),data:automaticDistributionModel(parts)});createdModels++;}
+    if(!existingFichas.has(parts.code)){fichaOperations.push({ref:doc(db,"fotosModelos",parts.code),data:automaticDistributionFicha(parts)});createdFichas++;}
+  }
+  // modelos/{id} precisa existir antes da ficha correspondente.
+  // As fichas usam lotes pequenos porque a regra consulta modelos/{id}.
+  for(let i=0;i<modelOperations.length;i+=400){const batch=writeBatch(db);for(const op of modelOperations.slice(i,i+400))batch.set(op.ref,op.data);await batch.commit();}
+  for(let i=0;i<fichaOperations.length;i+=8){const batch=writeBatch(db);for(const op of fichaOperations.slice(i,i+8))batch.set(op.ref,op.data);await batch.commit();}
+  if(createdModels)await loadModels();
+  return {createdModels,createdFichas};
+}
 function previousBusinessDayISO(baseISO=toISODate(new Date())){let d=new Date(`${baseISO}T12:00:00`);d.setDate(d.getDate()-1);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);return toISODate(d)}
 function businessDatesUntilYesterday(){const yesterdayISO=previousBusinessDayISO();const weeks=buildWeeks(yesterdayISO);const dates=weeks.flatMap(w=>w.dates).filter(dateISO=>dateISO<=yesterdayISO);return{weeks,dates,startISO:dates[0]||weeks[0].startISO,endISO:yesterdayISO,diasUteis:dates.length||1}}
 function calculateHistory(taloes){
@@ -1441,7 +1476,6 @@ async function generate(){
     showMessage("info","Buscando distribuições, modelos e histórico dos ateliês...");
     await loadModels();const taloes=await loadTaloes();
     if(request!==navigationRequest)return;
-    calculateHistory(taloes);
     const docs=await Promise.all(docIds.map(loadDistribution));
     if(request!==navigationRequest)return;
     selectedDocs=docIds;
@@ -1452,10 +1486,18 @@ async function generate(){
       const item=map.get(key),qtd=Number(i.pares||0);
       item.pares+=qtd;item.origens.push(docId);item.paresPorOrigem[docId]=Number(item.paresPorOrigem[docId]||0)+qtd;
     }));
+
+    // Sincroniza todos os modelos já vistos em talões e também os que acabaram de
+    // aparecer nas distribuições selecionadas. Um modelo novo nasce simultaneamente
+    // em modelos e fotosModelos; documentos existentes nunca são sobrescritos.
+    const syncResult=await ensureDistributionModels([...taloes,...map.values()]);
+    if(request!==navigationRequest)return;
+    calculateHistory(taloes);
     makeAllocation(Array.from(map.values()).sort((a,b)=>Number(a.linha)-Number(b.linha)||Number(a.modelo)-Number(b.modelo)));
     atelierNotes=new Map();atelierNotePositions=new Map();lineSummaryGroups=[];undoStack=[];redoStack=[];
     resetAutoSave(docId);renderAll();queueAutoSave();
-    showMessage("success",`Distribuição montada com ${formatNumber(allocation.length)} modelo(s). Salvamento automático ativado.`);
+    const syncText=(syncResult.createdModels||syncResult.createdFichas)?` ${syncResult.createdModels} modelo(s) novo(s) criado(s) em modelos e ${syncResult.createdFichas} ficha(s) criada(s) em fotosModelos.`:"";
+    showMessage("success",`Distribuição montada com ${formatNumber(allocation.length)} modelo(s).${syncText} Salvamento automático ativado.`);
   }catch(err){console.error(err);showMessage("error","Erro ao montar distribuição: "+err.message)}
   finally{els.generateButton.disabled=false}
 }
