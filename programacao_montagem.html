@@ -192,7 +192,8 @@
       <div class="filters">
         <div class="form-group date-small">
           <label for="dataCorteInput">Data de Corte</label>
-          <input type="text" id="dataCorteInput" placeholder="Ex: 16/07 ou 16/jul" />
+          <input type="text" id="dataCorteInput" placeholder="Ex.: 22/10/2026 ou 22-10" />
+          <small style="color:#777;font-size:11px">Sem informar o ano, utiliza o ano atual.</small>
         </div>
       </div>
       <div id="status" class="status">Aguardando login e seleção do PDF.</div>
@@ -346,7 +347,7 @@
     function dmToDisplay(dm){
       const m = String(dm || '').match(/^(\d{1,2})\/(\d{1,2})$/);
       if(!m) return dm || '';
-      return `${pad2(m[1])}/${pad2(m[2])}/${state.reportYear}`;
+      return `${pad2(m[1])}/${pad2(m[2])}/${state.currentTarget?.year || new Date().getFullYear()}`;
     }
 
     function isoToDM(value){
@@ -377,7 +378,7 @@
       if(compact) s = `${compact[1]}/${compact[2]}`;
       let m = s.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);
       if(m){
-        let y = m[3] ? parseInt(m[3],10) : state.reportYear;
+        let y = m[3] ? parseInt(m[3],10) : new Date().getFullYear();
         if(y < 100) y += 2000;
         const day = parseInt(m[1],10), month = parseInt(m[2],10);
         if(day < 1 || day > 31 || month < 1 || month > 12) return null;
@@ -388,7 +389,7 @@
         const monToken = m[2].normalize('NFD').replace(/[\u0300-\u036f]/g,'');
         const mo = MONTHS.findIndex(mm => mm === monToken);
         if(mo >= 0){
-          let y = m[3] ? parseInt(m[3],10) : state.reportYear;
+          let y = m[3] ? parseInt(m[3],10) : new Date().getFullYear();
           if(y < 100) y += 2000;
           const day = parseInt(m[1],10), month = mo+1;
           return { day, month, year:y, dm:`${pad2(day)}/${pad2(month)}`, iso:`${y}-${pad2(month)}-${pad2(day)}` };
@@ -1077,14 +1078,14 @@
       if(!(await ensurePdfReady())) return;
       setBusy('createProgramButton', true, 'Criando...');
       try{
-        setStatus(`Buscando no banco todos os talões do corte <strong>${escapeHtml(target.dm)}</strong>...`);
+        setStatus(`Buscando no banco todos os talões do corte <strong>${escapeHtml(target.dm)}/${target.year}</strong>...`);
         const bancoMap = await fetchBancoResumo(target);
         if(!bancoMap.size){
           state.records = [];
           state.currentTarget = target;
           state.currentProgramId = null;
           renderPreview(); updateSummary(); renderLineSummary();
-          setStatus(`Nenhum talão encontrado no banco para o corte <strong>${escapeHtml(target.dm)}</strong>.`);
+          setStatus(`Nenhum talão encontrado no banco para o corte <strong>${escapeHtml(target.dm)}/${target.year}</strong>. Verifique se o ano corresponde ao cadastrado nos talões.`);
           return;
         }
         const selectedSources = state.pdfSources.map(source => ({...source,map:buildPdfMap(source.records.filter(r => String(r.corte || '') === target.dm))}));
@@ -1098,7 +1099,7 @@
         state.records = records.sort(sortRecordsForPreview);
         renderPreview(); updateSummary(); renderLineSummary();
         const totals = getTotals();
-        let msg = `Programação criada pelo banco para <strong>${escapeHtml(target.dm)}</strong>: <strong>${totals.qtdRemessas}</strong> remessa(s), <strong>${formatNumberBR(totals.total)}</strong> pares e <strong>${formatNumberBR(totals.totalTaloes)}</strong> talões.`;
+        let msg = `Programação criada pelo banco para <strong>${escapeHtml(target.dm)}/${target.year}</strong>: <strong>${totals.qtdRemessas}</strong> remessa(s), <strong>${formatNumberBR(totals.total)}</strong> pares e <strong>${formatNumberBR(totals.totalTaloes)}</strong> talões.`;
         msg += ` Conferência: <strong>${state.comparison.ok}</strong> OK, <strong>${state.comparison.divergentes}</strong> divergente(s), <strong>${state.comparison.somenteBanco}</strong> somente no banco e <strong>${state.comparison.somentePdf}</strong> somente no PDF.`;
         setStatus(msg);
       }catch(err){
@@ -2383,7 +2384,7 @@
       if(!data) return;
       const target = targetFromIso(data.dataCorte,data.dataCorteDm);
       state.currentTarget = target;
-      if(target){ state.reportYear = target.year; $('dataCorteInput').value = target.dm; }
+      if(target){ state.reportYear = target.year; $('dataCorteInput').value = `${target.dm}/${target.year}`; }
       state.currentProgramId = id;
       state.currentProgramName = data.nome || '';
       state.records = Array.isArray(data.itens) ? data.itens.map((r,index)=>({
