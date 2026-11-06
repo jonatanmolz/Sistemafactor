@@ -1,1783 +1,586 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fotos dos Modelos e Importacao em Massa - Sistema Factor</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ficha Técnica - Sistema Factor</title>
   <style>
-    :root {
-      --background: #f3f5f9;
-      --paper: #fff;
-      --text: #172033;
-      --secondary: #62718a;
-      --border: #dfe5ee;
-      --primary: #215dc6;
-      --primary-hover: #174ca8;
-      --blue-pale: #ebf2ff;
-      --success: #147a52;
-      --danger: #bd3545;
-      --shadow: 0 5px 24px rgba(18, 35, 63, .065);
+    :root{
+      --bg:#f3f5f9;--paper:#fff;--text:#172033;--muted:#66758c;--line:#dfe5ee;
+      --primary:#2563eb;--primary-2:#1d4ed8;--primary-soft:#eff6ff;
+      --success:#16834f;--success-soft:#eaf7ef;--danger:#dc2626;--warning:#b7791f;
+      --shadow:0 5px 20px rgba(18,35,63,.07);--radius:14px;
     }
-    * { box-sizing: border-box; }
-    html, body { max-width: 100%; }
-    body { margin: 0; color: var(--text); background: var(--background); font-family: Arial, Helvetica, sans-serif; }
-    body.auth-loading main, body.auth-loading .modal-overlay { display: none !important; }
-    button, input, select, textarea { font: inherit; }
-    button { cursor: pointer; }
-    button:disabled, input:disabled, textarea:disabled { cursor: not-allowed; opacity: .6; }
-    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 3px solid #93b4fa; outline-offset: 2px; }
-    main { margin: 0 auto; padding: 22px clamp(12px, 3vw, 34px) 48px; max-width: 1530px; }
-    .hero { background: #182f53; color: #fff; border-radius: 16px; padding: 25px 28px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
-    .hero-eyebrow { font-size: .77rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: #a9c7ff; margin: 0 0 8px; }
-    .hero h2 { font-size: clamp(1.4rem, 2.8vw, 2.05rem); margin: 0 0 7px; }
-    .hero p { line-height: 1.48; color: #d3def1; margin: 0; font-size: .91rem; }
-    .hero-buttons { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .button { min-height: 39px; padding: 9px 15px; border: 1px solid transparent; border-radius: 9px; font-weight: 700; font-size: .9rem; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: background .18s, border-color .18s; white-space: nowrap; }
-    .button.primary { background: var(--primary); color: #fff; }
-    .button.primary:hover:not(:disabled) { background: var(--primary-hover); }
-    .button.soft { background: #eef2f7; color: #253247; border-color: #dfe4ec; }
-    .button.soft:hover:not(:disabled) { background: #e0e8f1; }
-    .button.light { background: #fff; color: #1c355b; border-color: #fff; }
-    .button.light:hover:not(:disabled) { background: #e6efff; }
-    .button.danger { color: #a52f3c; background: #fff2f3; border-color: #f6cad0; }
-    .button.danger:hover:not(:disabled) { background: #ffe5e8; }
-    .button.sm { min-height: 32px; padding: 6px 10px; font-size: .78rem; }
-    .stats { margin-top: 17px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
-    .stat { background: var(--paper); border: 1px solid var(--border); border-radius: 13px; padding: 15px 17px; box-shadow: var(--shadow); }
-    .stat-label { font-weight: 700; color: var(--secondary); font-size: .78rem; }
-    .stat-value { font-size: 1.8rem; margin-top: 6px; font-weight: 800; }
-    .toolbar { margin-top: 17px; background: #fff; border: 1px solid var(--border); border-radius: 13px; padding: 16px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; box-shadow: var(--shadow); }
-    .field { flex: 1 1 250px; display: flex; flex-direction: column; gap: 6px; }
-    .field.narrow { flex: 0 1 230px; }
-    .field label { font-size: .78rem; font-weight: 800; color: #40506a; }
-    .field input, .field select { height: 42px; border: 1px solid #d4dce7; border-radius: 8px; padding: 9px 11px; background: #fff; color: #182337; width: 100%; }
-    .result-bar { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; margin: 21px 0 12px; }
-    .result-bar h3 { margin: 0; font-size: 1.13rem; }
-    .result-count { color: var(--secondary); font-size: .87rem; }
-    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 15px; }
-    .model-card { border: 1px solid var(--border); background: var(--paper); border-radius: 13px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; box-shadow: var(--shadow); }
-    .cover { height: 184px; background: #eef2f7; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    .cover img { width: 100%; height: 100%; object-fit: cover; }
-    .no-image { display: flex; flex-direction: column; align-items: center; color: #8794a8; gap: 10px; font-size: .85rem; text-align: center; padding: 12px; }
-    .no-image svg { height: 46px; width: 46px; }
-    .photo-count { position: absolute; right: 11px; bottom: 11px; background: rgba(16, 30, 52, .86); color: #fff; font-weight: 800; font-size: .76rem; padding: 5px 9px; border-radius: 99px; }
-    .model-card-body { display: flex; flex-direction: column; flex: 1; padding: 15px; }
-    .model-id { font-size: 1.23rem; font-weight: 800; color: #153b79; line-height: 1.2; word-break: break-word; }
-    .model-line { font-size: .78rem; margin-top: 5px; color: #62718a; min-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .model-note { color: #42516a; line-height: 1.4; font-size: .85rem; margin: 13px 0 16px; min-height: 38px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
-    .model-note.placeholder { color: #929eaf; font-style: italic; }
-    .card-footer { margin-top: auto; display: flex; align-items: center; gap: 8px; }
-    .card-footer .button { width: 100%; }
-    .pill { display: inline-flex; align-items: center; background: var(--blue-pale); color: #22509a; border-radius: 99px; padding: 4px 9px; font-size: .72rem; font-weight: 800; }
-    .status { display: none; margin-top: 14px; border-radius: 9px; padding: 11px 14px; line-height: 1.45; font-size: .88rem; border: 1px solid transparent; }
-    .status.visible { display: block; }
-    .status.info { color: #194e82; background: #eaf3ff; border-color: #c2dcff; }
-    .status.success { color: #12613b; background: #e7f7ed; border-color: #c6ebd3; }
-    .status.warning { color: #80520a; background: #fff6e0; border-color: #f4dfb2; }
-    .status.error { color: #8f2031; background: #fff0f2; border-color: #f1c7ce; }
-    .empty { grid-column: 1 / -1; text-align: center; padding: 44px 18px; background: #fff; border: 1px dashed #cad4e2; border-radius: 12px; color: #66758c; }
-    .center { display: flex; justify-content: center; margin-top: 20px; }
-    .hidden { display: none !important; }
-    .modal-overlay { position: fixed; inset: 0; z-index: 5100; background: rgba(12, 23, 43, .65); padding: 20px; display: none; justify-content: center; align-items: center; overflow-y: auto; }
-    .modal-overlay.open { display: flex; }
-    .modal { max-height: calc(100vh - 40px); width: min(950px, 100%); background: #fff; border-radius: 15px; box-shadow: 0 28px 90px rgba(0,0,0,.28); display: flex; flex-direction: column; overflow: hidden; }
-    .modal-heading { display: flex; justify-content: space-between; gap: 15px; align-items: flex-start; padding: 20px 24px 16px; border-bottom: 1px solid var(--border); }
-    .modal-heading h3 { margin: 0 0 4px; font-size: 1.35rem; }
-    .modal-heading p { margin: 0; font-size: .85rem; color: var(--secondary); }
-    .close { border: 0; background: #edf1f6; color: #344660; height: 34px; width: 34px; border-radius: 8px; font-size: 1.25rem; font-weight: 800; flex-shrink: 0; }
-    .close:hover { background: #dbe4ee; }
-    .modal-scroll { padding: 20px 24px 24px; overflow: auto; min-height: 0; }
-    .section-head { display: flex; gap: 10px; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
-    .section-head h4 { margin: 0; font-size: 1rem; }
-    .hint { font-size: .8rem; color: var(--secondary); line-height: 1.45; }
-    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
-    .gallery-card { min-width: 0; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; background: #f9fbfd; }
-    .gallery-preview { width: 100%; display: block; height: 150px; background: #e6ebf2; border: 0; padding: 0; overflow: hidden; }
-    .gallery-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .gallery-controls { display: flex; gap: 8px; justify-content: space-between; align-items: center; padding: 8px; }
-    .gallery-date { color: #65758a; font-size: .73rem; }
-    .gallery-empty { width: 100%; border: 2px dashed #ccd7e6; background: #f8fafd; border-radius: 10px; padding: 23px; text-align: center; color: var(--secondary); line-height: 1.5; }
-    .divider { border: 0; border-top: 1px solid var(--border); margin: 23px 0 20px; }
-    .note-label { display: block; margin-bottom: 8px; font-weight: 800; color: #26364b; }
-    #notesInput { width: 100%; display: block; min-height: 125px; border: 1px solid #cbd6e3; border-radius: 9px; padding: 12px; resize: vertical; line-height: 1.5; }
-    .note-actions { display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 11px; }
-    .previous-notes { margin-top: 17px; padding: 13px 15px; background: #f5f7fa; border: 1px solid var(--border); border-radius: 9px; }
-    .previous-notes h5 { margin: 0 0 8px; font-size: .86rem; }
-    .previous-notes p { font-size: .86rem; color: #516078; line-height: 1.45; margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .modal-status { margin: 15px 0 0; }
-    .large-photo-overlay { position: fixed; inset: 0; z-index: 6000; display: none; align-items: center; justify-content: center; background: rgba(7, 13, 24, .93); padding: 45px 15px 20px; }
-    .large-photo-overlay.open { display: flex; }
-    .large-photo-overlay img { max-height: 93%; max-width: 100%; object-fit: contain; border-radius: 5px; }
-    .large-photo-overlay .close { position: absolute; top: 12px; right: 15px; }
-    @media(max-width: 760px) {
-      main { padding: 13px 12px 38px; }
-      .hero { padding: 20px; }
-      .stats { grid-template-columns: repeat(2, 1fr); gap: 9px; }
-      .stat { padding: 12px; }
-      .stat-value { font-size: 1.45rem; }
-      .toolbar { padding: 13px; }
-      .field, .field.narrow { flex: 1 1 100%; }
-      .cards { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 10px; }
-      .cover { height: 142px; }
-      .model-card-body { padding: 12px; }
-      .model-id { font-size: 1.05rem; }
-      .modal-overlay { padding: 0; }
-      .modal { border-radius: 0; max-height: 100dvh; height: 100dvh; }
-      .modal-heading { padding: 16px; }
-      .modal-scroll { padding: 16px; }
-    }
-    .bulk-modal { width:min(1100px,100%); }
-    .bulk-file-box { padding:15px; background:#f8fafd; border:1px solid #dbe4f1; border-radius:10px; }
-    .bulk-file-box input[type=file] { max-width:100%; }
-    .bulk-file-box p { margin:8px 0 0; }
-    .bulk-option { display:flex; align-items:flex-start; gap:8px; margin-top:15px; font-size:.86rem; line-height:1.5; }
-    .bulk-option input { margin-top:3px; }
-    .bulk-counts { margin:7px 0 10px; font-size:.86rem; line-height:1.5; color:#40506a; }
-    .bulk-commands { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
-    .bulk-scroll-table { max-height:365px; overflow:auto; border:1px solid var(--border); border-radius:9px; }
-    .bulk-table { width:100%; border-collapse:collapse; font-size:.83rem; }
-    .bulk-table th { position:sticky; top:0; text-align:left; background:#edf2f9; font-size:.78rem; padding:10px; white-space:nowrap; }
-    .bulk-table td { border-top:1px solid #e7eaf0; padding:9px 10px; line-height:1.35; }
-    .bulk-table .bulk-muted { color:#9a5361; background:#fff9f9; }
-    .bulk-table .bulk-create { background:#fff9e7; }
-    .bulk-table .bulk-create strong { color:#8f5408; }
-    .bulk-option.create-missing { padding:12px 13px; background:#fff7e5; border:1px solid #e8c987; border-radius:9px; }
-    .bulk-option.create-missing input { flex:0 0 auto; }
-    .bulk-create-help { margin:5px 0 0 0; font-size:.82rem; line-height:1.4; color:#77520d; }
-    .bulk-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:19px; }
-    .bulk-progress { display:block; margin-top:14px; width:100%; height:13px; }
-    @media(max-width: 570px) { .bulk-table {min-width:580px;} .bulk-modal .modal-scroll {padding:14px;} }
-    /* Ficha tecnica e combinacoes - os campos ficam no documento fotosModelos. */
-    .model-badges { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:13px; }
-    .model-badges .pill { background:#edf4f2; color:#26724d; }
-    .tech-tabs { display:flex; gap:7px; overflow-x:auto; border-bottom:1px solid #dbe3ed; margin:21px 0 17px; padding-bottom:1px; }
-    .tech-tab { flex:0 0 auto; border:1px solid transparent; border-bottom:3px solid transparent; background:transparent; padding:11px 17px; font-weight:800; border-radius:8px 8px 0 0; color:#52647c; }
-    .tech-tab.active { color:#194c9b; background:#edf4ff; border-bottom-color:#2865cb; }
-    .tab-panel[hidden] { display:none !important; }
-    .panel-heading { display:flex; align-items:center; flex-wrap:wrap; justify-content:space-between; gap:11px; margin-bottom:12px; }
-    .panel-heading h4 { margin:0; font-size:1.05rem; }
-    .panel-heading p { margin:5px 0 0; }
-    .table-wrap { overflow-x:auto; border:1px solid #dce3ee; border-radius:10px; background:#fff; }
-    .sheet-table { width:100%; border-collapse:collapse; font-size:.89rem; min-width:570px; }
-    .sheet-table th { background:#eaf0f8; text-align:left; color:#37485f; font-weight:800; font-size:.82rem; padding:10px; border-bottom:1px solid #cbd6e5; }
-    .sheet-table td { padding:8px; border-bottom:1px solid #e8edf4; }
-    .sheet-table tbody tr:last-child td { border-bottom:0; }
-    .sheet-table td:first-child { width:18%; }
-    .sheet-table td:nth-child(2) { width:22%; }
-    .sheet-table td:nth-child(3) { width:45%; }
-    .sheet-table input, .combo-fields input { width:100%; border:1px solid #cbd6e3; border-radius:7px; padding:9px; background:#fff; color:#16243d; min-height:38px; }
-    .sheet-table input[readonly] { background:#f6f8fb; border-color:transparent; }
-    .sheet-empty { padding:17px; color:var(--secondary); text-align:center; background:#f8fafc; }
-    .sheet-actions { display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; margin:14px 0 4px; align-items:center; }
-    .sheet-actions .right-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-    .combo-card { border:1px solid #cfdaeb; border-radius:12px; margin:14px 0; background:#fff; overflow:hidden; }
-    .combo-head { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; padding:13px 15px; background:#eef4ff; border-bottom:1px solid #d9e5f7; }
-    .combo-head strong { font-size:1.03rem; color:#214e91; }
-    .combo-fields { display:grid; grid-template-columns:150px minmax(190px,1fr); gap:12px; padding:13px 15px; }
-    .combo-fields label { display:block; color:#485a70; font-size:.79rem; font-weight:800; margin-bottom:6px; }
-    .combo-card .sheet-table td:first-child { width:20%; }
-    .combo-card .sheet-table td:nth-child(2) { width:27%; }
-    .combo-card .sheet-table td:nth-child(3) { width:22%; }
-    .combo-card .sheet-table td:nth-child(4) { width:31%; }
-    .combo-card .table-wrap { border:0; border-top:1px solid #dce3ee; border-radius:0; }
-    .combo-footer { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; padding:11px 14px; }
-    .read-only-notice { padding:9px 12px; border-radius:8px; background:#f6f8fc; color:#58677d; margin-bottom:12px; font-size:.84rem; }
-    .dirty-label { font-size:.78rem; color:#ad6c08; font-weight:700; }
-    .tech-hint { font-size:.83rem; line-height:1.5; color:#5e6d85; }
-    .old-piece-warning { background:#fff7e5; color:#80531b; border:1px solid #f0daa5; border-radius:8px; padding:9px 12px; margin-top:11px; font-size:.8rem; }
-    @media (max-width:700px) { .combo-fields { grid-template-columns:1fr; } .stats {grid-template-columns:repeat(3,1fr);} .tech-tab {padding:10px 12px;} }
-    @media(max-width: 430px) { .stats {grid-template-columns:repeat(2,1fr);} .combo-head {padding:11px;} }
-    @media(max-width: 370px) { .cards { grid-template-columns: 1fr; } }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+    button,input,select{font:inherit} button{cursor:pointer}.hidden{display:none!important}
+    main{max-width:1650px;margin:0 auto;padding:18px 20px 42px}
+    .page-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+    .page-title{display:flex;align-items:center;gap:10px}.page-title h1{font-size:24px;margin:0}.page-title svg{width:28px;height:28px;color:var(--primary)}
+    .tabs{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:14px}
+    .tab-btn,.btn{border:1px solid var(--line);background:#fff;color:#253247;border-radius:9px;padding:9px 14px;font-weight:800;display:inline-flex;gap:8px;align-items:center;justify-content:center}
+    .tab-btn.active{background:var(--primary);border-color:var(--primary);color:#fff}.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}.btn.primary:hover{background:var(--primary-2)}
+    .btn.soft{background:#eef2f7}.btn.danger{color:#b91c1c;border-color:#fecaca;background:#fff}.btn.sm{padding:7px 10px;font-size:13px}
+    .top-import{margin-left:auto}
+    .layout{display:grid;grid-template-columns:minmax(300px,365px) minmax(0,1fr);gap:14px;align-items:start}.layout>*{min-width:0}
+    .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .filter-card{padding:16px;align-self:start;position:sticky;top:70px}.filter-title{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:800;margin-bottom:14px}
+    .filter-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.field{display:flex;flex-direction:column;gap:5px;min-width:0}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:800;color:#3e4c61}.field input,.field select{height:40px;width:100%;min-width:0;max-width:100%;border:1px solid #d4dce7;border-radius:8px;padding:8px 10px;background:#fff}
+    .filter-actions{display:flex;gap:8px;margin-top:12px}.filter-actions .btn{flex:1}
+    .list-title{font-size:12px;font-weight:800;color:var(--muted);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+    .model-list{display:flex;flex-direction:column;gap:7px;max-height:430px;overflow:auto}.model-row{border:1px solid var(--line);border-radius:9px;padding:10px;background:#fff;text-align:left}.model-row:hover,.model-row.active{border-color:#9ec1ff;background:var(--primary-soft)}.model-row strong{display:block;font-size:14px}.model-row small{color:var(--muted)}
+    .main-card{min-height:735px;padding:16px}.sheet-head{display:grid;grid-template-columns:minmax(170px,210px) minmax(0,1fr) minmax(270px,315px);gap:18px;align-items:start;padding-bottom:14px;border-bottom:1px solid var(--line)}.sheet-head>*{min-width:0}
+    .photo-box{height:200px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden}.photo-box img{width:100%;height:100%;object-fit:contain}.no-photo{color:#98a4b5;text-align:center;font-size:13px}.no-photo svg{display:block;width:48px;height:48px;margin:0 auto 8px}
+    .model-code{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.model-code h2{margin:0;font-size:28px}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800;background:#e8f4ff;color:#24518f}.badge.green{background:#e5f7e9;color:#26713a}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 18px;font-size:14px}.info-grid .wide{grid-column:1/-1}.info-grid b{color:#111827}
+    .combo-box{border:1px solid var(--line);border-radius:12px;overflow:hidden}.combo-box h3{margin:0;padding:10px 12px;font-size:16px;background:#f8fafc;border-bottom:1px solid var(--line)}.combo-table{width:100%;border-collapse:collapse;font-size:13px}.combo-table th,.combo-table td{padding:8px 10px;border-bottom:1px solid #edf1f5;text-align:left}.combo-table th{background:#eef2f7}.combo-table tr:last-child td{border-bottom:0}.color-dot{width:26px;height:16px;border:1px solid #cbd5e1;border-radius:5px;display:inline-block;vertical-align:middle;margin-right:7px;background:#f3f4f6}
+    .sector-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px}.sector-btn{border:1px solid var(--line);background:#f8fafc;border-radius:9px;padding:9px 12px;font-weight:800;color:#334155}.sector-btn.active{background:var(--primary);border-color:var(--primary);color:#fff}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:11px}.materials{width:100%;border-collapse:collapse;font-size:13px;min-width:980px}.materials th,.materials td{padding:10px 11px;border-bottom:1px solid #edf1f5;text-align:left;vertical-align:top}.materials th{background:#eef2f7;color:#334155;position:sticky;top:0}.materials td.num{text-align:right;font-variant-numeric:tabular-nums}.edit-material{white-space:nowrap}.empty{padding:42px;text-align:center;color:var(--muted)}
+    .sheet-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:15px;padding-top:14px;border-top:1px solid var(--line)}.source-info{font-size:12px;color:var(--muted)}
+    .status{display:none;margin-bottom:12px;border-radius:9px;padding:10px 12px;font-size:13px}.status.show{display:block}.status.info{background:#eaf3ff;color:#194e82}.status.success{background:#e7f7ed;color:#12613b}.status.warning{background:#fff6e0;color:#80520a}.status.error{background:#fff0f2;color:#8f2031}
+    .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.65);display:none;align-items:center;justify-content:center;padding:20px;z-index:5000}.modal-overlay.open{display:flex}.modal{width:min(1050px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border-radius:16px;box-shadow:0 25px 80px rgba(0,0,0,.25)}.modal-head{display:flex;justify-content:space-between;gap:15px;padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}.modal-head h2{margin:0;font-size:21px}.modal-body{padding:18px 20px}.upload-zone{border:2px dashed #b8c6d8;border-radius:12px;background:#f8fafc;padding:26px;text-align:center}.upload-zone input{display:none}.upload-list{margin-top:12px;display:flex;flex-direction:column;gap:7px}.upload-item{display:flex;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff}.analysis-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:15px 0}.metric{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}.metric b{display:block;font-size:22px;margin-top:4px}.preview-table{width:100%;border-collapse:collapse;font-size:12px}.preview-table th,.preview-table td{border-bottom:1px solid #edf1f5;padding:8px;text-align:left}.preview-table th{background:#eef2f7}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.edit-grid .full{grid-column:1/-1}.combo-editor-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.combo-editor-title h2{margin:0 0 4px;font-size:23px}.combo-editor-title small{color:var(--muted)}.combo-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px}.combo-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.combo-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;background:#f8fafc;border-bottom:1px solid var(--line)}.combo-card-code{font-weight:900;font-size:16px}.combo-card-name{font-size:13px;color:#334155;display:flex;align-items:center;gap:8px}.combo-piece-list{padding:10px 12px;display:flex;flex-direction:column;gap:7px}.combo-piece-row{display:grid;grid-template-columns:70px 32px 1fr;gap:8px;align-items:center;font-size:13px}.combo-piece-row strong{color:#334155}.combo-empty-piece{color:var(--muted);font-size:12px;padding:4px 0}.piece-edit-row{display:grid;grid-template-columns:120px 60px 1fr 42px;gap:8px;align-items:end;margin-bottom:8px}.piece-edit-row input{width:100%;height:38px;border:1px solid #d4dce7;border-radius:8px;padding:7px 8px}.piece-edit-row input[type=color]{padding:3px}.remove-piece{height:38px;border:1px solid #fecaca;background:#fff;color:#b91c1c;border-radius:8px;font-weight:900}.color-dot.large{width:34px;height:22px;margin-right:0}.combo-preview-dot{width:28px;height:18px;border:1px solid #cbd5e1;border-radius:5px;display:inline-block;flex:0 0 auto}
+    @media(max-width:1120px){.layout{grid-template-columns:1fr}.filter-card{position:static}.sheet-head{grid-template-columns:170px 1fr}.combo-box{grid-column:1/-1}.model-list{max-height:220px}}
+    @media(max-width:720px){main{padding:12px}.sheet-head{grid-template-columns:1fr}.photo-box{height:180px}.filter-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.analysis-grid{grid-template-columns:1fr 1fr}.page-head{align-items:flex-start}.page-title h1{font-size:20px}}
   </style>
-  <script src="navegacao.js"></script>
 </head>
 <body class="auth-loading">
-  <main>
-    <section class="hero">
-      <div>
-        <p class="hero-eyebrow">Cat&aacute;logo de produ&ccedil;&atilde;o</p>
-        <h2>Fotos, ficha t&eacute;cnica e combina&ccedil;&otilde;es</h2>
-        <p>Fotos de refer&ecirc;ncia, anota&ccedil;&otilde;es de produ&ccedil;&atilde;o, materiais e cores de cada combina&ccedil;&atilde;o.</p>
-      </div>
-      <div class="hero-buttons">
-        <button class="button light hidden" id="bulkOpen" type="button">&#8679; Importar em massa</button>
-        <a id="modelsShortcut" class="button light hidden" href="modelos.html">Cadastro de modelos</a>
-        <button class="button light" id="reloadButton" type="button">Atualizar lista</button>
-      </div>
-    </section>
-
-    <section class="stats" aria-label="Resumo dos modelos">
-      <div class="stat"><div class="stat-label">Total de modelos</div><div class="stat-value" id="totalModels">-</div></div>
-      <div class="stat"><div class="stat-label">Com foto</div><div class="stat-value" id="withPhoto">-</div></div>
-      <div class="stat"><div class="stat-label">Com anota&ccedil;&otilde;es</div><div class="stat-value" id="withNotes">-</div></div>
-      <div class="stat"><div class="stat-label">Sem foto</div><div class="stat-value" id="withoutPhoto">-</div></div>
-      <div class="stat"><div class="stat-label">Com ficha t&eacute;cnica</div><div class="stat-value" id="withTech">-</div></div>
-      <div class="stat"><div class="stat-label">Com combina&ccedil;&otilde;es</div><div class="stat-value" id="withCombos">-</div></div>
-    </section>
-
-    <section class="toolbar" aria-label="Filtros de modelos">
-      <div class="field">
-        <label for="searchInput">Pesquisar modelo, linha ou descri&ccedil;&atilde;o</label>
-        <input id="searchInput" type="search" placeholder="Ex.: 8560.417, 8560, sandalia..." autocomplete="off">
-      </div>
-      <div class="field narrow">
-        <label for="filterInput">Exibir</label>
-        <select id="filterInput">
-          <option value="all">Todos os modelos</option>
-          <option value="with-photo">Somente com fotos</option>
-          <option value="without-photo">Somente sem fotos</option>
-          <option value="with-notes">Somente com anota&ccedil;&otilde;es</option>
-          <option value="with-tech">Somente com ficha t&eacute;cnica</option>
-          <option value="with-combos">Somente com combina&ccedil;&otilde;es</option>
-        </select>
-      </div>
-      <button class="button soft" type="button" id="clearButton">Limpar filtros</button>
-      <div id="codeLookupBox" class="field narrow hidden">
-        <label for="codeLookup">Abrir modelo pelo c&oacute;digo</label>
-        <input id="codeLookup" type="text" placeholder="Ex.: 9077.202" inputmode="text" autocomplete="off">
-      </div>
-      <button class="button soft hidden" type="button" id="lookupButton">Abrir c&oacute;digo</button>
-    </section>
-
-    <div id="pageMessage" class="status" role="status" aria-live="polite"></div>
-    <div class="result-bar">
-      <h3>Modelos cadastrados</h3>
-      <span id="resultCount" class="result-count">Carregando...</span>
+<main>
+  <div class="page-head">
+    <div class="page-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l3 3v17H6z"/><path d="M14 2v4h4M9 11h6M9 15h6"/></svg>
+      <h1>Ficha Técnica</h1>
     </div>
-    <section class="cards" id="cards" aria-label="Lista de modelos">
-      <div class="empty">Carregando modelos...</div>
-    </section>
-    <div class="center"><button id="loadMoreButton" class="button soft hidden" type="button">Mostrar mais modelos</button></div>
-  </main>
-
-  <div class="modal-overlay" id="modelModal" aria-hidden="true">
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <header class="modal-heading">
-        <div>
-          <h3 id="modalTitle">Modelo</h3>
-          <p id="modalSubtitle"></p>
-        </div>
-        <button class="close" id="closeModalButton" type="button" aria-label="Fechar">&times;</button>
-      </header>
-      <div class="modal-scroll">
-        <div class="section-head">
-          <div>
-            <h4>Fotos do modelo <span id="galleryCount" class="pill">0 de 5</span></h4>
-            <p class="hint" style="margin:5px 0 0">At&eacute; 5 fotos por modelo. As imagens s&atilde;o reduzidas para economizar espa&ccedil;o.</p>
-          </div>
-          <div>
-            <button class="button primary" id="addPhotosButton" type="button">+ Adicionar fotos</button>
-            <input type="file" id="photoInput" accept="image/*" multiple class="hidden">
-          </div>
-        </div>
-        <div id="gallery" class="gallery"></div>
-        <nav class="tech-tabs" aria-label="Dados do modelo" role="tablist">
-          <button type="button" class="tech-tab active" data-model-tab="notes" role="tab" aria-selected="true">Anota&ccedil;&otilde;es</button>
-          <button type="button" class="tech-tab" data-model-tab="ficha" role="tab" aria-selected="false">Ficha t&eacute;cnica</button>
-          <button type="button" class="tech-tab" data-model-tab="combos" role="tab" aria-selected="false">Combina&ccedil;&otilde;es</button>
-        </nav>
-        <section class="tab-panel" id="tabNotes" role="tabpanel">
-          <label for="notesInput" class="note-label">Anota&ccedil;&otilde;es sobre este modelo</label>
-          <textarea id="notesInput" maxlength="12000" placeholder="Ex.: particularidades da costura, cuidados na montagem, observa&ccedil;&otilde;es importantes..."></textarea>
-          <div class="note-actions">
-            <span class="hint" id="lastChange">As anota&ccedil;&otilde;es ficam vinculadas somente a este modelo.</span>
-            <button class="button primary" type="button" id="saveNotesButton">Salvar anota&ccedil;&otilde;es</button>
-          </div>
-          <div id="registrationNotes" class="previous-notes hidden">
-            <h5>Observa&ccedil;&atilde;o existente no cadastro de modelos</h5>
-            <p id="registrationNotesText"></p>
-            <p class="hint" style="margin-top:8px">Consulta apenas. N&atilde;o modifica o cadastro de produ&ccedil;&atilde;o.</p>
-          </div>
-        </section>
-        <section class="tab-panel" id="tabFicha" role="tabpanel" hidden>
-          <div class="panel-heading">
-            <div><h4>Ficha t&eacute;cnica do modelo <span id="techCount" class="pill">0 pe&ccedil;as</span></h4>
-              <p class="tech-hint">Cadastre todos os materiais que comp&otilde;em o modelo. A lista de pe&ccedil;as alimenta as combina&ccedil;&otilde;es.</p></div>
-          </div>
-          <p id="techReadonly" class="read-only-notice hidden">Seu perfil pode consultar a ficha t&eacute;cnica, mas n&atilde;o pode alter&aacute;-la.</p>
-          <div class="table-wrap">
-            <table class="sheet-table" aria-label="Ficha tecnica">
-              <thead><tr><th>Item (c&oacute;digo)</th><th>Pe&ccedil;a</th><th>Material</th><th style="width:75px">A&ccedil;&otilde;es</th></tr></thead>
-              <tbody id="techRows"></tbody>
-            </table>
-          </div>
-          <div class="sheet-actions">
-            <button type="button" class="button soft" id="addTechRow">+ Adicionar pe&ccedil;a</button>
-            <div class="right-actions"><span class="dirty-label hidden" id="techDirty">Altera&ccedil;&otilde;es n&atilde;o salvas</span><button type="button" class="button primary" id="saveTech">Salvar ficha t&eacute;cnica</button></div>
-          </div>
-          <p id="techUpdated" class="hint"></p>
-        </section>
-        <section class="tab-panel" id="tabCombos" role="tabpanel" hidden>
-          <div class="panel-heading">
-            <div><h4>Combina&ccedil;&otilde;es de corte <span id="comboCount" class="pill">0 combina&ccedil;&otilde;es</span></h4>
-              <p class="tech-hint">Cada combina&ccedil;&atilde;o tem uma cor principal e uma cor para cada pe&ccedil;a da ficha t&eacute;cnica.</p></div>
-            <button type="button" class="button soft" id="addCombo">+ Nova combina&ccedil;&atilde;o</button>
-          </div>
-          <p id="comboReadonly" class="read-only-notice hidden">Seu perfil pode consultar as combina&ccedil;&otilde;es, mas n&atilde;o pode alter&aacute;-las.</p>
-          <div id="comboInfo" class="hint"></div>
-          <div id="combosContainer"></div>
-          <div class="sheet-actions" style="justify-content:flex-end">
-            <span id="comboDirty" class="dirty-label hidden">Altera&ccedil;&otilde;es n&atilde;o salvas</span>
-            <button type="button" class="button primary" id="saveCombos">Salvar combina&ccedil;&otilde;es</button>
-          </div>
-          <p id="comboUpdated" class="hint"></p>
-        </section>
-        <div id="modalMessage" class="status modal-status" aria-live="polite"></div>
-      </div>
-    </section>
   </div>
 
-  <div class="modal-overlay" id="bulkModal" aria-hidden="true">
-    <section class="modal bulk-modal" role="dialog" aria-modal="true" aria-labelledby="bulkTitle">
-      <header class="modal-heading">
-        <div>
-          <h3 id="bulkTitle">Importar modelos, fotos e anotações em massa</h3>
-          <p>Vincule as fotos por código. Opcionalmente cadastre os modelos ausentes, sem modificar nenhum registro existente.</p>
+  <div class="tabs">
+    <button class="tab-btn active" data-page-tab="ficha">Ficha Técnica</button>
+    <button class="tab-btn" data-page-tab="combos">Combinações</button>
+    <button class="btn soft top-import" id="openImport">⇧ Importar PDF (Massa)</button>
+  </div>
+
+  <div id="pageStatus" class="status" role="status"></div>
+
+  <div class="layout">
+    <aside class="card filter-card">
+      <div class="filter-title">⌕ Filtros / Consultar Fichas</div>
+      <div class="filter-grid">
+        <div class="field"><label>Linha</label><input id="fLinha" placeholder="7162"></div>
+        <div class="field"><label>Modelo (Ref.)</label><input id="fRef" placeholder="438"></div>
+        <div class="field"><label>Cabedal</label><select id="fCab"><option value="">Todos</option></select></div>
+        <div class="field"><label>Versão</label><select id="fVersao"><option value="">Todas</option></select></div>
+        <div class="field full"><label>Descrição</label><input id="fDescricao" placeholder="Digite a descrição..."></div>
+      </div>
+      <div class="filter-actions"><button class="btn primary" id="searchBtn">Buscar</button><button class="btn soft" id="clearBtn">Limpar</button></div>
+      <div class="list-title">Modelos encontrados <span id="resultCount"></span></div>
+      <div id="modelList" class="model-list"><div class="empty">Carregando...</div></div>
+    </aside>
+
+    <section class="card main-card">
+      <div id="sheetEmpty" class="empty">Selecione uma ficha técnica para visualizar.</div>
+      <div id="sheetContent" class="hidden">
+        <div id="fichaView">
+        <div class="sheet-head">
+          <div class="photo-box" id="photoBox"></div>
+          <div>
+            <div class="model-code"><h2 id="modelCode">-</h2><span class="badge green" id="versionBadge">Versão -</span><span class="badge" id="cabedalBadge">Cabedal -</span></div>
+            <div class="info-grid">
+              <div class="wide"><b>Descrição:</b> <span id="descText">-</span></div>
+              <div><b>Forma:</b> <span id="formaText">-</span></div>
+              <div><b>Tipo de Forro:</b> <span id="forroText">-</span></div>
+              <div><b>Tipo de Palmilha:</b> <span id="palmilhaText">-</span></div>
+              <div><b>Tipo Material Cabedal:</b> <span id="tipoCabText">-</span></div>
+              <div class="wide"><b>Grades:</b> <span id="gradesText">-</span></div>
+            </div>
+          </div>
+          <div class="combo-box">
+            <h3>Combinações (<span id="comboCount">0</span>)</h3>
+            <table class="combo-table"><thead><tr><th>Código</th><th>Combinação</th></tr></thead><tbody id="comboBody"></tbody></table>
+          </div>
         </div>
-        <button type="button" class="close" id="bulkClose" aria-label="Fechar">&times;</button>
-      </header>
-      <div class="modal-scroll">
-        <div class="bulk-file-box">
-          <label for="bulkZipInput" class="note-label">1. Selecione o arquivo ZIP de modelos</label>
-          <input type="file" id="bulkZipInput" accept=".zip,application/zip,application/x-zip-compressed">
-          <p class="hint">Aceita o ZIP original com arquivos Word e JPG ou o ZIP preparado para importação. Nenhuma alteração será feita até você confirmar.</p>
-          <div id="bulkFileName" class="hint"></div>
-        </div>
-        <label class="bulk-option"><input type="checkbox" id="bulkAppendPhotos"> Também acrescentar fotos a modelos que já possuem imagens, até o limite de 5. <strong>Desmarcado = preservar as fotos atuais.</strong></label>
-        <label class="bulk-option create-missing"><input type="checkbox" id="bulkCreateMissing"> <span><strong>Cadastrar os modelos que ainda não existem</strong> (linha e modelo identificados no ZIP).<br>Serão criados com <strong>preço R$ 0,00 — PENDENTE</strong>, <strong>inativos até preencher o preço</strong>, sem categoria e sem valores de setores, para completar depois em <strong>modelos.html</strong>. Esta opção fica desmarcada por segurança.</span></label>
-        <p class="bulk-create-help" id="bulkCreateHelp">A criação requer permissão para cadastrar na coleção modelos (níveis 07/08 nas regras atuais).</p>
-        <p class="hint">As fotos, preços e anotações existentes são sempre preservados. Cadastros ausentes só serão criados após marcar a opção acima e confirmar a importação.</p>
-        <div id="bulkMessage" class="status" role="status" aria-live="polite"></div>
-        <h4 style="margin:18px 0 5px">2. Confira o que será importado</h4>
-        <div class="bulk-counts" id="bulkCounts">Nenhum arquivo selecionado.</div>
-        <div class="bulk-commands">
-          <button id="bulkAll" class="button soft sm" type="button">Selecionar disponíveis</button>
-          <button id="bulkOnlyMissing" class="button soft sm" type="button">Selecionar só não cadastrados</button>
-          <button id="bulkNone" class="button soft sm" type="button">Desmarcar todos</button>
-          <button id="bulkDownloadReport" class="button soft sm" type="button">Baixar relatório CSV</button>
-        </div>
-        <div class="bulk-scroll-table">
-          <table class="bulk-table">
-            <thead><tr><th>Importar</th><th>Modelo</th><th>Fotos</th><th>Anotações</th><th>Situação</th></tr></thead>
-            <tbody id="bulkTableBody"><tr><td colspan="5">Selecione um ZIP para visualizar a lista.</td></tr></tbody>
+
+        <div id="sectorTabs" class="sector-tabs"></div>
+        <div class="table-wrap">
+          <table class="materials">
+            <thead><tr><th>Peça</th><th>Material (Código - Descrição)</th><th>Observação</th><th>UM</th><th>Consumo</th><th>Comprimento</th><th>Ações</th></tr></thead>
+            <tbody id="materialsBody"></tbody>
           </table>
         </div>
-        <div class="bulk-footer">
-          <div><h4 style="margin:0 0 4px">3. Confirme a importação</h4><p class="hint" style="margin:0">Deixe esta página aberta durante o envio. Em caso de interrupção, pode repetir a importação.</p></div>
-          <button id="bulkStop" class="button danger hidden" type="button">Parar após foto atual</button>
-          <button id="bulkStart" class="button primary" type="button" disabled>Iniciar importação</button>
+        <div class="sheet-footer">
+          <div class="source-info" id="sourceInfo"></div>
+          <div><button class="btn sm soft" id="printBtn">Imprimir</button></div>
         </div>
-        <progress id="bulkProgress" class="bulk-progress" max="1" value="0"></progress>
-        <p id="bulkProgressText" class="hint" role="status" aria-live="polite"></p>
+        </div>
+
+        <div id="combosView" class="hidden">
+          <div class="combo-editor-head">
+            <div class="combo-editor-title"><h2>Combinações do modelo <span id="comboModelCode">-</span></h2><small>Cabedal <span id="comboCabedalCode">-</span> · informe quais peças mudam em cada combinação e a cor de cada uma.</small></div>
+          </div>
+          <div id="comboCards" class="combo-cards"></div>
+        </div>
       </div>
     </section>
   </div>
+</main>
 
-  <div class="large-photo-overlay" id="largePhotoOverlay" aria-hidden="true" role="dialog" aria-label="Visualizar foto ampliada">
-    <button class="close" id="closeLargePhoto" type="button" aria-label="Fechar imagem">&times;</button>
-    <img id="largePhotoImage" alt="Foto ampliada do modelo">
+<div class="modal-overlay" id="importModal" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head"><div><h2>Importar Fichas Técnicas em Massa</h2><div style="color:var(--muted);font-size:13px;margin-top:4px">Selecione um ou vários PDFs da Beira Rio. A análise acontece antes de qualquer gravação.</div></div><button class="btn soft" id="closeImport">✕</button></div>
+    <div class="modal-body">
+      <div id="importStatus" class="status"></div>
+      <div class="upload-zone"><div style="font-size:34px">📄</div><b>Arquivos PDF da Beira Rio</b><div style="margin:7px 0 14px;color:var(--muted);font-size:13px">É possível selecionar vários arquivos de uma vez.</div><label class="btn primary" for="pdfFiles">Selecionar PDFs</label><input id="pdfFiles" type="file" accept="application/pdf,.pdf" multiple></div>
+      <div class="upload-list" id="uploadList"></div>
+      <div class="modal-actions"><button class="btn primary" id="analyzeBtn" disabled>Ler e Pré-visualizar</button></div>
+      <div id="analysisArea" class="hidden">
+        <div class="analysis-grid">
+          <div class="metric"><span>Páginas</span><b id="mPages">0</b></div>
+          <div class="metric"><span>Fichas</span><b id="mSheets">0</b></div>
+          <div class="metric"><span>Modelos</span><b id="mModels">0</b></div>
+          <div class="metric"><span>Materiais</span><b id="mMaterials">0</b></div>
+          <div class="metric"><span>Combinações</span><b id="mCombos">0</b></div>
+        </div>
+        <div class="table-wrap"><table class="preview-table"><thead><tr><th>Modelo</th><th>Cabedal</th><th>Versão</th><th>Combinações</th><th>Materiais</th><th>Vínculo</th></tr></thead><tbody id="previewBody"></tbody></table></div>
+        <div class="modal-actions"><button class="btn soft" id="exportPreview">Baixar análise CSV</button><button class="btn primary" id="confirmImport">Confirmar Importação</button></div>
+      </div>
+    </div>
   </div>
+</div>
 
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js';
-    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
-    import { getFirestore, doc, collection, getDoc, getDocs, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
-    import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js';
+<div class="modal-overlay" id="materialModal" aria-hidden="true">
+  <div class="modal" style="width:min(760px,100%)">
+    <div class="modal-head"><div><h2>Editar material</h2><div style="color:var(--muted);font-size:13px;margin-top:4px">A alteração será salva somente nesta ficha técnica.</div></div><button class="btn soft" id="closeMaterialModal">✕</button></div>
+    <div class="modal-body">
+      <div id="materialStatus" class="status"></div>
+      <input type="hidden" id="materialIndex">
+      <div class="edit-grid">
+        <div class="field"><label>Setor</label><select id="editSetor"></select></div>
+        <div class="field"><label>Código da peça</label><input id="editCodigoPeca" readonly></div>
+        <div class="field full"><label>Peça</label><input id="editPeca"></div>
+        <div class="field full"><label>Nome / descrição do material</label><input id="editMaterial"></div>
+        <div class="field full"><label>Observação</label><input id="editObs"></div>
+        <div class="field"><label>Consumo</label><input id="editConsumo" inputmode="decimal"></div>
+        <div class="field"><label>Comprimento</label><input id="editComprimento" inputmode="decimal"></div>
+      </div>
+      <div class="modal-actions"><button class="btn soft" id="cancelMaterialEdit">Cancelar</button><button class="btn primary" id="saveMaterialEdit">Salvar alterações</button></div>
+    </div>
+  </div>
+</div>
 
-    // Mesma configuracao do projeto existente; nao usa banco de testes/backup.
-    const firebaseConfig = {
-      apiKey: 'AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8',
-      authDomain: 'sistemataloes.firebaseapp.com',
-      projectId: 'sistemataloes',
-      storageBucket: 'sistemataloes.firebasestorage.app',
-      messagingSenderId: '684534379685',
-      appId: '1:684534379685:web:ac0f831c26991ac059094c'
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-    // A colecao modelos contem precos; somente perfis administrativos a consultam.
-    const VIEW_LEVELS = new Set(['01', '02', '05', '07', '08', '09']);
-    // Somente 07/08 podem consultar a colecao modelos, que contem precos.
-    const CATALOG_LEVELS = new Set(['07', '08']);
-    const EDIT_LEVELS = new Set(['05', '07', '08', '09']);
-    const TECH_EDIT_LEVELS = new Set(['05', '07', '08', '09']);
-    // 01/02 podem atualizar somente combinacoes; administradores atuais continuam autorizados.
-    const COMBO_EDIT_LEVELS = new Set(['01', '02', '05', '07', '08', '09']);
-    const MAX_TECH_ROWS = 80;
-    const MAX_COMBINATIONS = 40;
-    const MAX_PHOTOS = 5;
-    const DISPLAY_PAGE_SIZE = 30;
-    const MAX_SOURCE_BYTES = 25 * 1024 * 1024;
-    const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
-    const $ = (id) => document.getElementById(id);
-    const ui = {
-      totalModels: $('totalModels'), withPhoto: $('withPhoto'), withNotes: $('withNotes'), withTech: $('withTech'), withCombos: $('withCombos'),
-      withoutPhoto: $('withoutPhoto'), searchInput: $('searchInput'), filterInput: $('filterInput'),
-      clearButton: $('clearButton'), reloadButton: $('reloadButton'), cards: $('cards'),
-      resultCount: $('resultCount'), loadMoreButton: $('loadMoreButton'),
-      pageMessage: $('pageMessage'), modelsShortcut: $('modelsShortcut'), codeLookupBox: $('codeLookupBox'), codeLookup: $('codeLookup'), lookupButton: $('lookupButton'),
-      modelModal: $('modelModal'), modalTitle: $('modalTitle'), modalSubtitle: $('modalSubtitle'),
-      closeModalButton: $('closeModalButton'), gallery: $('gallery'), galleryCount: $('galleryCount'),
-      addPhotosButton: $('addPhotosButton'), photoInput: $('photoInput'), notesInput: $('notesInput'),
-      saveNotesButton: $('saveNotesButton'), lastChange: $('lastChange'),
-      techRows: $('techRows'), addTechRow: $('addTechRow'), saveTech: $('saveTech'), techCount: $('techCount'),
-      techDirty: $('techDirty'), techUpdated: $('techUpdated'), techReadonly: $('techReadonly'),
-      comboCount: $('comboCount'), addCombo: $('addCombo'), combosContainer: $('combosContainer'), saveCombos: $('saveCombos'),
-      comboDirty: $('comboDirty'), comboUpdated: $('comboUpdated'), comboReadonly: $('comboReadonly'), comboInfo: $('comboInfo'),
-      tabNotes: $('tabNotes'), tabFicha: $('tabFicha'), tabCombos: $('tabCombos'),
-      registrationNotes: $('registrationNotes'), registrationNotesText: $('registrationNotesText'),
-      modalMessage: $('modalMessage'), largePhotoOverlay: $('largePhotoOverlay'),
-      largePhotoImage: $('largePhotoImage'), closeLargePhoto: $('closeLargePhoto'),
-      bulkOpen: $('bulkOpen'), bulkModal: $('bulkModal'), bulkClose: $('bulkClose'),
-      bulkZipInput: $('bulkZipInput'), bulkFileName: $('bulkFileName'), bulkAppendPhotos: $('bulkAppendPhotos'),
-      bulkCreateMissing: $('bulkCreateMissing'), bulkCreateHelp: $('bulkCreateHelp'), bulkOnlyMissing: $('bulkOnlyMissing'),
-      bulkMessage: $('bulkMessage'), bulkCounts: $('bulkCounts'), bulkAll: $('bulkAll'),
-      bulkNone: $('bulkNone'), bulkDownloadReport: $('bulkDownloadReport'), bulkTableBody: $('bulkTableBody'),
-      bulkStart: $('bulkStart'), bulkStop: $('bulkStop'), bulkProgress: $('bulkProgress'), bulkProgressText: $('bulkProgressText')
-    };
+<div class="modal-overlay" id="comboEditModal" aria-hidden="true">
+  <div class="modal" style="width:min(820px,100%)">
+    <div class="modal-head"><div><h2>Editar peças da combinação</h2><div id="comboEditSubtitle" style="color:var(--muted);font-size:13px;margin-top:4px"></div></div><button class="btn soft" id="closeComboEdit">✕</button></div>
+    <div class="modal-body">
+      <div id="comboEditStatus" class="status"></div>
+      <input type="hidden" id="comboEditIndex">
+      <div id="pieceRows"></div>
+      <button class="btn soft" id="addPieceRow">+ Adicionar peça</button>
+      <div class="modal-actions"><button class="btn soft" id="cancelComboEdit">Cancelar</button><button class="btn primary" id="saveComboEdit">Salvar combinação</button></div>
+    </div>
+  </div>
+</div>
 
-    let currentUser = null;
-    let userLevel = '';
-    let canEdit = false;
-    let canEditTech = false;
-    let canEditCombos = false;
-    let canViewCatalog = false;
-    // A regra ATUAL de /modelos permite criar somente para estes niveis.
-    const CREATE_MODEL_LEVELS = new Set(['07', '08']);
-    let canCreateModels = false;
-    let models = [];
-    let modelById = new Map();
-    let extrasById = new Map();
-    let activeModelId = null;
-    let savedNotes = '';
-    let savedTech = [];
-    let draftTech = [];
-    let savedCombos = [];
-    let draftCombos = [];
-    let activeTab = 'notes';
-    let busy = false;
-    let loadedCount = DISPLAY_PAGE_SIZE;
-    let initialized = false;
+<script src="navegacao.js"></script>
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
+  import { getFirestore, collection, getDocs, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
+  import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs';
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
 
-    function esc(value) {
-      return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-    function normal(value) {
-      return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    }
-    function text(value) { return String(value ?? '').trim(); }
-    function getExtra(id) { return extrasById.get(id) || {}; }
-    function getPhotos(id) {
-      const photos = getExtra(id).fotos;
-      return Array.isArray(photos) ? photos.filter(p => p && typeof p === 'object' && p.caminho && p.url).slice(0, MAX_PHOTOS) : [];
-    }
-    function getExistingNote(model) { return text(model?.observacaoModelo || model?.observacao); }
-    function hasNote(model) { return !!(text(getExtra(model.id).anotacoes) || getExistingNote(model)); }
-    function validPhotoUrl(value) {
-      try { const url = new URL(String(value)); return url.protocol === 'https:' ? url.href : ''; }
-      catch { return ''; }
-    }
-    function photoDate(value) {
-      if (!value) return '';
-      const d = new Date(value);
-      return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString('pt-BR');
-    }
-    function message(el, type, content) {
-      el.textContent = content;
-      el.className = `status visible ${type}`;
-    }
-    function clearMessage(el) { el.textContent = ''; el.className = 'status'; }
-    function readableError(err) {
-      if (err?.code === 'permission-denied' || err?.code === 'storage/unauthorized') {
-        return 'Permissao negada pelo Firebase. Confira as regras da colecao fotosModelos e do Storage.';
-      }
-      if (err?.code === 'storage/bucket-not-found') return 'O bucket do Firebase Storage nao foi encontrado. Confira a configuracao do Storage.';
-      if (err?.code === 'storage/quota-exceeded') return 'O limite de armazenamento do Firebase Storage foi atingido.';
-      return err?.message || 'Erro inesperado. Tente novamente.';
-    }
-    function idLabel(model) {
-      const line = text(model.linha);
-      const number = text(model.modelo);
-      return line && number ? `${line}.${number}` : model.id;
-    }
-    function sortModels(a, b) {
-      return idLabel(a).localeCompare(idLabel(b), 'pt-BR', { numeric: true, sensitivity: 'base' });
-    }
+  const firebaseConfig={apiKey:'AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8',authDomain:'sistemataloes.firebaseapp.com',projectId:'sistemataloes',storageBucket:'sistemataloes.firebasestorage.app',messagingSenderId:'684534379685',appId:'1:684534379685:web:ac0f831c26991ac059094c'};
+  const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+  const $=id=>document.getElementById(id), text=v=>String(v??'').trim();
+  let userLevel='', allSheets=[], visibleSheets=[], active=null, activeSector='', photosByModel=new Map(), modelIds=new Set(), modelDataById=new Map(), selectedFiles=[], parsedImport=[];
+  const VIEW_LEVELS=new Set(['01','02','05','07','08','09']);
+  const IMPORT_LEVELS=new Set(['05','07','08','09']);
+  const EDIT_LEVELS=new Set(['05','07','08','09']);
+  let currentPageTab='ficha';
 
-    // Perfis 01/02/05/09 acessam apenas dados tecnicos, sem baixar a colecao de precos.
-    async function loadAll(showSuccess = false) {
-      ui.reloadButton.disabled = true;
-      ui.resultCount.textContent = 'Carregando...';
-      try {
-        const extrasSnapshot = await getDocs(collection(db, 'fotosModelos'));
-        extrasById = new Map(extrasSnapshot.docs.map(snap => [snap.id, snap.data()]));
-        if (canViewCatalog) {
-          const modelSnapshot = await getDocs(collection(db, 'modelos'));
-          models = modelSnapshot.docs.map(snap => ({ ...snap.data(), id: snap.id })).sort(sortModels);
-        } else {
-          // Cadastro operacional contem valores. Os outros niveis listam somente
-          // os modelos que ja tenham informacoes na colecao de fotos/fichas.
-          models = extrasSnapshot.docs.map(snap => minimalVisibleModel(snap.id)).sort(sortModels);
-        }
-        modelById = new Map(models.map(m => [m.id, m]));
-        renderSummary();
-        renderCards();
-        if (showSuccess) message(ui.pageMessage, 'success', 'Catalogo de fotos, fichas e combinacoes atualizado.');
-        else if (!canViewCatalog) message(ui.pageMessage, 'info', 'Seu perfil pode consultar fichas e combinacoes sem visualizar precos. Modelos sem ficha ou fotos ainda nao aparecem nesta lista.');
-        else clearMessage(ui.pageMessage);
-        if (activeModelId && modelById.has(activeModelId) && ui.modelModal.classList.contains('open')) {
-          if (!isModelDirty()) renderModal();
-          else renderGallery();
-        }
-      } catch (err) {
-        console.error('Falha ao carregar catalogo de modelos', err);
-        ui.resultCount.textContent = 'Erro ao carregar';
-        ui.cards.innerHTML = '<div class="empty">Nao foi possivel carregar o catalogo. Confira a conexao e as permissoes do Firebase.</div>';
-        message(ui.pageMessage, 'error', 'Erro ao carregar modelos e fotos: ' + readableError(err));
-      } finally {
-        ui.reloadButton.disabled = false;
-      }
-    }
-    function minimalVisibleModel(id) {
-      const [linha, modelo] = String(id).split('.');
-      return { id, linha: linha || '', modelo: modelo || '', categoria: '', subcategoria: '' };
-    }
-    function renderSummary() {
-      const withPhotos = models.filter(m => getPhotos(m.id).length > 0).length;
-      ui.totalModels.textContent = models.length.toLocaleString('pt-BR');
-      ui.withPhoto.textContent = withPhotos.toLocaleString('pt-BR');
-      ui.withoutPhoto.textContent = (models.length - withPhotos).toLocaleString('pt-BR');
-      ui.withNotes.textContent = models.filter(hasNote).length.toLocaleString('pt-BR');
-      ui.withTech.textContent = models.filter(m => getTech(m.id).length).length.toLocaleString('pt-BR');
-      ui.withCombos.textContent = models.filter(m => getCombos(m.id).length).length.toLocaleString('pt-BR');
-    }
-    function filteredModels() {
-      const query = normal(text(ui.searchInput.value));
-      const filter = ui.filterInput.value;
-      return models.filter(model => {
-        const extra = getExtra(model.id);
-        const searchable = normal(`${model.id} ${idLabel(model)} ${model.linha || ''} ${model.modelo || ''} ${model.categoria || ''} ${model.subcategoria || ''} ${extra.anotacoes || ''} ${getExistingNote(model)} ${getTech(model.id).map(r => `${r.item} ${r.peca} ${r.material}`).join(' ')}`);
-        if (query && !searchable.includes(query)) return false;
-        const count = getPhotos(model.id).length;
-        if (filter === 'with-photo') return count > 0;
-        if (filter === 'without-photo') return count === 0;
-        if (filter === 'with-notes') return hasNote(model);
-        if (filter === 'with-tech') return getTech(model.id).length > 0;
-        if (filter === 'with-combos') return getCombos(model.id).length > 0;
-        return true;
-      });
-    }
-    function noPhotoIcon() {
-      return '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="9" width="38" height="30" rx="4"/><circle cx="17" cy="19" r="4"/><path d="M8 34l11-10 8 7 6-5 8 8"/></svg>';
-    }
-    function renderCards() {
-      const filtered = filteredModels();
-      const slice = filtered.slice(0, loadedCount);
-      ui.resultCount.textContent = `${slice.length} de ${filtered.length} modelo(s) encontrados`;
-      if (!filtered.length) {
-        ui.cards.innerHTML = '<div class="empty">Nenhum modelo encontrado. Altere os filtros ou cadastre um novo modelo na pagina de cadastro.</div>';
-      } else {
-        ui.cards.innerHTML = slice.map(m => {
-          const photos = getPhotos(m.id);
-          const url = photos.length ? validPhotoUrl(photos[0].url) : '';
-          const note = text(getExtra(m.id).anotacoes) || getExistingNote(m);
-          const category = [text(m.categoria), text(m.subcategoria)].filter(Boolean).join(' / ');
-          return `<article class="model-card">
-            <div class="cover">
-              ${url ? `<img src="${esc(url)}" alt="Foto do modelo ${esc(idLabel(m))}" loading="lazy">` : `<div class="no-image">${noPhotoIcon()}<span>Sem foto cadastrada</span></div>`}
-              ${photos.length ? `<span class="photo-count">${photos.length} foto${photos.length > 1 ? 's' : ''}</span>` : ''}
-            </div>
-            <div class="model-card-body">
-              <div class="model-id">${esc(idLabel(m))}</div>
-              <div class="model-line">${esc(category || 'Sem categoria informada')}</div>
-              <p class="model-note ${note ? '' : 'placeholder'}">${esc(note || 'Nenhuma anotacao cadastrada.')}</p>
-              <div class="model-badges">
-                ${getTech(m.id).length ? `<span class="pill">${getTech(m.id).length} pe&ccedil;as</span>` : ''}
-                ${getCombos(m.id).length ? `<span class="pill">${getCombos(m.id).length} combina&ccedil;&otilde;es</span>` : ''}
-              </div>
-              <div class="card-footer"><button class="button primary sm" type="button" data-model-id="${esc(m.id)}">Abrir ficha do modelo</button></div>
-            </div>
-          </article>`;
-        }).join('');
-      }
-      ui.loadMoreButton.classList.toggle('hidden', filtered.length <= loadedCount);
-    }
-    function isNotesDirty() { return !!(activeModelId && text(ui.notesInput.value) !== savedNotes); }
-    function isTechDirty() { return !!(activeModelId && JSON.stringify(draftTech) !== JSON.stringify(savedTech)); }
-    function isCombosDirty() { return !!(activeModelId && JSON.stringify(draftCombos) !== JSON.stringify(savedCombos)); }
-    function isModelDirty() { return isNotesDirty() || isTechDirty() || isCombosDirty(); }
-    function updateDirtyLabels() {
-      ui.techDirty.classList.toggle('hidden', !isTechDirty());
-      ui.comboDirty.classList.toggle('hidden', !isCombosDirty());
-    }
-    function setBusy(value) {
-      busy = value;
-      ui.saveNotesButton.disabled = !canEdit || busy;
-      ui.addPhotosButton.disabled = !canEdit || busy || (activeModelId && getPhotos(activeModelId).length >= MAX_PHOTOS);
-      ui.closeModalButton.disabled = busy;
-      ui.notesInput.disabled = !canEdit || busy;
-      ui.gallery.querySelectorAll('[data-delete-photo]').forEach(btn => { btn.disabled = !canEdit || busy; });
-      ui.addTechRow.disabled = !canEditTech || busy;
-      ui.saveTech.disabled = !canEditTech || busy;
-      ui.addCombo.disabled = !canEditCombos || busy || !savedTech.length;
-      ui.saveCombos.disabled = !canEditCombos || busy || !savedTech.length;
-      ui.techRows.querySelectorAll('input,button').forEach(el => { el.disabled = !canEditTech || busy; });
-      ui.combosContainer.querySelectorAll('input,button').forEach(el => { el.disabled = !canEditCombos || busy; });
-      document.querySelectorAll('[data-model-tab]').forEach(el => { el.disabled = busy; });
-    }
-    function openModel(id) {
-      if (busy || !modelById.has(id)) return;
-      if (activeModelId && ui.modelModal.classList.contains('open') && isModelDirty()) {
-        if (!confirm('Existem alteracoes nao salvas. Deseja descarta-las?')) return;
-      }
-      activeModelId = id;
-      clearMessage(ui.modalMessage);
-      renderModal();
-      ui.modelModal.classList.add('open');
-      ui.modelModal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-    }
-    function renderModal() {
-      const m = modelById.get(activeModelId);
-      if (!m) return;
-      const extra = getExtra(activeModelId);
-      savedNotes = text(extra.anotacoes);
-      savedTech = getTech(activeModelId);
-      draftTech = deepClone(savedTech);
-      savedCombos = getCombos(activeModelId);
-      draftCombos = deepClone(savedCombos);
-      ui.modalTitle.textContent = `Modelo ${idLabel(m)}`;
-      ui.modalSubtitle.textContent = [m.categoria, m.subcategoria].filter(Boolean).join(' / ') || 'Referencia fotografica e de producao';
-      ui.notesInput.value = savedNotes;
-      ui.saveNotesButton.textContent = 'Salvar anotacoes';
-      ui.lastChange.textContent = extra.atualizadoPor && extra.atualizadoEm
-        ? `Ultima alteracao por ${extra.atualizadoPor}`
-        : 'Anotacoes salvas separadamente dos precos e dados de producao.';
-      const original = getExistingNote(m);
-      ui.registrationNotes.classList.toggle('hidden', !original);
-      ui.registrationNotesText.textContent = original;
-      renderGallery();
-      renderTech();
-      renderCombos();
-      selectModelTab('notes');
-      updateDirtyLabels();
-      setBusy(false);
-    }
-    function renderGallery() {
-      const photos = getPhotos(activeModelId);
-      ui.galleryCount.textContent = `${photos.length} de ${MAX_PHOTOS}`;
-      if (!photos.length) {
-        ui.gallery.innerHTML = `<div class="gallery-empty">Ainda nao ha fotos deste modelo.${canEdit ? '<p style="margin:8px 0 0">Clique em <strong>Adicionar fotos</strong> para incluir imagens.</p>' : ''}</div>`;
-      } else {
-        ui.gallery.innerHTML = photos.map(photo => {
-          const url = validPhotoUrl(photo.url);
-          const date = photoDate(photo.criadaEm);
-          return `<div class="gallery-card">
-            <button type="button" class="gallery-preview" data-zoom-photo="${esc(photo.caminho)}" title="Ampliar imagem">
-              ${url ? `<img src="${esc(url)}" alt="Foto do modelo" loading="lazy">` : '<span>Imagem indisponivel</span>'}
-            </button>
-            <div class="gallery-controls"><span class="gallery-date">${esc(date || 'Foto do modelo')}</span>
-              ${canEdit ? `<button type="button" class="button danger sm" data-delete-photo="${esc(photo.caminho)}">Excluir</button>` : ''}
-            </div>
-          </div>`;
-        }).join('');
-      }
-      ui.addPhotosButton.classList.toggle('hidden', !canEdit);
-      ui.saveNotesButton.classList.toggle('hidden', !canEdit);
-      ui.addPhotosButton.disabled = !canEdit || busy || photos.length >= MAX_PHOTOS;
-    }
-    function closeModel() {
-      if (busy) return;
-      if (isModelDirty() && !confirm('Existem alteracoes nao salvas. Deseja descarta-las?')) return;
-      ui.modelModal.classList.remove('open');
-      ui.modelModal.setAttribute('aria-hidden', 'true');
-      activeModelId = null;
-      document.body.style.overflow = '';
-      clearMessage(ui.modalMessage);
-    }
-    async function saveNotes() {
-      if (!canEdit || busy || !activeModelId) return;
-      const id = activeModelId;
-      const note = text(ui.notesInput.value);
-      if (note === savedNotes) {
-        message(ui.modalMessage, 'info', 'As anotacoes ja estao salvas.');
-        return;
-      }
-      setBusy(true);
-      try {
-        // Transacao: nao sobrescreve uma anotacao alterada por outro usuario.
-        // merge:true preserva a galeria e todos os campos de outros sistemas.
-        const expected = text(getExtra(id).anotacoes);
-        const infoRef = doc(db, 'fotosModelos', id);
-        await runTransaction(db, async trx => {
-          const live = await trx.get(infoRef);
-          const liveText = live.exists() ? text(live.data().anotacoes) : '';
-          if (liveText !== expected) {
-            throw new Error('As anotacoes mudaram em outro computador. Copie seu texto antes de atualizar a pagina.');
-          }
-          trx.set(infoRef, {
-            anotacoes: note, atualizadoEm: serverTimestamp(), atualizadoPor: currentUser.email
-          }, { merge: true });
+  function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+  function show(el,type,msg){el.textContent=msg;el.className=`status show ${type}`}
+  function hide(el){el.textContent='';el.className='status'}
+  function normalize(v){return text(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+  function modelKey(s){return s.modelo||[s.linha,s.referencia].filter(Boolean).join('.')}
+  function sheetKey(s){return modelKey(s).replace(/[^A-Za-z0-9._-]/g,'_')}
+  function fmtNumber(v){if(v===null||v===undefined||v==='')return '';const n=Number(v);return Number.isFinite(n)?n.toLocaleString('pt-BR',{minimumFractionDigits:6,maximumFractionDigits:6}):text(v)}
+  const COLOR_MAP={
+    PRETO:'#111111',BRANCO:'#ffffff','BRANCO OFF':'#f5f1e8','OFF WHITE':'#f5f1e8',OFF:'#f5f1e8',CAFE:'#6f4e37',CAMEL:'#c69c6d',AVELA:'#c8a27a',NUDE:'#d8b09c',OURO:'#d4af37',DOURA:'#d4af37',DOURADO:'#d4af37',BEGE:'#d8c3a5','LIGHT BLUSH':'#e8b7b7',BLUSH:'#e8b7b7',TELHA:'#b7654b',CREME:'#f1e3c2',MARINHO:'#203864',ROSA:'#e7a1b0','ROSA ROMA':'#c96f86',TAN:'#b78b5c',PESSEGO:'#f3b38f',CORAL:'#e77b69',VERDE:'#6e8b5e',OLIVA:'#808000',LARANJA:'#e58a2b',VIOLETA:'#7952a8',CEREJA:'#9f3045',CHERRY:'#a52a44',GRAFI:'#666666',GRAFITE:'#666666',PRATA:'#b8bcc2',CINZA:'#9aa0a6',MANTE:'#e2c48c',MANTEIGA:'#e2c48c'};
+  function inferColorHex(name){
+    const n=normalize(name).toUpperCase();
+    const keys=Object.keys(COLOR_MAP).sort((a,b)=>b.length-a.length);
+    for(const k of keys){if(n.includes(normalize(k).toUpperCase()))return COLOR_MAP[k]}
+    return '#eef2f7';
+  }
+  function comboColorStyle(desc){
+    const raw=text(desc).replace(/\s+/g,' '); const parts=raw.split(/[\/+-]/).map(x=>x.trim()).filter(Boolean);
+    const colors=[]; for(const part of parts){const c=inferColorHex(part); if(c!=='#eef2f7'&&!colors.includes(c))colors.push(c)}
+    if(!colors.length){const c=inferColorHex(raw);colors.push(c)}
+    if(colors.length===1)return colors[0];
+    const step=100/colors.length; return `linear-gradient(90deg,${colors.map((c,i)=>`${c} ${Math.round(i*step)}%,${c} ${Math.round((i+1)*step)}%`).join(',')})`;
+  }
+  function parseDecimal(v){const x=text(v).replace(/\./g,'').replace(',','.');const n=Number(x);return Number.isFinite(n)?n:''}
+  async function saveActiveSheet(){
+    if(!active)throw new Error('Nenhum modelo selecionado.');
+    if(!active.hasFicha)throw new Error('Este modelo ainda nao possui ficha tecnica cadastrada.');
+    if(!EDIT_LEVELS.has(userLevel))throw new Error('Seu nível de acesso não permite editar a ficha técnica.');
+    const id=active.id&&String(active.id).startsWith('legacy_')?sheetKey(active):(active.id||sheetKey(active));
+    const payload={...active,id:undefined,modeloId:active.modelo||modelKey(active),atualizadoEm:serverTimestamp(),atualizadoPor:auth.currentUser?.email||''};
+    delete payload.id;
+    await setDoc(doc(db,'fichasTecnicas',id),payload,{merge:true});
+    active.id=id;
+    const idx=allSheets.findIndex(x=>x.id===id||sheetKey(x)===id||modelKey(x)===modelKey(active)&&text(x.cabedal)===text(active.cabedal)&&text(x.versao)===text(active.versao));
+    if(idx>=0)allSheets[idx]=active; else allSheets.push(active);
+  }
+
+  async function loadBaseData(){
+    try{
+      // MODELOS e a fonte principal desta pagina.
+      // A ficha tecnica e apenas um complemento opcional do modelo.
+      const [modelsSnap,extraSnap]=await Promise.all([
+        getDocs(collection(db,'modelos')),
+        getDocs(collection(db,'fotosModelos')).catch(()=>null)
+      ]);
+
+      modelIds=new Set();
+      modelDataById=new Map();
+      const baseModels=[];
+      modelsSnap.forEach(d=>{
+        const x=d.data()||{};
+        const id=d.id;
+        const partes=id.split('.');
+        const linha=text(x.linha)||partes[0]||'';
+        const referencia=text(x.modelo)||partes.slice(1).join('.')||'';
+        modelIds.add(id);
+        modelDataById.set(id,x);
+        baseModels.push({
+          id,
+          modelo:id,
+          linha,
+          referencia,
+          categoria:text(x.categoria),
+          subcategoria:text(x.subcategoria),
+          observacaoModelo:text(x.observacaoModelo||x.observacao),
+          ativo:x.ativo!==false,
+          hasFicha:false,
+          cabedal:'',versao:'',descricao:'',forma:'',tipoForro:'',tipoPalmilha:'',tipoMaterialCabedal:'',grades:[],combinacoes:[],materiais:[],variacoes:[],
+          origem:'Cadastro de modelos'
         });
-        const previous = getExtra(id);
-        extrasById.set(id, { ...previous, anotacoes: note, atualizadoPor: currentUser.email });
-        savedNotes = note;
-        ui.saveNotesButton.textContent = 'Salvar anotacoes';
-        renderSummary();
-        renderCards();
-        ui.lastChange.textContent = `Ultima alteracao por ${currentUser.email}`;
-        message(ui.modalMessage, 'success', 'Anotacoes salvas com sucesso.');
-      } catch (err) {
-        console.error('Erro ao salvar anotacoes', err);
-        message(ui.modalMessage, 'error', 'Nao foi possivel salvar: ' + readableError(err));
-      } finally { setBusy(false); }
-    }
-    // Ficha tecnica e combinacoes compartilham o documento fotosModelos,
-    // mas cada um possui seu proprio campo e salvamento transacional.
-    function deepClone(obj) { return JSON.parse(JSON.stringify(obj)); }
-    function newRowId(prefix) {
-      const v = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      return `${prefix}-${v}`;
-    }
-    function normalizeTech(data) {
-      if (!Array.isArray(data)) return [];
-      return data.slice(0, MAX_TECH_ROWS).filter(r => r && typeof r === 'object').map((r, i) => ({
-        id: text(r.id || `peca-legada-${i}`).slice(0, 85),
-        item: text(r.item).slice(0, 60),
-        peca: text(r.peca).slice(0, 70),
-        material: text(r.material).slice(0, 160)
-      }));
-    }
-    function normalizeCombos(data) {
-      if (!Array.isArray(data)) return [];
-      return data.slice(0, MAX_COMBINATIONS).filter(c => c && typeof c === 'object').map((c, i) => {
-        const cores = {};
-        if (c.cores && typeof c.cores === 'object' && !Array.isArray(c.cores)) {
-          for (const [part, cor] of Object.entries(c.cores).slice(0, MAX_TECH_ROWS + 20)) {
-            if (cor && typeof cor === 'object' && !Array.isArray(cor)) {
-              cores[part] = { codigo: text(cor.codigo).slice(0, 60), nome: text(cor.nome).slice(0, 100) };
-            }
-          }
-        }
+      });
+
+      photosByModel=new Map();
+      if(extraSnap) extraSnap.forEach(d=>{
+        const x=d.data()||{},photos=Array.isArray(x.fotos)?x.fotos:[];
+        if(photos.length)photosByModel.set(d.id,photos);
+      });
+
+      const fichaMap=new Map();
+      try{
+        const fs=await getDocs(collection(db,'fichasTecnicas'));
+        fs.forEach(d=>{
+          const x={id:d.id,...d.data()};
+          const mk=modelKey(x)||d.id;
+          // A estrutura nova aceita somente um documento por modelo.
+          // Se ainda houver documentos antigos, preferimos o documento cujo ID e exatamente o modelo.
+          const atual=fichaMap.get(mk);
+          if(!atual || d.id===mk) fichaMap.set(mk,x);
+        });
+      }catch(e){
+        console.warn('Colecao fichasTecnicas indisponivel ou vazia. Exibindo somente modelos.',e);
+      }
+
+      // Mescla ficha tecnica sobre o cadastro do modelo, sem perder modelos sem ficha.
+      allSheets=baseModels.map(base=>{
+        const ficha=fichaMap.get(base.modelo);
+        if(!ficha)return base;
         return {
-          id: text(c.id || `combinacao-legada-${i}`).slice(0, 85),
-          corCodigo: text(c.corCodigo).slice(0, 60),
-          corNome: text(c.corNome).slice(0, 100), cores
+          ...base,
+          ...ficha,
+          id:base.modelo,
+          modelo:base.modelo,
+          linha:base.linha,
+          referencia:base.referencia,
+          categoria:base.categoria,
+          subcategoria:base.subcategoria,
+          observacaoModelo:base.observacaoModelo,
+          ativo:base.ativo,
+          hasFicha:true
         };
       });
-    }
-    function getTech(id) { return normalizeTech(getExtra(id).fichaTecnica); }
-    function getCombos(id) { return normalizeCombos(getExtra(id).combinacoes); }
 
-    function selectModelTab(name) {
-      if (!['notes', 'ficha', 'combos'].includes(name)) return;
-      activeTab = name;
-      const panels = {notes:ui.tabNotes, ficha:ui.tabFicha, combos:ui.tabCombos};
-      for (const [key, panel] of Object.entries(panels)) panel.hidden = key !== name;
-      document.querySelectorAll('[data-model-tab]').forEach(button => {
-        const selected = button.dataset.modelTab === name;
-        button.classList.toggle('active', selected);
-        button.setAttribute('aria-selected', String(selected));
-      });
-      if (name === 'combos' && isTechDirty()) {
-        message(ui.modalMessage, 'warning', 'A ficha tecnica tem alteracoes nao salvas. Salve-a antes de editar as combinacoes; elas usam a ultima ficha salva.');
-      }
-    }
+      allSheets.sort((a,b)=>modelKey(a).localeCompare(modelKey(b),'pt-BR',{numeric:true}));
+      populateSelectors();
+      applyFilters();
 
-    function renderTech() {
-      ui.techCount.textContent = `${draftTech.length} peca(s)`;
-      ui.techReadonly.classList.toggle('hidden', canEditTech);
-      if (!draftTech.length) {
-        ui.techRows.innerHTML = '<tr><td colspan="4"><div class="sheet-empty">Nenhuma peca na ficha. Clique em Adicionar peca para comecar.</div></td></tr>';
-      } else {
-        ui.techRows.innerHTML = draftTech.map((part, index) => `<tr data-tech-row="${esc(part.id)}">
-          <td><input aria-label="Item da peca ${index+1}" maxlength="60" placeholder="1458" data-tech-field="item" data-tech-id="${esc(part.id)}" value="${esc(part.item)}" ${canEditTech?'':'disabled'}></td>
-          <td><input aria-label="Nome da peca ${index+1}" maxlength="70" placeholder="C1, C2, Forro" data-tech-field="peca" data-tech-id="${esc(part.id)}" value="${esc(part.peca)}" ${canEditTech?'':'disabled'}></td>
-          <td><input aria-label="Material da peca ${index+1}" maxlength="160" placeholder="Napa turim" data-tech-field="material" data-tech-id="${esc(part.id)}" value="${esc(part.material)}" ${canEditTech?'':'disabled'}></td>
-          <td>${canEditTech?`<button class="button danger sm" type="button" data-remove-part="${esc(part.id)}">Excluir</button>`:'-'}</td>
-        </tr>`).join('');
+      if(allSheets.length){
+        const linhaInicial=normalize($('fLinha').value),refInicial=normalize($('fRef').value);
+        const inicial=allSheets.find(s=>(!linhaInicial||normalize(s.linha)===linhaInicial)&&(!refInicial||normalize(s.referencia)===refInicial));
+        openSheet(inicial||allSheets[0]);
+      }else{
+        show($('pageStatus'),'info','Nenhum modelo encontrado na colecao modelos.');
       }
-      const metadata = getExtra(activeModelId);
-      ui.techUpdated.textContent = metadata.fichaAtualizadaPor ? `Ficha atualizada por ${metadata.fichaAtualizadaPor}` : 'Esta ficha e salva separadamente do cadastro de precos.';
-      updateDirtyLabels();
-      setBusy(busy);
+    }catch(e){
+      console.error(e);
+      show($('pageStatus'),'error','Nao foi possivel carregar a colecao modelos: '+(e.message||e));
+      $('modelList').innerHTML='<div class="empty">Erro ao carregar modelos.</div>';
     }
+  }
 
-    function renderCombos() {
-      const parts = savedTech;
-      const partSet = new Set(parts.map(r => r.id));
-      ui.comboCount.textContent = `${draftCombos.length} combinacao(oes)`;
-      ui.comboReadonly.classList.toggle('hidden', canEditCombos);
-      ui.comboInfo.textContent = !parts.length
-        ? 'Cadastre e salve primeiro as pecas na aba Ficha tecnica. Apenas os perfis autorizados podem editar a ficha.'
-        : isTechDirty()
-          ? 'Atenção: ha alteracoes pendentes na ficha. As combinacoes ainda usam a ultima lista de pecas salva.'
-          : `${parts.length} peca(s) vinculada(s) a cada combinacao. Informe codigo e nome da cor principal e de cada peca.`;
-      if (!parts.length) {
-        ui.combosContainer.innerHTML = '<div class="sheet-empty">Salve a ficha tecnica do modelo antes de cadastrar combinacoes.</div>';
-      } else if (!draftCombos.length) {
-        ui.combosContainer.innerHTML = '<div class="sheet-empty">Nenhuma combinacao cadastrada. Clique em Nova combinacao para informar as cores.</div>';
-      } else {
-        ui.combosContainer.innerHTML = draftCombos.map((combo, i) => {
-          const oldKeys = Object.keys(combo.cores || {}).filter(key => !partSet.has(key));
-          return `<article class="combo-card" data-combo-id="${esc(combo.id)}">
-            <div class="combo-head"><strong>Combinacao ${String(i + 1).padStart(2, '0')}${combo.corNome?` - ${esc(combo.corNome)}`:''}</strong><span class="hint">${parts.length} peca(s)</span></div>
-            <div class="combo-fields">
-              <div><label>Cor principal - codigo</label><input placeholder="15745" maxlength="60" aria-label="Codigo da cor principal da combinacao ${i+1}" data-combo-id="${esc(combo.id)}" data-combo-field="corCodigo" value="${esc(combo.corCodigo)}" ${canEditCombos?'':'disabled'}></div>
-              <div><label>Cor principal - descricao</label><input placeholder="Preto" maxlength="100" aria-label="Nome da cor principal da combinacao ${i+1}" data-combo-id="${esc(combo.id)}" data-combo-field="corNome" value="${esc(combo.corNome)}" ${canEditCombos?'':'disabled'}></div>
-            </div>
-            <div class="table-wrap"><table class="sheet-table" aria-label="Cores da combinacao ${i+1}">
-              <thead><tr><th>Item</th><th>Peca / material</th><th>Cor (codigo)</th><th>Cor (descricao)</th></tr></thead>
-              <tbody>${parts.map(part => {
-                const cor = combo.cores[part.id] || {codigo:'', nome:''};
-                return `<tr><td>${esc(part.item)}</td><td><strong>${esc(part.peca)}</strong><div class="hint">${esc(part.material)}</div></td>
-                  <td><input maxlength="60" placeholder="15745" aria-label="Codigo da cor da peca ${esc(part.peca)}" data-combo-id="${esc(combo.id)}" data-combo-part="${esc(part.id)}" data-combo-part-field="codigo" value="${esc(cor.codigo)}" ${canEditCombos?'':'disabled'}></td>
-                  <td><input maxlength="100" placeholder="Preto" aria-label="Descricao da cor da peca ${esc(part.peca)}" data-combo-id="${esc(combo.id)}" data-combo-part="${esc(part.id)}" data-combo-part-field="nome" value="${esc(cor.nome)}" ${canEditCombos?'':'disabled'}></td></tr>`;
-              }).join('')}</tbody></table></div>
-            ${oldKeys.length ? `<p class="old-piece-warning">${oldKeys.length} cor(es) de peca(s) removida(s) da ficha permanecem arquivadas neste registro e nao serao apagadas ao salvar.</p>` : ''}
-            ${canEditCombos ? `<div class="combo-footer"><button type="button" class="button soft sm" data-copy-combo="${esc(combo.id)}">Duplicar</button><button type="button" class="button danger sm" data-remove-combo="${esc(combo.id)}">Excluir combinacao</button></div>`:''}
-          </article>`;
-        }).join('');
-      }
-      const metadata = getExtra(activeModelId);
-      ui.comboUpdated.textContent = metadata.combinacoesAtualizadoPor ? `Combinacoes atualizadas por ${metadata.combinacoesAtualizadoPor}` : 'Cada combinacao salva todas as cores de suas pecas.';
-      updateDirtyLabels();
-      setBusy(busy);
-    }
+  function populateSelectors(){
+    const comFicha=allSheets.filter(x=>x.hasFicha);
+    const cabs=[...new Set(comFicha.flatMap(x=>{
+      const vals=[];
+      if(text(x.cabedal))vals.push(text(x.cabedal));
+      for(const v of (Array.isArray(x.variacoes)?x.variacoes:[]))if(text(v.cabedal))vals.push(text(v.cabedal));
+      return vals;
+    }))].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}));
+    const vers=[...new Set(comFicha.flatMap(x=>{
+      const vals=[];
+      if(text(x.versao))vals.push(text(x.versao));
+      for(const v of (Array.isArray(x.variacoes)?x.variacoes:[]))if(text(v.versao))vals.push(text(v.versao));
+      return vals;
+    }))].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}));
+    $('fCab').innerHTML='<option value="">Todos</option>'+cabs.map(x=>`<option>${esc(x)}</option>`).join('');
+    $('fVersao').innerHTML='<option value="">Todas</option>'+vers.map(x=>`<option>${esc(x)}</option>`).join('');
+  }
 
-    function validateTech(parts) {
-      if (parts.length > MAX_TECH_ROWS) throw new Error('Limite de 80 pecas por ficha tecnica.');
-      if (new Set(parts.map(p => p.id)).size !== parts.length) throw new Error('Itens duplicados na estrutura da ficha.');
-      const combinationKeys = new Set();
-      for (const [index, row] of parts.entries()) {
-        if (!row.item || !row.peca || !row.material) throw new Error(`Preencha Item, Peca e Material da linha ${index+1}.`);
-        const key = normal(`${row.item}|${row.peca}`);
-        if (combinationKeys.has(key)) throw new Error(`O Item e Peca da linha ${index+1} ja aparecem na ficha.`);
-        combinationKeys.add(key);
-      }
-    }
-    function validateCombos(combos, parts) {
-      if (combos.length > MAX_COMBINATIONS) throw new Error('Limite de 40 combinacoes por modelo.');
-      const ids = new Set();
-      for (const [i, combo] of combos.entries()) {
-        if (ids.has(combo.id)) throw new Error('Identificadores de combinacao duplicados.');
-        ids.add(combo.id);
-        if (!combo.corCodigo || !combo.corNome) throw new Error(`Informe codigo e descricao da cor principal da combinacao ${i+1}.`);
-        for (const p of parts) {
-          const cor = combo.cores?.[p.id];
-          if (!cor?.codigo || !cor?.nome) throw new Error(`Combinacao ${i+1}: informe codigo e cor da peca ${p.peca} (item ${p.item}).`);
-        }
-      }
-    }
+  function modelMatchesCabVers(s,cab,ver){
+    if(!cab&&!ver)return true;
+    if(!s.hasFicha)return false;
+    const vars=Array.isArray(s.variacoes)?s.variacoes:[];
+    if(!vars.length)return (!cab||normalize(s.cabedal)===cab)&&(!ver||normalize(s.versao)===ver);
+    return vars.some(v=>(!cab||normalize(v.cabedal)===cab)&&(!ver||normalize(v.versao)===ver));
+  }
+  function applyFilters({autoOpen=false}={}){
+    const linha=normalize($('fLinha').value),ref=normalize($('fRef').value),cab=normalize($('fCab').value),ver=normalize($('fVersao').value),desc=normalize($('fDescricao').value);
+    visibleSheets=allSheets.filter(s=>{
+      const descricaoModelo=[s.descricao,s.categoria,s.subcategoria,s.observacaoModelo].filter(Boolean).join(' ');
+      return (!linha||normalize(s.linha).includes(linha))
+        &&(!ref||normalize(s.referencia).includes(ref)||normalize(modelKey(s)).includes(ref))
+        &&modelMatchesCabVers(s,cab,ver)
+        &&(!desc||normalize(descricaoModelo).includes(desc));
+    });
+    renderList();
 
-    async function saveTech() {
-      if (!canEditTech || busy || !activeModelId) return;
-      const id = activeModelId;
-      const cleaned = normalizeTech(draftTech);
-      try { validateTech(cleaned); } catch (error) { message(ui.modalMessage, 'warning', error.message); return; }
-      if (!isTechDirty()) { message(ui.modalMessage, 'info', 'Ficha tecnica ja esta salva.'); return; }
-      if (!cleaned.length && savedCombos.length) {
-        message(ui.modalMessage, 'warning', 'Exclua primeiro todas as combinacoes antes de deixar a ficha tecnica sem pecas.');
+    if(autoOpen){
+      if(!visibleSheets.length){
+        active=null;
+        $('sheetContent').classList.add('hidden');
+        $('sheetEmpty').classList.remove('hidden');
+        $('sheetEmpty').textContent='Nenhum modelo encontrado para os filtros informados.';
         return;
       }
-      const removed = savedTech.filter(part => !cleaned.some(p => p.id === part.id));
-      const used = removed.filter(part => savedCombos.some(combo => combo.cores?.[part.id]?.codigo));
-      if (used.length && !confirm(`${used.length} peca(s) removida(s) possuem cores nas combinacoes. Essas cores ficarao arquivadas, nao serao excluidas. Confirmar alteracao da ficha?`)) return;
-      setBusy(true);
-      try {
-        const infoRef = doc(db, 'fotosModelos', id);
-        const expected = JSON.stringify(savedTech);
-        await runTransaction(db, async transaction => {
-          const live = await transaction.get(infoRef);
-          const current = normalizeTech(live.exists() ? live.data().fichaTecnica : []);
-          if (JSON.stringify(current) !== expected) throw new Error('A ficha foi alterada por outro usuario. Copie suas alteracoes e atualize a pagina antes de salvar.');
-          transaction.set(infoRef, {fichaTecnica:cleaned, fichaAtualizadaEm:serverTimestamp(), fichaAtualizadaPor:currentUser.email}, {merge:true});
-        });
-        extrasById.set(id, {...getExtra(id), fichaTecnica:cleaned, fichaAtualizadaPor:currentUser.email});
-        savedTech = deepClone(cleaned);
-        draftTech = deepClone(cleaned);
-        renderTech(); renderCombos(); renderSummary(); renderCards();
-        message(ui.modalMessage, 'success', `Ficha tecnica salva com ${cleaned.length} peca(s). As fotos, anotacoes e precos foram preservados.`);
-      } catch (error) {
-        console.error('Erro ao salvar ficha tecnica', error);
-        message(ui.modalMessage, 'error', 'Nao foi possivel salvar a ficha: ' + readableError(error));
-      } finally { setBusy(false); }
+      const exact=visibleSheets.find(s=>(!linha||normalize(s.linha)===linha)&&(!ref||normalize(s.referencia)===ref||normalize(modelKey(s))===ref));
+      openSheet(exact||visibleSheets[0]);
+    }
+  }
+  function renderList(){
+    if($('resultCount'))$('resultCount').textContent=`(${visibleSheets.length})`;
+    if(!visibleSheets.length){$('modelList').innerHTML='<div class="empty">Nenhum modelo encontrado.</div>';return}
+    $('modelList').innerHTML=visibleSheets.map(s=>`<button class="model-row ${active&&modelKey(active)===modelKey(s)?'active':''}" data-id="${esc(modelKey(s))}"><strong>${esc(modelKey(s))}</strong><small>${s.hasFicha?'<span style="color:#16834f;font-weight:800">Ficha cadastrada</span>':'<span style="color:#b7791f;font-weight:800">Sem ficha tecnica</span>'}${s.categoria||s.subcategoria?` · ${esc([s.categoria,s.subcategoria].filter(Boolean).join(' / '))}`:''}</small></button>`).join('');
+  }
+  function openSheet(s){active=s;activeSector='';renderList();renderSheet()}
+  function selectedVariation(){
+    if(!active||!active.hasFicha)return null;
+    const vars=Array.isArray(active.variacoes)?active.variacoes:[];
+    if(!vars.length)return active;
+    const cab=normalize($('fCab').value),ver=normalize($('fVersao').value);
+    return vars.find(v=>(!cab||normalize(v.cabedal)===cab)&&(!ver||normalize(v.versao)===ver))||vars[0];
+  }
+  function renderSheet(){
+    $('sheetEmpty').classList.add('hidden');$('sheetContent').classList.remove('hidden');
+    const mk=modelKey(active),v=selectedVariation();
+    $('modelCode').textContent=mk;
+    $('versionBadge').textContent=active.hasFicha?'Versao '+(v?.versao||active.versao||'-'):'Sem ficha';
+    $('cabedalBadge').textContent=active.hasFicha?'Cabedal: '+(v?.cabedal||active.cabedal||'-'):'Aguardando importacao';
+    $('descText').textContent=(v?.descricao||active.descricao||[active.categoria,active.subcategoria].filter(Boolean).join(' / ')||'-');
+    $('formaText').textContent=v?.forma||active.forma||'-';
+    $('forroText').textContent=v?.tipoForro||active.tipoForro||'-';
+    $('palmilhaText').textContent=v?.tipoPalmilha||active.tipoPalmilha||'-';
+    $('tipoCabText').textContent=v?.tipoMaterialCabedal||active.tipoMaterialCabedal||'-';
+    const grades=v?.grades??active.grades;
+    $('gradesText').textContent=Array.isArray(grades)?grades.join('   '):(grades||'-');
+    const photos=photosByModel.get(mk)||[],url=photos[0]?.url;
+    $('photoBox').innerHTML=url?`<img src="${esc(url)}" alt="Foto do modelo ${esc(mk)}">`:`<div class="no-photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m5 18 5-5 4 4 2-2 3 3"/></svg>Sem foto cadastrada</div>`;
+
+    if(!active.hasFicha){
+      $('comboCount').textContent='0';
+      $('comboBody').innerHTML='<tr><td colspan="2" style="color:#66758c">Ficha tecnica ainda nao cadastrada.</td></tr>';
+      $('sectorTabs').innerHTML='';
+      $('materialsBody').innerHTML='<tr><td colspan="7"><div class="empty"><strong>Modelo cadastrado no sistema.</strong><br>Este modelo ainda nao possui ficha tecnica importada.<br><br>Use “Importar PDF (Massa)” para cadastrar a ficha deste modelo.</div></td></tr>';
+      $('sourceInfo').textContent=`Origem: colecao modelos${active.categoria?' · Categoria: '+active.categoria:''}${active.subcategoria?' · Subcategoria: '+active.subcategoria:''}`;
+      $('fichaView').classList.toggle('hidden',currentPageTab!=='ficha');
+      $('combosView').classList.toggle('hidden',currentPageTab!=='combos');
+      if(currentPageTab==='combos')$('comboCards').innerHTML='<div class="empty">Este modelo ainda nao possui combinacoes importadas.</div>';
+      return;
     }
 
-    async function saveCombinations() {
-      if (!canEditCombos || busy || !activeModelId) return;
-      if (isTechDirty()) { message(ui.modalMessage, 'warning', 'Salve primeiro as alteracoes da ficha tecnica para atualizar as pecas das combinacoes.'); return; }
-      const id = activeModelId;
-      const cleaned = normalizeCombos(draftCombos);
-      try { validateCombos(cleaned, savedTech); }
-      catch (error) { message(ui.modalMessage, 'warning', error.message); return; }
-      if (!isCombosDirty()) { message(ui.modalMessage, 'info', 'As combinacoes ja estao salvas.'); return; }
-      setBusy(true);
-      try {
-        const infoRef = doc(db, 'fotosModelos', id);
-        const expectedTech = JSON.stringify(savedTech);
-        const expectedCombos = JSON.stringify(savedCombos);
-        await runTransaction(db, async transaction => {
-          const live = await transaction.get(infoRef);
-          if (!live.exists()) throw new Error('Cadastre e salve a ficha tecnica deste modelo antes de registrar combinacoes.');
-          const remoteTech = normalizeTech(live.data().fichaTecnica);
-          const remoteCombos = normalizeCombos(live.data().combinacoes);
-          if (JSON.stringify(remoteTech) !== expectedTech || JSON.stringify(remoteCombos) !== expectedCombos)
-            throw new Error('Ficha ou combinacoes alteradas por outro usuario. Copie os dados nao salvos e atualize a pagina.');
-          transaction.set(infoRef, {combinacoes:cleaned, combinacoesAtualizadoEm:serverTimestamp(), combinacoesAtualizadoPor:currentUser.email}, {merge:true});
-        });
-        extrasById.set(id, {...getExtra(id), combinacoes:cleaned, combinacoesAtualizadoPor:currentUser.email});
-        savedCombos = deepClone(cleaned);
-        draftCombos = deepClone(cleaned);
-        renderCombos(); renderSummary(); renderCards();
-        message(ui.modalMessage, 'success', `${cleaned.length} combinacao(oes) salva(s). A ficha tecnica, as fotos, os precos e as anotacoes foram preservados.`);
-      } catch (error) {
-        console.error('Erro ao salvar combinacoes', error);
-        message(ui.modalMessage, 'error', 'Nao foi possivel salvar as combinacoes: ' + readableError(error));
-      } finally { setBusy(false); }
-    }
+    renderCombos();renderSectors();
+    $('sourceInfo').textContent=`Origem: ${active.origem||'Beira Rio (PDF)'}${active.arquivoOrigem?' · Arquivo: '+active.arquivoOrigem:''}`;
+    $('fichaView').classList.toggle('hidden',currentPageTab!=='ficha');$('combosView').classList.toggle('hidden',currentPageTab!=='combos');
+  }
 
-    async function lookupModelByCode() {
-      if (busy) return;
-      const code = text(ui.codeLookup.value).replace(/\s+/g, '');
-      if (!/^\d{2,6}\.\d{1,6}$/.test(code)) {
-        message(ui.pageMessage, 'warning', 'Informe o codigo completo no formato linha.modelo (ex.: 9077.202).');
-        return;
-      }
-      if (modelById.has(code)) { openModel(code); return; }
-      ui.lookupButton.disabled = true;
-      try {
-        const snapshot = await getDoc(doc(db, 'fotosModelos', code));
-        if (!snapshot.exists() && !canEditTech) {
-          message(ui.pageMessage, 'warning', 'Este codigo ainda nao possui fotos ou ficha tecnica vinculada. Um perfil de cadastro precisa abrir o modelo e salvar a ficha primeiro.');
-          return;
-        }
-        if (!snapshot.exists() && !confirm('Este codigo ainda nao tem registro em fotosModelos. Deseja abrir a ficha vazia? O salvamento so sera permitido se o codigo existir no cadastro de modelos.')) return;
-        extrasById.set(code, snapshot.exists() ? snapshot.data() : {});
-        const model = minimalVisibleModel(code);
-        models.push(model); models.sort(sortModels); modelById.set(code, model);
-        renderSummary(); renderCards(); openModel(code);
-      } catch (error) { message(ui.pageMessage, 'error', 'Falha na consulta: ' + readableError(error)); }
-      finally { ui.lookupButton.disabled = false; }
-    }
-    function loadBrowserImage(file) {
-      return new Promise((resolve, reject) => {
-        const objectUrl = URL.createObjectURL(file);
-        const image = new Image();
-        image.onload = () => { URL.revokeObjectURL(objectUrl); resolve(image); };
-        image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Nao foi possivel abrir a imagem. Use JPG, PNG ou WebP.')); };
-        image.src = objectUrl;
-      });
-    }
-    async function optimizePhoto(file) {
-      if (!file || !file.type.startsWith('image/')) throw new Error('Selecione um arquivo de imagem.');
-      if (file.size > MAX_SOURCE_BYTES) throw new Error('A foto original deve ter no maximo 25 MB.');
-      const image = await loadBrowserImage(file);
-      const width = image.naturalWidth;
-      const height = image.naturalHeight;
-      if (!width || !height) throw new Error('Nao foi possivel identificar as dimensoes da foto.');
-      const factor = Math.min(1, 1700 / Math.max(width, height));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.round(width * factor));
-      canvas.height = Math.max(1, Math.round(height * factor));
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('O navegador nao conseguiu preparar a imagem.');
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', .83));
-      canvas.width = 0;
-      canvas.height = 0;
-      if (!blob) throw new Error('Nao foi possivel compactar a imagem.');
-      if (blob.size > MAX_UPLOAD_BYTES) throw new Error('A imagem compactada ultrapassou 5 MB.');
-      return blob;
-    }
-    function uploadWithProgress(ref, blob, onProgress) {
-      return new Promise((resolve, reject) => {
-        const task = uploadBytesResumable(ref, blob, { contentType: 'image/jpeg' });
-        task.on('state_changed', (snap) => {
-          const ratio = snap.totalBytes ? snap.bytesTransferred / snap.totalBytes : 0;
-          onProgress(Math.round(ratio * 100));
-        }, reject, resolve);
-      });
-    }
-    async function addOnePhoto(id, file, index, total, options = {}) {
-      if (options.status) options.status(0);
-      else message(ui.modalMessage, 'info', `Preparando foto ${index} de ${total}...`);
-      const blob = await optimizePhoto(file);
-      const randomPart = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-        ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const path = `fotosModelos/${encodeURIComponent(id)}/${randomPart}.jpg`;
-      const ref = storageRef(storage, path);
-      let uploaded = false;
-      try {
-        await uploadWithProgress(ref, blob, pct => {
-          if (options.status) options.status(pct);
-          else message(ui.modalMessage, 'info', `Enviando foto ${index} de ${total}: ${pct}%`);
-        });
-        uploaded = true;
-        const url = await getDownloadURL(ref);
-        const photo = {
-          url, caminho: path,
-          nomeOriginal: file.name.slice(0, 100),
-          criadaEm: new Date().toISOString(),
-          criadoPor: currentUser.email,
-          ...(options.hashOrigem ? {sha256Origem:options.hashOrigem} : {})
-        };
-        const infoRef = doc(db, 'fotosModelos', id);
-        await runTransaction(db, async trx => {
-          const snapshot = await trx.get(infoRef);
-          const previous = snapshot.exists() ? snapshot.data() : {};
-          const current = Array.isArray(previous.fotos) ? previous.fotos : [];
-          if (options.hashOrigem && current.some(p=>p.sha256Origem===options.hashOrigem)) throw new Error('Foto ja importada para este modelo.');
-          if (current.length >= MAX_PHOTOS) throw new Error('Limite de 5 fotos atingido para este modelo.');
-          trx.set(infoRef, {
-            fotos: [...current, photo],
-            atualizadoEm: serverTimestamp(),
-            atualizadoPor: currentUser.email
-          }, { merge: true });
-        });
-      } catch (err) {
-        // Limpeza apenas do NOVO arquivo criado por esta operacao.
-        if (uploaded) {
-          try { await deleteObject(ref); }
-          catch (cleanupError) { console.warn('Limpeza de foto nao vinculada pendente', cleanupError); }
-        }
-        throw err;
-      }
-    }
-    async function refreshExtra(id) {
-      const snapshot = await getDoc(doc(db, 'fotosModelos', id));
-      if (snapshot.exists()) extrasById.set(id, snapshot.data());
-      else extrasById.delete(id);
-      renderSummary();
-      renderCards();
-      if (activeModelId === id) renderGallery();
-    }
-    async function addPhotos(fileList) {
-      if (!canEdit || busy || !activeModelId || !fileList?.length) return;
-      const id = activeModelId;
-      const files = Array.from(fileList);
-      if (getPhotos(id).length + files.length > MAX_PHOTOS) {
-        message(ui.modalMessage, 'warning', `Este modelo permite ate ${MAX_PHOTOS} fotos. Selecione menos arquivos ou exclua uma foto antiga.`);
-        return;
-      }
-      setBusy(true);
-      let successes = 0;
-      const errors = [];
-      try {
-        for (const [i, file] of files.entries()) {
-          try { await addOnePhoto(id, file, i + 1, files.length); successes++; }
-          catch (err) { console.error('Erro ao enviar foto', err); errors.push(`${file.name}: ${readableError(err)}`); }
-        }
-        try { await refreshExtra(id); }
-        catch (err) { errors.push('Erro ao atualizar lista: ' + readableError(err)); }
-        if (errors.length) {
-          message(ui.modalMessage, 'warning', `${successes} foto(s) adicionada(s). ${errors.join(' | ')}`);
-        } else {
-          message(ui.modalMessage, 'success', `${successes} foto(s) adicionada(s) com sucesso.`);
-        }
-      } finally { setBusy(false); ui.photoInput.value = ''; }
-    }
-    async function removePhoto(path) {
-      if (!canEdit || busy || !activeModelId) return;
-      const id = activeModelId;
-      const expectedPrefix = `fotosModelos/${encodeURIComponent(id)}/`;
-      if (!path.startsWith(expectedPrefix) || !getPhotos(id).some(p => p.caminho === path)) return;
-      if (!confirm('Excluir esta foto do modelo? Esta acao nao pode ser desfeita.')) return;
-      setBusy(true);
-      try {
-        const infoRef = doc(db, 'fotosModelos', id);
-        await runTransaction(db, async trx => {
-          const snapshot = await trx.get(infoRef);
-          if (!snapshot.exists()) throw new Error('Cadastro de fotos nao encontrado. Atualize a lista.');
-          const current = Array.isArray(snapshot.data().fotos) ? snapshot.data().fotos : [];
-          if (!current.some(p => p.caminho === path)) throw new Error('Esta foto ja foi removida. Atualize a lista.');
-          trx.update(infoRef, {
-            fotos: current.filter(p => p.caminho !== path),
-            atualizadoEm: serverTimestamp(),
-            atualizadoPor: currentUser.email
-          });
-        });
-        let storageWarning = '';
-        try { await deleteObject(storageRef(storage, path)); }
-        catch (err) {
-          if (err?.code !== 'storage/object-not-found') {
-            console.warn('A foto foi desvinculada, mas nao excluida do Storage', err);
-            storageWarning = ' A foto foi removida do cadastro, mas nao foi possivel limpar o arquivo no Storage.';
-          }
-        }
-        await refreshExtra(id);
-        message(ui.modalMessage, storageWarning ? 'warning' : 'success', 'Foto removida do modelo.' + storageWarning);
-      } catch (err) {
-        console.error('Erro ao remover foto', err);
-        message(ui.modalMessage, 'error', 'Nao foi possivel remover a foto: ' + readableError(err));
-        try { await refreshExtra(id); } catch { /* Mantem mensagem do erro original. */ }
-      } finally { setBusy(false); }
-    }
-    function zoomPhoto(path) {
-      const photo = getPhotos(activeModelId).find(p => p.caminho === path);
-      const url = photo ? validPhotoUrl(photo.url) : '';
-      if (!url) return;
-      ui.largePhotoImage.src = url;
-      ui.largePhotoOverlay.classList.add('open');
-      ui.largePhotoOverlay.setAttribute('aria-hidden', 'false');
-    }
-    function closeZoom() {
-      ui.largePhotoOverlay.classList.remove('open');
-      ui.largePhotoOverlay.setAttribute('aria-hidden', 'true');
-      ui.largePhotoImage.removeAttribute('src');
-    }
+  function currentTechnicalView(){
+    if(!active)return null;
+    if(!active.hasFicha)return active;
+    const vars=Array.isArray(active.variacoes)?active.variacoes:[];
+    if(!vars.length)return active;
+    const cab=normalize($('fCab').value),ver=normalize($('fVersao').value);
+    return vars.find(v=>(!cab||normalize(v.cabedal)===cab)&&(!ver||normalize(v.versao)===ver))||vars[0];
+  }
+  function renderCombos(){
+    const view=currentTechnicalView()||active; const combos=Array.isArray(view?.combinacoes)?view.combinacoes:[];$('comboCount').textContent=combos.length;
+    $('comboBody').innerHTML=combos.length?combos.map(c=>`<tr><td><b>${esc(c.codigo||c.corCodigo||'')}</b></td><td><span class="color-dot" style="background:${esc(c.corHex||comboColorStyle(c.descricao||c.corNome||''))}"></span>${esc(c.descricao||c.corNome||'')}</td></tr>`).join(''):'<tr><td colspan="2" style="color:#66758c">Nenhuma combinação cadastrada.</td></tr>';
+    renderComboEditor();
+  }
+  function renderComboEditor(){
+    if(!active)return; const view=currentTechnicalView()||active; $('comboModelCode').textContent=modelKey(active);$('comboCabedalCode').textContent=view.cabedal||'-';
+    const combos=Array.isArray(view.combinacoes)?view.combinacoes:[];
+    $('comboCards').innerHTML=combos.length?combos.map((c,i)=>{
+      const pecas=Array.isArray(c.pecas)?c.pecas:[];
+      const rows=pecas.length?pecas.map(p=>`<div class="combo-piece-row"><strong>${esc(p.peca||'-')}</strong><span class="combo-preview-dot" style="background:${esc(p.corHex||inferColorHex(p.corNome||''))}"></span><span>${esc(p.corNome||'')}</span></div>`).join(''):'<div class="combo-empty-piece">Nenhuma peça configurada para esta combinação.</div>';
+      return `<div class="combo-card"><div class="combo-card-head"><div><div class="combo-card-code">${esc(c.codigo||c.corCodigo||'')}</div><div class="combo-card-name"><span class="combo-preview-dot" style="background:${esc(c.corHex||comboColorStyle(c.descricao||c.corNome||''))}"></span>${esc(c.descricao||c.corNome||'')}</div></div><button class="btn sm soft" data-edit-combo="${i}">Editar peças</button></div><div class="combo-piece-list">${rows}</div></div>`;
+    }).join(''):'<div class="empty">Nenhuma combinação cadastrada.</div>';
+  }
+  function renderSectors(){const view=currentTechnicalView()||active; const mats=Array.isArray(view?.materiais)?view.materiais:[];const sectors=[...new Set(mats.map(m=>text(m.setor)||'OUTROS'))];if(!activeSector||!sectors.includes(activeSector))activeSector=sectors[0]||'OUTROS';$('sectorTabs').innerHTML=sectors.map(s=>`<button class="sector-btn ${s===activeSector?'active':''}" data-sector="${esc(s)}">${esc(s)} (${mats.filter(m=>(text(m.setor)||'OUTROS')===s).length})</button>`).join('');renderMaterials()}
+  function renderMaterials(){
+    const view=currentTechnicalView()||active; const all=view?.materiais||[]; const mats=all.map((m,index)=>({m,index})).filter(x=>(text(x.m.setor)||'OUTROS')===activeSector);
+    $('materialsBody').innerHTML=mats.length?mats.map(({m,index})=>`<tr><td>${esc([m.codigoPeca,m.peca].filter(Boolean).join(' - '))}</td><td>${esc([m.codigoMaterial,m.material].filter(Boolean).join(' - '))}</td><td>${esc(m.observacao||'')}</td><td>${esc(m.unidade||m.um||'')}</td><td class="num">${esc(fmtNumber(m.consumo))}</td><td class="num">${esc(m.comprimento??'')}</td><td class="edit-material"><button class="btn sm soft" data-edit-material="${index}">Editar</button></td></tr>`).join(''):`<tr><td colspan="7"><div class="empty">Nenhum material neste setor.</div></td></tr>`;
+  }
+  function openMaterialEditor(index){
+    const view=currentTechnicalView()||active; const m=(view?.materiais||[])[index];if(!m)return;$('materialIndex').value=index;
+    const sectors=[...new Set(['CORTE','CORTE DE TIRAS','COSTURA','EXPEDIÇÃO','MONTAGEM','TERCEIROS',...(view?.materiais||[]).map(x=>text(x.setor)).filter(Boolean)])];
+    $('editSetor').innerHTML=sectors.map(s=>`<option ${normalize(s)===normalize(m.setor)?'selected':''}>${esc(s)}</option>`).join('');
+    $('editCodigoPeca').value=m.codigoPeca||'';$('editPeca').value=m.peca||'';$('editMaterial').value=m.material||'';$('editObs').value=m.observacao||'';$('editConsumo').value=m.consumo??'';$('editComprimento').value=m.comprimento??'';hide($('materialStatus'));$('materialModal').classList.add('open');
+  }
+  async function saveMaterialEditor(){
+    const view=currentTechnicalView()||active; const i=Number($('materialIndex').value),m=(view?.materiais||[])[i];if(!m)return;
+    m.setor=$('editSetor').value;m.peca=text($('editPeca').value);m.material=text($('editMaterial').value);m.observacao=text($('editObs').value);m.consumo=parseDecimal($('editConsumo').value);m.comprimento=parseDecimal($('editComprimento').value);
+    $('saveMaterialEdit').disabled=true;show($('materialStatus'),'info','Salvando...');
+    try{await saveActiveSheet();show($('materialStatus'),'success','Material atualizado.');activeSector=m.setor;renderSectors();setTimeout(()=>{$('materialModal').classList.remove('open')},350)}catch(e){console.error(e);show($('materialStatus'),'error',e.message||String(e))}finally{$('saveMaterialEdit').disabled=false}
+  }
+  function addPieceEditorRow(data={}){
+    const row=document.createElement('div');row.className='piece-edit-row';const hex=data.corHex||inferColorHex(data.corNome||'');
+    row.innerHTML=`<div class="field"><label>Peça</label><input class="piece-name" placeholder="C1, C2, C3..." value="${esc(data.peca||'')}"></div><div class="field"><label>Cor</label><input class="piece-color" type="color" value="${esc(hex==='#eef2f7'?'#dfe5ee':hex)}"></div><div class="field"><label>Nome da cor</label><input class="piece-color-name" placeholder="PRETO, DOURADO..." value="${esc(data.corNome||'')}"></div><button class="remove-piece" type="button">×</button>`;
+    const name=row.querySelector('.piece-color-name'),color=row.querySelector('.piece-color');name.addEventListener('input',()=>{const auto=inferColorHex(name.value);if(auto!=='#eef2f7')color.value=auto});row.querySelector('.remove-piece').onclick=()=>row.remove();$('pieceRows').appendChild(row);
+  }
+  function openComboEditor(index){
+    const view=currentTechnicalView()||active; const c=(view?.combinacoes||[])[index];if(!c)return;$('comboEditIndex').value=index;$('comboEditSubtitle').textContent=`${c.codigo||c.corCodigo||''} · ${c.descricao||c.corNome||''}`;$('pieceRows').innerHTML='';(Array.isArray(c.pecas)&&c.pecas.length?c.pecas:[{}]).forEach(addPieceEditorRow);hide($('comboEditStatus'));$('comboEditModal').classList.add('open');
+  }
+  async function saveComboEditor(){
+    const view=currentTechnicalView()||active; const i=Number($('comboEditIndex').value),c=(view?.combinacoes||[])[i];if(!c)return;
+    const pecas=[...document.querySelectorAll('#pieceRows .piece-edit-row')].map(r=>({peca:text(r.querySelector('.piece-name').value).toUpperCase(),corNome:text(r.querySelector('.piece-color-name').value).toUpperCase(),corHex:r.querySelector('.piece-color').value})).filter(x=>x.peca||x.corNome);
+    c.pecas=pecas;$('saveComboEdit').disabled=true;show($('comboEditStatus'),'info','Salvando...');
+    try{await saveActiveSheet();renderCombos();show($('comboEditStatus'),'success','Combinação atualizada.');setTimeout(()=>{$('comboEditModal').classList.remove('open')},350)}catch(e){console.error(e);show($('comboEditStatus'),'error',e.message||String(e))}finally{$('saveComboEdit').disabled=false}
+  }
 
-    // Importacao em massa sem dependencias externas (ZIP original ou ZIP preparado).
-    const BULK_MAX_ZIP_BYTES = 90 * 1024 * 1024;
-    const BULK_MAX_ENTRY_BYTES = 26 * 1024 * 1024;
-    const BULK_MAX_UNCOMPRESSED = 260 * 1024 * 1024;
-    const BULK_MAX_FILES = 1500;
-    const ZIP_UTF8 = new TextDecoder('utf-8');
-    let bulkData = null;
-    let bulkParsing = false;
-    let bulkRunning = false;
-    let bulkStopRequested = false;
-
-    function readShort(view, off) { return view.getUint16(off, true); }
-    function readLong(view, off) { return view.getUint32(off, true); }
-
-    // Le o diretorio central de ZIPs padrao, respeitando limites contra ZIP-bombs.
-    class ZipLeitor {
-      constructor(buffer) {
-        const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
-        this.bytes = bytes;
-        this.view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-        this.entries = new Map();
-        let eocd = -1;
-        for (let i = bytes.length - 22; i >= Math.max(0, bytes.length - 65557); i--) {
-          if (readLong(this.view, i) === 0x06054b50) { eocd = i; break; }
+  function groupLines(items){
+    const rows=[];for(const item of items){const y=Math.round(item.transform[5]);let row=rows.find(r=>Math.abs(r.y-y)<=2);if(!row){row={y,items:[]};rows.push(row)}row.items.push({x:item.transform[4],str:item.str})}
+    return rows.sort((a,b)=>b.y-a.y).map(r=>r.items.sort((a,b)=>a.x-b.x).map(i=>i.str).join(' ').replace(/\s+/g,' ').trim()).filter(Boolean);
+  }
+  function parseHeader(lines){
+    const joined=lines.join('\n');const h={linha:'',referencia:'',modelo:'',cabedal:'',cor:'',versao:'',descricao:'',forma:'',tipoForro:'',tipoPalmilha:'',tipoMaterialCabedal:'',grades:[]};
+    let m=joined.match(/Linha:\s*(\d+)\s+Ref\.?\s*:?\s*(\d+)\s+Cabedal:\s*(\d+)\s+Cor:\s*(\d+)\s+Vers[aã]o:\s*(\d+)/i);if(m){h.linha=m[1];h.referencia=m[2];h.modelo=`${m[1]}.${m[2]}`;h.cabedal=m[3];h.cor=m[4];h.versao=m[5]}
+    m=joined.match(/Descri[cç][aã]o:\s*(.+)/i);if(m)h.descricao=m[1].split(/Forma:/i)[0].trim();
+    m=joined.match(/Forma:\s*([^\n]+?)(?=Tipo de Forro:|$)/i);if(m)h.forma=m[1].trim();
+    m=joined.match(/Tipo de Forro:\s*([^\n]+?)(?=Tipo Material Cabedal|Tipo de Palmilha:|$)/i);if(m)h.tipoForro=m[1].trim();
+    m=joined.match(/Tipo de Palmilha:\s*([^\n]+?)(?=Tipo Material Cabedal|Grades:|$)/i);if(m)h.tipoPalmilha=m[1].trim();
+    return h;
+  }
+  const SECTOR_NAMES=['CORTE DE TIRAS','CORTE','COSTURA','EXPEDICAO','EXPEDIÇÃO','MONTAGEM','TERCEIROS'];
+  function parseCombos(lines){
+    const out=[];const joined=lines.join(' ');const re=/Cores:\s*(\d+)\s+(.+?)(?=\s+Cores:|\s+Filial\s+Pe[cç]a|$)/gi;let m;while((m=re.exec(joined))){out.push({codigo:m[1],descricao:m[2].trim()})}return out;
+  }
+  function parseMaterials(lines){
+    let sector='';const out=[];
+    for(let i=0;i<lines.length;i++){
+      const line=lines[i];const upper=normalize(line).toUpperCase();const found=SECTOR_NAMES.find(s=>normalize(line)===normalize(s));if(found){sector=found.replace('EXPEDICAO','EXPEDIÇÃO');continue}
+      if(!sector||/^(Filial|Linha:|Descri|Forma:|Grades:|Cores:|Tamanho:|Tipo de)/i.test(line))continue;
+      const m=line.match(/^\s*\d+\s+(\d+)\s+(.+?)\s+(\d{1,6})\s+(.+?)\s+(KG|M|PAR|PC|UN)\s+([0-9]+[.,][0-9]+)(?:\s+([0-9]+[.,][0-9]+))?\s*$/i);
+      if(m){out.push({setor:sector,codigoPeca:m[1],peca:m[2].trim(),codigoMaterial:m[3],material:m[4].trim(),observacao:m[2].trim(),unidade:m[5].toUpperCase(),consumo:Number(m[6].replace(',','.')),comprimento:m[7]?Number(m[7].replace(',','.')):''});continue}
+      const short=line.match(/^\s*\d+\s+(\d+)\s+(.+?)\s+(\d{1,6})\s+(.+?)$/);if(short&&i+1<lines.length){const tail=lines[i+1].match(/\b(KG|M|PAR|PC|UN)\s+([0-9]+[.,][0-9]+)(?:\s+([0-9]+[.,][0-9]+))?/i);if(tail){out.push({setor:sector,codigoPeca:short[1],peca:short[2].trim(),codigoMaterial:short[3],material:short[4].trim(),observacao:short[2].trim(),unidade:tail[1].toUpperCase(),consumo:Number(tail[2].replace(',','.')),comprimento:tail[3]?Number(tail[3].replace(',','.')):''})}}
+    }
+    return out;
+  }
+  async function analyzeFiles(){
+    if(!selectedFiles.length)return;parsedImport=[];$('analyzeBtn').disabled=true;show($('importStatus'),'info','Analisando os PDFs...');let pages=0;
+    try{
+      for(const file of selectedFiles){
+        const bytes=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:bytes}).promise;pages+=pdf.numPages;
+        const modelos=new Map();
+        for(let p=1;p<=pdf.numPages;p++){
+          const page=await pdf.getPage(p),content=await page.getTextContent(),lines=groupLines(content.items),head=parseHeader(lines);if(!head.modelo)continue;
+          if(!modelos.has(head.modelo))modelos.set(head.modelo,new Map());
+          const vmap=modelos.get(head.modelo),vkey=`${head.cabedal||'0'}_v${head.versao||'1'}`;
+          if(!vmap.has(vkey))vmap.set(vkey,{...head,arquivoOrigem:file.name,origem:'Beira Rio (PDF)',paginas:[],combinacoes:[],materiais:[],grades:[]});
+          const v=vmap.get(vkey);v.paginas.push(p);v.combinacoes.push(...parseCombos(lines));v.materiais.push(...parseMaterials(lines));
         }
-        if (eocd === -1) throw new Error('ZIP invalido: diretorio central nao encontrado.');
-        const count = readShort(this.view, eocd + 10);
-        const centralStart = readLong(this.view, eocd + 16);
-        const centralSize = readLong(this.view, eocd + 12);
-        if (count === 65535 || centralStart === 0xffffffff || centralSize === 0xffffffff)
-          throw new Error('ZIP64 nao suportado. Divida o arquivo em partes menores.');
-        if (count > BULK_MAX_FILES || centralStart + centralSize > bytes.length)
-          throw new Error('ZIP excede o limite de arquivos ou esta danificado.');
-        let pos = centralStart;
-        let sumUncompressed = 0;
-        for (let n = 0; n < count; n++) {
-          if (pos + 46 > bytes.length || readLong(this.view, pos) !== 0x02014b50)
-            throw new Error('ZIP com indice de arquivos invalido.');
-          const flags = readShort(this.view, pos + 8);
-          const method = readShort(this.view, pos + 10);
-          const compressed = readLong(this.view, pos + 20);
-          const uncompressed = readLong(this.view, pos + 24);
-          const namelen = readShort(this.view, pos + 28);
-          const extralen = readShort(this.view, pos + 30);
-          const commentlen = readShort(this.view, pos + 32);
-          const loc = readLong(this.view, pos + 42);
-          const end = pos + 46 + namelen + extralen + commentlen;
-          if (end > bytes.length || loc + 30 > bytes.length)
-            throw new Error('ZIP corrompido ou truncado.');
-          const nameBytes = bytes.subarray(pos + 46, pos + 46 + namelen);
-          const name = (flags & 0x800) ? ZIP_UTF8.decode(nameBytes) : new TextDecoder('windows-1252').decode(nameBytes);
-          pos = end;
-          if (name.endsWith('/')) continue;
-          if (name.startsWith('/') || name.includes('..') || name.includes('\\') || name.includes('\0')) continue;
-          if (flags & 1) throw new Error('ZIP protegido por senha nao e suportado.');
-          if (method !== 0 && method !== 8) throw new Error('ZIP com compactacao nao suportada: ' + name);
-          if (uncompressed > BULK_MAX_ENTRY_BYTES) throw new Error('Arquivo muito grande no ZIP: ' + name);
-          sumUncompressed += uncompressed;
-          if (sumUncompressed > BULK_MAX_UNCOMPRESSED) throw new Error('ZIP descompactado supera o limite de seguranca.');
-          const lname = readShort(this.view, loc + 26);
-          const lextra = readShort(this.view, loc + 28);
-          const start = loc + 30 + lname + lextra;
-          if (readLong(this.view, loc) !== 0x04034b50 || start + compressed > bytes.length)
-            throw new Error('ZIP danificado: ' + name);
-          this.entries.set(name, {name, method, start, compressed, uncompressed, reader: this});
-        }
-      }
-      async getBytes(entry) {
-        const raw = this.bytes.subarray(entry.start, entry.start + entry.compressed);
-        if (entry.method === 0) return new Uint8Array(raw);
-        const stream = new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
-        const reader = stream.getReader();
-        const blocks = [];
-        let size = 0;
-        try {
-          while (true) {
-            const {value, done} = await reader.read();
-            if (done) break;
-            size += value.byteLength;
-            if (size > BULK_MAX_ENTRY_BYTES || size > entry.uncompressed) {
-              await reader.cancel();
-              throw new Error('Conteudo compactado ultrapassou o tamanho declarado: ' + entry.name);
-            }
-            blocks.push(value);
-          }
-        } finally { reader.releaseLock(); }
-        if (size !== entry.uncompressed) throw new Error('Tamanho incorreto ao descompactar: ' + entry.name);
-        const result = new Uint8Array(size);
-        let pos = 0;
-        for (const block of blocks) { result.set(block, pos); pos += block.byteLength; }
-        return result;
-      }
-      get(name) { return this.entries.get(name) || null; }
-    }
-
-    function zipModelCode(str) {
-      const base = String(str || '').split('/').pop();
-      const found = base.match(/(?:^|[^0-9])(\d{4})[.\- ](\d{2,4})(?!\d)/);
-      return found ? `${found[1]}.${found[2]}` : null;
-    }
-    function mimeFromName(name) {
-      const ext = String(name).split('.').pop().toLowerCase();
-      return ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
-    }
-    function isImageName(name) { return /\.(jpe?g|png|webp)$/i.test(name); }
-    async function hashBytes(bytes) {
-      if (!crypto?.subtle) throw new Error('Use o site HTTPS para importar fotos com seguranca.');
-      const digest = await crypto.subtle.digest('SHA-256', bytes);
-      return [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, '0')).join('');
-    }
-    function addBulkPhoto(group, photo) {
-      if (group.photoHashes.has(photo.hash)) return;
-      group.photoHashes.add(photo.hash);
-      if (group.photos.length < MAX_PHOTOS) group.photos.push(photo);
-      else group.extrasIgnorados += 1;
-    }
-    function newBulkGroup(id) {
-      return {id, photos:[], photoHashes:new Set(), notes:'', extrasIgnorados:0, selected:true,
-        state:'pendente', importedPhotos:0, importedNotes:0, errors:[]};
-    }
-    function extractDocxNotes(xmlData, code) {
-      const xml = new DOMParser().parseFromString(ZIP_UTF8.decode(xmlData), 'application/xml');
-      if (xml.getElementsByTagName('parsererror').length) throw new Error('Documento Word com XML invalido.');
-      const paragraphs = [...xml.getElementsByTagNameNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main','p')];
-      const texts = paragraphs.map(p => [...p.getElementsByTagNameNS('http://schemas.openxmlformats.org/wordprocessingml/2006/main','t')]
-        .map(n => n.textContent).join('').trim()).filter(Boolean);
-      const actualCode = code || zipModelCode(texts.join(' '));
-      const remaining = texts.filter((t, i) => {
-        const parsed = zipModelCode(t);
-        return !(actualCode && parsed === actualCode && (t.length <= actualCode.length + 3 || (i === 0 && t.startsWith(actualCode))));
-      });
-      return {id:actualCode, note:remaining.join('\n').trim().slice(0,12000)};
-    }
-    function updateBulkStatus(type, contents) { message(ui.bulkMessage, type, contents); }
-
-    async function loadBulkArchive(file) {
-      if (!file) return;
-      if (!file.name.toLowerCase().endsWith('.zip')) throw new Error('Selecione um arquivo ZIP.');
-      if (file.size > BULK_MAX_ZIP_BYTES) throw new Error('O ZIP precisa ter menos de 90 MB.');
-      if (typeof DecompressionStream === 'undefined')
-        throw new Error('O navegador nao suporta descompactacao. Atualize o Chrome ou Edge.');
-      const zip = new ZipLeitor(await file.arrayBuffer());
-      const groups = new Map();
-      const warnings = [];
-      function group(id) { if (!groups.has(id)) groups.set(id, newBulkGroup(id)); return groups.get(id); }
-      if (zip.get('manifesto.json')) {
-        const manifest = JSON.parse(ZIP_UTF8.decode(await zip.getBytes(zip.get('manifesto.json'))));
-        if (manifest.formato !== 'sistema-factor-fotomodelos' || manifest.versao !== 1 || !Array.isArray(manifest.modelos))
-          throw new Error('Manifesto do ZIP nao pertence ao importador do Sistema Factor.');
-        for (const m of manifest.modelos) {
-          if (!/^\d{4}\.\d{2,4}$/.test(m.id)) continue;
-          const g = group(m.id);
-          g.notes = String(m.anotacoes || '').slice(0, 12000);
-          for (const p of (m.fotos || [])) {
-            const entry = zip.get(p.arquivo);
-            if (!entry || !isImageName(entry.name)) { warnings.push(`${m.id}: imagem ausente do ZIP`); continue; }
-            const hash = /^[a-f0-9]{64}$/.test(p.sha256Origem || '') ? p.sha256Origem : await hashBytes(await zip.getBytes(entry));
-            addBulkPhoto(g,{entry,hash,name:p.origem || entry.name, mime:mimeFromName(entry.name)});
-          }
-        }
-      } else {
-        // Tambem aceita o ZIP original que contem Word (.docx) + JPGs.
-        const all = [...zip.entries.values()];
-        for (const [i, entry] of all.entries()) {
-          if (bulkStopRequested) throw new Error('Leitura cancelada.');
-          if (i % 12 === 0) updateBulkStatus('info', `Analisando arquivo original... ${i + 1} de ${all.length}`);
-          const base = entry.name.split('/').pop();
-          if (base.startsWith('~$')) continue;
-          if (isImageName(base)) {
-            const id = zipModelCode(base);
-            if (!id) continue;
-            const bytes = await zip.getBytes(entry);
-            addBulkPhoto(group(id),{bytes,hash:await hashBytes(bytes),name:base,mime:mimeFromName(base)});
-          } else if (/\.docx$/i.test(base)) {
-            try {
-              const bytes = await zip.getBytes(entry);
-              const word = new ZipLeitor(bytes);
-              const document = word.get('word/document.xml');
-              if (!document) continue;
-              const parsed = extractDocxNotes(await word.getBytes(document),zipModelCode(base));
-              if (!parsed.id) continue;
-              const g = group(parsed.id);
-              if (parsed.note && !g.notes.includes(parsed.note)) {
-                g.notes = g.notes ? `${g.notes}\n\n${parsed.note}`.slice(0,12000) : parsed.note;
+        for(const [modelo,vmap] of modelos){
+          const variacoes=[...vmap.values()].map(v=>({...v,combinacoes:[...new Map(v.combinacoes.map(c=>[c.codigo,c])).values()],materiais:[...new Map(v.materiais.map(m=>[[m.setor,m.codigoPeca,m.codigoMaterial,m.consumo,m.comprimento].join('|'),m])).values()]}));
+          variacoes.sort((a,b)=>text(a.cabedal).localeCompare(text(b.cabedal),'pt-BR',{numeric:true}));
+          const base=variacoes[0]||{},comboMap=new Map();
+          // No modelo, a combinação é única pelo CÓDIGO.
+          // O mesmo código pode aparecer em vários cabedais; nesse caso preservamos
+          // apenas uma combinação e registramos todos os cabedais/variações de origem.
+          for(const v of variacoes){
+            for(const c of v.combinacoes||[]){
+              const codigo=String(c.codigo||'').trim();
+              if(!codigo)continue;
+              const variacaoId=`${modelo}_${v.cabedal||'0'}_v${v.versao||'1'}`;
+              if(!comboMap.has(codigo)){
+                comboMap.set(codigo,{...c,codigo,cabedaisOrigem:[],variacoesOrigem:[]});
               }
-              const media = [...word.entries.values()].filter(x => x.name.startsWith('word/media/') && isImageName(x.name));
-              for (const entry2 of media) {
-                const image = await word.getBytes(entry2);
-                addBulkPhoto(g,{bytes:image,hash:await hashBytes(image),name:base+' / '+entry2.name.split('/').pop(),mime:mimeFromName(entry2.name)});
-              }
-            } catch (err) { warnings.push(`${base}: ${err.message}`); }
+              const item=comboMap.get(codigo);
+              if(v.cabedal&&!item.cabedaisOrigem.includes(v.cabedal))item.cabedaisOrigem.push(v.cabedal);
+              if(!item.variacoesOrigem.includes(variacaoId))item.variacoesOrigem.push(variacaoId);
+              // Mantém a primeira descrição válida; se vier vazia, usa a próxima disponível.
+              if(!String(item.descricao||'').trim()&&String(c.descricao||'').trim())item.descricao=c.descricao;
+            }
           }
+          const combinacoes=[...comboMap.values()].sort((a,b)=>String(a.codigo).localeCompare(String(b.codigo),'pt-BR',{numeric:true}));
+          parsedImport.push({modelo,linha:base.linha,referencia:base.referencia,versao:base.versao,cabedal:base.cabedal,descricao:base.descricao,forma:base.forma,tipoForro:base.tipoForro,tipoPalmilha:base.tipoPalmilha,tipoMaterialCabedal:base.tipoMaterialCabedal,grades:base.grades||[],materiais:base.materiais||[],combinacoes,variacoes,arquivoOrigem:file.name,origem:'Beira Rio (PDF)',paginas:variacoes.flatMap(v=>v.paginas||[])});
         }
       }
-      const rows = [...groups.values()].sort((a,b) => a.id.localeCompare(b.id,'pt-BR',{numeric:true}));
-      if (!rows.length) throw new Error('Nao encontrei fotos ou modelos validos no ZIP.');
-      return {name:file.name,rows,warnings,finished:false};
+      renderImportPreview(pages);show($('importStatus'),'success','Análise concluída. Confira os dados antes de importar.');
+    }catch(e){console.error(e);show($('importStatus'),'error','Falha ao analisar PDF: '+(e.message||e))}finally{$('analyzeBtn').disabled=false}
+  }
+  function renderImportPreview(pages){const models=new Set(parsedImport.map(x=>x.modelo));$('mPages').textContent=pages;$('mSheets').textContent=parsedImport.length;$('mModels').textContent=models.size;$('mMaterials').textContent=parsedImport.reduce((n,x)=>n+(x.variacoes||[]).reduce((a,v)=>a+(v.materiais||[]).length,0),0);$('mCombos').textContent=parsedImport.reduce((n,x)=>n+x.combinacoes.length,0);$('previewBody').innerHTML=parsedImport.map(s=>`<tr><td><b>${esc(s.modelo)}</b></td><td>${(s.variacoes||[]).length} variação(ões)</td><td>${esc(s.versao||'-')}</td><td>${s.combinacoes.length}</td><td>${(s.variacoes||[]).reduce((a,v)=>a+(v.materiais||[]).length,0)}</td><td>${modelIds.has(s.modelo)?'<span style="color:#16834f;font-weight:800">Modelo encontrado</span>':'<span style="color:#b7791f;font-weight:800">Não verificado / não encontrado</span>'}</td></tr>`).join('');$('analysisArea').classList.remove('hidden')}
+  function limparUndefined(value){
+    if(Array.isArray(value)) return value.map(limparUndefined).filter(v=>v!==undefined);
+    if(value && typeof value==='object' && !(value instanceof Date)){
+      const out={};
+      for(const [k,v] of Object.entries(value)){
+        if(v===undefined) continue;
+        out[k]=limparUndefined(v);
+      }
+      return out;
     }
+    return value;
+  }
 
-    // Um cadastro novo e apenas um placeholder compativel com modelos.html.
-    // Preco zerado fica sinalizado como SEM PRECO na tela de cadastro.
-    // NUNCA utilizar esta funcao para atualizar um modelo existente.
-    function minimalBulkModel(id) {
-      if (!/^\d{4}\.\d{2,4}$/.test(id)) throw new Error('Codigo de modelo invalido: '+id);
-      const [linha, modelo] = id.split('.');
-      return {
-        linha, modelo, chave:id, categoria:'', subcategoria:'', observacaoModelo:'',
-        preco:{valor:0, setores:{}}, totalSetores:0, saldo:0, ativo:false,
-        cadastroPendente:true, origem:'ImportacaoFotos',
-        criadoEm:serverTimestamp(), atualizadoEm:serverTimestamp(),
-        criadoPor:currentUser.email, atualizadoPor:currentUser.email, historico:[]
-      };
-    }
-    async function registerMissingBulkModel(id) {
-      if (!canCreateModels || !ui.bulkCreateMissing.checked)
-        throw new Error('Criacao de modelos nao autorizada para este usuario.');
-      const modelRef=doc(db,'modelos',id);
-      // Transacao: verifica novamente no servidor e cria SOMENTE se nao existir.
-      // Se outro usuario cadastrou este modelo, NAO altera nenhum campo dele.
-      const created=await runTransaction(db,async trx=>{
-        const live=await trx.get(modelRef);
-        if (live.exists()) return false;
-        trx.set(modelRef,minimalBulkModel(id));
-        return true;
-      });
-      const current=await getDoc(modelRef);
-      if (!current.exists()) throw new Error('O cadastro do modelo nao foi confirmado no Firestore.');
-      const model={...current.data(),id};
-      if (!modelById.has(id)) models.push(model);
-      else models=models.filter(m=>m.id!==id).concat(model);
-      models.sort(sortModels);
-      modelById.set(id,model);
-      return created;
-    }
+  async function confirmImport(){
+    if(!parsedImport.length)return;if(!IMPORT_LEVELS.has(userLevel)){show($('importStatus'),'warning','Seu nível de acesso não pode importar fichas técnicas.');return} const inexistentes=parsedImport.filter(s=>!modelIds.has(s.modelo)); if(inexistentes.length){show($('importStatus'),'error','Existem modelos do PDF que nao estao cadastrados em modelos: '+inexistentes.map(x=>x.modelo).join(', ')+'. Cadastre os modelos antes de importar.');return}
+    if(!confirm(`Confirmar a importação de ${parsedImport.length} ficha(s) técnica(s)? Nenhum talão será alterado.`))return;
+    $('confirmImport').disabled=true;show($('importStatus'),'info','Salvando fichas técnicas...');let done=0;
+    try{for(const s of parsedImport){const id=modelKey(s);const payload=limparUndefined({...s,modeloId:s.modelo,atualizadoEm:serverTimestamp(),importadoEm:serverTimestamp(),importadoPor:auth.currentUser?.email||''});await setDoc(doc(db,'fichasTecnicas',id),payload,{merge:true});done++}show($('importStatus'),'success',`${done} ficha(s) importada(s) com sucesso.`);await loadBaseData()}catch(e){console.error(e);show($('importStatus'),'error','Erro ao salvar: '+(e.message||e))}finally{$('confirmImport').disabled=false}
+  }
+  function exportPreview(){const rows=[['Modelo','Cabedal','Versao','Combinacoes unicas','Materiais','Arquivo'],...parsedImport.map(s=>[s.modelo,s.cabedal,s.versao,s.combinacoes.length,(s.variacoes||[]).reduce((a,v)=>a+(v.materiais||[]).length,0),s.arquivoOrigem])];const csv=rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(';')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='analise-fichas-tecnicas.csv';a.click();URL.revokeObjectURL(url)}
 
-    function bulkPlan(row) {
-      const modelExists = modelById.has(row.id);
-      const existing = getPhotos(row.id);
-      const hashes = new Set(existing.map(p=>p.sha256Origem).filter(Boolean));
-      const photos = row.photos.filter(p=>!hashes.has(p.hash));
-      const appendExisting = ui.bulkAppendPhotos.checked;
-      const allowed = (!existing.length || appendExisting) ? photos.slice(0,Math.max(0,MAX_PHOTOS-existing.length)) : [];
-      const notesAvailable = !!(text(row.notes) && !text(getExtra(row.id).anotacoes));
-      const hasMaterial = row.photos.length>0 || !!text(row.notes) || existing.length>0 || !!text(getExtra(row.id).anotacoes);
-      const createModel = !modelExists && canCreateModels && ui.bulkCreateMissing.checked && hasMaterial && /^\d{4}\.\d{2,4}$/.test(row.id);
-      return {modelExists,createModel,existing:existing.length,images:allowed,notes:notesAvailable,
-        eligible:createModel || (modelExists && (allowed.length>0||notesAvailable)),duplicates:photos.length!==row.photos.length};
-    }
-    function bulkCounter() {
-      let ready = 0, images=0, notes=0, missing=0, toCreate=0;
-      for (const row of bulkData?.rows || []) {
-        const plan = bulkPlan(row);
-        if (!plan.modelExists) missing++;
-        if (row.selected && plan.eligible) {
-          ready++; images+=plan.images.length; notes+=Number(plan.notes); toCreate+=Number(plan.createModel);
-        }
-      }
-      ui.bulkCounts.textContent = `${bulkData?.rows.length || 0} modelos no ZIP • ${ready} selecionados • ${toCreate} novos cadastros sem preço • ${images} fotos • ${notes} anotações novas • ${missing} ainda não cadastrados.`;
-      ui.bulkStart.disabled = bulkRunning || bulkParsing || ready === 0;
-    }
-    function renderBulkRows() {
-      if (!bulkData) { ui.bulkTableBody.innerHTML = '<tr><td colspan="5">Escolha um arquivo ZIP para conferir.</td></tr>'; return; }
-      ui.bulkTableBody.innerHTML = bulkData.rows.map((row,i) => {
-        const plan = bulkPlan(row);
-        const label = row.state==='erro' ? 'Erro - consultar relatorio' :
-          row.state==='parcial' ? 'Parcial - consultar relatorio' :
-          row.state==='concluido' ? (row.createdModel?'Cadastro criado e importado':'Concluido') :
-          !plan.modelExists ? (plan.createModel?'Criar cadastro (sem preco) + importar':'Nao cadastrado') :
-          !plan.eligible ? 'Sem alteracoes necessarias' : plan.images.length ? 'Pronto para fotos' : 'So anotacoes';
-        const showStatus = row.errors.length ? `${label} (${row.errors.length} erro(s))` : label;
-        const className = !plan.modelExists?(plan.createModel?'bulk-create':'bulk-muted'):'';
-        return `<tr class="${className}" title="${esc(row.errors.join(' | '))}">
-          <td><input type="checkbox" aria-label="Importar modelo ${esc(row.id)}" data-bulk-row="${i}" ${row.selected&&plan.eligible?'checked':''} ${!plan.eligible||bulkRunning?'disabled':''}></td>
-          <td><strong>${esc(row.id)}</strong>${row.createdModel?' <small>(novo)</small>':''}</td>
-          <td>${row.photos.length} no ZIP / ${plan.existing} cadastrada(s)${row.extrasIgnorados?' (extras ignoradas)':''}</td>
-          <td>${row.notes ? (plan.notes && plan.eligible?'Importar':'Preservar existente / nao selecionada'):'Sem anotacoes'}</td>
-          <td>${esc(showStatus)}</td>
-        </tr>`;
-      }).join('');
-      bulkCounter();
-    }
-    function showBulkModal() {
-      if (busy || bulkRunning || bulkParsing) return;
-      ui.bulkModal.classList.add('open');
-      ui.bulkModal.setAttribute('aria-hidden','false');
-      document.body.style.overflow = 'hidden';
-      if (!bulkData) clearMessage(ui.bulkMessage);
-    }
-    function closeBulkModal() {
-      if (bulkRunning || bulkParsing) return;
-      ui.bulkModal.classList.remove('open');
-      ui.bulkModal.setAttribute('aria-hidden','true');
-      document.body.style.overflow = ui.modelModal.classList.contains('open') ? 'hidden' : '';
-    }
-    async function chooseBulkArchive(event) {
-      if (bulkRunning || bulkParsing) return;
-      const file = event.target.files?.[0];
-      if (!file) return;
-      bulkData = null;
-      bulkStopRequested = false;
-      bulkParsing = true;
-      ui.bulkStart.disabled = true;
-      ui.bulkCounts.textContent = 'Analisando modelos e fotos...';
-      ui.bulkTableBody.innerHTML = '<tr><td colspan="5">Preparando pre-visualizacao...</td></tr>';
-      updateBulkStatus('info','Lendo o ZIP e identificando os codigos automaticamente. Nenhum dado foi salvo.');
-      try {
-        bulkData = await loadBulkArchive(file);
-        ui.bulkFileName.textContent = `Arquivo: ${bulkData.name}`;
-        renderBulkRows();
-        updateBulkStatus('success',`Arquivo pronto para conferencia. ${bulkData.warnings.length ? bulkData.warnings.length+' aviso(s); confira o relatorio.':'Nenhuma alteracao foi feita no Firebase.'}`);
-      } catch(err) {
-        console.error('Falha ao analisar ZIP',err);
-        updateBulkStatus('error','Nao foi possivel abrir este ZIP: '+readableError(err));
-        ui.bulkFileName.textContent = '';
-      } finally {
-        bulkParsing = false;
-        if (bulkData) bulkCounter();
-        event.target.value = '';
-      }
-    }
-    function downloadBulkReport() {
-      if (!bulkData) return;
-      const records=[['Modelo','Fotos no ZIP','Fotos atuais','Fotos para enviar','Importar anotacoes','Selecionado','Criar cadastro (previsto)','Cadastro criado nesta importacao','Status','Erros']];
-      for (const row of bulkData.rows) {
-        const p=bulkPlan(row);
-        records.push([row.id,row.photos.length,p.existing,p.images.length,p.notes?'Sim':'Nao',row.selected&&p.eligible?'Sim':'Nao',p.createModel?'Sim':'Nao',row.createdModel?'Sim':'Nao',row.state,row.errors.join(' | ')]);
-      }
-      const csv='\uFEFF'+records.map(fields=>fields.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
-      const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-      const a=document.createElement('a');
-      a.href=url;a.download='relatorio-importacao-fotos-modelos.csv';
-      document.body.appendChild(a);a.click();a.remove();
-      setTimeout(()=>URL.revokeObjectURL(url),5000);
-    }
-    async function importBulkNote(id, note) {
-      if (!note || !note.trim()) return false;
-      return await runTransaction(db,async t=>{
-        const ref=doc(db,'fotosModelos',id);
-        const snap=await t.get(ref);
-        if (text(snap.exists()?snap.data().anotacoes:'')) return false;
-        t.set(ref, {anotacoes:note.trim().slice(0,12000),atualizadoEm:serverTimestamp(),atualizadoPor:currentUser.email}, {merge:true});
-        return true;
-      });
-    }
-    async function bulkImageFile(photo) {
-      const data=photo.bytes || await photo.entry.reader.getBytes(photo.entry);
-      if (data.byteLength>MAX_SOURCE_BYTES) throw new Error('Imagem maior que 25MB.');
-      const basename=String(photo.name||'foto.jpg').slice(-100);
-      return new File([data],basename,{type:photo.mime||'image/jpeg'});
-    }
-    async function runBulkImport() {
-      if (!bulkData || !canEdit || bulkRunning || bulkParsing) return;
-      const todo=bulkData.rows.filter(row=>row.selected&&bulkPlan(row).eligible);
-      if (!todo.length) return;
-      const totalToCreate=todo.filter(row=>bulkPlan(row).createModel).length;
-      let confirmation=`Confirmar importacao de ${todo.length} modelos?\n\n`;
-      if (totalToCreate) confirmation+=`${totalToCreate} novo(s) modelo(s) serao CADASTRADOS na colecao modelos com preco R$ 0,00 (PENDENTE), inativos ate cadastro do preco, sem categoria e sem valores de setores. Confira os codigos antes de prosseguir.\n\n`;
-      confirmation+='Os modelos ja existentes, seus precos, historicos e taloes NAO serao alterados.\n\nMantenha esta aba aberta ate concluir.';
-      if (!confirm(confirmation)) return;
-      bulkRunning=true;
-      bulkStopRequested=false;
-      ui.bulkClose.disabled=true;
-      ui.bulkStop.classList.remove('hidden');
-      ui.bulkStop.disabled=false;
-      ui.bulkZipInput.disabled=true;
-      ui.bulkAppendPhotos.disabled=true;
-      ui.bulkCreateMissing.disabled=true;
-      ui.bulkStart.disabled=true;
-      ui.bulkProgress.max=todo.length;
-      ui.bulkProgress.value=0;
-      setBusy(true);
-      let successPhotos=0,successNotes=0,successModels=0,errors=0,done=0;
-      try {
-        for (const row of todo) {
-          if (bulkStopRequested) break;
-          row.state='andamento';
-          row.errors=[]; // Limpa os avisos da tentativa anterior; permite repetir o ZIP.
-          const id=row.id;
-          ui.bulkProgressText.textContent=`Modelo ${id} (${done+1} de ${todo.length})...`;
-          try {
-            const initialPlan=bulkPlan(row);
-            if (initialPlan.createModel) {
-              ui.bulkProgressText.textContent=`Cadastrando modelo ${id} sem preco (${done+1} de ${todo.length})...`;
-              const created=await registerMissingBulkModel(id);
-              if (created) {row.createdModel=true;successModels++;}
-            }
-            // Confirma existencia ANTES de adicionar fotos/anotacoes; nunca cria registros de fotos orfaos.
-            const currentModelSnap=await getDoc(doc(db,'modelos',id));
-            if (!currentModelSnap.exists()) throw new Error('Modelo nao cadastrado. Habilite a criacao ou atualize a lista.');
-            // Verifica fotos/notas atuais novamente para nao sobrescrever alteracoes recentes.
-            const docSnap=await getDoc(doc(db,'fotosModelos',id));
-            if (docSnap.exists()) extrasById.set(id,docSnap.data()); else extrasById.delete(id);
-            const plan=bulkPlan(row);
-            if (plan.notes) {
-              try {
-                if (await importBulkNote(id,row.notes)) {row.importedNotes++;successNotes++;}
-              } catch(err) {errors++;row.errors.push('Anotacoes: '+readableError(err));}
-            }
-            for (const [index,photo] of plan.images.entries()) {
-              if (bulkStopRequested) break;
-              try {
-                const file=await bulkImageFile(photo);
-                await addOnePhoto(id,file,index+1,plan.images.length,{
-                  hashOrigem:photo.hash,
-                  status: pct=>{ ui.bulkProgressText.textContent=`Modelo ${id} (${done+1} de ${todo.length}) - foto ${index+1}/${plan.images.length}: ${pct}%`; }
-                });
-                row.importedPhotos++;successPhotos++;
-              } catch (err) {errors++;row.errors.push(photo.name+': '+readableError(err));console.error('Erro ao importar',id,err);}
-            }
-            const updated=await getDoc(doc(db,'fotosModelos',id));
-            if (updated.exists()) extrasById.set(id,updated.data());
-            row.state=row.errors.length?(row.importedPhotos||row.importedNotes||row.createdModel?'parcial':'erro'):
-              bulkStopRequested?'interrompido':'concluido';
-          } catch(err) {
-            errors++;row.errors.push('Cadastro/importacao: '+readableError(err));
-            row.state=row.createdModel?'parcial':'erro';
-            console.error('Falha na importacao de',id,err);
-          }
-          done++;
-          ui.bulkProgress.value=done;
-          if (done%4===0 || row.errors.length) renderBulkRows();
-        }
-      } finally {
-        bulkRunning=false;
-        ui.bulkClose.disabled=false;
-        ui.bulkStop.classList.add('hidden');
-        ui.bulkZipInput.disabled=false;
-        ui.bulkAppendPhotos.disabled=false;
-        ui.bulkCreateMissing.disabled=!canCreateModels;
-        setBusy(false);
-        bulkData.finished=true;
-        renderSummary();renderCards();renderBulkRows();
-        ui.bulkProgressText.textContent=bulkStopRequested?`Interrompido apos ${done} de ${todo.length} modelos.`:`Concluido: ${done} de ${todo.length} modelos.`;
-        updateBulkStatus(errors||bulkStopRequested?'warning':'success',
-          `${bulkStopRequested?'Importacao interrompida. ':'Importacao concluida. '}${successModels} novo(s) cadastro(s) sem preco, ${successPhotos} foto(s) e ${successNotes} anotacao(oes) gravada(s). ${errors} erro(s). Consulte o relatorio. Repetir o ZIP nao sobrescreve cadastros existentes.`);
-      }
-    }
+  $('searchBtn').onclick=()=>applyFilters({autoOpen:true});
+  $('fCab').addEventListener('change',()=>{applyFilters();if(active)renderSheet()});
+  $('fVersao').addEventListener('change',()=>{applyFilters();if(active)renderSheet()});
+  ['fLinha','fRef','fDescricao'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')applyFilters({autoOpen:true})}));
+  $('clearBtn').onclick=()=>{$('fLinha').value='';$('fRef').value='';$('fCab').value='';$('fVersao').value='';$('fDescricao').value='';applyFilters();if(allSheets.length)openSheet(allSheets[0])};
+  $('modelList').onclick=e=>{const b=e.target.closest('[data-id]');if(b){const s=allSheets.find(x=>x.id===b.dataset.id);if(s)openSheet(s)}};
+  $('sectorTabs').onclick=e=>{const b=e.target.closest('[data-sector]');if(b){activeSector=b.dataset.sector;renderSectors()}};
+  $('materialsBody').onclick=e=>{const b=e.target.closest('[data-edit-material]');if(b)openMaterialEditor(Number(b.dataset.editMaterial))};
+  $('comboCards').onclick=e=>{const b=e.target.closest('[data-edit-combo]');if(b)openComboEditor(Number(b.dataset.editCombo))};
+  $('closeMaterialModal').onclick=$('cancelMaterialEdit').onclick=()=>$('materialModal').classList.remove('open');$('saveMaterialEdit').onclick=saveMaterialEditor;
+  $('closeComboEdit').onclick=$('cancelComboEdit').onclick=()=>$('comboEditModal').classList.remove('open');$('addPieceRow').onclick=()=>addPieceEditorRow();$('saveComboEdit').onclick=saveComboEditor;
+  $('printBtn').onclick=()=>window.print();
+  $('openImport').onclick=()=>{$('importModal').classList.add('open');$('importModal').setAttribute('aria-hidden','false')};$('closeImport').onclick=()=>{$('importModal').classList.remove('open');$('importModal').setAttribute('aria-hidden','true')};
+  $('pdfFiles').onchange=e=>{selectedFiles=[...e.target.files];$('uploadList').innerHTML=selectedFiles.map(f=>`<div class="upload-item"><span>📄 ${esc(f.name)}</span><span>${(f.size/1024/1024).toFixed(2)} MB</span></div>`).join('');$('analyzeBtn').disabled=!selectedFiles.length;$('analysisArea').classList.add('hidden');parsedImport=[];hide($('importStatus'))};
+  $('analyzeBtn').onclick=analyzeFiles;$('confirmImport').onclick=confirmImport;$('exportPreview').onclick=exportPreview;
+  document.querySelectorAll('[data-page-tab]').forEach(b=>b.onclick=()=>{currentPageTab=b.dataset.pageTab;document.querySelectorAll('[data-page-tab]').forEach(x=>x.classList.toggle('active',x===b));$('fichaView').classList.toggle('hidden',currentPageTab!=='ficha');$('combosView').classList.toggle('hidden',currentPageTab!=='combos');if(currentPageTab==='combos')renderComboEditor()});
 
-    ui.bulkOpen.addEventListener('click',showBulkModal);
-    ui.bulkClose.addEventListener('click',closeBulkModal);
-    ui.bulkModal.addEventListener('click',e=>{if(e.target===ui.bulkModal)closeBulkModal();});
-    ui.bulkZipInput.addEventListener('change',chooseBulkArchive);
-    ui.bulkAppendPhotos.addEventListener('change',renderBulkRows);
-    ui.bulkCreateMissing.addEventListener('change',renderBulkRows);
-    ui.bulkTableBody.addEventListener('change',e=>{
-      const index=e.target.dataset.bulkRow;
-      if(index===undefined || !bulkData || bulkRunning)return;
-      const row=bulkData.rows[Number(index)];
-      if(row){row.selected=e.target.checked;bulkCounter();}
-    });
-    ui.bulkAll.addEventListener('click',()=>{if(!bulkData||bulkRunning)return;bulkData.rows.forEach(r=>r.selected=bulkPlan(r).eligible);renderBulkRows();});
-    ui.bulkOnlyMissing.addEventListener('click',()=>{
-      if(!bulkData||bulkRunning)return;
-      if(!ui.bulkCreateMissing.checked) {
-        updateBulkStatus('warning','Marque primeiro a opcao "Cadastrar os modelos que ainda nao existem" para selecionar somente cadastros novos.');
-        return;
-      }
-      bulkData.rows.forEach(r=>r.selected=!modelById.has(r.id)&&bulkPlan(r).eligible);
-      renderBulkRows();
-    });
-    ui.bulkNone.addEventListener('click',()=>{if(!bulkData||bulkRunning)return;bulkData.rows.forEach(r=>r.selected=false);renderBulkRows();});
-    ui.bulkDownloadReport.addEventListener('click',downloadBulkReport);
-    ui.bulkStart.addEventListener('click',runBulkImport);
-    ui.bulkStop.addEventListener('click',()=>{
-      bulkStopRequested=true;
-      ui.bulkStop.disabled=true;
-      ui.bulkProgressText.textContent='Parando apos a foto atual...';
-    });
-
-    // Abas: a troca preserva as edicoes em memoria ate o usuario salvar.
-    document.querySelectorAll('[data-model-tab]').forEach(button => {
-      button.addEventListener('click', () => { if (!busy) selectModelTab(button.dataset.modelTab); });
-    });
-    ui.addTechRow.addEventListener('click', () => {
-      if (!canEditTech || busy) return;
-      if (draftTech.length >= MAX_TECH_ROWS) { message(ui.modalMessage, 'warning', 'Limite de 80 pecas na ficha.'); return; }
-      draftTech.push({id:newRowId('peca'), item:'', peca:'', material:''});
-      renderTech();
-      const input = ui.techRows.querySelector(`tr:last-child [data-tech-field="item"]`);
-      if (input) input.focus();
-    });
-    ui.techRows.addEventListener('input', e => {
-      if (!canEditTech || busy) return;
-      const field = e.target.dataset.techField;
-      const row = draftTech.find(p => p.id === e.target.dataset.techId);
-      if (row && ['item','peca','material'].includes(field)) { row[field] = e.target.value; updateDirtyLabels(); }
-    });
-    ui.techRows.addEventListener('click', e => {
-      const button = e.target.closest('[data-remove-part]');
-      if (!button || !canEditTech || busy) return;
-      const part = draftTech.find(p => p.id === button.dataset.removePart);
-      if (!part) return;
-      if (savedCombos.some(c => c.cores?.[part.id]?.codigo) && !confirm('Esta peca possui cores em combinacoes. Remover da ficha? O dado da combinacao sera arquivado, sem excluir as demais cores.')) return;
-      draftTech = draftTech.filter(p => p.id !== part.id);
-      renderTech();
-    });
-    ui.saveTech.addEventListener('click', saveTech);
-    ui.addCombo.addEventListener('click', () => {
-      if (!canEditCombos || busy) return;
-      if (isTechDirty()) { message(ui.modalMessage, 'warning', 'Salve primeiro as alteracoes da ficha tecnica.'); return; }
-      if (!savedTech.length) { message(ui.modalMessage, 'warning', 'Cadastre as pecas na ficha tecnica e salve antes de adicionar combinacoes.'); return; }
-      if (draftCombos.length >= MAX_COMBINATIONS) { message(ui.modalMessage, 'warning', 'Limite de 40 combinacoes por modelo.'); return; }
-      draftCombos.push({id:newRowId('combo'), corCodigo:'', corNome:'', cores:{}});
-      renderCombos();
-      const last = ui.combosContainer.querySelector('.combo-card:last-child');
-      if (last) { last.scrollIntoView({behavior:'smooth',block:'nearest'}); last.querySelector('input')?.focus(); }
-    });
-    ui.combosContainer.addEventListener('input', e => {
-      if (!canEditCombos || busy) return;
-      const combo = draftCombos.find(c => c.id === e.target.dataset.comboId);
-      if (!combo) return;
-      if (['corCodigo','corNome'].includes(e.target.dataset.comboField)) {
-        combo[e.target.dataset.comboField] = e.target.value;
-      } else if (['codigo','nome'].includes(e.target.dataset.comboPartField) && e.target.dataset.comboPart) {
-        const key = e.target.dataset.comboPart;
-        if (!combo.cores[key]) combo.cores[key] = {codigo:'',nome:''};
-        combo.cores[key][e.target.dataset.comboPartField] = e.target.value;
-      }
-      updateDirtyLabels();
-    });
-    ui.combosContainer.addEventListener('click', e => {
-      if (!canEditCombos || busy) return;
-      const remove = e.target.closest('[data-remove-combo]');
-      const copy = e.target.closest('[data-copy-combo]');
-      if (remove) {
-        if (!confirm('Excluir esta combinacao? Ela sera removida do Firebase somente quando voce clicar em Salvar combinacoes.')) return;
-        draftCombos = draftCombos.filter(c => c.id !== remove.dataset.removeCombo);
-        renderCombos();
-      } else if (copy) {
-        const original = draftCombos.find(c => c.id === copy.dataset.copyCombo);
-        if (!original) return;
-        if (draftCombos.length >= MAX_COMBINATIONS) { message(ui.modalMessage, 'warning', 'Limite de 40 combinacoes por modelo.'); return; }
-        const duplicate = deepClone(original);
-        duplicate.id = newRowId('combo'); duplicate.corCodigo = ''; duplicate.corNome = '';
-        draftCombos.push(duplicate);
-        renderCombos();
-        message(ui.modalMessage, 'info', 'Combinacao duplicada. Informe uma nova cor principal e confira as cores das pecas antes de salvar.');
-      }
-    });
-    ui.saveCombos.addEventListener('click', saveCombinations);
-    ui.lookupButton.addEventListener('click', lookupModelByCode);
-    ui.codeLookup.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); lookupModelByCode(); } });
-    window.addEventListener('beforeunload', e => {
-      if (activeModelId && isModelDirty()) { e.preventDefault(); e.returnValue = ''; }
-    });
-
-    ui.cards.addEventListener('click', e => {
-      const btn = e.target.closest('[data-model-id]');
-      if (btn) openModel(btn.dataset.modelId);
-    });
-    ui.gallery.addEventListener('click', e => {
-      const deleteButton = e.target.closest('[data-delete-photo]');
-      if (deleteButton) { removePhoto(deleteButton.dataset.deletePhoto); return; }
-      const zoomButton = e.target.closest('[data-zoom-photo]');
-      if (zoomButton) zoomPhoto(zoomButton.dataset.zoomPhoto);
-    });
-    ui.searchInput.addEventListener('input', () => { loadedCount = DISPLAY_PAGE_SIZE; renderCards(); });
-    ui.filterInput.addEventListener('change', () => { loadedCount = DISPLAY_PAGE_SIZE; renderCards(); });
-    ui.clearButton.addEventListener('click', () => {
-      ui.searchInput.value = '';
-      ui.filterInput.value = 'all';
-      loadedCount = DISPLAY_PAGE_SIZE;
-      renderCards();
-    });
-    ui.loadMoreButton.addEventListener('click', () => { loadedCount += DISPLAY_PAGE_SIZE; renderCards(); });
-    ui.reloadButton.addEventListener('click', async () => {
-      if (busy) return;
-      if (isModelDirty()) {
-        if (!confirm('Alteracoes nao salvas serao descartadas. Atualizar mesmo assim?')) return;
-        ui.notesInput.value = savedNotes;
-        draftTech = deepClone(savedTech);
-        draftCombos = deepClone(savedCombos);
-      }
-      await loadAll(true);
-    });
-    ui.closeModalButton.addEventListener('click', closeModel);
-    ui.modelModal.addEventListener('click', e => { if (e.target === ui.modelModal) closeModel(); });
-    ui.notesInput.addEventListener('input', () => { ui.saveNotesButton.textContent = isNotesDirty() ? 'Salvar anotacoes *' : 'Salvar anotacoes'; });
-    ui.saveNotesButton.addEventListener('click', saveNotes);
-    ui.addPhotosButton.addEventListener('click', () => { if (!busy && canEdit) ui.photoInput.click(); });
-    ui.photoInput.addEventListener('change', async e => { await addPhotos(e.target.files); });
-    ui.closeLargePhoto.addEventListener('click', closeZoom);
-    ui.largePhotoOverlay.addEventListener('click', e => { if (e.target === ui.largePhotoOverlay) closeZoom(); });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        if (ui.largePhotoOverlay.classList.contains('open')) closeZoom();
-        else if (ui.bulkModal.classList.contains('open')) closeBulkModal();
-        else if (ui.modelModal.classList.contains('open')) closeModel();
-      }
-    });
-
-    onAuthStateChanged(auth, async user => {
-      if (!user) { window.location.replace('login.html'); return; }
-      currentUser = user;
-      try {
-        const profile = await getDoc(doc(db, 'Usuario', user.email));
-        if (!profile.exists()) throw new Error('Usuario nao encontrado na colecao Usuario.');
-        const info = profile.data();
-        userLevel = String(info.nivelAcesso ?? '');
-        const userName = info.Nome || user.email;
-        if (!userLevel) throw new Error('Usuario sem nivel de acesso.');
-        if (!VIEW_LEVELS.has(userLevel)) {
-          document.body.classList.remove('auth-loading');
-          window.location.replace('index.html');
-          return;
-        }
-        canEdit = EDIT_LEVELS.has(userLevel);
-        canEditTech = TECH_EDIT_LEVELS.has(userLevel);
-        canEditCombos = COMBO_EDIT_LEVELS.has(userLevel);
-        canViewCatalog = CATALOG_LEVELS.has(userLevel);
-        canCreateModels = CREATE_MODEL_LEVELS.has(userLevel);
-        ui.bulkCreateMissing.checked = false;
-        ui.bulkCreateMissing.disabled = !canCreateModels;
-        ui.bulkCreateHelp.textContent = canCreateModels
-          ? 'Permissao para criar modelos disponivel. Os cadastros novos ficam SEM PRECO ate serem completados em modelos.html.'
-          : 'O seu nivel nao pode criar modelos com as regras atuais do Firestore. Somente os niveis 07 e 08 podem cadastrar.';
-        ui.bulkOnlyMissing.disabled = !canCreateModels;
-        ui.bulkOpen.classList.toggle('hidden', !canEdit || !canViewCatalog);
-        ui.codeLookupBox.classList.toggle('hidden', canViewCatalog);
-        ui.lookupButton.classList.toggle('hidden', canViewCatalog);
-        localStorage.setItem('userNivelAcesso', userLevel);
-        localStorage.setItem('userName', userName);
-        document.body.classList.remove('auth-loading');
-        ui.modelsShortcut.classList.toggle('hidden', !['07', '08'].includes(userLevel));
-        if (window.SistemaNavegacao) {
-          window.SistemaNavegacao.init({
-            userLevel, userName, title: 'Fotos e Ficha Tecnica',
-            onLogout: async () => {
-              await signOut(auth);
-              localStorage.removeItem('userNivelAcesso');
-              localStorage.removeItem('userName');
-              window.location.replace('login.html');
-            }
-          });
-        }
-        if (!initialized) {
-          initialized = true;
-          await loadAll();
-        }
-      } catch (err) {
-        console.error('Falha ao validar usuario', err);
-        document.body.classList.remove('auth-loading');
-        message(ui.pageMessage, 'error', 'Nao foi possivel validar seu usuario: ' + readableError(err));
-        ui.cards.innerHTML = '<div class="empty">Nao foi possivel validar seu acesso. Verifique seus dados ou entre novamente.</div>';
-      }
-    });
-  </script>
+  onAuthStateChanged(auth,async user=>{if(!user){location.href='login.html';return}try{const us=await getDoc(doc(db,'Usuario',user.email));if(!us.exists()){await signOut(auth);location.href='login.html';return}userLevel=String(us.data().nivelAcesso||'');if(!VIEW_LEVELS.has(userLevel)){alert('Seu perfil não possui acesso à Ficha Técnica.');location.href='index.html';return}window.SistemaNavegacao?.init({userLevel,userName:us.data().nome||user.email,onLogout:async()=>{await signOut(auth);location.href='login.html'}});$('openImport').classList.toggle('hidden',!IMPORT_LEVELS.has(userLevel));document.body.classList.remove('auth-loading');await loadBaseData()}catch(e){console.error(e);document.body.classList.remove('auth-loading');show($('pageStatus'),'error','Erro ao validar usuário: '+(e.message||e))}});
+</script>
 </body>
 </html>
