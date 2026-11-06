@@ -195,6 +195,35 @@
   </div>
 </div>
 
+
+<div class="modal-overlay" id="photosModal" aria-hidden="true">
+  <div class="modal" style="width:min(980px,100%);background:#fff;border-radius:16px;overflow:auto">
+    <div class="modal-head">
+      <div>
+        <h2>Fotos do modelo <span id="photosModelCode"></span></h2>
+        <div style="color:var(--muted);font-size:13px;margin-top:4px">Adicione várias fotos, escolha a principal ou remova imagens antigas.</div>
+      </div>
+      <button class="btn soft" id="closePhotosModal" type="button">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="photosStatus" class="status hidden"></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <label class="btn primary" for="modelPhotoFiles" style="cursor:pointer">Adicionar fotos</label>
+        <input id="modelPhotoFiles" type="file" accept="image/jpeg,image/png,image/webp" multiple style="display:none">
+        <span style="color:var(--muted);font-size:13px">Até 5 fotos por modelo.</span>
+      </div>
+      <div id="photoUploadProgress" class="photo-upload-progress hidden">
+        <progress id="photoProgressBar" max="100" value="0"></progress>
+        <div id="photoProgressText" class="photo-upload-status"></div>
+      </div>
+      <div id="photoGallery" class="photo-gallery-grid"></div>
+    </div>
+    <div class="modal-actions" style="padding:0 20px 20px">
+      <button class="btn soft" type="button" onclick="document.getElementById('photosModal').classList.remove('open')">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="newComboModal" aria-hidden="true">
   <div class="modal" style="width:min(640px,100%)">
     <div class="modal-head"><div><h2>Nova combinação</h2><div style="color:var(--muted);font-size:13px;margin-top:4px">Cadastre uma combinação manual para o cabedal selecionado.</div></div><button class="btn soft" id="closeNewCombo">✕</button></div>
@@ -809,10 +838,10 @@ function normalizarSetor(nome) {
   $('comboCards').onclick=e=>{const b=e.target.closest('[data-edit-combo]');if(b)openComboEditor(Number(b.dataset.editCombo))};
   $('closeMaterialModal').onclick=$('cancelMaterialEdit').onclick=()=>$('materialModal').classList.remove('open');$('saveMaterialEdit').onclick=saveMaterialEditor;
   $('closeComboEdit').onclick=$('cancelComboEdit').onclick=()=>$('comboEditModal').classList.remove('open');$('addPieceRow').onclick=()=>addPieceEditorRow();$('saveComboEdit').onclick=saveComboEditor;
-  $('managePhotosBtn').onclick=openPhotosModal;
-  $('closePhotosModal').onclick=()=>$('photosModal').classList.remove('open');
-  $('photosModal').addEventListener('click',e=>{if(e.target===$('photosModal'))$('photosModal').classList.remove('open')});
-  $('modelPhotoFiles').addEventListener('change',e=>addModelPhotos(e.target.files));
+  if($('managePhotosBtn')) $('managePhotosBtn').onclick=openPhotosModal;
+  if($('closePhotosModal')) $('closePhotosModal').onclick=()=>$('photosModal').classList.remove('open');
+  if($('photosModal')) $('photosModal').addEventListener('click',e=>{if(e.target===$('photosModal'))$('photosModal').classList.remove('open')});
+  if($('modelPhotoFiles')) $('modelPhotoFiles').addEventListener('change',e=>addModelPhotos(e.target.files));
   $('printBtn').onclick=()=>window.print();
   $('openImport').onclick=()=>{$('importModal').classList.add('open');$('importModal').setAttribute('aria-hidden','false')};$('closeImport').onclick=()=>{$('importModal').classList.remove('open');$('importModal').setAttribute('aria-hidden','true')};
   $('pdfFiles').onchange=e=>{selectedFiles=[...e.target.files];$('uploadList').innerHTML=selectedFiles.map(f=>`<div class="upload-item"><span>📄 ${esc(f.name)}</span><span>${(f.size/1024/1024).toFixed(2)} MB</span></div>`).join('');$('analyzeBtn').disabled=!selectedFiles.length;$('analysisArea').classList.add('hidden');parsedImport=[];hide($('importStatus'))};
