@@ -39,6 +39,32 @@
     .status{display:none;margin-bottom:12px;border-radius:9px;padding:10px 12px;font-size:13px}.status.show{display:block}.status.info{background:#eaf3ff;color:#194e82}.status.success{background:#e7f7ed;color:#12613b}.status.warning{background:#fff6e0;color:#80520a}.status.error{background:#fff0f2;color:#8f2031}
     .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.65);display:none;align-items:center;justify-content:center;padding:20px;z-index:5000}.modal-overlay.open{display:flex}.modal{width:min(1050px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border-radius:16px;box-shadow:0 25px 80px rgba(0,0,0,.25)}.modal-head{display:flex;justify-content:space-between;gap:15px;padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}.modal-head h2{margin:0;font-size:21px}.modal-body{padding:18px 20px}.upload-zone{border:2px dashed #b8c6d8;border-radius:12px;background:#f8fafc;padding:26px;text-align:center}.upload-zone input{display:none}.upload-list{margin-top:12px;display:flex;flex-direction:column;gap:7px}.upload-item{display:flex;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff}.analysis-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:15px 0}.metric{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}.metric b{display:block;font-size:22px;margin-top:4px}.preview-table{width:100%;border-collapse:collapse;font-size:12px}.preview-table th,.preview-table td{border-bottom:1px solid #edf1f5;padding:8px;text-align:left}.preview-table th{background:#eef2f7}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.edit-grid .full{grid-column:1/-1}.combo-editor-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.combo-editor-title h2{margin:0 0 4px;font-size:23px}.combo-editor-title small{color:var(--muted)}.combo-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px}.combo-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.combo-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;background:#f8fafc;border-bottom:1px solid var(--line)}.combo-card-code{font-weight:900;font-size:16px}.combo-card-name{font-size:13px;color:#334155;display:flex;align-items:center;gap:8px}.combo-piece-list{padding:10px 12px;display:flex;flex-direction:column;gap:7px}.combo-piece-row{display:grid;grid-template-columns:70px 32px 1fr;gap:8px;align-items:center;font-size:13px}.combo-piece-row strong{color:#334155}.combo-empty-piece{color:var(--muted);font-size:12px;padding:4px 0}.piece-edit-row{display:grid;grid-template-columns:120px 60px 1fr 42px;gap:8px;align-items:end;margin-bottom:8px}.piece-edit-row input{width:100%;height:38px;border:1px solid #d4dce7;border-radius:8px;padding:7px 8px}.piece-edit-row input[type=color]{padding:3px}.remove-piece{height:38px;border:1px solid #fecaca;background:#fff;color:#b91c1c;border-radius:8px;font-weight:900}.color-dot.large{width:34px;height:22px;margin-right:0}.combo-preview-dot{width:28px;height:18px;border:1px solid #cbd5e1;border-radius:5px;display:inline-block;flex:0 0 auto}
 
+
+    /* Biblioteca visual: Linha -> Modelos -> Modal */
+    .library-toolbar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin:0 0 16px}
+    .library-toolbar .field{min-width:180px}.library-toolbar .field.search-wide{min-width:280px;flex:1}
+    .library-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:10px 0 12px}
+    .library-head h2{margin:0;font-size:20px}.library-subtitle{color:var(--muted);font-size:13px}
+    .line-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+    .line-card{border:1px solid var(--line);background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);text-align:left;padding:0;transition:.18s transform,.18s box-shadow,.18s border-color}
+    .line-card:hover{transform:translateY(-2px);border-color:#9ec1ff;box-shadow:0 10px 26px rgba(37,99,235,.12)}
+    .line-cover{height:120px;background:#f8fafc;display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:8px;border-bottom:1px solid var(--line)}
+    .line-cover .mini-photo{background:#eef2f7;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#98a4b5;font-size:22px}
+    .line-cover img{width:100%;height:100%;object-fit:contain;background:#fff}
+    .line-info{padding:13px 14px}.line-code{font-size:22px;font-weight:900;color:#172033}.line-meta{margin-top:5px;color:var(--muted);font-size:12px;display:flex;gap:10px;flex-wrap:wrap}
+    .models-panel{margin-top:18px}.models-panel.hidden{display:none!important}
+    .models-panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+    .models-panel-head h2{margin:0;font-size:21px}.models-back{white-space:nowrap}
+    .model-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+    .model-card{border:1px solid var(--line);background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);text-align:left;padding:0;transition:.18s transform,.18s border-color}
+    .model-card:hover{transform:translateY(-2px);border-color:#9ec1ff}.model-card-photo{height:175px;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden;border-bottom:1px solid var(--line)}
+    .model-card-photo img{width:100%;height:100%;object-fit:contain;background:#fff}.model-card-no-photo{color:#98a4b5;text-align:center;font-size:12px}.model-card-no-photo b{display:block;font-size:30px;margin-bottom:5px}
+    .model-card-info{padding:12px 13px}.model-card-code{font-size:18px;font-weight:900}.model-card-desc{font-size:12px;color:var(--muted);margin-top:4px;min-height:30px}.model-card-status{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap}.status-pill{font-size:11px;font-weight:800;border-radius:999px;padding:4px 8px}.status-pill.ok{background:#e5f7e9;color:#26713a}.status-pill.wait{background:#fff6e0;color:#8a5c0a}
+    .library-empty{padding:46px;text-align:center;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:14px}
+    .legacy-layout-hidden{display:none!important}
+    #sheetModal .modal{width:min(1500px,calc(100vw - 36px));max-height:calc(100vh - 28px)}
+    #sheetModal .modal-body{padding:14px}#sheetModal .main-card{min-height:auto;box-shadow:none;border:0;padding:0}
+    .sheet-modal-tabs{display:flex;gap:8px;flex-wrap:wrap}
     .photo-column{display:flex;flex-direction:column;gap:8px}.photo-actions{display:flex;gap:8px;flex-wrap:wrap}.photo-actions .btn{flex:1}.photo-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:14px}.photo-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.photo-thumb{aspect-ratio:4/3;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden}.photo-thumb img{width:100%;height:100%;object-fit:contain}.photo-meta{padding:9px 10px;display:flex;justify-content:space-between;gap:8px;align-items:center}.photo-meta small{color:var(--muted)}.photo-buttons{display:flex;gap:6px;flex-wrap:wrap}.photo-primary{font-size:11px;font-weight:900;color:#12613b;background:#e7f7ed;border-radius:999px;padding:3px 7px}.photo-upload-progress{margin-top:12px}.photo-upload-progress progress{width:100%;height:14px}.photo-upload-status{font-size:12px;color:var(--muted);margin-top:5px}
     @media(max-width:1120px){.layout{grid-template-columns:1fr}.filter-card{position:static}.sheet-head{grid-template-columns:170px 1fr}.combo-box{grid-column:1/-1}.model-list{max-height:220px}}
     @media(max-width:720px){main{padding:12px}.sheet-head{grid-template-columns:1fr}.photo-box{height:180px}.filter-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.analysis-grid{grid-template-columns:1fr 1fr}.page-head{align-items:flex-start}.page-title h1{font-size:20px}}
@@ -54,14 +80,30 @@
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" data-page-tab="ficha">Ficha Técnica</button>
-    <button class="tab-btn" data-page-tab="combos">Combinações</button>
     <button class="btn soft top-import" id="openImport">⇧ Importar PDF (Massa)</button>
   </div>
 
   <div id="pageStatus" class="status" role="status"></div>
 
-  <div class="layout">
+
+  <section class="card" style="padding:16px;margin-bottom:14px">
+    <div class="library-toolbar">
+      <div class="field"><label>Linha</label><input id="libLinha" placeholder="Ex.: 7125"></div>
+      <div class="field"><label>Modelo / Ref.</label><input id="libModelo" placeholder="Ex.: 233 ou 7125.233"></div>
+      <div class="field search-wide"><label>Descrição / categoria</label><input id="libDescricao" placeholder="Buscar modelo..."></div>
+      <button class="btn primary" id="libBuscar">Buscar</button>
+      <button class="btn soft" id="libLimpar">Limpar</button>
+    </div>
+    <div id="linesSection">
+      <div class="library-head"><div><h2>Linhas cadastradas</h2><div class="library-subtitle">Selecione uma linha para visualizar os modelos.</div></div><div class="library-subtitle" id="lineCount"></div></div>
+      <div id="lineGrid" class="line-grid"><div class="library-empty">Carregando linhas...</div></div>
+    </div>
+    <div id="modelsPanel" class="models-panel hidden">
+      <div class="models-panel-head"><div><h2>Modelos da linha <span id="selectedLineCode"></span></h2><div class="library-subtitle" id="modelsLineMeta"></div></div><button class="btn soft models-back" id="backToLines">← Voltar às linhas</button></div>
+      <div id="modelGrid" class="model-grid"></div>
+    </div>
+  </section>
+  <div class="layout legacy-layout-hidden">
     <aside class="card filter-card">
       <div class="filter-title">⌕ Filtros / Consultar Fichas</div>
       <div class="filter-grid">
@@ -123,6 +165,22 @@
     </section>
   </div>
 </main>
+
+<div class="modal-overlay" id="sheetModal" aria-hidden="true">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h2>Modelo <span id="sheetModalModelCode">-</span></h2>
+        <div class="sheet-modal-tabs" style="margin-top:10px">
+          <button class="tab-btn active" data-page-tab="ficha">Ficha Técnica</button>
+          <button class="tab-btn" data-page-tab="combos">Combinações</button>
+        </div>
+      </div>
+      <button class="btn soft" id="closeSheetModal" type="button">✕</button>
+    </div>
+    <div class="modal-body" id="sheetModalHost"></div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="importModal" aria-hidden="true">
   <div class="modal">
@@ -378,6 +436,74 @@ function normalizarSetor(nome) {
     if(idx>=0)allSheets[idx]=active; else allSheets.push(active);
   }
 
+
+  let selectedLibraryLine='';
+  function principalPhotoFor(modelo){
+    const arr=photosByModel.get(modelo)||[]; const p=arr[0];
+    return typeof p==='string'?p:text(p?.url);
+  }
+  function lineLibraryData(source=allSheets){
+    const map=new Map();
+    for(const m of source){
+      const line=text(m.linha)||text(modelKey(m)).split('.')[0]||'SEM LINHA';
+      if(!map.has(line))map.set(line,[]); map.get(line).push(m);
+    }
+    return [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],'pt-BR',{numeric:true}));
+  }
+  function renderLineLibrary(source=allSheets){
+    const groups=lineLibraryData(source);
+    $('lineCount').textContent=`${groups.length} linha(s)`;
+    if(!groups.length){$('lineGrid').innerHTML='<div class="library-empty" style="grid-column:1/-1">Nenhuma linha encontrada.</div>';return}
+    $('lineGrid').innerHTML=groups.map(([line,models])=>{
+      const photos=models.map(m=>principalPhotoFor(modelKey(m))).filter(Boolean).slice(0,3);
+      while(photos.length<3)photos.push('');
+      const withSheet=models.filter(m=>m.hasFicha).length;
+      return `<button class="line-card" data-line-card="${esc(line)}">
+        <div class="line-cover">${photos.map(u=>u?`<div class="mini-photo"><img src="${esc(u)}" alt=""></div>`:'<div class="mini-photo">▧</div>').join('')}</div>
+        <div class="line-info"><div class="line-code">Linha ${esc(line)}</div><div class="line-meta"><span>${models.length} modelo(s)</span><span>${withSheet} com ficha</span></div></div>
+      </button>`;
+    }).join('');
+  }
+  function modelsForLine(line,source=allSheets){return source.filter(m=>text(m.linha)===text(line))}
+  function openLibraryLine(line,source=allSheets){
+    selectedLibraryLine=line; $('selectedLineCode').textContent=line;
+    const models=modelsForLine(line,source).sort((a,b)=>modelKey(a).localeCompare(modelKey(b),'pt-BR',{numeric:true}));
+    $('modelsLineMeta').textContent=`${models.length} modelo(s) cadastrado(s)`;
+    $('modelGrid').innerHTML=models.length?models.map(m=>{
+      const mk=modelKey(m),photo=principalPhotoFor(mk),desc=m.descricao||[m.categoria,m.subcategoria].filter(Boolean).join(' / ')||'Sem descrição';
+      return `<button class="model-card" data-model-card="${esc(mk)}">
+        <div class="model-card-photo">${photo?`<img src="${esc(photo)}" alt="${esc(mk)}">`:'<div class="model-card-no-photo"><b>▧</b>Sem foto</div>'}</div>
+        <div class="model-card-info"><div class="model-card-code">${esc(mk)}</div><div class="model-card-desc">${esc(desc)}</div><div class="model-card-status"><span class="status-pill ${m.hasFicha?'ok':'wait'}">${m.hasFicha?'Ficha cadastrada':'Sem ficha'}</span></div></div>
+      </button>`;
+    }).join(''):'<div class="library-empty" style="grid-column:1/-1">Nenhum modelo nesta linha.</div>';
+    $('linesSection').classList.add('hidden'); $('modelsPanel').classList.remove('hidden');
+  }
+  function backToLineLibrary(){selectedLibraryLine='';$('modelsPanel').classList.add('hidden');$('linesSection').classList.remove('hidden')}
+  function currentLibraryFiltered(){
+    const ln=normalize($('libLinha').value),mo=normalize($('libModelo').value),de=normalize($('libDescricao').value);
+    return allSheets.filter(m=>{const mk=normalize(modelKey(m)),ds=normalize([m.descricao,m.categoria,m.subcategoria,m.observacaoModelo].filter(Boolean).join(' '));return(!ln||normalize(m.linha).includes(ln))&&(!mo||mk.includes(mo)||normalize(m.referencia).includes(mo))&&(!de||ds.includes(de))});
+  }
+  function applyLibrarySearch(){
+    const rows=currentLibraryFiltered(); backToLineLibrary(); renderLineLibrary(rows);
+    const exactModel=normalize($('libModelo').value);
+    if(exactModel){const hit=rows.find(m=>normalize(modelKey(m))===exactModel||normalize(m.referencia)===exactModel);if(hit)openLibraryLine(hit.linha,rows)}
+  }
+  function openSheetModal(){
+    if(!active)return; $('sheetModalModelCode').textContent=modelKey(active);
+    const modal=$('sheetModal'); modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+  }
+  function closeSheetModal(){const modal=$('sheetModal');modal.classList.remove('open');modal.setAttribute('aria-hidden','true')}
+  function wireLibrary(){
+    const mainCard=document.querySelector('.legacy-layout-hidden .main-card');
+    if(mainCard&&$('sheetModalHost')&&!$('sheetModalHost').contains(mainCard))$('sheetModalHost').appendChild(mainCard);
+    $('lineGrid').onclick=e=>{const c=e.target.closest('[data-line-card]');if(c)openLibraryLine(c.dataset.lineCard,currentLibraryFiltered())};
+    $('modelGrid').onclick=e=>{const c=e.target.closest('[data-model-card]');if(!c)return;const m=allSheets.find(x=>modelKey(x)===c.dataset.modelCard);if(m){openSheet(m);openSheetModal()}};
+    $('backToLines').onclick=()=>{backToLineLibrary();renderLineLibrary(currentLibraryFiltered())};
+    $('libBuscar').onclick=applyLibrarySearch; $('libLimpar').onclick=()=>{$('libLinha').value='';$('libModelo').value='';$('libDescricao').value='';backToLineLibrary();renderLineLibrary(allSheets)};
+    ['libLinha','libModelo','libDescricao'].forEach(id=>$(id).addEventListener('keydown',e=>{if(e.key==='Enter')applyLibrarySearch()}));
+    $('closeSheetModal').onclick=closeSheetModal; $('sheetModal').addEventListener('click',e=>{if(e.target===$('sheetModal'))closeSheetModal()});
+  }
+
   async function loadBaseData(){
     try{
       // MODELOS e a fonte principal desta pagina.
@@ -457,12 +583,8 @@ function normalizarSetor(nome) {
       await loadSectorCatalog();
       populateSelectors();
       applyFilters();
-
-      if(allSheets.length){
-        const linhaInicial=normalize($('fLinha').value),refInicial=normalize($('fRef').value);
-        const inicial=allSheets.find(s=>(!linhaInicial||normalize(s.linha)===linhaInicial)&&(!refInicial||normalize(s.referencia)===refInicial));
-        openSheet(inicial||allSheets[0]);
-      }else{
+      renderLineLibrary(allSheets);
+      if(!allSheets.length){
         show($('pageStatus'),'info','Nenhum modelo encontrado na colecao modelos.');
       }
     }catch(e){
@@ -525,7 +647,7 @@ function normalizarSetor(nome) {
     if(!visibleSheets.length){$('modelList').innerHTML='<div class="empty">Nenhum modelo encontrado.</div>';return}
     $('modelList').innerHTML=visibleSheets.map(s=>`<button class="model-row ${active&&modelKey(active)===modelKey(s)?'active':''}" data-id="${esc(modelKey(s))}"><strong>${esc(modelKey(s))}</strong><small>${s.hasFicha?'<span style="color:#16834f;font-weight:800">Ficha cadastrada</span>':'<span style="color:#b7791f;font-weight:800">Sem ficha tecnica</span>'}${s.categoria||s.subcategoria?` · ${esc([s.categoria,s.subcategoria].filter(Boolean).join(' / '))}`:''}</small></button>`).join('');
   }
-  function openSheet(s){active=s;activeSector='';renderList();renderSheet()}
+  function openSheet(s){active=s;activeSector='';renderList();renderSheet();if($('sheetModalModelCode'))$('sheetModalModelCode').textContent=modelKey(active)}
   function selectedVariation(){
     if(!active||!active.hasFicha)return null;
     const vars=Array.isArray(active.variacoes)?active.variacoes:[];
@@ -577,7 +699,7 @@ function normalizarSetor(nome) {
     const photos=Array.isArray(data.fotos)?data.fotos:[];
     const sorted=photos.slice().sort((a,b)=>Number(!!(b&&typeof b==='object'&&b.principal))-Number(!!(a&&typeof a==='object'&&a.principal)));
     if(sorted.length)photosByModel.set(modelo,sorted); else photosByModel.delete(modelo);
-    if(active&&modelKey(active)===modelo)renderSheet();
+    if(active&&modelKey(active)===modelo)renderSheet(); renderLineLibrary(currentLibraryFiltered()); if(selectedLibraryLine)openLibraryLine(selectedLibraryLine,currentLibraryFiltered());
     if($('photosModal').classList.contains('open'))renderPhotoGallery();
   }
   function renderPhotoGallery(){
@@ -853,7 +975,8 @@ function normalizarSetor(nome) {
   $('closeNewCombo').addEventListener('click',()=>$('newComboModal').classList.remove('open'));
   $('cancelNewCombo').addEventListener('click',()=>$('newComboModal').classList.remove('open'));
   $('newComboDesc').addEventListener('input',()=>{const c=inferColorHex($('newComboDesc').value);if(c!=='#eef2f7')$('newComboColor').value=c});
-onAuthStateChanged(auth,async user=>{if(!user){location.href='login.html';return}try{const us=await getDoc(doc(db,'Usuario',user.email));if(!us.exists()){await signOut(auth);location.href='login.html';return}userLevel=String(us.data().nivelAcesso||'');if(!VIEW_LEVELS.has(userLevel)){alert('Seu perfil não possui acesso à Ficha Técnica.');location.href='index.html';return}window.SistemaNavegacao?.init({userLevel,userName:us.data().nome||user.email,onLogout:async()=>{await signOut(auth);location.href='login.html'}});$('openImport').classList.toggle('hidden',!IMPORT_LEVELS.has(userLevel));document.body.classList.remove('auth-loading');await loadBaseData()}catch(e){console.error(e);document.body.classList.remove('auth-loading');show($('pageStatus'),'error','Erro ao validar usuário: '+(e.message||e))}});
+wireLibrary();
+  onAuthStateChanged(auth,async user=>{if(!user){location.href='login.html';return}try{const us=await getDoc(doc(db,'Usuario',user.email));if(!us.exists()){await signOut(auth);location.href='login.html';return}userLevel=String(us.data().nivelAcesso||'');if(!VIEW_LEVELS.has(userLevel)){alert('Seu perfil não possui acesso à Ficha Técnica.');location.href='index.html';return}window.SistemaNavegacao?.init({userLevel,userName:us.data().nome||user.email,onLogout:async()=>{await signOut(auth);location.href='login.html'}});$('openImport').classList.toggle('hidden',!IMPORT_LEVELS.has(userLevel));document.body.classList.remove('auth-loading');await loadBaseData()}catch(e){console.error(e);document.body.classList.remove('auth-loading');show($('pageStatus'),'error','Erro ao validar usuário: '+(e.message||e))}});
 </script>
 </body>
 </html>
