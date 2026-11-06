@@ -33,7 +33,7 @@
     .model-code{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}.model-code h2{margin:0;font-size:28px}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:5px 10px;font-size:12px;font-weight:800;background:#e8f4ff;color:#24518f}.badge.green{background:#e5f7e9;color:#26713a}
     .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 18px;font-size:14px}.info-grid .wide{grid-column:1/-1}.info-grid b{color:#111827}
     .combo-box{border:1px solid var(--line);border-radius:12px;overflow:hidden}.combo-box h3{margin:0;padding:10px 12px;font-size:16px;background:#f8fafc;border-bottom:1px solid var(--line)}.combo-table{width:100%;border-collapse:collapse;font-size:13px}.combo-table th,.combo-table td{padding:8px 10px;border-bottom:1px solid #edf1f5;text-align:left}.combo-table th{background:#eef2f7}.combo-table tr:last-child td{border-bottom:0}.color-dot{width:26px;height:16px;border:1px solid #cbd5e1;border-radius:5px;display:inline-block;vertical-align:middle;margin-right:7px;background:#f3f4f6}
-    .sector-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px}.sector-btn{border:1px solid var(--line);background:#f8fafc;border-radius:9px;padding:9px 12px;font-weight:800;color:#334155}.sector-btn.active{background:var(--primary);border-color:var(--primary);color:#fff}
+    .sector-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:16px 0 12px}.sector-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0}.sector-btn{border:1px solid var(--line);background:#f8fafc;border-radius:9px;padding:9px 12px;font-weight:800;color:#334155}.sector-btn.active{background:var(--primary);border-color:var(--primary);color:#fff}.sector-manage-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}.sector-manage-row{display:grid;grid-template-columns:70px minmax(180px,1fr) 110px 110px;gap:8px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:10px;background:#f8fafc}.sector-manage-row input,.sector-manage-row select{height:38px;border:1px solid #d4dce7;border-radius:8px;padding:7px 9px;background:#fff;width:100%}.sector-manage-row.inactive{opacity:.65}.sector-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
     .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:11px}.materials{width:100%;border-collapse:collapse;font-size:13px;min-width:980px}.materials th,.materials td{padding:10px 11px;border-bottom:1px solid #edf1f5;text-align:left;vertical-align:top}.materials th{background:#eef2f7;color:#334155;position:sticky;top:0}.materials td.num{text-align:right;font-variant-numeric:tabular-nums}.edit-material{white-space:nowrap}.empty{padding:42px;text-align:center;color:var(--muted)}
     .sheet-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:15px;padding-top:14px;border-top:1px solid var(--line)}.source-info{font-size:12px;color:var(--muted)}
     .status{display:none;margin-bottom:12px;border-radius:9px;padding:10px 12px;font-size:13px}.status.show{display:block}.status.info{background:#eaf3ff;color:#194e82}.status.success{background:#e7f7ed;color:#12613b}.status.warning{background:#fff6e0;color:#80520a}.status.error{background:#fff0f2;color:#8f2031}
@@ -97,7 +97,7 @@
           </div>
         </div>
 
-        <div id="sectorTabs" class="sector-tabs"></div>
+        <div class="sector-toolbar"><div id="sectorTabs" class="sector-tabs"></div><button class="btn soft" id="manageSectorsBtn">⚙ Setores cadastrados</button></div>
         <div class="table-wrap">
           <table class="materials">
             <thead><tr><th>Peça</th><th>Material (Código - Descrição)</th><th>Observação</th><th>UM</th><th>Consumo</th><th>Comprimento</th><th>Ações</th></tr></thead>
@@ -165,6 +165,21 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="sectorsModal" aria-hidden="true">
+  <div class="modal" style="width:min(820px,100%)">
+    <div class="modal-head"><div><h2>Setores cadastrados</h2><div style="color:var(--muted);font-size:13px;margin-top:4px">Padronize os setores usados em todas as fichas técnicas.</div></div><button class="btn soft" id="closeSectorsModal">✕</button></div>
+    <div class="modal-body">
+      <div id="sectorsStatus" class="status"></div>
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+        <div class="sector-chip">Os materiais só poderão ser movidos para setores ativos.</div>
+        <button class="btn primary" id="addSectorBtn">+ Novo setor</button>
+      </div>
+      <div id="sectorManageList" class="sector-manage-list"></div>
+      <div class="modal-actions"><button class="btn soft" id="cancelSectorsModal">Fechar</button><button class="btn primary" id="saveSectorsBtn">Salvar setores</button></div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="comboEditModal" aria-hidden="true">
   <div class="modal" style="width:min(820px,100%)">
     <div class="modal-head"><div><h2>Editar peças da combinação</h2><div id="comboEditSubtitle" style="color:var(--muted);font-size:13px;margin-top:4px"></div></div><button class="btn soft" id="closeComboEdit">✕</button></div>
@@ -194,7 +209,25 @@
   </div>
 </div>
 
-<script src="navegacao.js"></script>
+<script src="navegacao.js">
+function normalizarSetor(nome) {
+  const n = String(nome || '').trim().toLowerCase();
+  const mapa = {
+    'corte': 'Almoxarifado',
+    'almoxarifado': 'Almoxarifado',
+    'corte de tiras': 'Tiras',
+    'tiras': 'Tiras',
+    'costura': 'Aviamentos',
+    'aviamentos': 'Aviamentos',
+    'montagem': 'Montagem',
+    'expedicao': 'Expedição',
+    'expedição': 'Expedição',
+    'terceiros': 'Terceiros'
+  };
+  return mapa[n] || String(nome || '').trim();
+}
+
+</script>
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js';
   import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
@@ -205,11 +238,76 @@
   const firebaseConfig={apiKey:'AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8',authDomain:'sistemataloes.firebaseapp.com',projectId:'sistemataloes',storageBucket:'sistemataloes.firebasestorage.app',messagingSenderId:'684534379685',appId:'1:684534379685:web:ac0f831c26991ac059094c'};
   const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
   const $=id=>document.getElementById(id), text=v=>String(v??'').trim();
-  let userLevel='', allSheets=[], visibleSheets=[], active=null, activeSector='', photosByModel=new Map(), modelIds=new Set(), modelDataById=new Map(), selectedFiles=[], parsedImport=[];
+  let userLevel='', allSheets=[], visibleSheets=[], active=null, activeSector='', photosByModel=new Map(), modelIds=new Set(), modelDataById=new Map(), selectedFiles=[], parsedImport=[], sectorCatalog=[];
   const VIEW_LEVELS=new Set(['01','02','05','07','08','09']);
   const IMPORT_LEVELS=new Set(['05','07','08','09']);
   const EDIT_LEVELS=new Set(['05','07','08','09']);
   let currentPageTab='ficha';
+  const DEFAULT_SECTORS=['CORTE','CORTE DE TIRAS','COSTURA','MONTAGEM','EXPEDIÇÃO','TERCEIROS'];
+  function normalizeSectorName(v){return text(v).replace(/\s+/g,' ').toUpperCase()}
+  function activeSectorNames(){
+    const activeOnes=sectorCatalog.filter(s=>s.ativo!==false).sort((a,b)=>(Number(a.ordem)||999)-(Number(b.ordem)||999)||String(a.nome).localeCompare(String(b.nome),'pt-BR')).map(s=>s.nome);
+    return activeOnes.length?activeOnes:DEFAULT_SECTORS.slice();
+  }
+  async function loadSectorCatalog(){
+    try{
+      const snap=await getDocs(collection(db,'setoresFichaTecnica'));
+      sectorCatalog=snap.docs.map(d=>({id:d.id,...d.data()})).filter(s=>text(s.nome));
+      if(!sectorCatalog.length){
+        sectorCatalog=DEFAULT_SECTORS.map((nome,i)=>({id:'',nome,ordem:(i+1)*10,ativo:true,_virtual:true}));
+      }
+    }catch(e){
+      console.warn('Não foi possível carregar setoresFichaTecnica; usando setores padrão.',e);
+      sectorCatalog=DEFAULT_SECTORS.map((nome,i)=>({id:'',nome,ordem:(i+1)*10,ativo:true,_virtual:true}));
+    }
+  }
+  function renderSectorManager(){
+    const list=$('sectorManageList');
+    const rows=sectorCatalog.slice().sort((a,b)=>(Number(a.ordem)||999)-(Number(b.ordem)||999)||String(a.nome).localeCompare(String(b.nome),'pt-BR'));
+    list.innerHTML=rows.map((s,i)=>`<div class="sector-manage-row ${s.ativo===false?'inactive':''}" data-sector-row="${i}"><input class="sector-order" type="number" step="10" value="${esc(s.ordem??((i+1)*10))}" title="Ordem"><input class="sector-name" value="${esc(s.nome||'')}" placeholder="Nome do setor"><select class="sector-active"><option value="true" ${s.ativo!==false?'selected':''}>Ativo</option><option value="false" ${s.ativo===false?'selected':''}>Inativo</option></select><button class="btn sm soft sector-remove" type="button">Remover</button></div>`).join('')||'<div class="empty">Nenhum setor cadastrado.</div>';
+    list.querySelectorAll('.sector-remove').forEach((btn,idx)=>btn.onclick=()=>{sectorCatalog.splice(idx,1);renderSectorManager()});
+  }
+  function openSectorsManager(){
+    if(!EDIT_LEVELS.has(userLevel)){alert('Seu nível de acesso não permite editar os setores.');return}
+    hide($('sectorsStatus'));renderSectorManager();$('sectorsModal').classList.add('open');
+  }
+  function collectSectorRows(){
+    return [...$('sectorManageList').querySelectorAll('[data-sector-row]')].map((row,i)=>({
+      id:sectorCatalog[i]?.id||'',
+      nome:normalizeSectorName(row.querySelector('.sector-name').value),
+      ordem:Number(row.querySelector('.sector-order').value)||((i+1)*10),
+      ativo:row.querySelector('.sector-active').value==='true'
+    })).filter(s=>s.nome);
+  }
+  async function saveSectorCatalog(){
+    if(!EDIT_LEVELS.has(userLevel))return;
+    const rows=collectSectorRows();
+    const seen=new Set();
+    for(const r of rows){const key=normalize(r.nome);if(seen.has(key)){show($('sectorsStatus'),'error',`Setor duplicado: ${r.nome}`);return}seen.add(key)}
+    $('saveSectorsBtn').disabled=true;show($('sectorsStatus'),'info','Salvando setores...');
+    try{
+      const existing=new Map(sectorCatalog.filter(s=>s.id).map(s=>[s.id,s]));
+      const keepIds=new Set();
+      const saved=[];
+      for(const r of rows){
+        let id=r.id;
+        if(!id){id=doc(collection(db,'setoresFichaTecnica')).id}
+        keepIds.add(id);
+        await setDoc(doc(db,'setoresFichaTecnica',id),{nome:r.nome,ordem:r.ordem,ativo:r.ativo,atualizadoEm:serverTimestamp(),atualizadoPor:auth.currentUser?.email||''},{merge:true});
+        saved.push({...r,id});
+      }
+      // Em vez de excluir, itens removidos ficam inativos para não quebrar materiais antigos.
+      for(const [id,old] of existing){
+        if(!keepIds.has(id)) await setDoc(doc(db,'setoresFichaTecnica',id),{ativo:false,atualizadoEm:serverTimestamp(),atualizadoPor:auth.currentUser?.email||''},{merge:true});
+      }
+      sectorCatalog=saved;
+      show($('sectorsStatus'),'success','Setores atualizados.');
+      renderSectors();
+      setTimeout(()=>$('sectorsModal').classList.remove('open'),350);
+    }catch(e){console.error(e);show($('sectorsStatus'),'error',e.message||String(e))}
+    finally{$('saveSectorsBtn').disabled=false}
+  }
+
 
   function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
   function show(el,type,msg){el.textContent=msg;el.className=`status show ${type}`}
@@ -323,6 +421,7 @@
       });
 
       allSheets.sort((a,b)=>modelKey(a).localeCompare(modelKey(b),'pt-BR',{numeric:true}));
+      await loadSectorCatalog();
       populateSelectors();
       applyFilters();
 
@@ -456,20 +555,20 @@
       return `<div class="combo-card"><div class="combo-card-head"><div><div class="combo-card-code">${esc(c.codigo||c.corCodigo||'')}</div><div class="combo-card-name"><span class="combo-preview-dot" style="background:${esc(c.corHex||comboColorStyle(c.descricao||c.corNome||''))}"></span>${esc(c.descricao||c.corNome||'')}</div></div><button class="btn sm soft" data-edit-combo="${i}">Editar peças</button></div><div class="combo-piece-list">${rows}</div></div>`;
     }).join(''):'<div class="empty">Nenhuma combinação cadastrada.</div>';
   }
-  function renderSectors(){const view=currentTechnicalView()||active; const mats=Array.isArray(view?.materiais)?view.materiais:[];const sectors=[...new Set(mats.map(m=>text(m.setor)||'OUTROS'))];if(!activeSector||!sectors.includes(activeSector))activeSector=sectors[0]||'OUTROS';$('sectorTabs').innerHTML=sectors.map(s=>`<button class="sector-btn ${s===activeSector?'active':''}" data-sector="${esc(s)}">${esc(s)} (${mats.filter(m=>(text(m.setor)||'OUTROS')===s).length})</button>`).join('');renderMaterials()}
+  function renderSectors(){const view=currentTechnicalView()||active; const mats=Array.isArray(view?.materiais)?view.materiais:[];const fromCatalog=activeSectorNames();const fromMaterials=[...new Set(mats.map(m=>normalizeSectorName(m.setor)||'OUTROS'))];const sectors=[...fromCatalog,...fromMaterials.filter(s=>!fromCatalog.some(x=>normalize(x)===normalize(s)))];if(!activeSector||!sectors.some(s=>normalize(s)===normalize(activeSector)))activeSector=sectors[0]||'OUTROS';$('sectorTabs').innerHTML=sectors.map(s=>`<button class="sector-btn ${normalize(s)===normalize(activeSector)?'active':''}" data-sector="${esc(s)}">${esc(s)} (${mats.filter(m=>normalizeSectorName(m.setor||'OUTROS')===normalizeSectorName(s)).length})</button>`).join('');renderMaterials()}
   function renderMaterials(){
-    const view=currentTechnicalView()||active; const all=view?.materiais||[]; const mats=all.map((m,index)=>({m,index})).filter(x=>(text(x.m.setor)||'OUTROS')===activeSector);
+    const view=currentTechnicalView()||active; const all=view?.materiais||[]; const mats=all.map((m,index)=>({m,index})).filter(x=>normalizeSectorName(x.m.setor||'OUTROS')===normalizeSectorName(activeSector));
     $('materialsBody').innerHTML=mats.length?mats.map(({m,index})=>`<tr><td>${esc([m.codigoPeca,m.peca].filter(Boolean).join(' - '))}</td><td>${esc([m.codigoMaterial,m.material].filter(Boolean).join(' - '))}</td><td>${esc(m.observacao||'')}</td><td>${esc(m.unidade||m.um||'')}</td><td class="num">${esc(fmtNumber(m.consumo))}</td><td class="num">${esc(m.comprimento??'')}</td><td class="edit-material"><button class="btn sm soft" data-edit-material="${index}">Editar</button></td></tr>`).join(''):`<tr><td colspan="7"><div class="empty">Nenhum material neste setor.</div></td></tr>`;
   }
   function openMaterialEditor(index){
     const view=currentTechnicalView()||active; const m=(view?.materiais||[])[index];if(!m)return;$('materialIndex').value=index;
-    const sectors=[...new Set(['CORTE','CORTE DE TIRAS','COSTURA','EXPEDIÇÃO','MONTAGEM','TERCEIROS',...(view?.materiais||[]).map(x=>text(x.setor)).filter(Boolean)])];
-    $('editSetor').innerHTML=sectors.map(s=>`<option ${normalize(s)===normalize(m.setor)?'selected':''}>${esc(s)}</option>`).join('');
+    const sectors=activeSectorNames(); const current=normalizeSectorName(m.setor||'OUTROS'); if(current&&!sectors.some(s=>normalize(s)===normalize(current)))sectors.push(current);
+    $('editSetor').innerHTML=sectors.map(s=>`<option value="${esc(s)}" ${normalize(s)===normalize(current)?'selected':''}>${esc(s)}</option>`).join('');
     $('editCodigoPeca').value=m.codigoPeca||'';$('editPeca').value=m.peca||'';$('editMaterial').value=m.material||'';$('editObs').value=m.observacao||'';$('editConsumo').value=m.consumo??'';$('editComprimento').value=m.comprimento??'';hide($('materialStatus'));$('materialModal').classList.add('open');
   }
   async function saveMaterialEditor(){
     const view=currentTechnicalView()||active; const i=Number($('materialIndex').value),m=(view?.materiais||[])[i];if(!m)return;
-    m.setor=$('editSetor').value;m.peca=text($('editPeca').value);m.material=text($('editMaterial').value);m.observacao=text($('editObs').value);m.consumo=parseDecimal($('editConsumo').value);m.comprimento=parseDecimal($('editComprimento').value);
+    m.setor=normalizeSectorName($('editSetor').value);m.peca=text($('editPeca').value);m.material=text($('editMaterial').value);m.observacao=text($('editObs').value);m.consumo=parseDecimal($('editConsumo').value);m.comprimento=parseDecimal($('editComprimento').value);
     $('saveMaterialEdit').disabled=true;show($('materialStatus'),'info','Salvando...');
     try{await saveActiveSheet();show($('materialStatus'),'success','Material atualizado.');activeSector=m.setor;renderSectors();setTimeout(()=>{$('materialModal').classList.remove('open')},350)}catch(e){console.error(e);show($('materialStatus'),'error',e.message||String(e))}finally{$('saveMaterialEdit').disabled=false}
   }
@@ -629,6 +728,10 @@
   $('clearBtn').onclick=()=>{$('fLinha').value='';$('fRef').value='';$('fCab').value='';$('fVersao').value='';$('fDescricao').value='';applyFilters();if(allSheets.length)openSheet(allSheets[0])};
   $('modelList').onclick=e=>{const b=e.target.closest('[data-id]');if(b){const s=allSheets.find(x=>x.id===b.dataset.id);if(s)openSheet(s)}};
   $('sectorTabs').onclick=e=>{const b=e.target.closest('[data-sector]');if(b){activeSector=b.dataset.sector;renderSectors()}};
+  $('manageSectorsBtn').onclick=openSectorsManager;
+  $('closeSectorsModal').onclick=$('cancelSectorsModal').onclick=()=>$('sectorsModal').classList.remove('open');
+  $('addSectorBtn').onclick=()=>{sectorCatalog.push({id:'',nome:'NOVO SETOR',ordem:(sectorCatalog.length+1)*10,ativo:true});renderSectorManager()};
+  $('saveSectorsBtn').onclick=saveSectorCatalog;
   $('materialsBody').onclick=e=>{const b=e.target.closest('[data-edit-material]');if(b)openMaterialEditor(Number(b.dataset.editMaterial))};
   $('comboCards').onclick=e=>{const b=e.target.closest('[data-edit-combo]');if(b)openComboEditor(Number(b.dataset.editCombo))};
   $('closeMaterialModal').onclick=$('cancelMaterialEdit').onclick=()=>$('materialModal').classList.remove('open');$('saveMaterialEdit').onclick=saveMaterialEditor;
