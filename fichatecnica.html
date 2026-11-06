@@ -38,6 +38,8 @@
     .sheet-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:15px;padding-top:14px;border-top:1px solid var(--line)}.source-info{font-size:12px;color:var(--muted)}
     .status{display:none;margin-bottom:12px;border-radius:9px;padding:10px 12px;font-size:13px}.status.show{display:block}.status.info{background:#eaf3ff;color:#194e82}.status.success{background:#e7f7ed;color:#12613b}.status.warning{background:#fff6e0;color:#80520a}.status.error{background:#fff0f2;color:#8f2031}
     .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.65);display:none;align-items:center;justify-content:center;padding:20px;z-index:5000}.modal-overlay.open{display:flex}.modal{width:min(1050px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border-radius:16px;box-shadow:0 25px 80px rgba(0,0,0,.25)}.modal-head{display:flex;justify-content:space-between;gap:15px;padding:18px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}.modal-head h2{margin:0;font-size:21px}.modal-body{padding:18px 20px}.upload-zone{border:2px dashed #b8c6d8;border-radius:12px;background:#f8fafc;padding:26px;text-align:center}.upload-zone input{display:none}.upload-list{margin-top:12px;display:flex;flex-direction:column;gap:7px}.upload-item{display:flex;justify-content:space-between;gap:12px;padding:10px;border:1px solid var(--line);border-radius:9px;background:#fff}.analysis-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:15px 0}.metric{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff}.metric b{display:block;font-size:22px;margin-top:4px}.preview-table{width:100%;border-collapse:collapse;font-size:12px}.preview-table th,.preview-table td{border-bottom:1px solid #edf1f5;padding:8px;text-align:left}.preview-table th{background:#eef2f7}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.edit-grid .full{grid-column:1/-1}.combo-editor-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.combo-editor-title h2{margin:0 0 4px;font-size:23px}.combo-editor-title small{color:var(--muted)}.combo-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px}.combo-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.combo-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;background:#f8fafc;border-bottom:1px solid var(--line)}.combo-card-code{font-weight:900;font-size:16px}.combo-card-name{font-size:13px;color:#334155;display:flex;align-items:center;gap:8px}.combo-piece-list{padding:10px 12px;display:flex;flex-direction:column;gap:7px}.combo-piece-row{display:grid;grid-template-columns:70px 32px 1fr;gap:8px;align-items:center;font-size:13px}.combo-piece-row strong{color:#334155}.combo-empty-piece{color:var(--muted);font-size:12px;padding:4px 0}.piece-edit-row{display:grid;grid-template-columns:120px 60px 1fr 42px;gap:8px;align-items:end;margin-bottom:8px}.piece-edit-row input{width:100%;height:38px;border:1px solid #d4dce7;border-radius:8px;padding:7px 8px}.piece-edit-row input[type=color]{padding:3px}.remove-piece{height:38px;border:1px solid #fecaca;background:#fff;color:#b91c1c;border-radius:8px;font-weight:900}.color-dot.large{width:34px;height:22px;margin-right:0}.combo-preview-dot{width:28px;height:18px;border:1px solid #cbd5e1;border-radius:5px;display:inline-block;flex:0 0 auto}
+
+    .photo-column{display:flex;flex-direction:column;gap:8px}.photo-actions{display:flex;gap:8px;flex-wrap:wrap}.photo-actions .btn{flex:1}.photo-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:14px}.photo-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.photo-thumb{aspect-ratio:4/3;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden}.photo-thumb img{width:100%;height:100%;object-fit:contain}.photo-meta{padding:9px 10px;display:flex;justify-content:space-between;gap:8px;align-items:center}.photo-meta small{color:var(--muted)}.photo-buttons{display:flex;gap:6px;flex-wrap:wrap}.photo-primary{font-size:11px;font-weight:900;color:#12613b;background:#e7f7ed;border-radius:999px;padding:3px 7px}.photo-upload-progress{margin-top:12px}.photo-upload-progress progress{width:100%;height:14px}.photo-upload-status{font-size:12px;color:var(--muted);margin-top:5px}
     @media(max-width:1120px){.layout{grid-template-columns:1fr}.filter-card{position:static}.sheet-head{grid-template-columns:170px 1fr}.combo-box{grid-column:1/-1}.model-list{max-height:220px}}
     @media(max-width:720px){main{padding:12px}.sheet-head{grid-template-columns:1fr}.photo-box{height:180px}.filter-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.analysis-grid{grid-template-columns:1fr 1fr}.page-head{align-items:flex-start}.page-title h1{font-size:20px}}
   </style>
@@ -79,7 +81,7 @@
       <div id="sheetContent" class="hidden">
         <div id="fichaView">
         <div class="sheet-head">
-          <div class="photo-box" id="photoBox"></div>
+          <div class="photo-column"><div class="photo-box" id="photoBox"></div><div class="photo-actions"><button class="btn sm soft" id="managePhotosBtn" type="button">📷 Fotos do modelo</button></div></div>
           <div>
             <div class="model-code"><h2 id="modelCode">-</h2><span class="badge green" id="versionBadge">Versão -</span><span class="badge" id="cabedalBadge">Cabedal -</span></div>
             <div class="info-grid">
@@ -231,17 +233,19 @@ function normalizarSetor(nome) {
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js';
   import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
-  import { getFirestore, collection, getDocs, doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
+  import { getFirestore, collection, getDocs, doc, getDoc, setDoc, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
+  import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js';
   import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs';
   pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
 
   const firebaseConfig={apiKey:'AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8',authDomain:'sistemataloes.firebaseapp.com',projectId:'sistemataloes',storageBucket:'sistemataloes.firebasestorage.app',messagingSenderId:'684534379685',appId:'1:684534379685:web:ac0f831c26991ac059094c'};
-  const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+  const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),storage=getStorage(app);
   const $=id=>document.getElementById(id), text=v=>String(v??'').trim();
   let userLevel='', allSheets=[], visibleSheets=[], active=null, activeSector='', photosByModel=new Map(), modelIds=new Set(), modelDataById=new Map(), selectedFiles=[], parsedImport=[], sectorCatalog=[];
   const VIEW_LEVELS=new Set(['01','02','05','07','08','09']);
   const IMPORT_LEVELS=new Set(['05','07','08','09']);
   const EDIT_LEVELS=new Set(['05','07','08','09']);
+  const MAX_PHOTOS=5, MAX_SOURCE_BYTES=25*1024*1024, MAX_UPLOAD_BYTES=5*1024*1024;
   let currentPageTab='ficha';
   const DEFAULT_SECTORS=['CORTE','CORTE DE TIRAS','COSTURA','MONTAGEM','EXPEDIÇÃO','TERCEIROS'];
   function normalizeSectorName(v){return text(v).replace(/\s+/g,' ').toUpperCase()}
@@ -383,7 +387,7 @@ function normalizarSetor(nome) {
       photosByModel=new Map();
       if(extraSnap) extraSnap.forEach(d=>{
         const x=d.data()||{},photos=Array.isArray(x.fotos)?x.fotos:[];
-        if(photos.length)photosByModel.set(d.id,photos);
+        if(photos.length){const sorted=photos.slice().sort((a,b)=>Number(!!(b&&typeof b==='object'&&b.principal))-Number(!!(a&&typeof a==='object'&&a.principal)));photosByModel.set(d.id,sorted)}
       });
 
       const fichaMap=new Map();
@@ -513,7 +517,7 @@ function normalizarSetor(nome) {
     $('tipoCabText').textContent=v?.tipoMaterialCabedal||active.tipoMaterialCabedal||'-';
     const grades=v?.grades??active.grades;
     $('gradesText').textContent=Array.isArray(grades)?grades.join('   '):(grades||'-');
-    const photos=photosByModel.get(mk)||[],url=photos[0]?.url;
+    const photos=photosByModel.get(mk)||[],first=photos[0],url=typeof first==='string'?first:(first?.url||'');
     $('photoBox').innerHTML=url?`<img src="${esc(url)}" alt="Foto do modelo ${esc(mk)}">`:`<div class="no-photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m5 18 5-5 4 4 2-2 3 3"/></svg>Sem foto cadastrada</div>`;
 
     if(!active.hasFicha){
@@ -531,6 +535,75 @@ function normalizarSetor(nome) {
     renderCombos();renderSectors();
     $('sourceInfo').textContent=`Origem: ${active.origem||'Beira Rio (PDF)'}${active.arquivoOrigem?' · Arquivo: '+active.arquivoOrigem:''}`;
     $('fichaView').classList.toggle('hidden',currentPageTab!=='ficha');$('combosView').classList.toggle('hidden',currentPageTab!=='combos');
+  }
+
+
+  function photoUrl(photo){return typeof photo==='string'?photo:text(photo?.url)}
+  function photoPath(photo){return typeof photo==='object'&&photo?text(photo.caminho):''}
+  function photoIsPrimary(photo,index){return !!(typeof photo==='object'&&photo?.principal)||index===0}
+  function getModelPhotos(modelo){return (photosByModel.get(modelo)||[]).slice()}
+  async function refreshModelPhotos(modelo){
+    const snap=await getDoc(doc(db,'fotosModelos',modelo));
+    const data=snap.exists()?snap.data():{};
+    const photos=Array.isArray(data.fotos)?data.fotos:[];
+    const sorted=photos.slice().sort((a,b)=>Number(!!(b&&typeof b==='object'&&b.principal))-Number(!!(a&&typeof a==='object'&&a.principal)));
+    if(sorted.length)photosByModel.set(modelo,sorted); else photosByModel.delete(modelo);
+    if(active&&modelKey(active)===modelo)renderSheet();
+    if($('photosModal').classList.contains('open'))renderPhotoGallery();
+  }
+  function renderPhotoGallery(){
+    if(!active)return;
+    const mk=modelKey(active),photos=getModelPhotos(mk);
+    $('photosModelCode').textContent=mk;
+    $('photoGallery').innerHTML=photos.length?photos.map((p,i)=>{
+      const url=photoUrl(p),primary=photoIsPrimary(p,i);
+      return `<div class="photo-card"><div class="photo-thumb">${url?`<img src="${esc(url)}" alt="Foto ${i+1} do modelo ${esc(mk)}">`:'<span>Foto indisponível</span>'}</div><div class="photo-meta"><div>${primary?'<span class="photo-primary">Principal</span>':`<small>Foto ${i+1}</small>`}</div><div class="photo-buttons">${!primary?`<button class="btn sm soft" data-primary-photo="${i}">Principal</button>`:''}<button class="btn sm danger" data-remove-photo="${i}">Excluir</button></div></div></div>`;
+    }).join(''):'<div class="empty" style="grid-column:1/-1">Nenhuma foto cadastrada para este modelo.</div>';
+    $('photoGallery').querySelectorAll('[data-primary-photo]').forEach(btn=>btn.onclick=()=>setPrimaryPhoto(Number(btn.dataset.primaryPhoto)));
+    $('photoGallery').querySelectorAll('[data-remove-photo]').forEach(btn=>btn.onclick=()=>removeModelPhoto(Number(btn.dataset.removePhoto)));
+  }
+  function openPhotosModal(){
+    if(!active)return;
+    hide($('photosStatus'));
+    $('photosModelCode').textContent=modelKey(active);
+    renderPhotoGallery();
+    $('photosModal').classList.add('open');
+  }
+  function loadBrowserImage(file){return new Promise((resolve,reject)=>{const u=URL.createObjectURL(file),img=new Image();img.onload=()=>{URL.revokeObjectURL(u);resolve(img)};img.onerror=()=>{URL.revokeObjectURL(u);reject(new Error('Não foi possível abrir a imagem. Use JPG, PNG ou WebP.'))};img.src=u})}
+  async function optimizePhoto(file){
+    if(!file||!file.type.startsWith('image/'))throw new Error('Selecione um arquivo de imagem.');
+    if(file.size>MAX_SOURCE_BYTES)throw new Error('A foto original deve ter no máximo 25 MB.');
+    const img=await loadBrowserImage(file),w=img.naturalWidth,h=img.naturalHeight,f=Math.min(1,1700/Math.max(w,h));
+    const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w*f));c.height=Math.max(1,Math.round(h*f));const ctx=c.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,c.width,c.height);
+    const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.83));c.width=0;c.height=0;
+    if(!blob)throw new Error('Não foi possível compactar a imagem.');if(blob.size>MAX_UPLOAD_BYTES)throw new Error('A imagem compactada ultrapassou 5 MB.');return blob;
+  }
+  function uploadWithProgress(ref,blob,onProgress){return new Promise((resolve,reject)=>{const task=uploadBytesResumable(ref,blob,{contentType:'image/jpeg'});task.on('state_changed',snap=>onProgress(Math.round((snap.totalBytes?snap.bytesTransferred/snap.totalBytes:0)*100)),reject,resolve)})}
+  async function addModelPhotos(fileList){
+    if(!active||!EDIT_LEVELS.has(userLevel)||!fileList?.length)return;
+    const mk=modelKey(active),files=Array.from(fileList),existing=getModelPhotos(mk);
+    if(existing.length+files.length>MAX_PHOTOS){show($('photosStatus'),'warning',`Este modelo permite até ${MAX_PHOTOS} fotos. Hoje possui ${existing.length}.`);return}
+    $('photoUploadProgress').classList.remove('hidden');
+    try{
+      for(let i=0;i<files.length;i++){
+        const file=files[i];$('photoProgressText').textContent=`Preparando foto ${i+1} de ${files.length}...`;
+        const blob=await optimizePhoto(file);const randomPart=(crypto?.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`);const path=`fotosModelos/${encodeURIComponent(mk)}/${randomPart}.jpg`;const ref=storageRef(storage,path);
+        await uploadWithProgress(ref,blob,p=>{$('photoProgressBar').value=p;$('photoProgressText').textContent=`Enviando foto ${i+1} de ${files.length}: ${p}%`});
+        const url=await getDownloadURL(ref);const infoRef=doc(db,'fotosModelos',mk);
+        await runTransaction(db,async trx=>{const snap=await trx.get(infoRef),prev=snap.exists()?snap.data():{},cur=Array.isArray(prev.fotos)?prev.fotos:[];if(cur.length>=MAX_PHOTOS)throw new Error(`Limite de ${MAX_PHOTOS} fotos atingido.`);const newPhoto={url,caminho:path,nomeOriginal:file.name.slice(0,100),criadaEm:new Date().toISOString(),criadoPor:auth.currentUser?.email||'',principal:cur.length===0};trx.set(infoRef,{fotos:[...cur,newPhoto],atualizadoEm:serverTimestamp(),atualizadoPor:auth.currentUser?.email||''},{merge:true})});
+      }
+      await refreshModelPhotos(mk);show($('photosStatus'),'success',`${files.length} foto(s) adicionada(s) com sucesso.`);
+    }catch(e){console.error(e);show($('photosStatus'),'error',e.message||String(e))}
+    finally{$('photoUploadProgress').classList.add('hidden');$('photoProgressBar').value=0;$('modelPhotoFiles').value=''}
+  }
+  async function setPrimaryPhoto(index){
+    if(!active||!EDIT_LEVELS.has(userLevel))return;const mk=modelKey(active),infoRef=doc(db,'fotosModelos',mk);
+    try{await runTransaction(db,async trx=>{const snap=await trx.get(infoRef);if(!snap.exists())throw new Error('Cadastro de fotos não encontrado.');const cur=Array.isArray(snap.data().fotos)?snap.data().fotos:[];if(!cur[index])throw new Error('Foto não encontrada.');const next=cur.map((p,i)=>typeof p==='string'?{url:p,principal:i===index}:{...p,principal:i===index});trx.update(infoRef,{fotos:next,atualizadoEm:serverTimestamp(),atualizadoPor:auth.currentUser?.email||''})});await refreshModelPhotos(mk);show($('photosStatus'),'success','Foto principal atualizada.')}catch(e){show($('photosStatus'),'error',e.message||String(e))}
+  }
+  async function removeModelPhoto(index){
+    if(!active||!EDIT_LEVELS.has(userLevel))return;if(!confirm('Excluir esta foto do modelo?'))return;const mk=modelKey(active),infoRef=doc(db,'fotosModelos',mk);let removed=null;
+    try{await runTransaction(db,async trx=>{const snap=await trx.get(infoRef);if(!snap.exists())throw new Error('Cadastro de fotos não encontrado.');const cur=Array.isArray(snap.data().fotos)?snap.data().fotos:[];removed=cur[index];if(!removed)throw new Error('Foto não encontrada.');let next=cur.filter((_,i)=>i!==index);if(next.length&&!next.some(p=>typeof p==='object'&&p?.principal)){next=next.map((p,i)=>typeof p==='string'?{url:p,principal:i===0}:{...p,principal:i===0})}trx.update(infoRef,{fotos:next,atualizadoEm:serverTimestamp(),atualizadoPor:auth.currentUser?.email||''})});const path=photoPath(removed);if(path){try{await deleteObject(storageRef(storage,path))}catch(e){if(e?.code!=='storage/object-not-found')console.warn(e)}}await refreshModelPhotos(mk);show($('photosStatus'),'success','Foto removida.')}catch(e){show($('photosStatus'),'error',e.message||String(e))}
   }
 
   function currentTechnicalView(){
@@ -736,6 +809,10 @@ function normalizarSetor(nome) {
   $('comboCards').onclick=e=>{const b=e.target.closest('[data-edit-combo]');if(b)openComboEditor(Number(b.dataset.editCombo))};
   $('closeMaterialModal').onclick=$('cancelMaterialEdit').onclick=()=>$('materialModal').classList.remove('open');$('saveMaterialEdit').onclick=saveMaterialEditor;
   $('closeComboEdit').onclick=$('cancelComboEdit').onclick=()=>$('comboEditModal').classList.remove('open');$('addPieceRow').onclick=()=>addPieceEditorRow();$('saveComboEdit').onclick=saveComboEditor;
+  $('managePhotosBtn').onclick=openPhotosModal;
+  $('closePhotosModal').onclick=()=>$('photosModal').classList.remove('open');
+  $('photosModal').addEventListener('click',e=>{if(e.target===$('photosModal'))$('photosModal').classList.remove('open')});
+  $('modelPhotoFiles').addEventListener('change',e=>addModelPhotos(e.target.files));
   $('printBtn').onclick=()=>window.print();
   $('openImport').onclick=()=>{$('importModal').classList.add('open');$('importModal').setAttribute('aria-hidden','false')};$('closeImport').onclick=()=>{$('importModal').classList.remove('open');$('importModal').setAttribute('aria-hidden','true')};
   $('pdfFiles').onchange=e=>{selectedFiles=[...e.target.files];$('uploadList').innerHTML=selectedFiles.map(f=>`<div class="upload-item"><span>📄 ${esc(f.name)}</span><span>${(f.size/1024/1024).toFixed(2)} MB</span></div>`).join('');$('analyzeBtn').disabled=!selectedFiles.length;$('analysisArea').classList.add('hidden');parsedImport=[];hide($('importStatus'))};
