@@ -113,6 +113,7 @@
         <div id="combosView" class="hidden">
           <div class="combo-editor-head">
             <div class="combo-editor-title"><h2>Combinações do modelo <span id="comboModelCode">-</span></h2><small>Cabedal <span id="comboCabedalCode">-</span> · informe quais peças mudam em cada combinação e a cor de cada uma.</small></div>
+            <button class="btn primary" id="addManualComboBtn">+ Nova combinação</button>
           </div>
           <div id="comboCards" class="combo-cards"></div>
         </div>
@@ -173,6 +174,22 @@
       <div id="pieceRows"></div>
       <button class="btn soft" id="addPieceRow">+ Adicionar peça</button>
       <div class="modal-actions"><button class="btn soft" id="cancelComboEdit">Cancelar</button><button class="btn primary" id="saveComboEdit">Salvar combinação</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="newComboModal" aria-hidden="true">
+  <div class="modal" style="width:min(640px,100%)">
+    <div class="modal-head"><div><h2>Nova combinação</h2><div style="color:var(--muted);font-size:13px;margin-top:4px">Cadastre uma combinação manual para o cabedal selecionado.</div></div><button class="btn soft" id="closeNewCombo">✕</button></div>
+    <div class="modal-body">
+      <div id="newComboStatus" class="status"></div>
+      <div class="edit-grid">
+        <div class="field"><label>Código da combinação</label><input id="newComboCode" inputmode="numeric" placeholder="Ex.: 16579"></div>
+        <div class="field"><label>Cor principal</label><input id="newComboColor" type="color" value="#dfe5ee"></div>
+        <div class="field full"><label>Descrição da combinação</label><input id="newComboDesc" placeholder="Ex.: PRETO 01/DOURA"></div>
+      </div>
+      <div style="margin-top:12px;color:var(--muted);font-size:13px">Depois de criar, use <b>Editar peças</b> para configurar C1, C2, C3 e as cores de cada peça.</div>
+      <div class="modal-actions"><button class="btn soft" id="cancelNewCombo">Cancelar</button><button class="btn primary" id="saveNewCombo">Adicionar combinação</button></div>
     </div>
   </div>
 </div>
@@ -464,6 +481,48 @@
   function openComboEditor(index){
     const view=currentTechnicalView()||active; const c=(view?.combinacoes||[])[index];if(!c)return;$('comboEditIndex').value=index;$('comboEditSubtitle').textContent=`${c.codigo||c.corCodigo||''} · ${c.descricao||c.corNome||''}`;$('pieceRows').innerHTML='';(Array.isArray(c.pecas)&&c.pecas.length?c.pecas:[{}]).forEach(addPieceEditorRow);hide($('comboEditStatus'));$('comboEditModal').classList.add('open');
   }
+  function allCombinationCodes(){
+    const codes=new Set();
+    const collect=list=>{for(const c of (Array.isArray(list)?list:[])){const code=text(c.codigo||c.corCodigo);if(code)codes.add(code)}};
+    collect(active?.combinacoes);
+    for(const v of (Array.isArray(active?.variacoes)?active.variacoes:[]))collect(v.combinacoes);
+    return codes;
+  }
+  function openNewComboModal(){
+    if(!active||!active.hasFicha){alert('Este modelo ainda não possui ficha técnica cadastrada. Importe a ficha antes de adicionar combinações.');return}
+    if(!EDIT_LEVELS.has(userLevel)){alert('Seu nível de acesso não permite editar a ficha técnica.');return}
+    $('newComboCode').value='';$('newComboDesc').value='';$('newComboColor').value='#dfe5ee';hide($('newComboStatus'));$('newComboModal').classList.add('open');setTimeout(()=>$('newComboCode').focus(),50);
+  }
+  async function saveNewCombo(){
+    if(!active||!active.hasFicha)return;
+    const code=text($('newComboCode').value);
+    const desc=text($('newComboDesc').value).toUpperCase();
+    if(!code){show($('newComboStatus'),'error','Informe o código da combinação.');return}
+    if(!/^\d+$/.test(code)){show($('newComboStatus'),'error','O código da combinação deve conter somente números.');return}
+    if(!desc){show($('newComboStatus'),'error','Informe a descrição da combinação.');return}
+    if(allCombinationCodes().has(code)){show($('newComboStatus'),'error',`A combinação ${code} já existe neste modelo.`);return}
+    const view=currentTechnicalView()||active;
+    if(!Array.isArray(view.combinacoes))view.combinacoes=[];
+    const combo={codigo:code,descricao:desc,corHex:$('newComboColor').value,pecas:[],manual:true,cabedaisOrigem:[text(view.cabedal)].filter(Boolean)};
+    view.combinacoes.push(combo);
+    if(view!==active){
+      if(!Array.isArray(active.combinacoes))active.combinacoes=[];
+      active.combinacoes.push({...combo});
+    }
+    $('saveNewCombo').disabled=true;show($('newComboStatus'),'info','Salvando...');
+    try{
+      await saveActiveSheet();
+      renderCombos();
+      show($('newComboStatus'),'success','Combinação adicionada com sucesso.');
+      setTimeout(()=>{$('newComboModal').classList.remove('open')},350);
+    }catch(e){
+      console.error(e);
+      // desfaz a inclusão local se o Firestore falhar
+      view.combinacoes=(view.combinacoes||[]).filter(c=>text(c.codigo||c.corCodigo)!==code);
+      if(view!==active)active.combinacoes=(active.combinacoes||[]).filter(c=>text(c.codigo||c.corCodigo)!==code);
+      show($('newComboStatus'),'error',e.message||String(e));
+    }finally{$('saveNewCombo').disabled=false}
+  }
   async function saveComboEditor(){
     const view=currentTechnicalView()||active; const i=Number($('comboEditIndex').value),c=(view?.combinacoes||[])[i];if(!c)return;
     const pecas=[...document.querySelectorAll('#pieceRows .piece-edit-row')].map(r=>({peca:text(r.querySelector('.piece-name').value).toUpperCase(),corNome:text(r.querySelector('.piece-color-name').value).toUpperCase(),corHex:r.querySelector('.piece-color').value})).filter(x=>x.peca||x.corNome);
@@ -580,7 +639,12 @@
   $('analyzeBtn').onclick=analyzeFiles;$('confirmImport').onclick=confirmImport;$('exportPreview').onclick=exportPreview;
   document.querySelectorAll('[data-page-tab]').forEach(b=>b.onclick=()=>{currentPageTab=b.dataset.pageTab;document.querySelectorAll('[data-page-tab]').forEach(x=>x.classList.toggle('active',x===b));$('fichaView').classList.toggle('hidden',currentPageTab!=='ficha');$('combosView').classList.toggle('hidden',currentPageTab!=='combos');if(currentPageTab==='combos')renderComboEditor()});
 
-  onAuthStateChanged(auth,async user=>{if(!user){location.href='login.html';return}try{const us=await getDoc(doc(db,'Usuario',user.email));if(!us.exists()){await signOut(auth);location.href='login.html';return}userLevel=String(us.data().nivelAcesso||'');if(!VIEW_LEVELS.has(userLevel)){alert('Seu perfil não possui acesso à Ficha Técnica.');location.href='index.html';return}window.SistemaNavegacao?.init({userLevel,userName:us.data().nome||user.email,onLogout:async()=>{await signOut(auth);location.href='login.html'}});$('openImport').classList.toggle('hidden',!IMPORT_LEVELS.has(userLevel));document.body.classList.remove('auth-loading');await loadBaseData()}catch(e){console.error(e);document.body.classList.remove('auth-loading');show($('pageStatus'),'error','Erro ao validar usuário: '+(e.message||e))}});
+    $('addManualComboBtn').addEventListener('click',openNewComboModal);
+  $('saveNewCombo').addEventListener('click',saveNewCombo);
+  $('closeNewCombo').addEventListener('click',()=>$('newComboModal').classList.remove('open'));
+  $('cancelNewCombo').addEventListener('click',()=>$('newComboModal').classList.remove('open'));
+  $('newComboDesc').addEventListener('input',()=>{const c=inferColorHex($('newComboDesc').value);if(c!=='#eef2f7')$('newComboColor').value=c});
+onAuthStateChanged(auth,async user=>{if(!user){location.href='login.html';return}try{const us=await getDoc(doc(db,'Usuario',user.email));if(!us.exists()){await signOut(auth);location.href='login.html';return}userLevel=String(us.data().nivelAcesso||'');if(!VIEW_LEVELS.has(userLevel)){alert('Seu perfil não possui acesso à Ficha Técnica.');location.href='index.html';return}window.SistemaNavegacao?.init({userLevel,userName:us.data().nome||user.email,onLogout:async()=>{await signOut(auth);location.href='login.html'}});$('openImport').classList.toggle('hidden',!IMPORT_LEVELS.has(userLevel));document.body.classList.remove('auth-loading');await loadBaseData()}catch(e){console.error(e);document.body.classList.remove('auth-loading');show($('pageStatus'),'error','Erro ao validar usuário: '+(e.message||e))}});
 </script>
 </body>
 </html>
