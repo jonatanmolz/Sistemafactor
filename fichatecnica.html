@@ -68,6 +68,7 @@
     .photo-column{display:flex;flex-direction:column;gap:8px}.photo-actions{display:flex;gap:8px;flex-wrap:wrap}.photo-actions .btn{flex:1}.photo-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:14px}.photo-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.photo-thumb{aspect-ratio:4/3;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden}.photo-thumb img{width:100%;height:100%;object-fit:contain}.photo-meta{padding:9px 10px;display:flex;justify-content:space-between;gap:8px;align-items:center}.photo-meta small{color:var(--muted)}.photo-buttons{display:flex;gap:6px;flex-wrap:wrap}.photo-primary{font-size:11px;font-weight:900;color:#12613b;background:#e7f7ed;border-radius:999px;padding:3px 7px}.photo-upload-progress{margin-top:12px}.photo-upload-progress progress{width:100%;height:14px}.photo-upload-status{font-size:12px;color:var(--muted);margin-top:5px}
     .photo-thumb.has-photo{cursor:zoom-in}.photo-thumb.has-photo img{transition:transform .18s ease}.photo-thumb.has-photo:hover img{transform:scale(1.04)}
     #photoLightbox{z-index:7000;background:rgba(2,6,23,.88);padding:24px}.photo-lightbox-wrap{position:relative;width:min(1200px,96vw);height:min(860px,92vh);display:flex;align-items:center;justify-content:center}.photo-lightbox-image{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;box-shadow:0 25px 80px rgba(0,0,0,.45);background:#fff}.photo-lightbox-close{position:absolute;top:10px;right:10px;width:46px;height:46px;border:0;border-radius:12px;background:rgba(255,255,255,.92);color:#172033;font-size:28px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 25px rgba(0,0,0,.25)}.photo-lightbox-close:hover{background:#fff}
+    .technical-observation{grid-column:1/-1;margin-top:8px}.technical-observation label{display:block;font-size:12px;font-weight:800;color:#3e4c61;margin-bottom:5px}.technical-observation textarea{width:100%;min-height:82px;resize:vertical;border:1px solid #d4dce7;border-radius:9px;padding:10px 11px;background:#fff;color:var(--text);line-height:1.4}.technical-observation textarea[readonly]{background:#f8fafc;color:#475569}.observation-actions{display:flex;justify-content:flex-end;margin-top:7px}.permission-note{font-size:12px;color:var(--muted);margin-top:5px}.photo-edit-controls.hidden{display:none!important}
     @media(max-width:1120px){.layout{grid-template-columns:1fr}.filter-card{position:static}.sheet-head{grid-template-columns:170px 1fr}.combo-box{grid-column:1/-1}.model-list{max-height:220px}}
     @media(max-width:720px){main{padding:12px}.sheet-head{grid-template-columns:1fr}.photo-box{height:180px}.filter-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.analysis-grid{grid-template-columns:1fr 1fr}.page-head{align-items:flex-start}.page-title h1{font-size:20px}}
   </style>
@@ -135,6 +136,7 @@
               <div><b>Tipo de Palmilha:</b> <span id="palmilhaText">-</span></div>
               <div><b>Tipo Material Cabedal:</b> <span id="tipoCabText">-</span></div>
               <div class="wide"><b>Grades:</b> <span id="gradesText">-</span></div>
+              <div class="technical-observation"><label for="technicalObservation">Observações</label><textarea id="technicalObservation" placeholder="Observações do modelo..."></textarea><div class="observation-actions"><button class="btn sm primary" id="saveObservationBtn" type="button">Salvar observações</button></div><div class="permission-note hidden" id="observationReadOnlyNote">Somente visualização.</div></div>
             </div>
           </div>
           <div class="combo-box">
@@ -267,10 +269,10 @@
     </div>
     <div class="modal-body">
       <div id="photosStatus" class="status hidden"></div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <div class="photo-edit-controls" id="photoEditControls" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <label class="btn primary" for="modelPhotoFiles" style="cursor:pointer">Adicionar fotos</label>
         <input id="modelPhotoFiles" type="file" accept="image/jpeg,image/png,image/webp" multiple style="display:none">
-        <span style="color:var(--muted);font-size:13px">Até 5 fotos por modelo.</span>
+        <span style="color:var(--muted);font-size:13px">Até 10 fotos por modelo.</span>
       </div>
       <div id="photoUploadProgress" class="photo-upload-progress hidden">
         <progress id="photoProgressBar" max="100" value="0"></progress>
@@ -329,7 +331,7 @@ function normalizarSetor(nome) {
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js';
   import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';
-  import { getFirestore, collection, getDocs, doc, getDoc, setDoc, runTransaction, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
+  import { getFirestore, collection, getDocs, doc, getDoc, setDoc, runTransaction, serverTimestamp, query, where } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';
   import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js';
   import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs';
   pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
@@ -337,11 +339,15 @@ function normalizarSetor(nome) {
   const firebaseConfig={apiKey:'AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8',authDomain:'sistemataloes.firebaseapp.com',projectId:'sistemataloes',storageBucket:'sistemataloes.firebasestorage.app',messagingSenderId:'684534379685',appId:'1:684534379685:web:ac0f831c26991ac059094c'};
   const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),storage=getStorage(app);
   const $=id=>document.getElementById(id), text=v=>String(v??'').trim();
-  let userLevel='', allSheets=[], visibleSheets=[], active=null, activeSector='', photosByModel=new Map(), modelIds=new Set(), modelDataById=new Map(), selectedFiles=[], parsedImport=[], sectorCatalog=[];
-  const VIEW_LEVELS=new Set(['01','02','05','07','08','09']);
-  const IMPORT_LEVELS=new Set(['05','07','08','09']);
-  const EDIT_LEVELS=new Set(['05','07','08','09']);
-  const MAX_PHOTOS=5, MAX_SOURCE_BYTES=25*1024*1024, MAX_UPLOAD_BYTES=5*1024*1024;
+  let userLevel='', currentUserName='', allSheets=[], visibleSheets=[], active=null, activeSector='', photosByModel=new Map(), modelIds=new Set(), modelDataById=new Map(), selectedFiles=[], parsedImport=[], sectorCatalog=[], atelierAllowedModels=null;
+  const VIEW_LEVELS=new Set(['01','02','03','04','05','06','07','08']);
+  const FULL_EDIT_LEVELS=new Set(['01','02','05','07','08']);
+  const PHOTO_OBS_EDIT_LEVELS=new Set(['01','02','05','06','07','08']);
+  const IMPORT_LEVELS=FULL_EDIT_LEVELS;
+  const EDIT_LEVELS=FULL_EDIT_LEVELS;
+  const MAX_PHOTOS=10, MAX_SOURCE_BYTES=25*1024*1024, MAX_UPLOAD_BYTES=5*1024*1024;
+  const canFullEdit=()=>FULL_EDIT_LEVELS.has(userLevel);
+  const canEditPhotosAndObservation=()=>PHOTO_OBS_EDIT_LEVELS.has(userLevel);
   let currentPageTab='ficha';
   const DEFAULT_SECTORS=['CORTE','CORTE DE TIRAS','COSTURA','MONTAGEM','EXPEDIÇÃO','TERCEIROS'];
   function normalizeSectorName(v){return text(v).replace(/\s+/g,' ').toUpperCase()}
@@ -368,7 +374,7 @@ function normalizarSetor(nome) {
     list.querySelectorAll('.sector-remove').forEach((btn,idx)=>btn.onclick=()=>{sectorCatalog.splice(idx,1);renderSectorManager()});
   }
   function openSectorsManager(){
-    if(!EDIT_LEVELS.has(userLevel)){alert('Seu nível de acesso não permite editar os setores.');return}
+    if(!canFullEdit()){alert('Seu nível de acesso não permite editar os setores.');return}
     hide($('sectorsStatus'));renderSectorManager();$('sectorsModal').classList.add('open');
   }
   function collectSectorRows(){
@@ -513,6 +519,49 @@ function normalizarSetor(nome) {
     $('closeSheetModal').onclick=closeSheetModal; $('sheetModal').addEventListener('click',e=>{if(e.target===$('sheetModal'))closeSheetModal()});
   }
 
+  function talaoModelCode(t){
+    const linha=text(t?.linha||t?.Linha||t?.codLinha);
+    const modeloRaw=text(t?.modelo||t?.Modelo||t?.codModelo);
+    if(modeloRaw.includes('.')) return modeloRaw;
+    return [linha,modeloRaw].filter(Boolean).join('.');
+  }
+  async function loadAtelierAllowedModels(){
+    if(userLevel!=='03'){atelierAllowedModels=null;return}
+    atelierAllowedModels=new Set();
+    const nome=text(currentUserName);
+    if(!nome)return;
+    const refs=[];
+    for(const campo of ['idAtelieResponsavel','nomeAtelieResponsavel']){
+      try{
+        const snap=await getDocs(query(collection(db,'taloes'),where(campo,'==',nome)));
+        snap.forEach(d=>refs.push(d.data()||{}));
+      }catch(e){console.warn(`Não foi possível consultar ${campo} para o ateliê.`,e)}
+    }
+    for(const t of refs){const mk=normalize(talaoModelCode(t));if(mk)atelierAllowedModels.add(mk)}
+  }
+  function applyPermissionUI(){
+    const full=canFullEdit(),photoObs=canEditPhotosAndObservation();
+    if($('openImport')) $('openImport').classList.toggle('hidden',!full);
+    if($('manageSectorsBtn')) $('manageSectorsBtn').classList.toggle('hidden',!full);
+    if($('addManualComboBtn')) $('addManualComboBtn').classList.toggle('hidden',!full);
+    if($('photoEditControls')) $('photoEditControls').classList.toggle('hidden',!photoObs);
+    if($('saveObservationBtn')) $('saveObservationBtn').classList.toggle('hidden',!photoObs);
+    if($('observationReadOnlyNote')) $('observationReadOnlyNote').classList.toggle('hidden',photoObs);
+    if($('technicalObservation')) $('technicalObservation').readOnly=!photoObs;
+  }
+  async function saveTechnicalObservation(){
+    if(!active||!canEditPhotosAndObservation())return;
+    const mk=modelKey(active),value=text($('technicalObservation').value);
+    $('saveObservationBtn').disabled=true;
+    try{
+      await setDoc(doc(db,'modelos',mk),{observacaoFichaTecnica:value,atualizadoEm:serverTimestamp(),atualizadoPor:auth.currentUser?.email||''},{merge:true});
+      active.observacaoFichaTecnica=value;
+      const modelData=modelDataById.get(mk)||{};modelData.observacaoFichaTecnica=value;modelDataById.set(mk,modelData);
+      show($('pageStatus'),'success','Observações salvas com sucesso.');
+    }catch(e){console.error(e);show($('pageStatus'),'error','Erro ao salvar observações: '+(e.message||e))}
+    finally{$('saveObservationBtn').disabled=false}
+  }
+
   async function loadBaseData(){
     try{
       // MODELOS e a fonte principal desta pagina.
@@ -541,6 +590,7 @@ function normalizarSetor(nome) {
           categoria:text(x.categoria),
           subcategoria:text(x.subcategoria),
           observacaoModelo:text(x.observacaoModelo||x.observacao),
+          observacaoFichaTecnica:text(x.observacaoFichaTecnica||x.observacoesFichaTecnica),
           ativo:x.ativo!==false,
           hasFicha:false,
           cabedal:'',versao:'',descricao:'',forma:'',tipoForro:'',tipoPalmilha:'',tipoMaterialCabedal:'',grades:[],combinacoes:[],materiais:[],variacoes:[],
@@ -583,12 +633,17 @@ function normalizarSetor(nome) {
           categoria:base.categoria,
           subcategoria:base.subcategoria,
           observacaoModelo:base.observacaoModelo,
+          observacaoFichaTecnica:base.observacaoFichaTecnica,
           ativo:base.ativo,
           hasFicha:true
         };
       });
 
       allSheets.sort((a,b)=>modelKey(a).localeCompare(modelKey(b),'pt-BR',{numeric:true}));
+      await loadAtelierAllowedModels();
+      if(userLevel==='03'){
+        allSheets=allSheets.filter(m=>atelierAllowedModels?.has(normalize(modelKey(m))));
+      }
       await loadSectorCatalog();
       populateSelectors();
       applyFilters();
@@ -677,6 +732,8 @@ function normalizarSetor(nome) {
     $('tipoCabText').textContent=v?.tipoMaterialCabedal||active.tipoMaterialCabedal||'-';
     const grades=v?.grades??active.grades;
     $('gradesText').textContent=Array.isArray(grades)?grades.join('   '):(grades||'-');
+    $('technicalObservation').value=active.observacaoFichaTecnica||'';
+    applyPermissionUI();
     const photos=photosByModel.get(mk)||[],first=photos[0],url=typeof first==='string'?first:(first?.url||'');
     $('photoBox').innerHTML=url?`<img src="${esc(url)}" alt="Foto do modelo ${esc(mk)}">`:`<div class="no-photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m5 18 5-5 4 4 2-2 3 3"/></svg>Sem foto cadastrada</div>`;
 
@@ -717,7 +774,8 @@ function normalizarSetor(nome) {
     $('photosModelCode').textContent=mk;
     $('photoGallery').innerHTML=photos.length?photos.map((p,i)=>{
       const url=photoUrl(p),primary=photoIsPrimary(p,i);
-      return `<div class="photo-card"><div class="photo-thumb ${url?'has-photo':''}" ${url?`data-zoom-photo="${i}" title="Clique para ampliar"`:''}>${url?`<img src="${esc(url)}" alt="Foto ${i+1} do modelo ${esc(mk)}">`:'<span>Foto indisponível</span>'}</div><div class="photo-meta"><div>${primary?'<span class="photo-primary">Principal</span>':`<small>Foto ${i+1}</small>`}</div><div class="photo-buttons">${!primary?`<button class="btn sm soft" data-primary-photo="${i}">Principal</button>`:''}<button class="btn sm danger" data-remove-photo="${i}">Excluir</button></div></div></div>`;
+      const actions=canEditPhotosAndObservation()?`${!primary?`<button class="btn sm soft" data-primary-photo="${i}">Principal</button>`:''}<button class="btn sm danger" data-remove-photo="${i}">Excluir</button>`:'';
+      return `<div class="photo-card"><div class="photo-thumb ${url?'has-photo':''}" ${url?`data-zoom-photo="${i}" title="Clique para ampliar"`:''}>${url?`<img src="${esc(url)}" alt="Foto ${i+1} do modelo ${esc(mk)}">`:'<span>Foto indisponível</span>'}</div><div class="photo-meta"><div>${primary?'<span class="photo-primary">Principal</span>':`<small>Foto ${i+1}</small>`}</div><div class="photo-buttons">${actions}</div></div></div>`;
     }).join(''):'<div class="empty" style="grid-column:1/-1">Nenhuma foto cadastrada para este modelo.</div>';
     $('photoGallery').querySelectorAll('[data-primary-photo]').forEach(btn=>btn.onclick=()=>setPrimaryPhoto(Number(btn.dataset.primaryPhoto)));
     $('photoGallery').querySelectorAll('[data-remove-photo]').forEach(btn=>btn.onclick=()=>removeModelPhoto(Number(btn.dataset.removePhoto)));
@@ -756,7 +814,7 @@ function normalizarSetor(nome) {
   }
   function uploadWithProgress(ref,blob,onProgress){return new Promise((resolve,reject)=>{const task=uploadBytesResumable(ref,blob,{contentType:'image/jpeg'});task.on('state_changed',snap=>onProgress(Math.round((snap.totalBytes?snap.bytesTransferred/snap.totalBytes:0)*100)),reject,resolve)})}
   async function addModelPhotos(fileList){
-    if(!active||!EDIT_LEVELS.has(userLevel)||!fileList?.length)return;
+    if(!active||!canEditPhotosAndObservation()||!fileList?.length)return;
     const mk=modelKey(active),files=Array.from(fileList),existing=getModelPhotos(mk);
     if(existing.length+files.length>MAX_PHOTOS){show($('photosStatus'),'warning',`Este modelo permite até ${MAX_PHOTOS} fotos. Hoje possui ${existing.length}.`);return}
     $('photoUploadProgress').classList.remove('hidden');
@@ -773,11 +831,11 @@ function normalizarSetor(nome) {
     finally{$('photoUploadProgress').classList.add('hidden');$('photoProgressBar').value=0;$('modelPhotoFiles').value=''}
   }
   async function setPrimaryPhoto(index){
-    if(!active||!EDIT_LEVELS.has(userLevel))return;const mk=modelKey(active),infoRef=doc(db,'fotosModelos',mk);
+    if(!active||!canEditPhotosAndObservation())return;const mk=modelKey(active),infoRef=doc(db,'fotosModelos',mk);
     try{await runTransaction(db,async trx=>{const snap=await trx.get(infoRef);if(!snap.exists())throw new Error('Cadastro de fotos não encontrado.');const cur=Array.isArray(snap.data().fotos)?snap.data().fotos:[];if(!cur[index])throw new Error('Foto não encontrada.');const next=cur.map((p,i)=>typeof p==='string'?{url:p,principal:i===index}:{...p,principal:i===index});trx.update(infoRef,{fotos:next,atualizadoEm:serverTimestamp(),atualizadoPor:auth.currentUser?.email||''})});await refreshModelPhotos(mk);show($('photosStatus'),'success','Foto principal atualizada.')}catch(e){show($('photosStatus'),'error',e.message||String(e))}
   }
   async function removeModelPhoto(index){
-    if(!active||!EDIT_LEVELS.has(userLevel))return;if(!confirm('Excluir esta foto do modelo?'))return;const mk=modelKey(active),infoRef=doc(db,'fotosModelos',mk);let removed=null;
+    if(!active||!canEditPhotosAndObservation())return;if(!confirm('Excluir esta foto do modelo?'))return;const mk=modelKey(active),infoRef=doc(db,'fotosModelos',mk);let removed=null;
     try{await runTransaction(db,async trx=>{const snap=await trx.get(infoRef);if(!snap.exists())throw new Error('Cadastro de fotos não encontrado.');const cur=Array.isArray(snap.data().fotos)?snap.data().fotos:[];removed=cur[index];if(!removed)throw new Error('Foto não encontrada.');let next=cur.filter((_,i)=>i!==index);if(next.length&&!next.some(p=>typeof p==='object'&&p?.principal)){next=next.map((p,i)=>typeof p==='string'?{url:p,principal:i===0}:{...p,principal:i===0})}trx.update(infoRef,{fotos:next,atualizadoEm:serverTimestamp(),atualizadoPor:auth.currentUser?.email||''})});const path=photoPath(removed);if(path){try{await deleteObject(storageRef(storage,path))}catch(e){if(e?.code!=='storage/object-not-found')console.warn(e)}}await refreshModelPhotos(mk);show($('photosStatus'),'success','Foto removida.')}catch(e){show($('photosStatus'),'error',e.message||String(e))}
   }
 
@@ -800,13 +858,13 @@ function normalizarSetor(nome) {
     $('comboCards').innerHTML=combos.length?combos.map((c,i)=>{
       const pecas=Array.isArray(c.pecas)?c.pecas:[];
       const rows=pecas.length?pecas.map(p=>`<div class="combo-piece-row"><strong>${esc(p.peca||'-')}</strong><span class="combo-preview-dot" style="background:${esc(p.corHex||inferColorHex(p.corNome||''))}"></span><span>${esc(p.corNome||'')}</span></div>`).join(''):'<div class="combo-empty-piece">Nenhuma peça configurada para esta combinação.</div>';
-      return `<div class="combo-card"><div class="combo-card-head"><div><div class="combo-card-code">${esc(c.codigo||c.corCodigo||'')}</div><div class="combo-card-name"><span class="combo-preview-dot" style="background:${esc(c.corHex||comboColorStyle(c.descricao||c.corNome||''))}"></span>${esc(c.descricao||c.corNome||'')}</div></div><button class="btn sm soft" data-edit-combo="${i}">Editar peças</button></div><div class="combo-piece-list">${rows}</div></div>`;
+      return `<div class="combo-card"><div class="combo-card-head"><div><div class="combo-card-code">${esc(c.codigo||c.corCodigo||'')}</div><div class="combo-card-name"><span class="combo-preview-dot" style="background:${esc(c.corHex||comboColorStyle(c.descricao||c.corNome||''))}"></span>${esc(c.descricao||c.corNome||'')}</div></div>${canFullEdit()?`<button class="btn sm soft" data-edit-combo="${i}">Editar peças</button>`:''}</div><div class="combo-piece-list">${rows}</div></div>`;
     }).join(''):'<div class="empty">Nenhuma combinação cadastrada.</div>';
   }
   function renderSectors(){const view=currentTechnicalView()||active; const mats=Array.isArray(view?.materiais)?view.materiais:[];const fromCatalog=activeSectorNames();const fromMaterials=[...new Set(mats.map(m=>normalizeSectorName(m.setor)||'OUTROS'))];const sectors=[...fromCatalog,...fromMaterials.filter(s=>!fromCatalog.some(x=>normalize(x)===normalize(s)))];if(!activeSector||!sectors.some(s=>normalize(s)===normalize(activeSector)))activeSector=sectors[0]||'OUTROS';$('sectorTabs').innerHTML=sectors.map(s=>`<button class="sector-btn ${normalize(s)===normalize(activeSector)?'active':''}" data-sector="${esc(s)}">${esc(s)} (${mats.filter(m=>normalizeSectorName(m.setor||'OUTROS')===normalizeSectorName(s)).length})</button>`).join('');renderMaterials()}
   function renderMaterials(){
     const view=currentTechnicalView()||active; const all=view?.materiais||[]; const mats=all.map((m,index)=>({m,index})).filter(x=>normalizeSectorName(x.m.setor||'OUTROS')===normalizeSectorName(activeSector));
-    $('materialsBody').innerHTML=mats.length?mats.map(({m,index})=>`<tr><td>${esc([m.codigoPeca,m.peca].filter(Boolean).join(' - '))}</td><td>${esc([m.codigoMaterial,m.material].filter(Boolean).join(' - '))}</td><td>${esc(m.observacao||'')}</td><td>${esc(m.unidade||m.um||'')}</td><td class="num">${esc(fmtNumber(m.consumo))}</td><td class="num">${esc(m.comprimento??'')}</td><td class="edit-material"><button class="btn sm soft" data-edit-material="${index}">Editar</button></td></tr>`).join(''):`<tr><td colspan="7"><div class="empty">Nenhum material neste setor.</div></td></tr>`;
+    $('materialsBody').innerHTML=mats.length?mats.map(({m,index})=>`<tr><td>${esc([m.codigoPeca,m.peca].filter(Boolean).join(' - '))}</td><td>${esc([m.codigoMaterial,m.material].filter(Boolean).join(' - '))}</td><td>${esc(m.observacao||'')}</td><td>${esc(m.unidade||m.um||'')}</td><td class="num">${esc(fmtNumber(m.consumo))}</td><td class="num">${esc(m.comprimento??'')}</td><td class="edit-material">${canFullEdit()?`<button class="btn sm soft" data-edit-material="${index}">Editar</button>`:'—'}</td></tr>`).join(''):`<tr><td colspan="7"><div class="empty">Nenhum material neste setor.</div></td></tr>`;
   }
   function openMaterialEditor(index){
     const view=currentTechnicalView()||active; const m=(view?.materiais||[])[index];if(!m)return;$('materialIndex').value=index;
@@ -837,7 +895,7 @@ function normalizarSetor(nome) {
   }
   function openNewComboModal(){
     if(!active||!active.hasFicha){alert('Este modelo ainda não possui ficha técnica cadastrada. Importe a ficha antes de adicionar combinações.');return}
-    if(!EDIT_LEVELS.has(userLevel)){alert('Seu nível de acesso não permite editar a ficha técnica.');return}
+    if(!canFullEdit()){alert('Seu nível de acesso não permite editar a ficha técnica.');return}
     $('newComboCode').value='';$('newComboDesc').value='';$('newComboColor').value='#dfe5ee';hide($('newComboStatus'));$('newComboModal').classList.add('open');setTimeout(()=>$('newComboCode').focus(),50);
   }
   async function saveNewCombo(){
@@ -991,6 +1049,7 @@ function normalizarSetor(nome) {
   if($('photoLightbox')) $('photoLightbox').addEventListener('click',e=>{if(e.target===$('photoLightbox'))closePhotoLightbox()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('photoLightbox')?.classList.contains('open'))closePhotoLightbox()});
   if($('modelPhotoFiles')) $('modelPhotoFiles').addEventListener('change',e=>addModelPhotos(e.target.files));
+  if($('saveObservationBtn')) $('saveObservationBtn').onclick=saveTechnicalObservation;
   $('printBtn').onclick=()=>window.print();
   $('openImport').onclick=()=>{$('importModal').classList.add('open');$('importModal').setAttribute('aria-hidden','false')};$('closeImport').onclick=()=>{$('importModal').classList.remove('open');$('importModal').setAttribute('aria-hidden','true')};
   $('pdfFiles').onchange=e=>{selectedFiles=[...e.target.files];$('uploadList').innerHTML=selectedFiles.map(f=>`<div class="upload-item"><span>📄 ${esc(f.name)}</span><span>${(f.size/1024/1024).toFixed(2)} MB</span></div>`).join('');$('analyzeBtn').disabled=!selectedFiles.length;$('analysisArea').classList.add('hidden');parsedImport=[];hide($('importStatus'))};
@@ -1003,7 +1062,7 @@ function normalizarSetor(nome) {
   $('cancelNewCombo').addEventListener('click',()=>$('newComboModal').classList.remove('open'));
   $('newComboDesc').addEventListener('input',()=>{const c=inferColorHex($('newComboDesc').value);if(c!=='#eef2f7')$('newComboColor').value=c});
 wireLibrary();
-  onAuthStateChanged(auth,async user=>{if(!user){location.href='login.html';return}try{const us=await getDoc(doc(db,'Usuario',user.email));if(!us.exists()){await signOut(auth);location.href='login.html';return}userLevel=String(us.data().nivelAcesso||'');if(!VIEW_LEVELS.has(userLevel)){alert('Seu perfil não possui acesso à Ficha Técnica.');location.href='index.html';return}window.SistemaNavegacao?.init({userLevel,userName:us.data().nome||user.email,onLogout:async()=>{await signOut(auth);location.href='login.html'}});$('openImport').classList.toggle('hidden',!IMPORT_LEVELS.has(userLevel));document.body.classList.remove('auth-loading');await loadBaseData()}catch(e){console.error(e);document.body.classList.remove('auth-loading');show($('pageStatus'),'error','Erro ao validar usuário: '+(e.message||e))}});
+  onAuthStateChanged(auth,async user=>{if(!user){location.href='login.html';return}try{const us=await getDoc(doc(db,'Usuario',user.email));if(!us.exists()){await signOut(auth);location.href='login.html';return}const userData=us.data()||{};userLevel=String(userData.nivelAcesso||'');currentUserName=userData.Nome||userData.nome||user.email;if(!VIEW_LEVELS.has(userLevel)){alert('Seu perfil não possui acesso à Ficha Técnica.');location.href='index.html';return}window.SistemaNavegacao?.init({userLevel,userName:currentUserName,onLogout:async()=>{await signOut(auth);location.href='login.html'}});applyPermissionUI();document.body.classList.remove('auth-loading');await loadBaseData();if(userLevel==='03'&&!allSheets.length)show($('pageStatus'),'info',`Nenhum modelo vinculado ao ateliê ${currentUserName}.`)}catch(e){console.error(e);document.body.classList.remove('auth-loading');show($('pageStatus'),'error','Erro ao validar usuário: '+(e.message||e))}});
 </script>
 </body>
 </html>
