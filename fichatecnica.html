@@ -525,19 +525,60 @@ function normalizarSetor(nome) {
     if(modeloRaw.includes('.')) return modeloRaw;
     return [linha,modeloRaw].filter(Boolean).join('.');
   }
+  function normalizeAtelieText(value){
+    return String(value||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  }
+  function getAtelieResponsavelValues(talao){
+    return [
+      talao?.idAtelieResponsavel,
+      talao?.atelieResponsavel,
+      talao?.atelierResponsavel,
+      talao?.nomeAtelieResponsavel,
+      talao?.nomeAtelierResponsavel,
+      talao?.atelie,
+      talao?.atelier
+    ].filter(Boolean);
+  }
+  function talaoPertenceAoAtelie(talao,atelie){
+    const selected=normalizeAtelieText(atelie);
+    if(!selected)return false;
+    return getAtelieResponsavelValues(talao).some(v=>normalizeAtelieText(v)===selected);
+  }
   async function loadAtelierAllowedModels(){
-    if(userLevel!=='03'){atelierAllowedModels=null;return}
+    if(userLevel!=='03'){atelierAllowedModels=null;return {taloes:0,modelos:0}}
     atelierAllowedModels=new Set();
     const nome=text(currentUserName);
-    if(!nome)return;
-    const refs=[];
-    for(const campo of ['idAtelieResponsavel','nomeAtelieResponsavel']){
-      try{
-        const snap=await getDocs(query(collection(db,'taloes'),where(campo,'==',nome)));
-        snap.forEach(d=>refs.push(d.data()||{}));
-      }catch(e){console.warn(`Não foi possível consultar ${campo} para o ateliê.`,e)}
+    if(!nome)return {taloes:0,modelos:0};
+
+    // O sistema historicamente usou nomes diferentes para o campo de ateliê.
+    // Consulta todos os formatos conhecidos, iguais aos usados no Relatório Ateliê.
+    const campos=[
+      'idAtelieResponsavel','atelieResponsavel','atelierResponsavel',
+      'nomeAtelieResponsavel','nomeAtelierResponsavel','atelie','atelier'
+    ];
+    const nomes=[...new Set([nome,nome.toUpperCase(),nome.toLowerCase()])];
+    const docs=new Map();
+
+    for(const campo of campos){
+      for(const valor of nomes){
+        try{
+          const snap=await getDocs(query(collection(db,'taloes'),where(campo,'==',valor)));
+          snap.forEach(d=>docs.set(d.id,d.data()||{}));
+        }catch(e){
+          console.warn(`Não foi possível consultar ${campo} para o ateliê.`,e);
+        }
+      }
     }
-    for(const t of refs){const mk=normalize(talaoModelCode(t));if(mk)atelierAllowedModels.add(mk)}
+
+    // Confere novamente em memória com normalização de acentos/maiúsculas.
+    let vinculados=0;
+    for(const t of docs.values()){
+      if(!talaoPertenceAoAtelie(t,nome))continue;
+      vinculados++;
+      const mk=normalize(talaoModelCode(t));
+      if(mk)atelierAllowedModels.add(mk);
+    }
+    return {taloes:vinculados,modelos:atelierAllowedModels.size};
   }
   function applyPermissionUI(){
     const full=canFullEdit(),photoObs=canEditPhotosAndObservation();
@@ -640,15 +681,23 @@ function normalizarSetor(nome) {
       });
 
       allSheets.sort((a,b)=>modelKey(a).localeCompare(modelKey(b),'pt-BR',{numeric:true}));
-      await loadAtelierAllowedModels();
+      const atelierStats=await loadAtelierAllowedModels();
       if(userLevel==='03'){
+        const modelosAntes=allSheets.length;
         allSheets=allSheets.filter(m=>atelierAllowedModels?.has(normalize(modelKey(m))));
+        if(allSheets.length){
+          show($('pageStatus'),'success',`${allSheets.length} modelo(s) liberado(s) para o ateliê ${currentUserName}, encontrados em ${atelierStats.taloes} talão(ões) histórico(s).`);
+        }else if(atelierStats.modelos>0){
+          show($('pageStatus'),'warning',`${atelierStats.modelos} modelo(s) foram encontrados nos talões do ateliê ${currentUserName}, mas nenhum corresponde aos ${modelosAntes} modelos cadastrados na coleção modelos.`);
+        }else{
+          show($('pageStatus'),'info',`Nenhum talão histórico vinculado ao ateliê ${currentUserName} foi encontrado pelos campos de vínculo conhecidos.`);
+        }
       }
       await loadSectorCatalog();
       populateSelectors();
       applyFilters();
       renderLineLibrary(allSheets);
-      if(!allSheets.length){
+      if(!allSheets.length && userLevel!=='03'){
         show($('pageStatus'),'info','Nenhum modelo encontrado na colecao modelos.');
       }
     }catch(e){
@@ -1062,7 +1111,7 @@ function normalizarSetor(nome) {
   $('cancelNewCombo').addEventListener('click',()=>$('newComboModal').classList.remove('open'));
   $('newComboDesc').addEventListener('input',()=>{const c=inferColorHex($('newComboDesc').value);if(c!=='#eef2f7')$('newComboColor').value=c});
 wireLibrary();
-  onAuthStateChanged(auth,async user=>{if(!user){location.href='login.html';return}try{const us=await getDoc(doc(db,'Usuario',user.email));if(!us.exists()){await signOut(auth);location.href='login.html';return}const userData=us.data()||{};userLevel=String(userData.nivelAcesso||'');currentUserName=userData.Nome||userData.nome||user.email;if(!VIEW_LEVELS.has(userLevel)){alert('Seu perfil não possui acesso à Ficha Técnica.');location.href='index.html';return}window.SistemaNavegacao?.init({userLevel,userName:currentUserName,onLogout:async()=>{await signOut(auth);location.href='login.html'}});applyPermissionUI();document.body.classList.remove('auth-loading');await loadBaseData();if(userLevel==='03'&&!allSheets.length)show($('pageStatus'),'info',`Nenhum modelo vinculado ao ateliê ${currentUserName}.`)}catch(e){console.error(e);document.body.classList.remove('auth-loading');show($('pageStatus'),'error','Erro ao validar usuário: '+(e.message||e))}});
+  onAuthStateChanged(auth,async user=>{if(!user){location.href='login.html';return}try{const us=await getDoc(doc(db,'Usuario',user.email));if(!us.exists()){await signOut(auth);location.href='login.html';return}const userData=us.data()||{};userLevel=String(userData.nivelAcesso||'');currentUserName=userData.Nome||userData.nome||user.email;if(!VIEW_LEVELS.has(userLevel)){alert('Seu perfil não possui acesso à Ficha Técnica.');location.href='index.html';return}window.SistemaNavegacao?.init({userLevel,userName:currentUserName,onLogout:async()=>{await signOut(auth);location.href='login.html'}});applyPermissionUI();document.body.classList.remove('auth-loading');await loadBaseData();/* mensagem específica do ateliê já é definida em loadBaseData */}catch(e){console.error(e);document.body.classList.remove('auth-loading');show($('pageStatus'),'error','Erro ao validar usuário: '+(e.message||e))}});
 </script>
 </body>
 </html>
