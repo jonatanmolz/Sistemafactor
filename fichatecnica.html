@@ -66,6 +66,8 @@
     #sheetModal .modal-body{padding:14px}#sheetModal .main-card{min-height:auto;box-shadow:none;border:0;padding:0}
     .sheet-modal-tabs{display:flex;gap:8px;flex-wrap:wrap}
     .photo-column{display:flex;flex-direction:column;gap:8px}.photo-actions{display:flex;gap:8px;flex-wrap:wrap}.photo-actions .btn{flex:1}.photo-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:14px}.photo-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.photo-thumb{aspect-ratio:4/3;background:#f8fafc;display:flex;align-items:center;justify-content:center;overflow:hidden}.photo-thumb img{width:100%;height:100%;object-fit:contain}.photo-meta{padding:9px 10px;display:flex;justify-content:space-between;gap:8px;align-items:center}.photo-meta small{color:var(--muted)}.photo-buttons{display:flex;gap:6px;flex-wrap:wrap}.photo-primary{font-size:11px;font-weight:900;color:#12613b;background:#e7f7ed;border-radius:999px;padding:3px 7px}.photo-upload-progress{margin-top:12px}.photo-upload-progress progress{width:100%;height:14px}.photo-upload-status{font-size:12px;color:var(--muted);margin-top:5px}
+    .photo-thumb.has-photo{cursor:zoom-in}.photo-thumb.has-photo img{transition:transform .18s ease}.photo-thumb.has-photo:hover img{transform:scale(1.04)}
+    #photoLightbox{z-index:7000;background:rgba(2,6,23,.88);padding:24px}.photo-lightbox-wrap{position:relative;width:min(1200px,96vw);height:min(860px,92vh);display:flex;align-items:center;justify-content:center}.photo-lightbox-image{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;box-shadow:0 25px 80px rgba(0,0,0,.45);background:#fff}.photo-lightbox-close{position:absolute;top:10px;right:10px;width:46px;height:46px;border:0;border-radius:12px;background:rgba(255,255,255,.92);color:#172033;font-size:28px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 25px rgba(0,0,0,.25)}.photo-lightbox-close:hover{background:#fff}
     @media(max-width:1120px){.layout{grid-template-columns:1fr}.filter-card{position:static}.sheet-head{grid-template-columns:170px 1fr}.combo-box{grid-column:1/-1}.model-list{max-height:220px}}
     @media(max-width:720px){main{padding:12px}.sheet-head{grid-template-columns:1fr}.photo-box{height:180px}.filter-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.analysis-grid{grid-template-columns:1fr 1fr}.page-head{align-items:flex-start}.page-title h1{font-size:20px}}
   </style>
@@ -279,6 +281,13 @@
     <div class="modal-actions" style="padding:0 20px 20px">
       <button class="btn soft" type="button" onclick="document.getElementById('photosModal').classList.remove('open')">Fechar</button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="photoLightbox" aria-hidden="true">
+  <div class="photo-lightbox-wrap" role="dialog" aria-modal="true" aria-label="Foto ampliada do modelo">
+    <button class="photo-lightbox-close" id="closePhotoLightbox" type="button" aria-label="Fechar foto ampliada">×</button>
+    <img id="photoLightboxImage" class="photo-lightbox-image" alt="Foto ampliada do modelo">
   </div>
 </div>
 
@@ -708,10 +717,25 @@ function normalizarSetor(nome) {
     $('photosModelCode').textContent=mk;
     $('photoGallery').innerHTML=photos.length?photos.map((p,i)=>{
       const url=photoUrl(p),primary=photoIsPrimary(p,i);
-      return `<div class="photo-card"><div class="photo-thumb">${url?`<img src="${esc(url)}" alt="Foto ${i+1} do modelo ${esc(mk)}">`:'<span>Foto indisponível</span>'}</div><div class="photo-meta"><div>${primary?'<span class="photo-primary">Principal</span>':`<small>Foto ${i+1}</small>`}</div><div class="photo-buttons">${!primary?`<button class="btn sm soft" data-primary-photo="${i}">Principal</button>`:''}<button class="btn sm danger" data-remove-photo="${i}">Excluir</button></div></div></div>`;
+      return `<div class="photo-card"><div class="photo-thumb ${url?'has-photo':''}" ${url?`data-zoom-photo="${i}" title="Clique para ampliar"`:''}>${url?`<img src="${esc(url)}" alt="Foto ${i+1} do modelo ${esc(mk)}">`:'<span>Foto indisponível</span>'}</div><div class="photo-meta"><div>${primary?'<span class="photo-primary">Principal</span>':`<small>Foto ${i+1}</small>`}</div><div class="photo-buttons">${!primary?`<button class="btn sm soft" data-primary-photo="${i}">Principal</button>`:''}<button class="btn sm danger" data-remove-photo="${i}">Excluir</button></div></div></div>`;
     }).join(''):'<div class="empty" style="grid-column:1/-1">Nenhuma foto cadastrada para este modelo.</div>';
     $('photoGallery').querySelectorAll('[data-primary-photo]').forEach(btn=>btn.onclick=()=>setPrimaryPhoto(Number(btn.dataset.primaryPhoto)));
     $('photoGallery').querySelectorAll('[data-remove-photo]').forEach(btn=>btn.onclick=()=>removeModelPhoto(Number(btn.dataset.removePhoto)));
+    $('photoGallery').querySelectorAll('[data-zoom-photo]').forEach(el=>el.onclick=()=>openPhotoLightbox(Number(el.dataset.zoomPhoto)));
+  }
+  function openPhotoLightbox(index){
+    if(!active)return;
+    const photo=getModelPhotos(modelKey(active))[index],url=photoUrl(photo);
+    if(!url)return;
+    $('photoLightboxImage').src=url;
+    $('photoLightboxImage').alt=`Foto ${index+1} ampliada do modelo ${modelKey(active)}`;
+    $('photoLightbox').classList.add('open');
+    $('photoLightbox').setAttribute('aria-hidden','false');
+  }
+  function closePhotoLightbox(){
+    $('photoLightbox').classList.remove('open');
+    $('photoLightbox').setAttribute('aria-hidden','true');
+    $('photoLightboxImage').src='';
   }
   function openPhotosModal(){
     if(!active)return;
@@ -963,6 +987,9 @@ function normalizarSetor(nome) {
   if($('managePhotosBtn')) $('managePhotosBtn').onclick=openPhotosModal;
   if($('closePhotosModal')) $('closePhotosModal').onclick=()=>$('photosModal').classList.remove('open');
   if($('photosModal')) $('photosModal').addEventListener('click',e=>{if(e.target===$('photosModal'))$('photosModal').classList.remove('open')});
+  if($('closePhotoLightbox')) $('closePhotoLightbox').onclick=closePhotoLightbox;
+  if($('photoLightbox')) $('photoLightbox').addEventListener('click',e=>{if(e.target===$('photoLightbox'))closePhotoLightbox()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('photoLightbox')?.classList.contains('open'))closePhotoLightbox()});
   if($('modelPhotoFiles')) $('modelPhotoFiles').addEventListener('change',e=>addModelPhotos(e.target.files));
   $('printBtn').onclick=()=>window.print();
   $('openImport').onclick=()=>{$('importModal').classList.add('open');$('importModal').setAttribute('aria-hidden','false')};$('closeImport').onclick=()=>{$('importModal').classList.remove('open');$('importModal').setAttribute('aria-hidden','true')};
