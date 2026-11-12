@@ -91,7 +91,7 @@
     #totalParesModal .total-pares-table-wrapper{max-height:60vh;overflow:auto;margin-top:10px}
     #totalParesModal table{font-size:.88rem;table-layout:fixed}
     #totalParesModal th,#totalParesModal td{padding:8px 10px;white-space:normal;overflow-wrap:anywhere}
-    #totalParesModal th:first-child,#totalParesModal td:first-child{text-align:left;width:56%}
+    #totalParesModal th:first-child,#totalParesModal td:first-child{text-align:left;width:18%;min-width:145px;max-width:190px;white-space:nowrap}
     #totalParesModal th:not(:first-child),#totalParesModal td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums}
     #totalParesModal thead th{position:sticky;top:0;background:#f2f2f2;z-index:1}
     #totalParesModal tbody tr:nth-child(even){background:#f8f9fb}
@@ -100,6 +100,74 @@
       #totalParesModal table{font-size:.8rem}
       #totalParesModal th,#totalParesModal td{padding:7px 6px}
     }
+
+    /* Detalhamento de producao: somente leitura. */
+    #totalParesModal .modal-content{max-width:min(1380px,96vw)}
+    #totalParesModal .total-pares-table-wrapper{overflow:auto}
+    #totalParesModal table{min-width:1040px}
+    #totalParesModal th:nth-child(1),#totalParesModal td:nth-child(1){width:150px}
+    #totalParesModal th:nth-child(2),#totalParesModal td:nth-child(2){width:95px}
+    #totalParesModal th:nth-child(3),#totalParesModal td:nth-child(3){width:80px}
+    #totalParesModal th:nth-child(4),#totalParesModal td:nth-child(4){width:160px;text-align:left}
+    #totalParesModal th:nth-child(5),#totalParesModal td:nth-child(5){width:155px;text-align:left}
+    #totalParesModal th:nth-child(n+6),#totalParesModal td:nth-child(n+6){width:100px}
+    #totalParesModal tbody td.factor-production-cell{cursor:pointer;transition:background .12s,box-shadow .12s}
+    #totalParesModal tbody td.factor-production-cell:hover{background:#eaf3ff;box-shadow:inset 0 0 0 1px #91bfff}
+    #totalParesModal tbody td.factor-production-cell:focus-visible{outline:2px solid var(--pri);outline-offset:-2px}
+    .factor-atelier-line{display:block;white-space:nowrap;font-size:.88em;padding:1px 0}
+    #productionDetailModal .modal-content{max-width:min(1500px,96vw)}
+    #productionDetailModal .modal-content{width:85vw;max-width:85vw;padding:14px 16px;font-size:13px}
+    #productionDetailModal .modal-head h3{font-size:18px}
+    #productionDetailModal .production-detail-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin:0 0 8px}
+    #productionDetailModal .production-detail-actions .btn{font-size:12px;padding:8px 11px}
+    #productionDetailModal .production-detail-summary{margin:6px 0 9px;padding:7px 10px;border-radius:7px;background:var(--chip);font-size:12px;font-weight:700}
+    #productionDetailModal .production-detail-table-wrap{max-height:64vh;overflow:auto;border:0;border-radius:0;background:#fff;padding:10px 8px 16px}
+    #productionDetailModal .production-remessa-list{min-width:760px}
+    #productionDetailModal .production-remessa-card{margin:0 0 16px}
+    #productionDetailModal .production-remessa-header{width:min(650px,calc(100% - 55px));display:grid;grid-template-columns:125px 135px 135px 1fr;gap:10px;align-items:end;padding:8px 14px;border:1px solid #c7d4e5;border-bottom:0;border-radius:10px 10px 0 0;box-shadow:0 2px 7px rgba(15,23,42,.07)}
+    #productionDetailModal .production-remessa-header.tipo-exportacao{background:#d9ebff;border-color:#7fb2ef}
+    #productionDetailModal .production-remessa-header.tipo-cliente-especial{background:#ffd9ea;border-color:#ef8db9}
+    #productionDetailModal .production-remessa-header.tipo-estoque{background:#fff0a8;border-color:#e6c94e}
+    #productionDetailModal .production-remessa-header.tipo-amostra{background:#d6f6df;border-color:#79ca8d}
+    #productionDetailModal .production-remessa-header.tipo-mercado-interno{background:#fff;border-color:#c7d4e5}
+    #productionDetailModal .production-remessa-label{display:block;font-size:8px;line-height:1;color:#64748b;font-weight:900;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+    #productionDetailModal .production-remessa-value{display:block;font-size:14px;line-height:1.05;color:#002b5c;font-weight:900;white-space:nowrap}
+    #productionDetailModal .production-remessa-table{width:calc(100% - 45px);margin:-1px 0 0 45px;border-collapse:separate;border-spacing:0;table-layout:fixed;border:1px solid #c7d4e5;border-radius:0 9px 9px 9px;overflow:hidden;box-shadow:0 2px 7px rgba(15,23,42,.06);font-size:10px}
+    #productionDetailModal .production-remessa-table th,#productionDetailModal .production-remessa-table td{padding:5px 5px;text-align:center;border:0;border-bottom:1px solid #dbe3ec;white-space:nowrap}
+    #productionDetailModal .production-remessa-table th{font-size:9px;font-weight:900;text-transform:uppercase;color:#0f172a}
+    #productionDetailModal .production-remessa-table tbody tr:last-child td{border-bottom:0}
+    #productionDetailModal .production-remessa-card.tipo-exportacao .production-remessa-table th{background:#d9ebff} #productionDetailModal .production-remessa-card.tipo-exportacao .production-remessa-table td{background:#eef6ff}
+    #productionDetailModal .production-remessa-card.tipo-cliente-especial .production-remessa-table th{background:#ffd9ea} #productionDetailModal .production-remessa-card.tipo-cliente-especial .production-remessa-table td{background:#fff0f7}
+    #productionDetailModal .production-remessa-card.tipo-estoque .production-remessa-table th{background:#fff0a8} #productionDetailModal .production-remessa-card.tipo-estoque .production-remessa-table td{background:#fff9dc}
+    #productionDetailModal .production-remessa-card.tipo-amostra .production-remessa-table th{background:#d6f6df} #productionDetailModal .production-remessa-card.tipo-amostra .production-remessa-table td{background:#effaf2}
+    #productionDetailModal .production-remessa-card.tipo-mercado-interno .production-remessa-table th{background:#f1f5f9} #productionDetailModal .production-remessa-card.tipo-mercado-interno .production-remessa-table td{background:#fff}
+    #productionDetailModal .production-model-cell{font-weight:900;color:#002b5c}
+    #productionDetailModal .production-pending{font-weight:900;color:#a33b10}
+
+    #totalParesModal .modal-content{width:96vw;max-width:96vw}
+    #totalParesModal .total-pares-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:8px 0 10px}
+    #totalParesModal .total-pares-filters{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    #totalParesModal .total-pares-filter{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#334155}
+    #totalParesModal .total-pares-filter input{width:15px;height:15px}
+    #totalParesModal .total-pares-tool-buttons{display:flex;gap:7px;flex-wrap:wrap}
+    #totalParesModal .total-pares-tool-buttons .btn,#totalParesModal .total-pares-toggle-all{font-size:11px;padding:7px 10px}
+    @media(max-width:768px){#totalParesModal .total-pares-tools{align-items:flex-start}.total-pares-tool-buttons{width:100%}}
+    #productionDetailModal table{width:100%;border-collapse:collapse;font-size:.86rem;min-width:1080px}
+    #productionDetailModal th,#productionDetailModal td{padding:7px 9px;border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap}
+    #productionDetailModal th{position:sticky;top:0;background:#eef4fb;z-index:2}
+    #productionDetailModal td.production-pending{text-align:left;font-weight:700;color:#a04313}
+    #productionDetailModal tbody tr:nth-child(even){background:#fafbfd}
+    .factor-model-hover{border:0;background:transparent;color:#1756a1;font:inherit;font-weight:700;cursor:help;text-decoration:underline dotted;text-underline-offset:3px}
+    .factor-photo-preview{display:none;position:fixed;z-index:100000;pointer-events:none;width:290px;max-width:80vw;padding:10px;background:#fff;color:#172333;border:1px solid #cbd5e1;border-radius:12px;box-shadow:0 12px 35px #0004;text-align:center}
+    .factor-photo-preview img{display:none;max-width:100%;max-height:270px;object-fit:contain;margin:8px auto}
+    .factor-photo-preview #factorPhotoCaption{font-weight:700}
+    .factor-status-pending{color:#a04313;font-weight:600}
+    .factor-status-ok{color:#17734a;font-weight:600}
+    .factor-atelier-line{display:block;white-space:nowrap;font-size:.88em}
+    .model-list .factor-model-hover{display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;text-align:left}
+    .modal-body-table .factor-model-hover{white-space:nowrap}
+    #totalParesModal td:first-child .factor-model-hover{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
     /* Estilos para os novos filtros (links) */
     .filter-link {
         cursor: pointer;
@@ -299,7 +367,7 @@
 
 
     @media (max-width:768px){header{flex-wrap:wrap}.user-info{text-align:left;order:3;flex-basis:100%}.header-actions{margin-left:auto}nav.menu-open{max-height:520px}}
-    @media (max-width:768px){.filters-container{justify-content:stretch}.form-group{flex:1}.modal-content{width:98%;max-width:98%}.modal-body-table{font-size:.74em}}
+    @media (max-width:768px){.filters-container{justify-content:stretch}.form-group{flex:1}.modal-content{width:98%;max-width:98%}.modal-body-table{font-size:.74em}#productionDetailModal .modal-content{width:98vw;max-width:98vw}}
     .modal-body-table tr:nth-child(even) {background-color: #f2f2f2;}
 
 
@@ -867,17 +935,47 @@
       <button type="button" id="totalParesCloseButton" aria-label="Fechar lista de modelos">&times;</button>
       <div class="modal-head"><h3 id="totalParesModalTitle">Total de pares por modelo</h3></div>
       <p id="totalParesResumo" aria-live="polite"></p>
+      <div class="total-pares-tools">
+        <div class="total-pares-filters" aria-label="Filtrar por pendência">
+          <label class="total-pares-filter"><input type="checkbox" id="totalParesFiltroCorte"> Corte</label>
+          <label class="total-pares-filter"><input type="checkbox" id="totalParesFiltroCostura"> Costura</label>
+          <label class="total-pares-filter"><input type="checkbox" id="totalParesFiltroMontagem"> Montagem</label>
+          <button type="button" class="btn btn-secondary total-pares-toggle-all" id="totalParesToggleTodos">Marcar todos</button>
+        </div>
+        <div class="total-pares-tool-buttons">
+          <button type="button" class="btn btn-secondary" id="totalParesPrint">Imprimir relatório</button>
+          <button type="button" class="btn btn-primary" id="totalParesMsgCorte">Corte</button>
+          <button type="button" class="btn btn-primary" id="totalParesMsgCostura">Costura</button>
+          <button type="button" class="btn btn-primary" id="totalParesMsgMontagem">Montagem</button>
+        </div>
+      </div>
       <p class="total-pares-note">Modelos que compõem o card Total pares, conforme as linhas e remessas selecionadas.</p>
       <div class="total-pares-table-wrapper" tabindex="0" aria-label="Lista de modelos">
         <table aria-label="Pares e talões por modelo">
-          <thead><tr><th scope="col">Modelo (linha.modelo)</th><th scope="col">Pares</th><th scope="col">Talões</th></tr></thead>
+          <thead><tr><th scope="col">Modelo</th><th scope="col">Pares</th><th scope="col">Talões</th><th scope="col">Corte</th><th scope="col">Ateliê</th><th scope="col">Costurado</th><th scope="col">Falta</th><th scope="col">Montado</th><th scope="col">Falta</th></tr></thead>
           <tbody id="totalParesModelosBody"></tbody>
-          <tfoot><tr><th scope="row">Total</th><td id="totalParesModelosTotal">0</td><td id="totalParesTaloesTotal">0</td></tr></tfoot>
+          <tfoot><tr><th scope="row">Total</th><td id="totalParesModelosTotal">0</td><td id="totalParesTaloesTotal">0</td><td colspan="6">—</td></tr></tfoot>
         </table>
       </div>
     </div>
   </div>
 
+  <div id="productionDetailModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="productionDetailTitle">
+    <div class="modal-content">
+      <button type="button" id="productionDetailClose" aria-label="Fechar" style="position:absolute;right:12px;top:8px;border:0;background:transparent;font-size:28px;font-weight:700;cursor:pointer">&times;</button>
+      <div class="modal-head"><h3 id="productionDetailTitle" style="margin:0">Pendências de produção</h3></div>
+      <div class="production-detail-actions">
+        <button type="button" class="btn btn-secondary" id="productionDetailPrint">Imprimir relatório</button>
+        <button type="button" class="btn btn-primary" id="productionDetailWhats">Copiar para WhatsApp</button>
+      </div>
+      <div id="productionDetailSummary" class="production-detail-summary"></div>
+      <div class="production-detail-table-wrap">
+        <div id="productionDetailBody" class="production-remessa-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="factorPhotoPreview" class="factor-photo-preview" role="status" aria-live="polite"><div id="factorPhotoCaption"></div><img id="factorPhotoImage" alt="Foto do modelo" referrerpolicy="no-referrer"><div id="factorPhotoMessage"></div></div>
   <div id="remessaFilterModal" class="modal">
     <div class="modal-content" style="max-width: 650px;">
       <span class="close-btn remessa-close-btn">&times;</span>
@@ -998,6 +1096,23 @@
     const totalParesResumo = document.getElementById('totalParesResumo');
     const totalParesModelosTotal = document.getElementById('totalParesModelosTotal');
     const totalParesTaloesTotal = document.getElementById('totalParesTaloesTotal');
+    const totalParesFiltroCorte = document.getElementById('totalParesFiltroCorte');
+    const totalParesFiltroCostura = document.getElementById('totalParesFiltroCostura');
+    const totalParesFiltroMontagem = document.getElementById('totalParesFiltroMontagem');
+    const totalParesToggleTodos = document.getElementById('totalParesToggleTodos');
+    const totalParesPrint = document.getElementById('totalParesPrint');
+    const totalParesMsgCorte = document.getElementById('totalParesMsgCorte');
+    const totalParesMsgCostura = document.getElementById('totalParesMsgCostura');
+    const totalParesMsgMontagem = document.getElementById('totalParesMsgMontagem');
+    const productionDetailModal = document.getElementById('productionDetailModal');
+    const productionDetailClose = document.getElementById('productionDetailClose');
+    const productionDetailTitle = document.getElementById('productionDetailTitle');
+    const productionDetailSummary = document.getElementById('productionDetailSummary');
+    const productionDetailBody = document.getElementById('productionDetailBody');
+    const productionDetailPrint = document.getElementById('productionDetailPrint');
+    const productionDetailWhats = document.getElementById('productionDetailWhats');
+    let productionDetailState = { modelCode:'', stage:'all', rows:[] };
+    let totalParesState = { allRows:[], visibleRows:[], visibleModels:new Set() };
 
     
     // NOVO: Referências para o controle de Linhas
@@ -1612,52 +1727,53 @@
       return 'Sem modelo';
     }
 
-    function buildWhatsDetailedByRemessa(taloes, config){
-      const total = taloes.reduce((sum,t)=>sum+(Number(t.pares)||0),0);
-      const lines = [`*${config.titulo}*`, `Filtros: ${formatWhatsFilters()}`, `${config.totalLabel}: ${total.toLocaleString()} pares`, ''];
+    function buildStandardPendingWhats(taloes, stage='all', titleOverride=''){
+      const stageNorm = String(stage || 'all').toLowerCase();
+      const title = titleOverride || `Pendências de ${factorStageTitle(stageNorm)}`;
+      const includeAtelie = stageNorm === 'corte' || stageNorm === 'costura';
+      const rows = Array.isArray(taloes) ? taloes.slice() : [];
+      const lines = [`*${title}*`, ''];
 
-      if(taloes.length === 0){
-        lines.push(config.emptyMessage);
+      if(!rows.length){
+        lines.push('Nenhum talão em aberto nos filtros atuais.');
         return lines.join('\n').trim();
       }
 
       const grouped = new Map();
-      const totalPorModelo = {};
-
-      taloes.slice().sort(sortTaloesForWhats).forEach(t => {
-        const remessa = t.numeroRemessa || 'Sem remessa';
+      rows.sort(sortTaloesForWhats).forEach(t => {
+        const remessa = String(t.numeroRemessa || 'Sem remessa');
         if(!grouped.has(remessa)) grouped.set(remessa, []);
         grouped.get(remessa).push(t);
-
-        const modeloKey = getModeloResumoKey(t);
-        totalPorModelo[modeloKey] = (totalPorModelo[modeloKey] || 0) + (Number(t.pares) || 0);
       });
 
       grouped.forEach((lista, remessa) => {
-        const linhas = uniqueSorted(lista.map(t => t.linha));
-        let header = `R. ${remessa}`;
-        if(linhas.length) header += ` - L. ${linhas.join(', ')}`;
-        lines.push(header);
+        const ref = lista[0] || {};
+        const totalRemessa = lista.reduce((sum,t)=>sum+(Number(t.pares)||0),0);
+        const dataCorte = factorDateDisplay(ref.dataCorte) || '-';
+        const dataEntrega = factorDateDisplay(ref.dataEntrega) || '-';
+
+        lines.push(`*R. ${remessa}*  - ${totalRemessa.toLocaleString('pt-BR')} Pares`);
+        lines.push(`    *Corte ${dataCorte}* - *Entr. ${dataEntrega}*`);
 
         lista.sort(sortTaloesForWhats).forEach(t => {
           const numeroTalao = getNumeroTalaoWhats(t) || '-';
-          const modelo = t.modelo ? ` - ${t.modelo}` : '';
-          const atelie = t.idAtelieResponsavel ? ` - ${t.idAtelieResponsavel}` : '';
-          const pares = Number(t.pares) ? ` - ${(Number(t.pares)||0).toLocaleString()} pares` : '';
-          lines.push(`T.${numeroTalao}${modelo}${atelie}${pares}`);
+          const modelo = factorModelCode(t) || getModeloResumoKey(t);
+          const pares = (Number(t.pares)||0).toLocaleString('pt-BR');
+          let linha = `        T.${numeroTalao} - ${modelo} - ${pares} pares`;
+          if(includeAtelie) linha += ` - ${t.idAtelieResponsavel || 'Sem ateliê'}`;
+          lines.push(linha);
         });
         lines.push('');
       });
 
-      const modelosOrdenados = Object.keys(totalPorModelo).sort((a,b)=>a.localeCompare(b, 'pt-BR', {numeric:true}));
-      if(modelosOrdenados.length){
-        lines.push('Resumo por modelo');
-        modelosOrdenados.forEach(modelo => {
-          lines.push(`Modelo ${modelo} - ${totalPorModelo[modelo].toLocaleString()} pares`);
-        });
-      }
-
       return lines.join('\n').trim();
+    }
+
+    function buildWhatsDetailedByRemessa(taloes, config){
+      const titulo = String(config?.titulo || '').toLowerCase();
+      const stage = titulo.includes('costura') ? 'costura' : titulo.includes('montagem') ? 'montagem' : titulo.includes('corte') ? 'corte' : 'all';
+      const properTitle = stage === 'costura' ? 'Pendências de Costura' : stage === 'montagem' ? 'Pendências de Montagem' : stage === 'corte' ? 'Pendências de Corte' : (config?.titulo || 'Pendências de Produção');
+      return buildStandardPendingWhats(taloes, stage, properTitle);
     }
 
     function openWhatsModal(title, message){
@@ -1671,7 +1787,7 @@
     function buildCosturaWhatsMessage(){
       const taloes = getCurrentFilteredTaloes().filter(t => !hasDate(t.dataSaidaCostura));
       return buildWhatsDetailedByRemessa(taloes, {
-        titulo: 'Falta costura',
+        titulo: 'Pendências de Costura',
         totalLabel: 'Total faltando costura',
         emptyMessage: 'Nenhum talão faltando costura nos filtros selecionados.'
       });
@@ -1680,7 +1796,7 @@
     function buildMontagemWhatsMessage(){
       const taloes = getCurrentFilteredTaloes().filter(t => !hasDate(t.dataEntradaMontagem));
       return buildWhatsDetailedByRemessa(taloes, {
-        titulo: 'Falta montagem',
+        titulo: 'Pendências de Montagem',
         totalLabel: 'Total faltando montar',
         emptyMessage: 'Nenhum talão faltando montagem nos filtros selecionados.'
       });
@@ -2138,55 +2254,353 @@
       `;
     }
 
-    // v8: usa a mesma lista do card, sem consultar o banco nem alterar os taloes.
+    // Consulta independente, somente leitura, das fotos ja cadastradas.
+    const factorPhotoCache = new Map();
+    const factorPhotoPreview = document.getElementById('factorPhotoPreview');
+    const factorPhotoImage = document.getElementById('factorPhotoImage');
+    const factorPhotoMessage = document.getElementById('factorPhotoMessage');
+    const factorPhotoCaption = document.getElementById('factorPhotoCaption');
+    function factorPhotoPosition(event) {
+      const x = Math.min(event.clientX + 18, window.innerWidth - 310);
+      const y = Math.min(event.clientY + 14, window.innerHeight - 350);
+      factorPhotoPreview.style.left = Math.max(8,x) + 'px';
+      factorPhotoPreview.style.top = Math.max(8,y) + 'px';
+    }
+    function factorEscapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));
+    }
+    function factorModelButtonHtml(label, modelKey) {
+      const cleanLabel = String(label ?? '').trim();
+      const cleanKey = String(modelKey ?? '').trim();
+      if (!cleanLabel || !cleanKey || !cleanKey.includes('.')) return factorEscapeHtml(cleanLabel);
+      return `<button type="button" class="factor-model-hover" data-model-key="${factorEscapeHtml(cleanKey)}" title="Passe o mouse para consultar a foto">${factorEscapeHtml(cleanLabel)}</button>`;
+    }
+    async function factorShowPhoto(button, event) {
+      const key = button.dataset.modelKey;
+      factorPhotoCaption.textContent = key;
+      factorPhotoImage.style.display = 'none';
+      factorPhotoImage.removeAttribute('src');
+      factorPhotoMessage.textContent = 'Carregando foto...';
+      factorPhotoPreview.style.display = 'block';
+      factorPhotoPosition(event);
+      if (!factorPhotoCache.has(key)) {
+        factorPhotoCache.set(key, getDoc(doc(db, 'fotosModelos', key))
+          .then(snap => {
+            const fotos = snap.exists() && Array.isArray(snap.data().fotos) ? snap.data().fotos : [];
+            const url = fotos.map(f => f && f.url).find(u => {
+              try { return new URL(u).protocol === 'https:'; } catch (_) { return false; }
+            });
+            return url || '';
+          }).catch(err => { console.warn('Foto indisponivel:', key, err); return ''; }));
+      }
+      const url = await factorPhotoCache.get(key);
+      if (factorPhotoPreview.style.display !== 'block' || factorPhotoCaption.textContent !== key) return;
+      if (url) {
+        factorPhotoImage.src = url;
+        factorPhotoImage.style.display = 'block';
+        factorPhotoMessage.textContent = '';
+      } else factorPhotoMessage.textContent = 'Sem foto cadastrada ou sem permissao de leitura.';
+    }
+    totalParesModelosBody.addEventListener('pointerover', event => {
+      const button = event.target.closest('.factor-model-hover');
+      if (button && !button.contains(event.relatedTarget)) factorShowPhoto(button,event);
+    });
+    totalParesModelosBody.addEventListener('pointermove', event => {
+      if (event.target.closest('.factor-model-hover') && factorPhotoPreview.style.display === 'block') factorPhotoPosition(event);
+    });
+    totalParesModelosBody.addEventListener('pointerout', event => {
+      const button = event.target.closest('.factor-model-hover');
+      if (button && !button.contains(event.relatedTarget)) factorPhotoPreview.style.display = 'none';
+    });
+    totalParesModelosBody.addEventListener('focusin', event => {
+      const button=event.target.closest('.factor-model-hover');
+      if(button) { const r=button.getBoundingClientRect(); factorShowPhoto(button,{clientX:r.left,clientY:r.bottom}); }
+    });
+    totalParesModelosBody.addEventListener('focusout',()=>factorPhotoPreview.style.display='none');
+    // A mesma prévia é usada em todos os modais que exibem um modelo.
+    modalBodyContent.addEventListener('pointerover', event => {
+      const button = event.target.closest('.factor-model-hover');
+      if (button && !button.contains(event.relatedTarget)) factorShowPhoto(button,event);
+    });
+    modalBodyContent.addEventListener('pointermove', event => {
+      if (event.target.closest('.factor-model-hover') && factorPhotoPreview.style.display === 'block') factorPhotoPosition(event);
+    });
+    modalBodyContent.addEventListener('pointerout', event => {
+      const button = event.target.closest('.factor-model-hover');
+      if (button && !button.contains(event.relatedTarget)) factorPhotoPreview.style.display = 'none';
+    });
+    modalBodyContent.addEventListener('focusin', event => {
+      const button = event.target.closest('.factor-model-hover');
+      if (button) { const r=button.getBoundingClientRect(); factorShowPhoto(button,{clientX:r.left,clientY:r.bottom}); }
+    });
+    modalBodyContent.addEventListener('focusout', event => {
+      if (event.target.closest('.factor-model-hover')) factorPhotoPreview.style.display='none';
+    });
+    modalBodyContent.addEventListener('click', event => {
+      const btn=event.target.closest('.factor-summary-model-detail');
+      if(!btn) return;
+      event.preventDefault();
+      factorPhotoPreview.style.display='none';
+      openResumoProductionDetail(btn.dataset.detailModel || btn.dataset.modelKey, Number.isFinite(Number(btn.dataset.detailCardIndex)) ? Number(btn.dataset.detailCardIndex) : null);
+    });
+    function factorIsCorteCompleto(t) {
+      const base = hasDate(t.cabedalData) && hasDate(t.forroData) && hasDate(t.aviamentoData);
+      const exigeTiras = t.tirasObrigatorias === true || t.temTiras === true;
+      return base && (!exigeTiras || hasDate(t.tirasData));
+    }
+    function factorModelCode(t) {
+      const linha = String(t.linha ?? '').trim();
+      const modelo = String(t.modelo ?? '').trim();
+      return linha && modelo ? `${linha}.${modelo}` : (modelo || linha || 'Sem modelo');
+    }
+    function factorPendingLabels(t) {
+      const p=[];
+      if(!factorIsCorteCompleto(t)) p.push('Corte');
+      if(!hasDate(t.dataSaidaCostura)) p.push('Costura');
+      if(!hasDate(t.dataEntradaMontagem)) p.push('Montagem');
+      return p;
+    }
+    function factorMatchesPendingStage(t, stage) {
+      if(stage==='corte') return !factorIsCorteCompleto(t);
+      if(stage==='costura') return !hasDate(t.dataSaidaCostura);
+      if(stage==='montagem') return !hasDate(t.dataEntradaMontagem);
+      return factorPendingLabels(t).length>0;
+    }
+    function factorStageTitle(stage){
+      return stage==='corte'?'Corte':stage==='costura'?'Costura':stage==='montagem'?'Montagem':'Produção';
+    }
+    function factorMakeClickableCell(tr, text, modelCode, stage='all', className='') {
+      const td=document.createElement('td');
+      td.textContent=text;
+      td.className=`factor-production-cell ${className}`.trim();
+      td.tabIndex=0;
+      td.dataset.modelCode=modelCode;
+      td.dataset.stage=stage;
+      td.title=`Clique para ver os talões com ${factorStageTitle(stage).toLowerCase()} pendente`;
+      tr.appendChild(td);
+      return td;
+    }
+    function totalParesSelectedStages(){
+      const stages=[];
+      if(totalParesFiltroCorte.checked) stages.push('corte');
+      if(totalParesFiltroCostura.checked) stages.push('costura');
+      if(totalParesFiltroMontagem.checked) stages.push('montagem');
+      return stages;
+    }
+    function totalParesRowMatchesFilters(t){
+      const stages=totalParesSelectedStages();
+      if(!stages.length) return true;
+      return stages.some(stage=>factorMatchesPendingStage(t,stage));
+    }
+    function renderTotalParesModelos(){
+      const baseRows=totalParesState.allRows.length ? totalParesState.allRows : getCurrentFilteredTaloes();
+      const stages=totalParesSelectedStages();
+      const taloes=baseRows.filter(totalParesRowMatchesFilters);
+      const modelos = new Map();
+      let totalPares = 0;
+      taloes.forEach(t => {
+        const codigo = factorModelCode(t);
+        const pares = Number(t.pares) || 0;
+        if (!modelos.has(codigo)) modelos.set(codigo, {
+          nome: codigo, codigo, pares:0, taloes:0,
+          pendencias: new Map(), atelieProducao: new Map(), costurados:0, faltaCosturar:0, montados:0, faltaMontar:0
+        });
+        const item = modelos.get(codigo);
+        item.pares += pares; item.taloes++; totalPares += pares;
+        const pendentes=[];
+        if(!hasDate(t.cabedalData)) pendentes.push('Cabedal');
+        if(!hasDate(t.forroData)) pendentes.push('Forro');
+        if(!hasDate(t.aviamentoData)) pendentes.push('Aviamentos');
+        if((t.tirasObrigatorias === true || t.temTiras === true) && !hasDate(t.tirasData)) pendentes.push('Tiras');
+        pendentes.forEach(nome=>item.pendencias.set(nome,(item.pendencias.get(nome)||0)+pares));
+        const atelie = String(t.idAtelieResponsavel || 'Sem ateliê').trim();
+        if(!item.atelieProducao.has(atelie)) item.atelieProducao.set(atelie,{costurados:0,faltaCosturar:0});
+        const ap=item.atelieProducao.get(atelie);
+        if(hasDate(t.dataSaidaCostura)){ item.costurados += pares; ap.costurados += pares; } else { item.faltaCosturar += pares; ap.faltaCosturar += pares; }
+        if(hasDate(t.dataEntradaMontagem)) item.montados += pares; else item.faltaMontar += pares;
+      });
+      totalParesState.visibleRows=taloes;
+      totalParesState.visibleModels=new Set(modelos.keys());
+      const fmt=n=>n.toLocaleString('pt-BR');
+      const fragment=document.createDocumentFragment();
+      [...modelos.values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR',{numeric:true})).forEach(item=>{
+        const tr=document.createElement('tr');
+        const modelTd=document.createElement('td');
+        modelTd.className='factor-production-cell';modelTd.tabIndex=0;modelTd.dataset.modelCode=item.codigo;modelTd.dataset.stage='all';
+        const btn=document.createElement('button');btn.type='button';btn.className='factor-model-hover';btn.textContent=item.nome;btn.dataset.modelKey=item.codigo;btn.title='Passe o mouse para consultar a foto';
+        modelTd.appendChild(btn);tr.appendChild(modelTd);
+        factorMakeClickableCell(tr,fmt(item.pares),item.codigo,'all');
+        factorMakeClickableCell(tr,fmt(item.taloes),item.codigo,'all');
+        const corteTd=document.createElement('td');
+        corteTd.className=`factor-production-cell ${item.pendencias.size?'factor-status-pending':'factor-status-ok'}`;corteTd.tabIndex=0;corteTd.dataset.modelCode=item.codigo;corteTd.dataset.stage='corte';
+        corteTd.textContent=item.pendencias.size ? [...item.pendencias].map(([nome,pares])=>`${nome}: ${fmt(pares)}`).join(' · ') : 'Completo';tr.appendChild(corteTd);
+        const sortedAtelies=[...item.atelieProducao.entries()].sort((a,b)=>a[0].localeCompare(b[0],'pt-BR'));
+        const atelieTd=document.createElement('td');atelieTd.className='factor-production-cell';atelieTd.tabIndex=0;atelieTd.dataset.modelCode=item.codigo;atelieTd.dataset.stage='all';
+        sortedAtelies.forEach(([nome])=>{const span=document.createElement('span');span.className='factor-atelier-line';span.textContent=nome;atelieTd.appendChild(span);});tr.appendChild(atelieTd);
+        const costTd=document.createElement('td');costTd.className='factor-production-cell';costTd.tabIndex=0;costTd.dataset.modelCode=item.codigo;costTd.dataset.stage='costura';
+        sortedAtelies.forEach(([,dados])=>{const span=document.createElement('span');span.className='factor-atelier-line';span.textContent=fmt(dados.costurados);costTd.appendChild(span);});tr.appendChild(costTd);
+        const faltaCostTd=document.createElement('td');faltaCostTd.className=`factor-production-cell ${item.faltaCosturar?'factor-status-pending':'factor-status-ok'}`;faltaCostTd.tabIndex=0;faltaCostTd.dataset.modelCode=item.codigo;faltaCostTd.dataset.stage='costura';
+        sortedAtelies.forEach(([,dados])=>{const span=document.createElement('span');span.className='factor-atelier-line';span.textContent=fmt(dados.faltaCosturar);faltaCostTd.appendChild(span);});tr.appendChild(faltaCostTd);
+        factorMakeClickableCell(tr,fmt(item.montados),item.codigo,'montagem');
+        factorMakeClickableCell(tr,fmt(item.faltaMontar),item.codigo,'montagem',item.faltaMontar?'factor-status-pending':'factor-status-ok');
+        fragment.appendChild(tr);
+      });
+      totalParesModelosBody.replaceChildren(fragment);
+      totalParesModelosTotal.textContent=fmt(totalPares);
+      totalParesTaloesTotal.textContent=fmt(taloes.length);
+      const filtroTxt=stages.length ? ` • filtro: ${stages.map(factorStageTitle).join(' + ')}` : ' • sem filtro de etapa';
+      totalParesResumo.textContent=`${fmt(modelos.size)} modelos • ${fmt(totalPares)} pares • ${fmt(taloes.length)} talões${filtroTxt}. Clique em uma célula para conferir as pendências.`;
+      totalParesToggleTodos.textContent=(totalParesFiltroCorte.checked&&totalParesFiltroCostura.checked&&totalParesFiltroMontagem.checked)?'Desmarcar todos':'Marcar todos';
+    }
     function showTotalParesModelosModal() {
       const taloes = getCurrentFilteredTaloes();
       if (!taloes.length) return;
-      const modelos = new Map();
-      let totalPares = 0;
+      totalParesState.allRows=[...taloes];
+      renderTotalParesModelos();
+      totalParesModal.style.display='block';
+      totalParesModal.scrollTop=0;
+      totalParesModal.querySelector('.modal-content').scrollTop=0;
+      totalParesModal.querySelector('.total-pares-table-wrapper').scrollTop=0;
+      totalParesCloseButton.focus({preventScroll:true});
+    }
 
-      taloes.forEach(t => {
-        const linha = String(t.linha ?? '').trim();
-        const modelo = String(t.modelo ?? '').trim();
-        // Linha e modelo formam a chave para nao misturar modelos de linhas distintas.
-        const key = JSON.stringify([linha, modelo]);
-        const pares = Number(t.pares) || 0;
-        if (!modelos.has(key)) {
-          const nome = modelo ? (linha ? `${linha}.${modelo}` : modelo)
-            : (linha ? `${linha} — Sem modelo` : 'Sem modelo');
-          modelos.set(key, { nome, pares: 0, taloes: 0 });
-        }
-        const item = modelos.get(key);
-        item.pares += pares;
-        item.taloes += 1;
-        totalPares += pares;
+    function totalParesRowsForStage(stage){
+      return totalParesState.visibleRows.filter(t=>factorMatchesPendingStage(t,stage));
+    }
+    function buildTotalParesSectorMessage(stage){
+      const rows=totalParesRowsForStage(stage);
+      return buildStandardPendingWhats(rows, stage, `Pendências de ${factorStageTitle(stage)}`);
+    }
+    async function copyTotalParesSector(stage,button){
+      const text=buildTotalParesSectorMessage(stage);
+      try{await navigator.clipboard.writeText(text);const old=button.textContent;button.textContent='Copiado!';setTimeout(()=>button.textContent=old,1200);}catch(_){openWhatsModal(`Pendências de ${factorStageTitle(stage)}`,text);}
+    }
+    function printTotalParesVisible(){
+      const rows=totalParesState.visibleRows;
+      if(!rows.length){alert('Nenhum talão sendo exibido para imprimir.');return;}
+      const groups=new Map();
+      rows.forEach(t=>{const rem=String(t.numeroRemessa||'Sem remessa');if(!groups.has(rem))groups.set(rem,[]);groups.get(rem).push(t);});
+      const cards=[];
+      [...groups.entries()].forEach(([remessa,lista])=>{
+        const ref=lista[0]||{}; const tipo=factorTipoClienteInfo(ref);
+        const body=lista.sort((a,b)=>(parseInt(a.numeroTalaoSequencial,10)||0)-(parseInt(b.numeroTalaoSequencial,10)||0)).map(t=>`<tr><td>${factorEscapeHtml(t.numeroTalaoSequencial||'')}</td><td>${factorEscapeHtml(factorModelCode(t))}</td><td>${factorEscapeHtml(t.corSapato||t.cor||'')}</td><td>${(Number(t.pares)||0).toLocaleString('pt-BR')}</td><td>${factorEscapeHtml(t.idAtelieResponsavel||'Sem ateliê')}</td><td>${factorEscapeHtml(factorCorteDetail(t))}</td><td>${hasDate(t.dataSaidaCostura)?'Concluída':'Pendente'}</td><td>${hasDate(t.dataEntradaMontagem)?'Concluída':'Pendente'}</td></tr>`).join('');
+        cards.push(`<section class="card"><div class="head ${tipo.cls}"><div><small>Remessa</small><b>${factorEscapeHtml(remessa)}</b></div><div><small>Data de corte</small><b>${factorEscapeHtml(factorDateDisplay(ref.dataCorte))}</b></div><div><small>Entrega</small><b>${factorEscapeHtml(factorDateDisplay(ref.dataEntrega))}</b></div><div><small>Tipo cliente</small><b>${factorEscapeHtml(tipo.label)}</b></div></div><table><thead><tr><th>Talão</th><th>Linha/Modelo</th><th>Cor</th><th>Pares</th><th>Ateliê</th><th>Corte</th><th>Costura</th><th>Montagem</th></tr></thead><tbody>${body}</tbody></table></section>`);
       });
+      const stages=totalParesSelectedStages().map(factorStageTitle).join(' + ')||'Todas';
+      const w=window.open('','_blank','width=1250,height=850'); if(!w){alert('O navegador bloqueou a janela de impressão. Libere pop-ups para esta página.');return;}
+      w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Total de pares - pendências</title><style>*{box-sizing:border-box}html,body{width:100%;height:auto;overflow:visible!important}body{font-family:Arial,sans-serif;margin:0;padding:12px;color:#111;font-size:9px}h1{font-size:17px;margin:0 0 3px}p{margin:0 0 10px;font-size:10px}.card{width:100%;margin:0 0 10px;break-inside:auto;page-break-inside:auto}.head{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr 1.3fr;padding:6px 9px;border:1px solid #c7d4e5;border-bottom:0;border-radius:8px 8px 0 0}.head small{display:block;font-size:6px;text-transform:uppercase;color:#64748b;font-weight:700}.head b{font-size:11px;color:#002b5c}.tipo-exportacao{background:#d9ebff}.tipo-cliente-especial{background:#ffd9ea}.tipo-estoque{background:#fff0a8}.tipo-amostra{background:#d6f6df}.tipo-mercado-interno{background:#fff}table{width:100%;margin:-1px 0 0;border-collapse:collapse;table-layout:fixed;border:1px solid #c7d4e5}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}th,td{padding:3px 4px;border-bottom:1px solid #dbe3ec;text-align:center;white-space:normal;overflow-wrap:anywhere;font-size:7.5px;line-height:1.15}th{background:#eef2f7;font-size:7px;text-transform:uppercase}@page{size:A4 landscape;margin:8mm}@media print{html,body{width:auto!important;height:auto!important;overflow:visible!important}body{padding:0!important}.card{overflow:visible!important}.head,table{max-width:none!important}}</style></head><body><h1>Total de pares por modelo</h1><p>Filtros de etapa: ${factorEscapeHtml(stages)} • ${rows.length.toLocaleString('pt-BR')} talões</p>${cards.join('')}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();
+    }
 
-      const fragment = document.createDocumentFragment();
-      [...modelos.values()]
-        .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { numeric: true }))
-        .forEach(item => {
-          const tr = document.createElement('tr');
-          [item.nome, item.pares.toLocaleString(), item.taloes.toLocaleString()].forEach(value => {
-            const td = document.createElement('td');
-            td.textContent = value;
-            tr.appendChild(td);
-          });
-          fragment.appendChild(tr);
+    function factorTipoClienteInfo(t) {
+      const raw=String(t?.tipoCliente||'').trim();
+      const norm=raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      if(norm.includes('export')) return {cls:'tipo-exportacao',label:'Exportação'};
+      if(norm.includes('cliente especial')) return {cls:'tipo-cliente-especial',label:'Cliente especial'};
+      if(norm.includes('estoque')) return {cls:'tipo-estoque',label:'Estoque'};
+      if(norm.includes('amostra')) return {cls:'tipo-amostra',label:'Amostra'};
+      return {cls:'tipo-mercado-interno',label:raw||'Mercado interno'};
+    }
+    function factorDateDisplay(v){ return hasDate(v) ? formatDateAbreviado(v) : ''; }
+    function factorCorteDetail(t){
+      const p=[];
+      if(!hasDate(t.cabedalData)) p.push('Cabedal');
+      if(!hasDate(t.forroData)) p.push('Forro');
+      if(!hasDate(t.aviamentoData)) p.push('Aviamentos');
+      if((t.tirasObrigatorias===true||t.temTiras===true)&&!hasDate(t.tirasData)) p.push('Tiras');
+      return p.length ? p.join(' / ') : 'Completo';
+    }
+    function openProductionDetailFromRows(modelCode, stage='all', suppliedRows=null, customLabel='', includeAtelie=null) {
+      const rows=(Array.isArray(suppliedRows) ? suppliedRows : getCurrentFilteredTaloes()
+        .filter(t=>factorModelCode(t)===modelCode && factorMatchesPendingStage(t,stage)))
+        .slice()
+        .sort((a,b)=>{
+          const r=String(a.numeroRemessa??'').localeCompare(String(b.numeroRemessa??''),'pt-BR',{numeric:true});
+          if(r) return r;
+          return (parseInt(a.numeroTalaoSequencial,10)||0)-(parseInt(b.numeroTalaoSequencial,10)||0);
         });
-      totalParesModelosBody.replaceChildren(fragment);
-      totalParesModelosTotal.textContent = totalPares.toLocaleString();
-      totalParesTaloesTotal.textContent = taloes.length.toLocaleString();
-      totalParesResumo.textContent = `${modelos.size.toLocaleString()} ${modelos.size === 1 ? 'modelo' : 'modelos'} • ${totalPares.toLocaleString()} pares • ${taloes.length.toLocaleString()} ${taloes.length === 1 ? 'talão' : 'talões'}`;
-      totalParesModal.style.display = 'block';
-      totalParesModal.scrollTop = 0;
-      totalParesModal.querySelector('.modal-content').scrollTop = 0;
-      totalParesModal.querySelector('.total-pares-table-wrapper').scrollTop = 0;
-      totalParesCloseButton.focus({ preventScroll: true });
+      const label=customLabel || factorStageTitle(stage);
+      const useAtelie = includeAtelie === null ? stage==='costura' : !!includeAtelie;
+      productionDetailState={modelCode,stage,rows,label,includeAtelie:useAtelie};
+      const total=rows.reduce((sum,t)=>sum+(Number(t.pares)||0),0);
+      productionDetailTitle.textContent=`${modelCode} • ${label}`;
+      productionDetailSummary.textContent=`${rows.length.toLocaleString('pt-BR')} talões • ${total.toLocaleString('pt-BR')} pares`;
+      if(!rows.length){ productionDetailBody.innerHTML='<div style="padding:24px;text-align:center">Nenhum talão encontrado neste resumo.</div>'; productionDetailModal.style.display='block'; return; }
+      const groups=new Map();
+      rows.forEach(t=>{ const rem=String(t.numeroRemessa||'Sem remessa'); if(!groups.has(rem)) groups.set(rem,[]); groups.get(rem).push(t); });
+      const html=[];
+      [...groups.entries()].forEach(([remessa,lista])=>{
+        const ref=lista[0]||{};
+        const tipo=factorTipoClienteInfo(ref);
+        const linhas=lista.map(t=>{
+          const pend=factorPendingLabels(t);
+          const corte=factorCorteDetail(t);
+          const costura=hasDate(t.dataSaidaCostura)?`✔ ${factorDateDisplay(t.dataSaidaCostura)}`:'Pendente';
+          const montagem=hasDate(t.dataEntradaMontagem)?`✔ ${factorDateDisplay(t.dataEntradaMontagem)}`:'Pendente';
+          return `<tr><td>${factorEscapeHtml(t.numeroTalaoSequencial||'')}</td><td class="production-model-cell">${factorEscapeHtml(factorModelCode(t))}</td><td>${factorEscapeHtml(t.corSapato||t.cor||'')}</td><td>${(Number(t.pares)||0).toLocaleString('pt-BR')}</td><td>${factorEscapeHtml(t.idAtelieResponsavel||'Sem ateliê')}</td><td>${factorEscapeHtml(corte)}</td><td>${factorEscapeHtml(costura)}</td><td>${factorEscapeHtml(montagem)}</td><td class="production-pending">${factorEscapeHtml(pend.join(' / '))}</td></tr>`;
+        }).join('');
+        html.push(`<section class="production-remessa-card ${tipo.cls}">
+          <div class="production-remessa-header ${tipo.cls}">
+            <div><span class="production-remessa-label">Remessa</span><span class="production-remessa-value">${factorEscapeHtml(remessa)}</span></div>
+            <div><span class="production-remessa-label">Data de corte</span><span class="production-remessa-value">${factorEscapeHtml(factorDateDisplay(ref.dataCorte))}</span></div>
+            <div><span class="production-remessa-label">Entrega</span><span class="production-remessa-value">${factorEscapeHtml(factorDateDisplay(ref.dataEntrega))}</span></div>
+            <div><span class="production-remessa-label">Tipo cliente</span><span class="production-remessa-value">${factorEscapeHtml(tipo.label)}</span></div>
+          </div>
+          <table class="production-remessa-table"><thead><tr><th>Talão</th><th>Linha/Modelo</th><th>Cor</th><th>Pares</th><th>Ateliê responsável</th><th>Corte</th><th>Costura</th><th>Montagem</th><th>Pendência</th></tr></thead><tbody>${linhas}</tbody></table>
+        </section>`);
+      });
+      productionDetailBody.innerHTML=html.join('');
+      productionDetailModal.style.display='block';
+      productionDetailModal.querySelector('.modal-content').scrollTop=0;
+      const wrap=productionDetailModal.querySelector('.production-detail-table-wrap'); if(wrap) wrap.scrollTop=0;
+    }
+    function openProductionDetail(modelCode, stage='all') {
+      openProductionDetailFromRows(modelCode, stage, null, `Pendências de ${factorStageTitle(stage)}`, stage==='costura');
+    }
+
+    function buildProductionDetailWhats(){
+      const {stage,rows,label}=productionDetailState;
+      let normalizedStage = stage;
+      if(normalizedStage === 'all'){
+        const l=String(label||'').toLowerCase();
+        if(l.includes('costura')) normalizedStage='costura';
+        else if(l.includes('mont')) normalizedStage='montagem';
+        else if(l.includes('corte')) normalizedStage='corte';
+      }
+      const title = String(label||'').startsWith('Pendências de') ? label : `Pendências de ${factorStageTitle(normalizedStage)}`;
+      return buildStandardPendingWhats(rows, normalizedStage, title);
+    }
+
+
+    function printProductionDetail(){
+      const {modelCode,stage,rows,label}=productionDetailState;
+      const stageName=label || factorStageTitle(stage);
+      const total=rows.reduce((sum,t)=>sum+(Number(t.pares)||0),0);
+      const groups=new Map();
+      rows.forEach(t=>{const rem=String(t.numeroRemessa||'Sem remessa');if(!groups.has(rem))groups.set(rem,[]);groups.get(rem).push(t);});
+      const cards=[];
+      [...groups.entries()].forEach(([remessa,lista])=>{
+        const ref=lista[0]||{};
+        const tipo=factorTipoClienteInfo(ref);
+        const linhas=lista.map(t=>{
+          const pend=factorPendingLabels(t);
+          const corte=factorCorteDetail(t);
+          const costura=hasDate(t.dataSaidaCostura)?`✔ ${factorDateDisplay(t.dataSaidaCostura)}`:'Pendente';
+          const montagem=hasDate(t.dataEntradaMontagem)?`✔ ${factorDateDisplay(t.dataEntradaMontagem)}`:'Pendente';
+          return `<tr><td>${factorEscapeHtml(t.numeroTalaoSequencial||'')}</td><td>${factorEscapeHtml(factorModelCode(t))}</td><td>${factorEscapeHtml(t.corSapato||t.cor||'')}</td><td>${(Number(t.pares)||0).toLocaleString('pt-BR')}</td><td>${factorEscapeHtml(t.idAtelieResponsavel||'Sem ateliê')}</td><td>${factorEscapeHtml(corte)}</td><td>${factorEscapeHtml(costura)}</td><td>${factorEscapeHtml(montagem)}</td><td class="pending">${factorEscapeHtml(pend.join(' / '))}</td></tr>`;
+        }).join('');
+        cards.push(`<section class="card ${tipo.cls}"><div class="head ${tipo.cls}"><div><small>Remessa</small><b>${factorEscapeHtml(remessa)}</b></div><div><small>Data de corte</small><b>${factorEscapeHtml(factorDateDisplay(ref.dataCorte))}</b></div><div><small>Entrega</small><b>${factorEscapeHtml(factorDateDisplay(ref.dataEntrega))}</b></div><div><small>Tipo cliente</small><b>${factorEscapeHtml(tipo.label)}</b></div></div><table><thead><tr><th>Talão</th><th>Linha/Modelo</th><th>Cor</th><th>Pares</th><th>Ateliê responsável</th><th>Corte</th><th>Costura</th><th>Montagem</th><th>Pendência</th></tr></thead><tbody>${linhas}</tbody></table></section>`);
+      });
+      const w=window.open('','_blank','width=1200,height=800');
+      if(!w){alert('O navegador bloqueou a janela de impressão. Libere pop-ups para esta página.');return;}
+      w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Pendências ${factorEscapeHtml(modelCode)}</title><style>
+        *{box-sizing:border-box}html,body{width:100%;height:auto;overflow:visible!important}body{font-family:Arial,sans-serif;color:#111;margin:0;padding:12px;font-size:9px}h1{font-size:17px;margin:0 0 4px}p{font-size:10px;margin:0 0 10px}.card{width:100%;margin:0 0 10px;break-inside:auto;page-break-inside:auto}.head{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr 1.3fr;gap:8px;padding:6px 10px;border:1px solid #c7d4e5;border-bottom:0;border-radius:9px 9px 0 0}.head small{display:block;font-size:6.5px;text-transform:uppercase;color:#64748b;font-weight:700;margin-bottom:2px}.head b{display:block;font-size:11px;color:#002b5c}.tipo-exportacao{background:#d9ebff;border-color:#7fb2ef}.tipo-cliente-especial{background:#ffd9ea;border-color:#ef8db9}.tipo-estoque{background:#fff0a8;border-color:#e6c94e}.tipo-amostra{background:#d6f6df;border-color:#79ca8d}.tipo-mercado-interno{background:#fff;border-color:#c7d4e5}table{width:100%;margin:-1px 0 0;border-collapse:collapse;table-layout:fixed;border:1px solid #c7d4e5}thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}th,td{padding:3px 4px;text-align:center;border-bottom:1px solid #dbe3ec;white-space:normal;overflow-wrap:anywhere;font-size:7.5px;line-height:1.15}th{font-size:7px;text-transform:uppercase;background:#eef2f7}.tipo-exportacao+table th{background:#d9ebff}.tipo-cliente-especial+table th{background:#ffd9ea}.tipo-estoque+table th{background:#fff0a8}.tipo-amostra+table th{background:#d6f6df}.pending{font-weight:700;color:#a53c00}@page{size:A4 landscape;margin:8mm}@media print{html,body{width:auto!important;height:auto!important;overflow:visible!important}body{padding:0!important}.card{overflow:visible!important}.head,table{max-width:none!important}}
+      </style></head><body><h1>${factorEscapeHtml(modelCode)} • ${factorEscapeHtml(stageName)}</h1><p>${rows.length} talões • ${total.toLocaleString('pt-BR')} pares pendentes</p>${cards.join('')||'<p>Nenhuma pendência.</p>'}<script>window.onload=()=>window.print()<\/script></body></html>`);
+      w.document.close();
     }
 
     function closeTotalParesModelosModal() {
       totalParesModal.style.display = 'none';
+      factorPhotoPreview.style.display = 'none';
       const card = document.getElementById('totalParesButton');
       if (card && card.getClientRects().length) card.focus({ preventScroll: true });
     }
@@ -2196,6 +2610,36 @@
       if (event.target.closest('#totalParesButton')) showTotalParesModelosModal();
     });
     totalParesCloseButton.addEventListener('click', closeTotalParesModelosModal);
+    totalParesModelosBody.addEventListener('click', event => {
+      const cell=event.target.closest('td.factor-production-cell');
+      if(!cell) return;
+      if(event.target.closest('.factor-model-hover')) event.preventDefault();
+      openProductionDetail(cell.dataset.modelCode,cell.dataset.stage||'all');
+    });
+    totalParesModelosBody.addEventListener('keydown', event => {
+      if(event.key!=='Enter' && event.key!==' ') return;
+      const cell=event.target.closest('td.factor-production-cell');
+      if(!cell) return;
+      event.preventDefault();openProductionDetail(cell.dataset.modelCode,cell.dataset.stage||'all');
+    });
+    productionDetailClose.addEventListener('click',()=>productionDetailModal.style.display='none');
+    productionDetailModal.addEventListener('click',e=>{if(e.target===productionDetailModal)productionDetailModal.style.display='none';});
+    productionDetailPrint.addEventListener('click',printProductionDetail);
+    productionDetailWhats.addEventListener('click',async()=>{
+      const text=buildProductionDetailWhats();
+      try{await navigator.clipboard.writeText(text);productionDetailWhats.textContent='Copiado!';setTimeout(()=>productionDetailWhats.textContent='Copiar para WhatsApp',1200);}
+      catch(_){openWhatsModal('Pendências para WhatsApp',text);}
+    });
+    [totalParesFiltroCorte,totalParesFiltroCostura,totalParesFiltroMontagem].forEach(el=>el.addEventListener('change',renderTotalParesModelos));
+    totalParesToggleTodos.addEventListener('click',()=>{
+      const all=totalParesFiltroCorte.checked&&totalParesFiltroCostura.checked&&totalParesFiltroMontagem.checked;
+      totalParesFiltroCorte.checked=totalParesFiltroCostura.checked=totalParesFiltroMontagem.checked=!all;
+      renderTotalParesModelos();
+    });
+    totalParesPrint.addEventListener('click',printTotalParesVisible);
+    totalParesMsgCorte.addEventListener('click',()=>copyTotalParesSector('corte',totalParesMsgCorte));
+    totalParesMsgCostura.addEventListener('click',()=>copyTotalParesSector('costura',totalParesMsgCostura));
+    totalParesMsgMontagem.addEventListener('click',()=>copyTotalParesSector('montagem',totalParesMsgMontagem));
     totalParesModal.addEventListener('click', event => {
       if (event.target === totalParesModal) closeTotalParesModelosModal();
     });
@@ -2348,7 +2792,7 @@
         tr.innerHTML = `
           <td>${t.numeroTalaoSequencial||''}</td>
           <td>${t.linha||''}</td>
-          <td>${t.modelo||''}</td>
+          <td>${factorModelButtonHtml(t.modelo||'', `${t.linha||''}.${t.modelo||''}`)}</td>
           <td>${t.pares||''}</td>
           <td>${t.corSapato||''}</td>
           <td>${t.dataCorte? ` ${formatDateAbreviado(t.dataCorte)}` : ''}</td>
@@ -2376,6 +2820,24 @@
         return true;
     }
     
+    // Contexto do resumo atual para abrir o mesmo detalhamento usado no Total de Pares
+    let resumoProductionContext = { stage:'all', rows:[], label:'Produção', includeAtelie:false, cardRows:[] };
+    function setResumoProductionContext(stage, rows, label, includeAtelie=false) {
+        resumoProductionContext = { stage, rows: Array.isArray(rows) ? rows.slice() : [], label, includeAtelie, cardRows:[] };
+    }
+    function openResumoProductionDetail(modelCode, cardIndex=null) {
+        const ctx = resumoProductionContext || {stage:'all',rows:[],label:'Produção',includeAtelie:false,cardRows:[]};
+        const sourceRows = cardIndex !== null && Array.isArray(ctx.cardRows?.[cardIndex]) ? ctx.cardRows[cardIndex] : ctx.rows;
+        const rows = sourceRows
+            .filter(t => factorModelCode(t) === modelCode)
+            .sort((a,b)=>{
+                const r=String(a.numeroRemessa??'').localeCompare(String(b.numeroRemessa??''),'pt-BR',{numeric:true});
+                if(r) return r;
+                return (parseInt(a.numeroTalaoSequencial,10)||0)-(parseInt(b.numeroTalaoSequencial,10)||0);
+            });
+        openProductionDetailFromRows(modelCode, ctx.stage, rows, ctx.label, ctx.includeAtelie);
+    }
+
     // Função genérica para exibir o resumo em formato de cards
     function displayResumoCards(title, cardData, grandTotalOverride = null) {
         modalTitle.textContent = title;
@@ -2391,14 +2853,21 @@
         if (cardData.length === 0 || !hasCardItems) {
             htmlContent = `<p style="text-align:center; font-size:1.1em; padding:15px;">Nenhum item encontrado para o resumo com as linhas selecionadas.</p>`;
         } else {
-            cardData.forEach(card => {
+            resumoProductionContext.cardRows = cardData.map(card => Array.isArray(card.detailRows) ? card.detailRows.slice() : resumoProductionContext.rows.slice());
+            cardData.forEach((card, cardIndex) => {
                 const models = card.items;
                 const sortedModels = Object.keys(models).sort((a, b) => a.localeCompare(b));
                 let modelListHtml = '<div class="model-list">';
                 let totalParesCard = 0;
 
                 sortedModels.forEach(model => {
-                    modelListHtml += `<p><span>${model}</span><span>${models[model].toLocaleString()} pares</span></p>`;
+                    let labelHtml;
+                    if (String(model).includes('.')) {
+                        labelHtml = factorModelButtonHtml(model, model).replace('class="factor-model-hover"', 'class="factor-model-hover factor-summary-model-detail" data-detail-model="'+factorEscapeHtml(model)+'" data-detail-card-index="'+cardIndex+'"');
+                    } else {
+                        labelHtml = factorEscapeHtml(model);
+                    }
+                    modelListHtml += `<p><span>${labelHtml}</span><span>${models[model].toLocaleString()} pares</span></p>`;
                     totalParesCard += models[model];
                 });
                 
@@ -2484,11 +2953,13 @@
             {
                 title: 'Falta Cortar por modelo',
                 items: faltamML,
+                detailRows: faltamCorte,
                 cardColor: '#bdbdbd' // Vermelho/Rosa Claro
             },
             {
                 title: 'Flata Cortar por Linha',
                 items: faltamL,
+                detailRows: faltamCorte,
                 cardColor: '#bdbdbd' // Amarelo Suave
             }
         ];
@@ -2497,6 +2968,7 @@
         const appliedFilters = getAppliedFiltersText();
         const modalTitleText = `Pares no Corte ${appliedFilters}`;
 
+        setResumoProductionContext('corte', faltamCorte, 'Pendências de Corte', false);
         displayResumoCards(modalTitleText, cardData, totalFaltando); 
     }
 
@@ -2525,6 +2997,7 @@
             return {
                 title: `${atelie}`, 
                 items: groupedByAtelie[atelie],
+                detailRows: faltamCosturar.filter(t => (t.idAtelieResponsavel || 'Sem Atelier') === atelie),
                 cardColor: '#bdbdbd' // Amarelo Padrão para Costura/Alerta
             };
         });
@@ -2533,6 +3006,7 @@
         const appliedFilters = getAppliedFiltersText();
         const modalTitleText = `Resumo: Pares Faltando na Costura (por Ateliê) ${appliedFilters}`;
 
+        setResumoProductionContext('costura', faltamCosturar, 'Pendências de Costura', true);
         displayResumoCards(modalTitleText, cardData, totalFaltando);
     }
 
@@ -2556,9 +3030,11 @@
         const cardData = Object.keys(groupedByAtelie).sort((a,b)=>a.localeCompare(b)).map(atelie => ({
             title: atelie,
             items: groupedByAtelie[atelie],
+            detailRows: prontoCostura.filter(t => (t.idAtelieResponsavel || 'Sem Atelier') === atelie),
             cardColor: '#bdbdbd'
         }));
 
+        setResumoProductionContext('costura', prontoCostura, 'Pronto Costura', true);
         displayResumoCards(`Pronto Costura: saiu do ateliê e não entrou na distribuição ${getAppliedFiltersText()}`, cardData, totalPronto);
     }
 
@@ -2570,10 +3046,11 @@
         const porLinha = groupAndSum(faltaMontar, t => t.linha);
 
         const cardData = [
-            { title: 'Falta montar por modelo', items: porModelo, cardColor: '#bdbdbd' },
-            { title: 'Falta montar por linha', items: porLinha, cardColor: '#bdbdbd' }
+            { title: 'Falta montar por modelo', items: porModelo, detailRows: faltaMontar, cardColor: '#bdbdbd' },
+            { title: 'Falta montar por linha', items: porLinha, detailRows: faltaMontar, cardColor: '#bdbdbd' }
         ];
 
+        setResumoProductionContext('montagem', faltaMontar, 'Falta Montar', false);
         displayResumoCards(`Falta Montar: tudo que ainda não entrou na montagem ${getAppliedFiltersText()}`, cardData, totalFaltaMontar);
     }
 
@@ -2611,21 +3088,25 @@
             {
                 title: 'Na Fabrica por modelo',
                 items: disponivelML,
+                detailRows: disponivelTaloes,
                 cardColor: '#bdbdbd' // Verde Claro (Pronto/Estoque)
             },
             {
                 title: 'Talonado por Modelo',
                 items: talonadoML,
+                detailRows: talonadoTaloes,
                 cardColor: '#bdbdbd' // Laranja Claro (Em Etapa Chave)
             },
             {
                 title: 'Na Fabrica por Linha',
                 items: disponivelL,
+                detailRows: disponivelTaloes,
                 cardColor: '#bdbdbd' // Azul Claro (Resumo Linha)
             },
             {
                 title: 'Talonado por Linha', 
-                items: talonadoL,         
+                items: talonadoL,
+                detailRows: talonadoTaloes,         
                 cardColor: '#bdbdbd'      // Rosa Claro (Destaque para o subconjunto)
             }
         ];
@@ -2634,6 +3115,7 @@
         const appliedFilters = getAppliedFiltersText();
         const modalTitleText = `Giro fabrica: ${appliedFilters}`;
 
+        setResumoProductionContext('montagem', disponivelTaloes, 'Giro Fábrica', false);
         displayResumoCards(modalTitleText, cardData, totalDisponivel); 
     }
     
