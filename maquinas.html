@@ -1,0 +1,344 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Controle de Máquinas | Factor</title><style>
+:root{font-family:Inter,Arial,sans-serif;color:#172b42;background:#f2f5f9}*{box-sizing:border-box}body{margin:0}header{background:#142d4b;color:white;padding:19px 4%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}h1{font-size:23px;margin:0}header small{color:#c4d6e8}main{max-width:1450px;margin:auto;padding:24px 3%}.toolbar,.cards,.filters{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}.card,.panel{background:white;border:1px solid #dce5ee;border-radius:12px;padding:18px;box-shadow:0 2px 8px #172b4210}.card{flex:1;min-width:165px}.card strong{font-size:28px;display:block;margin-top:7px}.card span{color:#60738a;font-size:13px}button,.btn{background:#1769a8;color:white;border:0;padding:11px 15px;border-radius:8px;cursor:pointer;font-weight:600}button.secondary{background:#e8eef5;color:#213c56}button.danger{background:#a12c37}input,select,textarea{border:1px solid #cbd6e2;border-radius:7px;padding:10px;width:100%;font:inherit;background:white}label{font-size:13px;font-weight:600;color:#46596c;display:block;margin:9px 0 5px}.filters input{flex:3;min-width:210px}.filters select{flex:1;min-width:160px}.machine-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}.machine-card{background:#fff;border:1px solid #dce5ee;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px #172b4210;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;min-width:0}.machine-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px #172b4220;border-color:#aac4dc}.machine-photo-wrap{height:175px;background:#edf2f7;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.machine-photo{width:100%;height:100%;object-fit:cover;display:block}.machine-photo-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8192a3;background:linear-gradient(135deg,#eef3f8,#e4ebf2);gap:8px}.machine-photo-placeholder b{font-size:34px;line-height:1}.machine-card-body{padding:14px 15px 15px}.machine-name{font-size:14px;font-weight:700;line-height:1.32;min-height:37px;color:#173451;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.machine-meta{display:grid;grid-template-columns:1fr;gap:7px;font-size:13px;color:#5e7185}.machine-meta-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.machine-meta-row span:first-child{color:#8190a0}.machine-meta-row strong{color:#243f59;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68%}.machine-card .tag{font-size:11px;padding:4px 7px}.tag{background:#e8f4ff;color:#125c91;padding:5px 8px;border-radius:20px;white-space:nowrap}.muted{color:#7a8c9d}dialog{border:0;border-radius:14px;padding:0;width:min(920px,96vw);max-height:92vh;box-shadow:0 15px 60px #142d4b55}dialog::backdrop{background:#142d4b99}.modalhead{background:#142d4b;color:white;padding:17px 22px;display:flex;justify-content:space-between;align-items:center}.modalhead button{background:transparent;font-size:24px}.modalbody{padding:20px;overflow:auto;max-height:75vh}.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 14px}.wide{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}.tabs{display:flex;gap:6px;border-bottom:1px solid #ddd;margin:18px 0}.tabs button{background:transparent;color:#496078;border-radius:0}.tabs button.active{border-bottom:3px solid #1769a8;color:#1769a8}.thumb{width:95px;height:80px;object-fit:cover;border-radius:8px;margin:5px;cursor:pointer}.history{padding:12px;border:1px solid #d6dde5;margin:10px 0;background:#fff}.history p{margin:5px 0}.summary-title{border:1px solid #222;padding:5px 8px;margin-bottom:10px;font-weight:600}.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-bottom:10px}.summary-cell{border:1px solid #222;padding:4px;text-align:center;min-height:48px}.summary-cell b{display:block;font-weight:500;background:#e0e0e0;margin:-4px -4px 4px;padding:4px}.summary-actions{display:grid;grid-template-columns:1fr 1fr;gap:18%;margin:10px 0 22px}.summary-actions button{background:#4e95cf;border:1px solid #173f60;border-radius:0;color:#061523}.sectionbar{background:#e0e0e0;border:1px solid #222;text-align:center;padding:4px;margin:16px 0 10px}.editbox{border:1px solid #d7e0e8;padding:12px;margin-bottom:12px;background:#f9fbfd}.editbox.hidden{display:none}.history-actions{margin-top:8px;display:flex;gap:6px}.history-actions button{padding:6px 9px;font-size:12px}.compact-modal{width:min(760px,96vw)}.notice{font-size:13px;color:#5e7185;margin:8px 0}.import-status{background:#fff7dc;border:1px solid #efd98a;border-radius:8px;padding:10px 12px;margin:10px 0;font-size:13px}.import-status.ok{background:#eaf8ef;border-color:#a8d8b6}.import-status.err{background:#fdeeee;border-color:#e0abab}.hidden{display:none!important}@media(max-width:700px){.fields{grid-template-columns:1fr}.card{min-width:130px}main{padding:12px}.summary-grid{grid-template-columns:1fr}.summary-actions{gap:10px}.machine-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.machine-photo-wrap{height:120px}.machine-card-body{padding:10px}.machine-name{font-size:12px;min-height:32px}.machine-meta{font-size:11px}}@media(max-width:430px){.machine-grid{grid-template-columns:1fr}.machine-photo-wrap{height:180px}}
+</style></head><body><header><div><h1>Controle de Máquinas</h1><small>Patrimônio, empréstimos, devoluções e documentos</small></div><div id="userLabel">Conectando...</div></header><main><div class="cards" id="cards"></div><div class="toolbar"><button id="newBtn">+ Cadastrar máquina</button><button class="secondary" id="reloadBtn">Atualizar</button><button class="secondary" id="importBtn">Importar planilhas (JSON)</button><input class="hidden" type="file" id="importFile" accept=".json"><button class="secondary" id="importFotosBtn">Importar fotos em massa (ZIP)</button><input class="hidden" type="file" id="importFotosFile" accept=".zip,application/zip"><button class="secondary" id="exportBtn">Exportar CSV</button></div><div id="importFotosStatus" class="import-status hidden"></div><div class="panel"><div class="filters"><input id="search" placeholder="Buscar NP, máquina, proprietário, ateliê ou nota"><select id="filter"><option value="">Todos os status</option><option>Ativa</option><option>Emprestada ao ateliê</option><option>Devolvida</option><option>A conferir</option></select><select id="originFilter"><option value="">Todos os proprietários</option></select><select id="localFilter"><option value="">Todos os locais</option></select></div><div id="machineGrid" class="machine-grid"></div><p id="count" class="notice"></p></div></main>
+<dialog id="modal" class="compact-modal"><div class="modalhead"><strong id="modalTitle">Controle da máquina</strong><button id="closeBtn">×</button></div><div class="modalbody">
+<div id="machineSummary">
+  <div class="summary-title" id="sumDescricao">Máquina</div>
+  <div class="summary-grid">
+    <div class="summary-cell"><b>NP</b><span id="sumNp"></span></div>
+    <div class="summary-cell"><b>Nota proprietário</b><span id="sumNotaOrigem"></span></div>
+    <div class="summary-cell"><b>Data contrato</b><span id="sumDataContrato"></span></div>
+    <div class="summary-cell"><b>Local atual</b><span id="sumLocal"></span></div>
+    <div class="summary-cell"><b>Nota Factor</b><span id="sumNotaFactor"></span></div>
+    <div class="summary-cell"><b>Data empréstimo</b><span id="sumDataEmprestimo"></span></div>
+  </div>
+  <div class="summary-actions"><button id="showFotosBtn">Fotos</button><button id="showNotasBtn">Notas</button></div>
+  <div class="actions"><button id="toggleEditBtn" class="secondary">Editar dados</button><button id="toggleMovBtn">+ Nova movimentação</button></div>
+</div>
+
+<div id="editBox" class="editbox hidden"><div class="sectionbar">Editar cadastro</div><div class="fields"><div><label>NP (patrimônio) *</label><input id="np"></div><div><label>NP oficial (com zeros)</label><input id="npOficial"></div><div><label>Proprietário *</label><input id="proprietario"></div><div class="wide"><label>Descrição da máquina *</label><input id="descricao"></div><div><label>Data de recebimento</label><input type="date" id="dataEntrada"></div><div><label>Data contrato</label><input type="date" id="dataContrato"></div><div><label>Nota fiscal de origem</label><input id="notaOrigem"></div><div><label>Nota Factor</label><input id="notaFactor"></div><div><label>Data nota Factor / empréstimo</label><input type="date" id="dataFactor"></div><div><label>Local atual</label><input id="local"></div><div><label>Status</label><select id="status"><option>Ativa</option><option>Emprestada ao ateliê</option><option>Devolvida</option><option>A conferir</option></select></div><div><label>Prestador (lista Beira Rio)</label><input id="prestador"></div><div><label>NF conferência</label><input id="nfConferencia"></div><div class="wide"><label>Observações</label><textarea id="observacoes" rows="3"></textarea></div></div><div class="actions"><button id="saveBtn">Salvar alterações</button><button id="cancelEditBtn" class="secondary">Cancelar</button></div></div>
+
+<div id="movBox" class="editbox hidden"><div class="sectionbar" id="movFormTitle">Registrar movimentação</div><input type="hidden" id="movEditId"><div class="fields"><div><label>Tipo *</label><select id="movTipo"><option>Recebimento do proprietário</option><option>Empréstimo ao ateliê</option><option>Retorno do ateliê</option><option>Transferência interna</option><option>Devolução ao proprietário</option><option>Ajuste de localização</option></select></div><div><label>Data *</label><input type="date" id="movData"></div><div><label>Origem</label><input id="movOrigem"></div><div><label>Ateliê / destino *</label><input id="movDestino" list="ateliesList"><datalist id="ateliesList"></datalist></div><div><label>Número da nota</label><input id="movNota"></div><div><label>Responsável</label><input id="movResponsavel"></div><div class="wide"><label>Observação</label><textarea id="movObs"></textarea></div></div><div class="actions"><button id="movSave">Salvar movimentação</button><button id="cancelMovBtn" class="secondary">Cancelar</button></div></div>
+
+<div id="docsBox" class="editbox hidden"><div class="sectionbar" id="docsTitle">Fotos e notas</div><p class="notice">PDF, JPG, PNG ou WebP. Limite de 15 MB por arquivo.</p><div class="fields"><div><label>Tipo de documento</label><select id="docTipo"><option>Foto da máquina</option><option>Nota fiscal de recebimento</option><option>Nota fiscal de empréstimo</option><option>Nota fiscal de devolução</option><option>Outro documento</option></select></div><div><label>Arquivo</label><input id="docFile" type="file" accept=".pdf,image/jpeg,image/png,image/webp"></div><div><label>Número da nota / descrição</label><input id="docDescricao"></div></div><div class="actions"><button id="uploadBtn">Anexar arquivo</button><button id="closeDocsBtn" class="secondary">Fechar</button></div><div id="documents"></div></div>
+
+<div class="sectionbar">Histórico</div><div id="history"></div>
+</div></dialog>
+<script src="navegacao.js"></script><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js';import{getAuth,onAuthStateChanged}from'https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js';import{getFirestore,collection,doc,getDocs,getDoc,setDoc,addDoc,updateDoc,deleteDoc,serverTimestamp,writeBatch}from'https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js';import{getStorage,ref,uploadBytesResumable,getDownloadURL}from'https://www.gstatic.com/firebasejs/10.4.0/firebase-storage.js';
+const firebaseConfig={apiKey:'AIzaSyCLb8BeZODM8vMynaIXINx4AN_P8snTBk8',authDomain:'sistemataloes.firebaseapp.com',projectId:'sistemataloes',storageBucket:'sistemataloes.firebasestorage.app',messagingSenderId:'684534379685',appId:'1:684534379685:web:ac0f831c26991ac059094c'};const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app),storage=getStorage(app);let user=null,items=[],selected=null;const coverPhotos=new Map();const $=id=>document.getElementById(id),fields=['np','npOficial','proprietario','descricao','dataEntrada','dataContrato','notaOrigem','notaFactor','dataFactor','local','status','prestador','nfConferencia','observacoes'];const normalize=s=>String(s||'').replace(/^0+/,'')||'0';const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const today=()=>new Date().toLocaleDateString('en-CA');const error=e=>{console.error(e);alert('Não foi possível concluir: '+(e.message||e))};
+
+const MAX_SOURCE_BYTES=25*1024*1024,MAX_PHOTO_BYTES=5*1024*1024;
+function loadBrowserImage(file){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Não foi possível abrir a imagem. Use JPG, PNG ou WebP.'))};img.src=url})}
+async function optimizePhoto(file){
+  if(!file||!String(file.type||'').startsWith('image/'))throw new Error('Arquivo de imagem inválido.');
+  if(file.size>MAX_SOURCE_BYTES)throw new Error('A foto original deve ter no máximo 25 MB.');
+  const image=await loadBrowserImage(file),w=image.naturalWidth,h=image.naturalHeight;
+  if(!w||!h)throw new Error('Não foi possível identificar as dimensões da foto.');
+  const factor=Math.min(1,1700/Math.max(w,h)),canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.round(w*factor));canvas.height=Math.max(1,Math.round(h*factor));
+  const ctx=canvas.getContext('2d');if(!ctx)throw new Error('O navegador não conseguiu preparar a imagem.');
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/jpeg',.83));canvas.width=0;canvas.height=0;
+  if(!blob)throw new Error('Não foi possível compactar a foto.');
+  if(blob.size>MAX_PHOTO_BYTES)throw new Error('A imagem compactada ultrapassou 5 MB.');
+  return blob;
+}
+function uploadWithProgress(storageReference,blob,metadata,onProgress){
+  return new Promise((resolve,reject)=>{const task=uploadBytesResumable(storageReference,blob,metadata);task.on('state_changed',snap=>{const pct=snap.totalBytes?Math.round((snap.bytesTransferred/snap.totalBytes)*100):0;if(onProgress)onProgress(pct)},reject,resolve)})
+}
+function randomStorageName(){return(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`}
+onAuthStateChanged(auth,async u=>{if(!u){$('userLabel').textContent='Faça login pelo sistema';return}user=u;$('userLabel').textContent=u.email;await load()});
+function photoTimeValue(x){
+  try{if(x?.criadoEm?.toMillis)return x.criadoEm.toMillis()}catch(_e){}
+  try{if(x?.atualizadoEm?.toMillis)return x.atualizadoEm.toMillis()}catch(_e){}
+  const n=Number(x?.criadoEmCliente||x?.atualizadoEmCliente||0);
+  return Number.isFinite(n)?n:0;
+}
+async function findLatestPhotoForMachine(maquina){
+  if(maquina.fotoCapa){coverPhotos.set(maquina.id,maquina.fotoCapa);return}
+  try{
+    const snap=await getDocs(collection(db,'Maquinas',maquina.id,'Documentos'));
+    const fotos=snap.docs.map((d,i)=>({id:d.id,_ord:i,...d.data()})).filter(x=>String(x.mime||'').startsWith('image/')&&x.url);
+    if(!fotos.length)return;
+    fotos.sort((a,b)=>{const dt=photoTimeValue(b)-photoTimeValue(a);return dt||b._ord-a._ord});
+    const principal=fotos[0];
+    coverPhotos.set(maquina.id,principal.url);
+    // Retrocompatibilidade: fotos antigas passam a ter uma capa persistente.
+    try{
+      await updateDoc(doc(db,'Maquinas',maquina.id),{
+        fotoCapa:principal.url,
+        fotoCapaDocumentoId:principal.id,
+        fotoCapaAtualizadaEm:serverTimestamp()
+      });
+      maquina.fotoCapa=principal.url;
+      maquina.fotoCapaDocumentoId=principal.id;
+    }catch(_e){/* leitura continua funcionando mesmo sem permissão de escrita */}
+  }catch(e){console.warn(`Não foi possível localizar foto da máquina ${maquina.id}:`,e)}
+}
+async function loadCoverPhotos(){
+  coverPhotos.clear();
+  const fila=[...items];
+  const CONCORRENCIA=10;
+  let pos=0;
+  async function worker(){
+    while(true){
+      const i=pos++;
+      if(i>=fila.length)return;
+      await findLatestPhotoForMachine(fila[i]);
+    }
+  }
+  await Promise.all(Array.from({length:Math.min(CONCORRENCIA,fila.length||1)},()=>worker()));
+}
+async function load(){try{let snap=await getDocs(collection(db,'Maquinas'));items=snap.docs.map(d=>({...d.data(),id:d.id}));render();await loadCoverPhotos();render()}catch(e){error(e)}}
+function machineCardHtml(x){
+  const foto=coverPhotos.get(x.id)||x.fotoCapa||'';
+  const fotoHtml=foto?`<img class="machine-photo" src="${safe(foto)}" alt="Foto ${safe(x.descricao||x.np)}" loading="lazy">`:`<div class="machine-photo-placeholder"><b>⚙</b><span>Sem foto</span></div>`;
+  return `<article class="machine-card" data-open="${safe(x.id)}" tabindex="0" role="button" aria-label="Abrir ${safe(x.descricao||'máquina')}">
+    <div class="machine-photo-wrap">${fotoHtml}</div>
+    <div class="machine-card-body">
+      <div class="machine-name">${safe(x.descricao||'Máquina sem descrição')}</div>
+      <div class="machine-meta">
+        <div class="machine-meta-row"><span>NP</span><strong>${safe(x.npOficial||x.np||x.id)}</strong></div>
+        <div class="machine-meta-row"><span>Local atual</span><strong>${safe(x.local||'Não informado')}</strong></div>
+        <div class="machine-meta-row"><span>Status</span><span class="tag">${safe(x.status||'A conferir')}</span></div>
+      </div>
+    </div>
+  </article>`;
+}
+function render(){let q=$('search').value.toLowerCase(),f=$('filter').value,o=$('originFilter').value,l=$('localFilter').value;let owners=[...new Set(items.map(x=>x.proprietario).filter(Boolean))].sort();let locals=[...new Set(items.map(x=>x.local).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));$('originFilter').innerHTML='<option value="">Todos os proprietários</option>'+owners.map(x=>`<option ${x===o?'selected':''}>${safe(x)}</option>`).join('');$('localFilter').innerHTML='<option value="">Todos os locais</option>'+locals.map(x=>`<option ${x===l?'selected':''}>${safe(x)}</option>`).join('');let filtered=items.filter(x=>(!f||x.status===f)&&(!o||x.proprietario===o)&&(!l||x.local===l)&&[x.np,x.npOficial,x.descricao,x.proprietario,x.local,x.notaOrigem,x.notaFactor].join(' ').toLowerCase().includes(q));$('cards').innerHTML=[['Total cadastradas',items.length],['Na Factor',items.filter(x=>x.status==='Ativa').length],['Nos ateliês',items.filter(x=>x.status==='Emprestada ao ateliê').length],['Devolvidas',items.filter(x=>x.status==='Devolvida').length],['A conferir',items.filter(x=>x.status==='A conferir').length]].map(([a,b])=>`<div class="card"><span>${a}</span><strong>${b}</strong></div>`).join('');$('machineGrid').innerHTML=filtered.length?filtered.map(machineCardHtml).join(''):'<div class="notice">Nenhuma máquina encontrada com os filtros selecionados.</div>';$('count').textContent=`${filtered.length} máquinas exibidas de ${items.length}`;document.querySelectorAll('[data-open]').forEach(el=>{el.onclick=()=>openMachine(el.dataset.open);el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openMachine(el.dataset.open)}}})}
+$('closeBtn').onclick=()=>$('modal').close();$('newBtn').onclick=()=>openMachine(null);$('reloadBtn').onclick=load;$('search').oninput=render;$('filter').onchange=render;$('originFilter').onchange=render;$('localFilter').onchange=render;
+function formatBr(d){if(!d)return '';let [y,m,day]=String(d).split('-');return day&&m&&y?`${day}/${m}/${y}`:d}
+function refreshSummary(){if(!selected)return;$('sumDescricao').textContent=selected.descricao||'';$('sumNp').textContent=selected.npOficial||selected.np||'';$('sumNotaOrigem').textContent=selected.notaOrigem||'';$('sumDataContrato').textContent=formatBr(selected.dataContrato);$('sumLocal').textContent=selected.local||'';$('sumNotaFactor').textContent=selected.notaFactor||'';$('sumDataEmprestimo').textContent=formatBr(selected.dataFactor||selected.ultimaMovimentacao)}
+function clearMovForm(){ $('movEditId').value='';$('movFormTitle').textContent='Registrar movimentação';$('movTipo').value='Recebimento do proprietário';$('movData').value=today();$('movOrigem').value=selected?.local||'Factor';$('movDestino').value='';$('movObs').value='';$('movNota').value='';$('movResponsavel').value='';$('movSave').textContent='Salvar movimentação'}
+function openMachine(id){selected=items.find(x=>x.id===id)||null;fields.forEach(f=>$(f).value=selected?.[f]|| (f==='status'?'Ativa':''));$('modalTitle').textContent=selected?'Controle da máquina':'Cadastrar máquina';$('history').innerHTML='';$('documents').innerHTML='';$('editBox').classList.toggle('hidden',!!selected);$('movBox').classList.add('hidden');$('docsBox').classList.add('hidden');$('machineSummary').classList.toggle('hidden',!selected);let atelies=[...new Set(items.filter(x=>x.local).map(x=>x.local))].sort((a,b)=>a.localeCompare(b,'pt-BR'));$('ateliesList').innerHTML=atelies.map(a=>`<option value="${safe(a)}"></option>`).join('');clearMovForm();if(selected){refreshSummary();loadHistory();loadDocuments()}$('modal').showModal()}
+$('toggleEditBtn').onclick=()=>{$('editBox').classList.toggle('hidden');fields.forEach(f=>$(f).value=selected?.[f]|| (f==='status'?'Ativa':''))};$('cancelEditBtn').onclick=()=>$('editBox').classList.add('hidden');$('toggleMovBtn').onclick=()=>{$('movBox').classList.remove('hidden');clearMovForm()};$('cancelMovBtn').onclick=()=>{$('movBox').classList.add('hidden');clearMovForm()};$('showFotosBtn').onclick=()=>{$('docsBox').classList.remove('hidden');$('docTipo').value='Foto da máquina';$('docsTitle').textContent='Fotos da máquina'};$('showNotasBtn').onclick=()=>{$('docsBox').classList.remove('hidden');$('docTipo').value='Nota fiscal de recebimento';$('docsTitle').textContent='Notas e documentos'};$('closeDocsBtn').onclick=()=>$('docsBox').classList.add('hidden');
+$('saveBtn').onclick=async()=>{if(!user)return alert('Faça login');let data=Object.fromEntries(fields.map(f=>[f,$(f).value.trim()]));if(!data.np||!data.descricao||!data.proprietario)return alert('Preencha NP, descrição e proprietário');let id=normalize(data.np);if(!selected&&items.some(x=>x.id===id))return alert('Este patrimônio já está cadastrado');try{if(selected&&id!==selected.id){if(items.some(x=>x.id===id))return alert('Já existe uma máquina com este NP');if(!confirm(`Alterar o patrimônio de ${selected.npOficial||selected.np} para ${data.np}? O cadastro e o histórico serão migrados.`))return;let movs=await getDocs(collection(db,'Maquinas',selected.id,'Movimentacoes')),docsSnap=await getDocs(collection(db,'Maquinas',selected.id,'Documentos'));let batch=writeBatch(db);batch.set(doc(db,'Maquinas',id),{...selected,...data,np:String(data.np),atualizadoEm:serverTimestamp(),atualizadoPor:user.email},{merge:false});for(const d of movs.docs){batch.set(doc(db,'Maquinas',id,'Movimentacoes',d.id),d.data());batch.delete(d.ref)}for(const d of docsSnap.docs){batch.set(doc(db,'Maquinas',id,'Documentos',d.id),d.data());batch.delete(d.ref)}batch.delete(doc(db,'Maquinas',selected.id));await batch.commit()}else{await setDoc(doc(db,'Maquinas',id),{...data,atualizadoEm:serverTimestamp(),atualizadoPor:user.email},{merge:true})}await load();openMachine(id)}catch(e){error(e)}};
+$('movSave').onclick=async()=>{if(!selected)return alert('Salve a máquina antes');let tipo=$('movTipo').value,data=$('movData').value,destino=$('movDestino').value.trim(),origem=$('movOrigem').value.trim(),editId=$('movEditId').value;if(!data||!destino)return alert('Informe a data e o ateliê/destino');let status=selected.status||'Ativa',local=destino,atelie='';if(tipo==='Empréstimo ao ateliê'){status='Emprestada ao ateliê';atelie=destino}else if(tipo==='Retorno do ateliê'){status='Ativa'}else if(tipo==='Devolução ao proprietário'){status='Devolvida'}else if(tipo==='Transferência interna'||tipo==='Ajuste de localização'||tipo==='Recebimento do proprietário'){status='Ativa'}try{let payload={tipo,data,origem,destino,atelie,nota:$('movNota').value.trim(),responsavel:$('movResponsavel').value.trim(),observacao:$('movObs').value.trim(),criadoPor:user.email,atualizadoEm:serverTimestamp()};if(editId){await updateDoc(doc(db,'Maquinas',selected.id,'Movimentacoes',editId),payload)}else{await addDoc(collection(db,'Maquinas',selected.id,'Movimentacoes'),{...payload,criadoEm:serverTimestamp()})}await updateDoc(doc(db,'Maquinas',selected.id),{local,status,atelieAtual:atelie,ultimaMovimentacao:data,atualizadoEm:serverTimestamp(),atualizadoPor:user.email});await load();selected=items.find(x=>x.id===selected.id);refreshSummary();clearMovForm();$('movBox').classList.add('hidden');await loadHistory()}catch(e){error(e)}};
+async function loadHistory(){try{let s=await getDocs(collection(db,'Maquinas',selected.id,'Movimentacoes'));let arr=s.docs.map(d=>({...d.data(),_id:d.id})).sort((a,b)=>(b.data||'').localeCompare(a.data||''));$('history').innerHTML=arr.length?arr.map(m=>`<div class="history"><b>${safe(m.tipo)}</b> · ${safe(formatBr(m.data))}<p>${safe(m.origem)} → ${safe(m.destino)}</p><p>Nota: ${safe(m.nota)} · Responsável: ${safe(m.responsavel)}</p>${m.observacao?`<p><b>Obs:</b> ${safe(m.observacao)}</p>`:''}<div class="history-actions"><button class="secondary" data-editmov="${safe(m._id)}">Editar</button><button class="danger" data-delmov="${safe(m._id)}">Excluir</button></div></div>`).join(''):'Nenhuma movimentação registrada';document.querySelectorAll('[data-editmov]').forEach(b=>b.onclick=()=>editMovement(b.dataset.editmov,arr));document.querySelectorAll('[data-delmov]').forEach(b=>b.onclick=()=>deleteMovement(b.dataset.delmov))}catch(e){error(e)}}
+function editMovement(id,arr){let m=arr.find(x=>x._id===id);if(!m)return;$('movEditId').value=id;$('movFormTitle').textContent='Editar movimentação';$('movTipo').value=m.tipo||'Recebimento do proprietário';$('movData').value=m.data||today();$('movOrigem').value=m.origem||'';$('movDestino').value=m.destino||'';$('movNota').value=m.nota||'';$('movResponsavel').value=m.responsavel||'';$('movObs').value=m.observacao||'';$('movSave').textContent='Salvar edição';$('movBox').classList.remove('hidden');$('movBox').scrollIntoView({behavior:'smooth',block:'center'})}
+async function deleteMovement(id){if(!confirm('Excluir esta movimentação do histórico?'))return;try{await deleteDoc(doc(db,'Maquinas',selected.id,'Movimentacoes',id));await loadHistory()}catch(e){error(e)}}
+$('uploadBtn').onclick=async()=>{
+  if(!selected)return alert('Salve a máquina antes');
+  const f=$('docFile').files[0];if(!f)return alert('Selecione um arquivo');
+  const allowed=['application/pdf','image/jpeg','image/png','image/webp'];
+  if(!allowed.includes(f.type))return alert('Use PDF, JPG, PNG ou WebP.');
+  if(f.size>25*1024*1024)return alert('Arquivo maior que 25 MB.');
+  const b=$('uploadBtn');b.disabled=true;b.textContent='Preparando...';
+  try{
+    const isImage=f.type.startsWith('image/');
+    let payload=f,contentType=f.type,path;
+    if(isImage){
+      payload=await optimizePhoto(f);contentType='image/jpeg';
+      path=`maquinas/${encodeURIComponent(selected.id)}/${randomStorageName()}.jpg`;
+    }else{
+      path=`maquinas/${encodeURIComponent(selected.id)}/${Date.now()}_${f.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+    }
+    const r=ref(storage,path);
+    await uploadWithProgress(r,payload,{contentType},pct=>b.textContent=`Enviando ${pct}%`);
+    const url=await getDownloadURL(r);
+    const docRef=await addDoc(collection(db,'Maquinas',selected.id,'Documentos'),{
+      tipo:$('docTipo').value,descricao:$('docDescricao').value,nome:f.name,mime:contentType,mimeOriginal:f.type,
+      path,url,criadoEm:serverTimestamp(),criadoEmCliente:Date.now(),criadoPor:user.email
+    });
+    if(isImage){
+      coverPhotos.set(selected.id,url);
+      selected.fotoCapa=url;selected.fotoCapaDocumentoId=docRef.id;
+      const idx=items.findIndex(x=>x.id===selected.id);if(idx>=0){items[idx].fotoCapa=url;items[idx].fotoCapaDocumentoId=docRef.id}
+      await updateDoc(doc(db,'Maquinas',selected.id),{fotoCapa:url,fotoCapaDocumentoId:docRef.id,fotoCapaAtualizadaEm:serverTimestamp(),atualizadoEm:serverTimestamp()});render()
+    }
+    $('docFile').value='';$('docDescricao').value='';await loadDocuments();
+  }catch(e){error(e)}finally{b.disabled=false;b.textContent='Anexar arquivo'}
+};
+async function setPrincipalPhoto(documentId,url){
+  if(!selected||!url)return;
+  try{
+    await updateDoc(doc(db,'Maquinas',selected.id),{
+      fotoCapa:url,
+      fotoCapaDocumentoId:documentId,
+      fotoCapaAtualizadaEm:serverTimestamp(),
+      atualizadoEm:serverTimestamp(),
+      atualizadoPor:user?.email||''
+    });
+    selected.fotoCapa=url;selected.fotoCapaDocumentoId=documentId;
+    const idx=items.findIndex(x=>x.id===selected.id);if(idx>=0){items[idx].fotoCapa=url;items[idx].fotoCapaDocumentoId=documentId}
+    coverPhotos.set(selected.id,url);
+    render();await loadDocuments();
+  }catch(e){error(e)}
+}
+async function loadDocuments(){
+  try{
+    const snap=await getDocs(collection(db,'Maquinas',selected.id,'Documentos'));
+    const docs=snap.docs.map((d,i)=>({id:d.id,_ord:i,...d.data()})).sort((a,b)=>{const dt=photoTimeValue(b)-photoTimeValue(a);return dt||b._ord-a._ord});
+    $('documents').innerHTML=docs.map(x=>{
+      const isImage=String(x.mime||'').startsWith('image/')&&x.url;
+      const isPrincipal=isImage&&(selected.fotoCapaDocumentoId===x.id||(!selected.fotoCapaDocumentoId&&selected.fotoCapa===x.url));
+      return `<div class="history"><b>${safe(x.tipo)}</b> · ${safe(x.descricao)}<div>${isImage?`<a href="${safe(x.url)}" target="_blank" rel="noopener"><img class="thumb" src="${safe(x.url)}"></a>`:''}<a href="${safe(x.url)}" target="_blank" rel="noopener">Abrir ${safe(x.nome)}</a></div>${isImage?`<div class="history-actions">${isPrincipal?'<span class="tag">Foto principal</span>':`<button class="secondary" data-main-photo="${safe(x.id)}">Usar como principal</button>`}</div>`:''}</div>`;
+    }).join('')||'<p class="notice">Nenhum documento anexado</p>';
+    document.querySelectorAll('[data-main-photo]').forEach(b=>{b.onclick=()=>{const x=docs.find(d=>d.id===b.dataset.mainPhoto);if(x)setPrincipalPhoto(x.id,x.url)}});
+  }catch(e){error(e)}
+}
+$('importBtn').onclick=()=>$('importFile').click();
+$('importFile').onchange=async ev=>{
+  if(!user)return alert('Faça login antes de importar');
+  const file=ev.target.files?.[0];
+  if(!file)return;
+  const btn=$('importBtn');
+  try{
+    let raw=JSON.parse(await file.text());
+    let data=Array.isArray(raw)?raw:(Array.isArray(raw.maquinas)?raw.maquinas:null);
+    if(!data)throw Error('JSON inválido: esperado uma lista de máquinas');
+    data=data.filter(x=>x&&x.np!=null&&String(x.np).trim()!=='');
+    if(!data.length)throw Error('Nenhuma máquina válida encontrada no arquivo');
+    if(!confirm(`Importar ${data.length} máquinas e seus históricos?
+
+Patrimônios já existentes serão ignorados.`))return;
+    btn.disabled=true;btn.textContent='Importando...';
+    const existing=new Set(items.map(x=>String(x.id)));
+    let added=0,movs=0,ignored=0,errors=[];
+    let batch=writeBatch(db),writes=0,pending=[];
+    async function commitBatch(){if(!writes)return;await batch.commit();batch=writeBatch(db);writes=0;pending=[]}
+    for(let i=0;i<data.length;i++){
+      const x=data[i],id=normalize(x.np);
+      if(!id||id==='0'){ignored++;continue}
+      if(existing.has(id)){ignored++;continue}
+      try{
+        let {movimentacoes=[],...rest}=x;
+        batch.set(doc(db,'Maquinas',id),{...rest,np:String(x.np),status:rest.status||'A conferir',local:rest.local||'Factor',importado:true,importadoEm:serverTimestamp(),importadoPor:user.email},{merge:false});writes++;pending.push(id);
+        for(const m0 of (Array.isArray(movimentacoes)?movimentacoes:[])){
+          const m={...m0};
+          const tipo=String(m.tipo||'Movimentação');
+          const destino=String(m.destino||'');
+          const atelie=m.atelie||((tipo.toLowerCase().includes('ateli'))?destino:'');
+          const refMov=doc(collection(db,'Maquinas',id,'Movimentacoes'));
+          batch.set(refMov,{...m,atelie,importado:true,criadoPor:m.criadoPor||user.email,criadoEm:serverTimestamp()});writes++;movs++;
+          if(writes>=450)await commitBatch();
+        }
+        existing.add(id);added++;
+        if(writes>=450)await commitBatch();
+        btn.textContent=`Importando ${i+1}/${data.length}...`;
+      }catch(err){errors.push(`${id}: ${err.message||err}`)}
+    }
+    await commitBatch();
+    await load();
+    let msg=`Importação concluída.
+
+Máquinas incluídas: ${added}
+Movimentações incluídas: ${movs}
+Já existentes/ignoradas: ${ignored}`;
+    if(errors.length)msg+=`
+
+Erros (${errors.length}):
+${errors.slice(0,8).join('\n')}`;
+    alert(msg);
+  }catch(e){error(e)}finally{btn.disabled=false;btn.textContent='Importar planilhas (JSON)';ev.target.value=''}
+};
+
+// =========================================================
+// IMPORTACAO EM MASSA DE FOTOS POR ZIP
+// Estrutura aceita:
+//   72766/72766 - 1.jpg
+//   72766/72766 - 2.jpg
+// Tambem reconhece pastas com varios NPs, desde que o nome
+// da foto informe qual patrimonio ela pertence.
+// =========================================================
+$('importFotosBtn').onclick=()=>$('importFotosFile').click();
+function fotoMime(nome){
+  const ext=(nome.split('.').pop()||'').toLowerCase();
+  return ({jpg:'image/jpeg',jpeg:'image/jpeg',jfif:'image/jpeg',png:'image/png',webp:'image/webp'})[ext]||'';
+}
+function nomeArquivo(path){return String(path||'').split('/').pop()||''}
+function hashSimples(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36)}
+function extrairNps(texto){
+  const nums=String(texto||'').match(/\d{3,}/g)||[];
+  return [...new Set(nums.map(normalize).filter(n=>n&&n!=='0'))];
+}
+function identificarMaquinaPorCaminho(path,idsExistentes){
+  const partes=String(path||'').split('/').filter(Boolean), arquivo=partes.pop()||'';
+  const nomeSemExt=arquivo.replace(/\.[^.]+$/,'');
+  const doArquivo=extrairNps(nomeSemExt).filter(x=>idsExistentes.has(x));
+  if(doArquivo.length===1)return {id:doArquivo[0],fonte:'arquivo'};
+  if(doArquivo.length>1)return {ambigua:true,candidatos:doArquivo};
+  const dasPastas=[...new Set(partes.flatMap(extrairNps).filter(x=>idsExistentes.has(x)))];
+  if(dasPastas.length===1)return {id:dasPastas[0],fonte:'pasta'};
+  if(dasPastas.length>1)return {ambigua:true,candidatos:dasPastas};
+  return {id:null};
+}
+function setImportFotosStatus(html,tipo=''){
+  const box=$('importFotosStatus');box.className='import-status'+(tipo?' '+tipo:'');box.innerHTML=html;box.classList.remove('hidden');
+}
+$('importFotosFile').onchange=async ev=>{
+  const file=ev.target.files?.[0];if(!file)return;
+  if(!user){alert('Faça login antes de importar');ev.target.value='';return}
+  if(!window.JSZip){alert('Não foi possível carregar o leitor de ZIP. Verifique a internet e abra a página novamente.');ev.target.value='';return}
+  const btn=$('importFotosBtn');btn.disabled=true;btn.textContent='Lendo ZIP...';setImportFotosStatus('Lendo e conferindo o arquivo ZIP...');
+  try{
+    const zip=await window.JSZip.loadAsync(file),idsExistentes=new Set(items.map(x=>String(x.id))),entradas=[];let naoImagem=0;
+    zip.forEach((path,z)=>{
+      if(z.dir||path.startsWith('__MACOSX/')||path.includes('/.DS_Store'))return;
+      const mime=fotoMime(path);if(!mime){naoImagem++;return}
+      const ident=identificarMaquinaPorCaminho(path,idsExistentes);entradas.push({path,z,mime,...ident});
+    });
+    if(!entradas.length)throw Error('Nenhuma foto JPG, JPEG, PNG ou WebP foi encontrada dentro do ZIP.');
+    const prontas=entradas.filter(x=>x.id&&!x.ambigua),semMaquina=entradas.filter(x=>!x.id&&!x.ambigua),ambiguas=entradas.filter(x=>x.ambigua);
+    let resumo=`Foram encontradas <b>${entradas.length}</b> fotos.<br><b>${prontas.length}</b> podem ser vinculadas automaticamente.`;
+    if(semMaquina.length)resumo+=`<br><b>${semMaquina.length}</b> não possuem máquina cadastrada correspondente.`;
+    if(ambiguas.length)resumo+=`<br><b>${ambiguas.length}</b> possuem mais de um NP possível e serão ignoradas.`;
+    if(naoImagem)resumo+=`<br><b>${naoImagem}</b> arquivo(s) não-imagem serão ignorados.`;
+    setImportFotosStatus(resumo);if(!prontas.length)throw Error('Nenhuma foto pôde ser vinculada automaticamente às máquinas cadastradas.');
+    if(!confirm(`Importar ${prontas.length} fotos e vincular automaticamente às máquinas cadastradas?\n\nAs imagens serão compactadas antes do envio, no mesmo padrão da Ficha Técnica.`))return;
+
+    // Mesmo padrão da Ficha Técnica: imagem compactada + uploadBytesResumable + bucket oficial.
+    // Quatro envios simultâneos dão ganho de velocidade sem bombardear o Storage.
+    const CONCORRENCIA=4;let ok=0,concluidas=0,falhas=[];const maquinasAfetadas=new Set();const ultimaFotoPorMaquina=new Map();let proximo=0;
+    prontas.forEach((e,i)=>e._ordemImportacao=i);
+    async function enviarFoto(e){
+      const original=nomeArquivo(e.path),hash=hashSimples(e.path.toLowerCase());
+      try{
+        const bytes=await e.z.async('uint8array');
+        if(bytes.byteLength>MAX_SOURCE_BYTES)throw Error('foto maior que 25 MB');
+        const source=new File([bytes],original,{type:e.mime||'image/jpeg'}),blob=await optimizePhoto(source);
+        const storagePath=`maquinas/${encodeURIComponent(e.id)}/${hash}.jpg`,storageReference=ref(storage,storagePath);
+        await uploadWithProgress(storageReference,blob,{contentType:'image/jpeg',customMetadata:{np:e.id,origem:'importacao_zip',caminhoZip:e.path}},pct=>{
+          if(concluidas%4===0)setImportFotosStatus(`Importando fotos... <b>${concluidas} de ${prontas.length}</b><br>${safe(original)}: ${pct}% · Concluídas: <b>${ok}</b> · Falhas: <b>${falhas.length}</b>`);
+        });
+        const url=await getDownloadURL(storageReference);
+        const documentoId=`foto_zip_${hash}`;
+        await setDoc(doc(db,'Maquinas',e.id,'Documentos',documentoId),{
+          tipo:'Foto da máquina',descricao:`Importada em massa - ${original}`,nome:original,mime:'image/jpeg',mimeOriginal:e.mime,
+          path:storagePath,url,origemImportacao:'ZIP',caminhoOriginal:e.path,np:e.id,
+          criadoEm:serverTimestamp(),criadoEmCliente:Date.now()+e._ordemImportacao,criadoPor:user.email,atualizadoEm:serverTimestamp()
+        },{merge:true});
+        const anterior=ultimaFotoPorMaquina.get(e.id);
+        if(!anterior||e._ordemImportacao>anterior.ordem)ultimaFotoPorMaquina.set(e.id,{url,documentoId,ordem:e._ordemImportacao});
+        ok++;maquinasAfetadas.add(e.id);
+      }catch(err){falhas.push(`${e.path}: ${err.message||err}`)}
+      finally{concluidas++;btn.textContent=`Fotos ${concluidas}/${prontas.length}`;setImportFotosStatus(`Importando fotos... <b>${concluidas} de ${prontas.length}</b><br>Vinculadas: <b>${ok}</b> · Falhas: <b>${falhas.length}</b>`)}
+    }
+    async function worker(){while(true){const i=proximo++;if(i>=prontas.length)return;await enviarFoto(prontas[i])}}
+    await Promise.all(Array.from({length:Math.min(CONCORRENCIA,prontas.length)},()=>worker()));
+
+    // Regra padrão: a última imagem lançada no lote vira a foto principal da máquina.
+    for(const [maquinaId,capa] of ultimaFotoPorMaquina){
+      try{
+        await updateDoc(doc(db,'Maquinas',maquinaId),{
+          fotoCapa:capa.url,fotoCapaDocumentoId:capa.documentoId,fotoCapaAtualizadaEm:serverTimestamp(),atualizadoEm:serverTimestamp()
+        });
+        coverPhotos.set(maquinaId,capa.url);
+        const idx=items.findIndex(x=>x.id===maquinaId);if(idx>=0){items[idx].fotoCapa=capa.url;items[idx].fotoCapaDocumentoId=capa.documentoId}
+      }catch(err){falhas.push(`Capa ${maquinaId}: ${err.message||err}`)}
+    }
+
+    let html=`<b>Importação concluída.</b><br>Fotos vinculadas: <b>${ok}</b><br>Máquinas que receberam fotos: <b>${maquinasAfetadas.size}</b>`;
+    if(semMaquina.length)html+=`<br>Sem máquina correspondente: <b>${semMaquina.length}</b>`;
+    if(ambiguas.length)html+=`<br>Ambíguas: <b>${ambiguas.length}</b>`;
+    if(falhas.length)html+=`<br>Falhas: <b>${falhas.length}</b><br><small>${falhas.slice(0,8).map(safe).join('<br>')}</small>`;
+    setImportFotosStatus(html,falhas.length?'err':'ok');
+    alert(`Importação de fotos concluída.\n\nFotos vinculadas: ${ok}\nMáquinas atualizadas: ${maquinasAfetadas.size}\nSem correspondência: ${semMaquina.length}\nAmbíguas: ${ambiguas.length}\nFalhas: ${falhas.length}`);
+    render();if(selected&&maquinasAfetadas.has(selected.id))await loadDocuments();
+  }catch(e){error(e);setImportFotosStatus(`<b>Importação não concluída:</b> ${safe(e.message||e)}`,'err')}
+  finally{btn.disabled=false;btn.textContent='Importar fotos em massa (ZIP)';ev.target.value=''}
+};
+
+$('exportBtn').onclick=()=>{let cols=['np','npOficial','proprietario','descricao','dataEntrada','dataContrato','notaOrigem','notaFactor','local','status','observacoes'];let csv=[cols.join(';'),...items.map(x=>cols.map(k=>'"'+String(x[k]||'').replace(/"/g,'""')+'"').join(';'))].join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));a.download='maquinas_factor.csv';a.click();URL.revokeObjectURL(a.href)};
+</script></body></html>
