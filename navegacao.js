@@ -31,6 +31,7 @@
     { group: 'Cadastro', name: 'Cadastro Manual', href: 'cadastromanual.html', levels: ['05', '07'] },
     { group: 'Cadastro', name: 'Modelos', href: 'modelos.html', levels: ['05', '07','08'] },
     { group: 'Cadastro', name: 'Ficha Técnica', href: 'fichatecnica.html', levels: ['01','02','03','04','05','06','07','08'] },
+    { group: 'Cadastro', name: 'Maquinas', href: 'maquinas.html', levels: ['05', '07','08'] },
     { group: 'Cadastro', name: 'Criar Distribuição', href: 'distribuicao_montagem.html', levels: ['07','08'] },
     { group: 'Cadastro', name: 'Distribuição Atelieres', href: 'distribuicaoatt.html', levels: ['05', '07','08'] },
     { group: 'Cadastro', name: 'Criar Programação', href: 'programacao_montagem.html', levels: ['05', '07'] },
