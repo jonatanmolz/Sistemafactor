@@ -418,6 +418,20 @@
       color: #111827;
     }
 
+    .modal-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+
+    .detail-print-button {
+      flex: 0 0 auto;
+      padding: 8px 12px;
+      min-height: 36px;
+      white-space: nowrap;
+    }
+
     .close-button {
       color: #94a3b8;
       font-size: 28px;
@@ -1086,7 +1100,10 @@
           <h3 id="cardDetailTitle">Lista de talões</h3>
           <p id="cardDetailSubtitle" class="modal-subtitle"></p>
         </div>
-        <span class="close-button" id="closeCardDetailModalButton">&times;</span>
+        <div class="modal-header-actions">
+          <button class="btn btn-primary detail-print-button" id="printCardDetailButton" type="button">Imprimir relatório</button>
+          <span class="close-button" id="closeCardDetailModalButton">&times;</span>
+        </div>
       </div>
       <div class="modal-body">
         <div id="cardDetailTotals" class="detail-summary-bar"></div>
@@ -1257,6 +1274,7 @@
     const atelierSummaryCard = document.getElementById("atelierSummaryCard");
     const cardDetailModal = document.getElementById("cardDetailModal");
     const closeCardDetailModalButton = document.getElementById("closeCardDetailModalButton");
+    const printCardDetailButton = document.getElementById("printCardDetailButton");
     const cardDetailTitle = document.getElementById("cardDetailTitle");
     const cardDetailSubtitle = document.getElementById("cardDetailSubtitle");
     const cardDetailTotals = document.getElementById("cardDetailTotals");
@@ -2225,6 +2243,203 @@
       }).join("");
     }
 
+    function getCardDetailActiveFilterLabels() {
+      const labels = [];
+      if (detailRemoveProduced?.checked) labels.push("Removendo talões já produzidos");
+      if (detailOnlyNoEntry?.checked) labels.push("Somente talões sem entrada");
+      if (detailOnlyBippedNotFactory?.checked) labels.push("Bipados na costura e não na fábrica");
+      return labels;
+    }
+
+    function printCardDetailReport() {
+      const visibleTaloes = applyCardDetailFilters(currentCardDetailTaloes);
+      if (!visibleTaloes.length) {
+        alert("Não há talões visíveis para imprimir neste relatório.");
+        return;
+      }
+
+      refreshCardDetailModal();
+
+      const totalTaloes = visibleTaloes.length;
+      const totalPares = sumTotal(visibleTaloes);
+      const totalModelos = new Set(visibleTaloes.map(getModelKey)).size;
+      const activeFilters = getCardDetailActiveFilterLabels();
+      const title = cardDetailTitle.textContent || "Relatório de talões";
+      const subtitle = cardDetailSubtitle.textContent || "";
+      const atelieLabel = getSelectedAtelieLabel();
+      const generatedAt = new Intl.DateTimeFormat("pt-BR", {
+        dateStyle: "short",
+        timeStyle: "short"
+      }).format(new Date());
+
+      const reportHtml = `<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>${escapeHTML(title)}</title>
+  <style>
+    @page { size: A4 landscape; margin: 9mm; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #002b5c;
+      background: #fff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .print-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-start;
+      border-bottom: 2px solid #d7e1ec;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    .print-head h1 { margin: 0; color: #0f172a; font-size: 20px; line-height: 1.1; }
+    .print-subtitle { margin: 4px 0 0; color: #64748b; font-size: 11px; font-weight: 700; }
+    .print-meta { text-align: right; color: #475569; font-size: 10px; line-height: 1.45; white-space: nowrap; }
+    .print-summary { display: flex; flex-wrap: wrap; gap: 7px; margin: 0 0 10px; }
+    .print-pill {
+      display: inline-block;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      background: #f8fafc;
+      padding: 5px 9px;
+      color: #334155;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .print-filters { margin: -2px 0 12px; color: #475569; font-size: 9px; }
+    .remessa-list { width: 100%; margin: 0; padding: 0; }
+    .remessa-card {
+      width: 100%;
+      margin: 0 0 12px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .remessa-card-header {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 1fr 1.45fr;
+      gap: 10px;
+      width: 68%;
+      min-width: 610px;
+      padding: 6px 10px 7px;
+      border: 1px solid #c7d4e5;
+      border-radius: 8px 8px 0 0;
+      background: #fff;
+    }
+    .remessa-info-label {
+      display: block;
+      margin-bottom: 2px;
+      color: #64748b;
+      font-size: 7px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .remessa-info-value {
+      display: block;
+      color: #002b5c;
+      font-size: 11px;
+      line-height: 1.05;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .remessa-card-table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      border: 1px solid #c7d4e5;
+      font-size: 8px;
+    }
+    .remessa-card-table thead { display: table-header-group; }
+    .remessa-card-table th, .remessa-card-table td {
+      padding: 4px 4px;
+      border-bottom: 1px solid #dfe6ee;
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+      line-height: 1.05;
+    }
+    .remessa-card-table th {
+      background: #f1f5f9;
+      color: #0f172a;
+      font-size: 7.5px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    .remessa-card-table tbody tr:last-child td { border-bottom: 0; }
+    .remessa-card-table .model-cell { font-size: 9px; font-weight: 900; }
+    .remessa-card-table .alert-cell, .remessa-card-table .alert-row td.alert-cell, .remessa-card-table .alert-row .model-cell { color: #dc2626; font-weight: 900; }
+    .missing-date-x { color: #dc2626; font-size: 14px; font-weight: 900; }
+    .tipo-exportacao .remessa-card-header, .tipo-exportacao .remessa-card-table th { background: #d9ebff; border-color: #7fb2ef; }
+    .tipo-exportacao .remessa-card-table tbody td { background: #eef6ff; }
+    .tipo-cliente-especial .remessa-card-header, .tipo-cliente-especial .remessa-card-table th { background: #ffd9ea; border-color: #ef8db9; }
+    .tipo-cliente-especial .remessa-card-table tbody td { background: #fff0f7; }
+    .tipo-estoque .remessa-card-header, .tipo-estoque .remessa-card-table th { background: #fff0a8; border-color: #e6c94e; }
+    .tipo-estoque .remessa-card-table tbody td { background: #fff9dc; }
+    .tipo-amostra .remessa-card-header, .tipo-amostra .remessa-card-table th { background: #d6f6df; border-color: #79ca8d; }
+    .tipo-amostra .remessa-card-table tbody td { background: #effbf2; }
+    .tipo-mercado-interno .remessa-card-header, .tipo-mercado-interno .remessa-card-table th { background: #f8fafc; border-color: #c7d4e5; }
+    .tipo-mercado-interno .remessa-card-table tbody td { background: #fff; }
+  </style>
+</head>
+<body>
+  <header class="print-head">
+    <div>
+      <h1>${escapeHTML(title)}</h1>
+      <p class="print-subtitle">${escapeHTML(subtitle)}</p>
+    </div>
+    <div class="print-meta">
+      <strong>Ateliê:</strong> ${escapeHTML(atelieLabel)}<br>
+      <strong>Gerado em:</strong> ${escapeHTML(generatedAt)}
+    </div>
+  </header>
+  <div class="print-summary">
+    <span class="print-pill">${totalTaloes.toLocaleString("pt-BR")} talões</span>
+    <span class="print-pill">${totalPares.toLocaleString("pt-BR")} pares</span>
+    <span class="print-pill">${totalModelos.toLocaleString("pt-BR")} modelos</span>
+  </div>
+  ${activeFilters.length ? `<div class="print-filters"><strong>Filtros do modal:</strong> ${escapeHTML(activeFilters.join(" • "))}</div>` : ""}
+  <div class="remessa-list">${cardDetailTableBody.innerHTML}</div>
+</body>
+</html>`;
+
+      // Janela independente: evita a prévia em branco causada pela impressão
+      // de um iframe invisível e pela remoção dele antes da paginação do navegador.
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        alert("O navegador bloqueou a janela de impressão. Permita pop-ups para este site e tente novamente.");
+        return;
+      }
+
+      printWindow.document.open();
+      printWindow.document.write(reportHtml);
+      printWindow.document.close();
+
+      // Aguarda o documento e dois ciclos de pintura para garantir que
+      // o conteúdo esteja disponível na prévia de impressão do Chrome/Edge.
+      const startPrinting = () => {
+        if (printWindow.closed) return;
+        printWindow.requestAnimationFrame(() => {
+          printWindow.requestAnimationFrame(() => {
+            if (printWindow.closed) return;
+            printWindow.focus();
+            printWindow.print();
+          });
+        });
+      };
+      if (printWindow.document.readyState === "complete") {
+        startPrinting();
+      } else {
+        printWindow.addEventListener("load", startPrinting, { once: true });
+      }
+
+    }
+
     function openCardDetailModal(type) {
       if (!filteredTaloes.length) return;
       const cardData = getSummaryCardData(type);
@@ -2286,6 +2501,7 @@
     quickFiltersButton.addEventListener("click", openQuickModal);
     closeModalButton.addEventListener("click", closeModal);
     closeCardDetailModalButton.addEventListener("click", closeCardDetailModal);
+    if (printCardDetailButton) printCardDetailButton.addEventListener("click", printCardDetailReport);
     closeQuickModalButton.addEventListener("click", closeQuickModal);
     closeDateModalButton.addEventListener("click", closeDateModal);
     corteRangeButton.addEventListener("click", () => openDateModal("corte"));
